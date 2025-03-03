@@ -1,6 +1,6 @@
 {
-  "name": "smart-medical-reports-explainer",
-  "description": "This project proposes an AI-powered medical report translator that simplifies complex medical documents for patients and caregivers.",
+  "name": "medical-reports-explainer",
+  "description": "AI-powered medical report translator",
   "repository": {
     "type": "git",
     "url": "https://github.com/mwarman/ionic8-playground"
