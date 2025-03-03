@@ -1,0 +1,28 @@
+.ls-app-menu {
+  &__title {
+    font-size: 1rem;
+
+    ion-row {
+      column-gap: 0.5rem;
+      flex-wrap: nowrap;
+
+      > * {
+        min-width: 0;
+
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
+    }
+
+    &-avatar {
+      flex-shrink: 0;
+    }
+  }
+
+  &__toggle-icon {
+    margin-right: 1rem;
+
+    opacity: 0.5;
+  }
+}

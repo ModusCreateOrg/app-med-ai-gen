@@ -1,0 +1,21 @@
+.ls-signin-form {
+  &__input {
+    margin-bottom: 1rem;
+  }
+
+  &__input-checkbox {
+    font-size: 0.75rem;
+  }
+
+  &__button {
+    margin-top: 2rem;
+  }
+}
+
+ion-popover.ls-signin-form-popover {
+  .inline-code {
+    font-family: monospace;
+    font-size: 1rem;
+    color: var(--ion-color-medium);
+  }
+}
