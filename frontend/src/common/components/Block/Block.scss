@@ -1,0 +1,20 @@
+.ls-block {
+  font-size: 0.875rem;
+
+  margin: 0.75rem;
+  padding: 1rem;
+
+  &__title {
+    font-size: 1.25rem;
+    font-weight: 500;
+    text-transform: uppercase;
+
+    margin-bottom: 0.5rem;
+  }
+
+  &__content {
+    color: var(--ion-color-medium);
+
+    margin-bottom: 0.5rem;
+  }
+}
