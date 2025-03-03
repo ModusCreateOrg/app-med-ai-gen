@@ -1,6 +1,6 @@
 {
-  "name": "ionic8-playground",
-  "description": "A playground application for Ionic 8 with React.",
+  "name": "medical-reports-explainer",
+  "description": "AI-powered medical report translator",
   "repository": {
     "type": "git",
     "url": "https://github.com/mwarman/ionic8-playground"
@@ -17,8 +17,15 @@
     "test:ci": "vitest run --coverage --silent",
     "test:coverage": "vitest --coverage",
     "test:e2e": "cypress run",
-    "lint": "eslint --max-warnings 0",
-    "android": "npx cap sync android && npx cap open android"
+    "lint": "eslint .",
+    "android": "npx cap sync android && npx cap open android",
+    "prepare": "husky"
+  },
+  "lint-staged": {
+    "*.{ts,tsx}": [
+      "eslint --fix",
+      "vitest related --run"
+    ]
   },
   "dependencies": {
     "@capacitor/android": "6.2.0",
@@ -76,7 +83,9 @@
     "eslint-plugin-react-hooks": "5.1.0",
     "eslint-plugin-react-refresh": "0.4.16",
     "globals": "15.14.0",
+    "husky": "^9.1.7",
     "jsdom": "25.0.1",
+    "lint-staged": "^15.4.3",
     "msw": "2.7.0",
     "sass": "1.83.1",
     "terser": "5.37.0",
