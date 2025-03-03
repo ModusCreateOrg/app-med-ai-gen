@@ -19,7 +19,11 @@
     "lint": "eslint \"{src,apps,libs}/**/*.ts\" --fix",
     "test": "vitest run",
     "test:watch": "vitest",
-    "test:coverage": "vitest run --coverage"
+    "test:coverage": "vitest run --coverage",
+    "cdk": "cdk",
+    "cdk:deploy": "cdk deploy",
+    "cdk:destroy": "cdk destroy",
+    "cdk:synth": "cdk synth"
   },
   "dependencies": {
     "@nestjs/common": "^10.0.0",
