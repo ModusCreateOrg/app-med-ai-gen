@@ -6,9 +6,9 @@
   "private": true,
   "license": "UNLICENSED",
   "scripts": {
-    "bootstrap": "cdk bootstrap",
+    "bootstrap": "npx cdk bootstrap",
     "build": "nest build --webpack",
-    "deploy": "cdk deploy --require-approval never",
+    "deploy": "npx cdk deploy --require-approval never",
     "destroy": "cdk destroy -f",
     "format": "prettier --write \"src/**/*.ts\"",
     "start": "nest start",
@@ -22,18 +22,18 @@
     "test:coverage": "vitest run --coverage",
     "test:cdk": "jest",
     "cdk": "cdk",
-    "cdk:deploy": "cdk deploy",
-    "cdk:destroy": "cdk destroy",
-    "cdk:synth": "cdk synth"
+    "cdk:deploy": "npx cdk deploy",
+    "cdk:destroy": "npx cdk destroy",
+    "cdk:synth": "npx cdk synth"
   },
   "dependencies": {
     "@nestjs/common": "^10.0.0",
     "@nestjs/config": "^3.1.1",
     "@nestjs/core": "^10.0.0",
     "@nestjs/platform-express": "^10.0.0",
-    "aws-cdk-lib": "^2.181.1",
+    "aws-cdk-lib": "2.139.0",
     "config": "^3.3.11",
-    "constructs": "^10.0.5",
+    "constructs": "^10.3.0",
     "reflect-metadata": "^0.1.13",
     "rxjs": "^7.8.1",
     "source-map-support": "^0.5.21",
@@ -69,7 +69,7 @@
     "vitest": "^0.33.0"
   },
   "peerDependencies": {
-    "aws-cdk-lib": "^2.181.1",
-    "constructs": "^10.0.5"
+    "aws-cdk-lib": "2.139.0",
+    "constructs": "^10.3.0"
   }
 }
