@@ -6,7 +6,7 @@ describe('Configuration', () => {
     const config = configuration();
     
     expect(config.port).toBe(3000);
-    expect(config.environment).toBe('development');
+    expect(config.environment).toBe('test');
     expect(config.aws.region).toBeUndefined();
     expect(config.aws.cognito.userPoolId).toBeUndefined();
     expect(config.aws.cognito.clientId).toBeUndefined();
