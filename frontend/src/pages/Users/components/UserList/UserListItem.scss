@@ -1,0 +1,32 @@
+.ls-user-list-item {
+  &__item {
+    --inner-padding-bottom: 0.5rem;
+    --inner-padding-top: 0.5rem;
+  }
+
+  &__avatar {
+    margin-right: 1rem;
+  }
+
+  &__content-row {
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+
+    &--primary {
+      font-weight: 500;
+    }
+
+    &--secondary {
+      font-size: 0.875rem;
+      color: var(--ion-color-medium);
+      text-wrap: nowrap;
+    }
+  }
+
+  &__sliding-option {
+    &-icon {
+      margin-right: 0.375rem;
+    }
+  }
+}
