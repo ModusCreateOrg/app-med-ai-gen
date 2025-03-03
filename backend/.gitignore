@@ -36,6 +36,3 @@ lerna-debug.log*
 
 # Environment
 .env 
-
-# AI Chat Record
-.ai-chat-record 
