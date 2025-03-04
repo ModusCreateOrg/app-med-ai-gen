@@ -49,7 +49,7 @@ export class BackendStack extends cdk.Stack {
         proxy: true,
         options: {
           requestParameters: {
-            'integration.request.path.proxy': 'method.request.path.proxy',
+            'integration.request.path.proxy': 'context.path',
           },
         },
       }
@@ -59,6 +59,11 @@ export class BackendStack extends cdk.Stack {
     api.root.addProxy({
       defaultIntegration: integration,
       anyMethod: true,
+      defaultMethodOptions: {
+        requestParameters: {
+          'method.request.path.proxy': true,
+        },
+      },
     });
 
     // Outputs
