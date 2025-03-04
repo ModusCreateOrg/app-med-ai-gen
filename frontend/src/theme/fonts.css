@@ -1,83 +1,74 @@
-@font-face {
-  font-family: 'Roboto';
-  src: url('../assets/fonts/roboto/Roboto-Thin.ttf');
-  font-weight: 100;
-  font-style: normal;
-  font-display: swap;
+/* 
+ * Using local Merriweather fonts
+ */
+
+:root {
+  --font-family-base: 'Merriweather', serif;
 }
-@font-face {
-  font-family: 'Roboto';
-  src: url('../assets/fonts/roboto/Roboto-ThinItalic.ttf');
-  font-weight: 100;
-  font-style: italic;
-  font-display: swap;
+
+body {
+  font-family: var(--font-family-base);
 }
+
 @font-face {
-  font-family: 'Roboto';
-  src: url('../assets/fonts/roboto/Roboto-Light.ttf');
+  font-family: 'Merriweather';
+  src: url('../assets/fonts/Merriweather/Merriweather-Light.ttf');
   font-weight: 300;
   font-style: normal;
   font-display: swap;
 }
+
 @font-face {
-  font-family: 'Roboto';
-  src: url('../assets/fonts/roboto/Roboto-LightItalic.ttf');
+  font-family: 'Merriweather';
+  src: url('../assets/fonts/Merriweather/Merriweather-LightItalic.ttf');
   font-weight: 300;
   font-style: italic;
   font-display: swap;
 }
+
 @font-face {
-  font-family: 'Roboto';
-  src: url('../assets/fonts/roboto/Roboto-Regular.ttf');
+  font-family: 'Merriweather';
+  src: url('../assets/fonts/Merriweather/Merriweather-Regular.ttf');
   font-weight: 400;
   font-style: normal;
   font-display: swap;
 }
+
 @font-face {
-  font-family: 'Roboto';
-  src: url('../assets/fonts/roboto/Roboto-Italic.ttf');
+  font-family: 'Merriweather';
+  src: url('../assets/fonts/Merriweather/Merriweather-Italic.ttf');
   font-weight: 400;
   font-style: italic;
   font-display: swap;
 }
+
 @font-face {
-  font-family: 'Roboto';
-  src: url('../assets/fonts/roboto/Roboto-Medium.ttf');
-  font-weight: 500;
-  font-style: normal;
-  font-display: swap;
-}
-@font-face {
-  font-family: 'Roboto';
-  src: url('../assets/fonts/roboto/Roboto-MediumItalic.ttf');
-  font-weight: 500;
-  font-style: italic;
-  font-display: swap;
-}
-@font-face {
-  font-family: 'Roboto';
-  src: url('../assets/fonts/roboto/Roboto-Bold.ttf');
+  font-family: 'Merriweather';
+  src: url('../assets/fonts/Merriweather/Merriweather-Bold.ttf');
   font-weight: 700;
   font-style: normal;
   font-display: swap;
 }
+
 @font-face {
-  font-family: 'Roboto';
-  src: url('../assets/fonts/roboto/Roboto-BoldItalic.ttf');
+  font-family: 'Merriweather';
+  src: url('../assets/fonts/Merriweather/Merriweather-BoldItalic.ttf');
   font-weight: 700;
   font-style: italic;
   font-display: swap;
 }
+
 @font-face {
-  font-family: 'Roboto';
-  src: url('../assets/fonts/roboto/Roboto-Black.ttf');
+  font-family: 'Merriweather';
+  src: url('../assets/fonts/Merriweather/Merriweather-Black.ttf');
   font-weight: 900;
   font-style: normal;
   font-display: swap;
 }
+
 @font-face {
-  font-family: 'Roboto';
-  src: url('../assets/fonts/roboto/Roboto-BoldItalic.ttf');
+  font-family: 'Merriweather';
+  src: url('../assets/fonts/Merriweather/Merriweather-BlackItalic.ttf');
   font-weight: 900;
   font-style: italic;
   font-display: swap;
