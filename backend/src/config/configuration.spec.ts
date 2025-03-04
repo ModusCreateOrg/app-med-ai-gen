@@ -1,13 +1,29 @@
-import { describe, it, expect } from 'vitest';
+import { describe, it, expect, beforeEach, afterEach } from 'vitest';
 import configuration from './configuration';
 
 describe('Configuration', () => {
+  // Save original environment
+  const originalEnv = { ...process.env };
+  
+  beforeEach(() => {
+    // Clear environment variables before each test
+    process.env = {};
+    
+    // Set NODE_ENV to test for the first test
+    process.env.NODE_ENV = 'test';
+  });
+
+  afterEach(() => {
+    // Restore original environment after each test
+    process.env = { ...originalEnv };
+  });
+
   it('should return default values when no env variables are set', () => {
     const config = configuration();
     
     expect(config.port).toBe(3000);
     expect(config.environment).toBe('test');
-    expect(config.aws.region).toBeUndefined();
+    expect(config.aws.region).toBe('us-east-1'); // Default value in configuration.ts
     expect(config.aws.cognito.userPoolId).toBeUndefined();
     expect(config.aws.cognito.clientId).toBeUndefined();
   });
