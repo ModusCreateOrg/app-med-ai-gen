@@ -1,27 +1,27 @@
-import config from "config";
+import config from 'config';
 
 /**
  * This interface defines the environment variables
  */
 export interface Env {
-    nodeEnv: string;
-    prefix: string;
-    port: number;
+  nodeEnv: string;
+  prefix: string;
+  port: number;
 }
 
 /**
  * This function validates the required environment variables
  */
 export function validate() {
-    if (!process.env.NODE_ENV) {
-        throw new Error("NODE_ENV environment variable is required");
-    }
-    if (!process.env.APP_NAME) {
-        throw new Error("APP_NAME environment variable is required");
-    }
-    if (!process.env.PORT) {
-        throw new Error("PORT environment variable is required");
-    }
+  if (!process.env.NODE_ENV) {
+    throw new Error('NODE_ENV environment variable is required');
+  }
+  if (!process.env.APP_NAME) {
+    throw new Error('APP_NAME environment variable is required');
+  }
+  if (!process.env.PORT) {
+    throw new Error('PORT environment variable is required');
+  }
 }
 
 /**
@@ -29,12 +29,12 @@ export function validate() {
  * @returns environment variables
  */
 export function get(): Env {
-    validate(); // should trigger errors if env is not correctly defined
-    return {
-        nodeEnv: process.env.NODE_ENV!,
-        prefix: process.env.APP_NAME!,
-        port: parseInt(process.env.PORT!)
-    };
+  validate(); // should trigger errors if env is not correctly defined
+  return {
+    nodeEnv: process.env.NODE_ENV!,
+    prefix: process.env.APP_NAME!,
+    port: parseInt(process.env.PORT!),
+  };
 }
 
 /**
@@ -43,8 +43,8 @@ export function get(): Env {
  * @returns name of the resource
  */
 export function nameIt(name: string): string {
-    const { nodeEnv, prefix } = get();
-    return `${prefix}-${name}-${nodeEnv}`;
+  const { nodeEnv, prefix } = get();
+  return `${prefix}-${name}-${nodeEnv}`;
 }
 
 /**
@@ -52,5 +52,5 @@ export function nameIt(name: string): string {
  * @returns message from the configuration
  */
 export function getMessage(): string {
-    return config.get("message");
+  return config.get('message');
 }

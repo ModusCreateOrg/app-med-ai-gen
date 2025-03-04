@@ -3,6 +3,9 @@ import { ConfigModule } from '@nestjs/config';
 import configuration from './config/configuration';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
+import { AwsSecretsService } from './services/aws-secrets.service';
+import { PerplexityService } from './services/perplexity.service';
+import { PerplexityController } from './controllers/perplexity/perplexity.controller';
 
 @Module({
   imports: [
@@ -11,7 +14,7 @@ import { AppService } from './app.service';
       load: [configuration],
     }),
   ],
-  controllers: [AppController],
-  providers: [AppService],
+  controllers: [AppController, PerplexityController],
+  providers: [AppService, AwsSecretsService, PerplexityService],
 })
-export class AppModule {} 
+export class AppModule {}
