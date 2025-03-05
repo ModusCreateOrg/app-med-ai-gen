@@ -1,0 +1,65 @@
+---
+description: Follow this rules for every request
+globs: 
+alwaysApply: true
+---
+
+- Project Proposal Overview: This project proposes an AI-powered medical report translator that simplifies complex medical documents for patients and caregivers. By leveraging AI-driven text extraction and natural language processing (NLP), the system translates medical jargon into plain language, helping users understand their health conditions, diagnoses, and test results without relying on unreliable online searches.
+
+- Why are we doing this? Patients often receive medical reports full of complex terminology, abbreviations, and technical language that they don’t understand, causing confusion, stress, and potential misinterpretation of their health conditions. Many resort to Google searches or unreliable forums to decipher their reports, leading to misinformation and anxiety. By automating medical report simplification, we help patients take control of their healthcare, make informed decisions, and reduce the dependency on doctors for basic explanations.
+
+Features:
+Authentication
+The platform shall allow new users to register, creating a platform account to which all of their uploaded content and reports will be associated.
+The platform shall allow existing users to authenticate using (credentials, Google?, other?), so that they may upload new files or access previously uploaded files.
+
+Upload Medical Reports
+The platform shall allow users to upload PDF medical documents for analysis.
+The platform shall allow users to upload images of medical documents for analysis.
+The platform shall allow users to use the device camera to capture and upload images of medical documents for analysis.
+
+Process Medical Reports
+The platform shall extract text from uploaded files.
+The platform shall partition the text of a file into manageable chunks, e.g. paragraphs.
+The platform shall use AI to generate simplified explanations of the chunks of text. 
+The platform shall display an alert if the contents of the uploaded files indicate the user should seek assistance from a medical professional.
+The platform shall store all uploaded files and the generated insights derived from them so that the user may review the information at a later date.
+
+Provide Medical References
+The platform shall provide relevant references to trusted medical sources of information so that users may read more about the topics related to uploaded files.
+
+Conversational AI
+The platform shall allow users to ask follow up questions regarding their uploaded files.
+
+Responsive
+The solution supports native mobile devices only; no browser support is required.  The solution is designed for both phone and tablet viewport sizes.
+
+Accessibility
+The application should be constructed with accessibility best practices; however, the client is not seeking to meet any specific accessibility level.
+
+Testing
+Unit
+All components will have a base suite of unit tests and the application must have a minimum of 60% code coverage. 
+
+
+Technologies:
+ - Ionic + React - Cross-platform user interface core
+ - Axios - HTTP client
+ - TanStack Query - Asynchronous state management, caching, and data fetching
+ - Remark Markdown - Markdown renderer
+ - Tailwind
+ - Vitest - Core test framework
+ - React Testing Library - User-centric approach for UI component tests
+ - Mock Service Worker - API mocking
+ - Perplexity API
+ - Amazon Bedrock
+
+ For visual context, you can use this images:
+
+ [1 - Home.png](mdc:docs/assets/images/1 - Home.png)
+ [3 - upload2.png](mdc:docs/assets/images/3 - upload2.png)
+ [4 - processing.png](mdc:docs/assets/images/4 - processing.png)
+ [5 - Results analysis.png](mdc:docs/assets/images/5 - Results analysis.png)
+ [6 - Results Archive.png](mdc:docs/assets/images/6 - Results Archive.png)
+ [8 -  AI.png](mdc:docs/assets/images/8 -  AI.png)
+
