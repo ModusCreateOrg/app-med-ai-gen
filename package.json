@@ -3,6 +3,9 @@
   "scripts": {
     "dev": "docker compose up --build",
     "down": "docker compose down",
-    "clean": "docker compose down -v --remove-orphans"
+    "clean": "docker compose down -v --remove-orphans",
+    "build": "cd backend && npm run build",
+    "build:backend": "cd backend && npm run build",
+    "build:frontend": "cd frontend && npm run build"
   }
-} 
+}

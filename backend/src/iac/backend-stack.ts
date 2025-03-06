@@ -28,7 +28,9 @@ export class BackendStack extends cdk.Stack {
       cpu: 256,
       desiredCount: 2,
       taskImageOptions: {
-        image: ecs.ContainerImage.fromAsset('../backend/'),
+        image: ecs.ContainerImage.fromAsset('../backend/', {
+          file: 'Dockerfile.prod'
+        }),
         containerPort: 3000,
         environment: {
           NODE_ENV: 'production',
