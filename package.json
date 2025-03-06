@@ -4,5 +4,8 @@
     "dev": "docker compose up --build",
     "down": "docker compose down",
     "clean": "docker compose down -v --remove-orphans"
+  },
+  "dependencies": {
+    "date-fns": "^4.1.0"
   }
-} 
+}

@@ -72,16 +72,32 @@ const TabNavigation = (): JSX.Element => {
               size="xl"
               fixedWidth
             />
-            <IonLabel>{t('navigation.home')}</IonLabel>
           </IonTabButton>
-          <IonTabButton className="ls-tab-navigation__bar-button" tab="users" href="/tabs/users">
+          <IonTabButton className="ls-tab-navigation__bar-button" tab="analytics" href="/tabs/analytics">
             <Icon
               className="ls-tab-navigation__bar-button-icon"
-              icon="users"
+              icon="link"
               size="xl"
               fixedWidth
             />
-            <IonLabel>{t('navigation.users')}</IonLabel>
+          </IonTabButton>
+          <IonTabButton className="ls-tab-navigation__bar-button ls-tab-navigation__bar-button--upload" tab="upload" href="/tabs/upload">
+            <div className="ls-tab-navigation__bar-button-upload-wrapper">
+              <Icon
+                className="ls-tab-navigation__bar-button-icon"
+                icon="arrowUpFromBracket"
+                size="xl"
+                fixedWidth
+              />
+            </div>
+          </IonTabButton>
+          <IonTabButton className="ls-tab-navigation__bar-button" tab="chat" href="/tabs/chat">
+            <Icon
+              className="ls-tab-navigation__bar-button-icon"
+              icon="envelope"
+              size="xl"
+              fixedWidth
+            />
           </IonTabButton>
           <IonTabButton
             className="ls-tab-navigation__bar-button"
@@ -90,11 +106,10 @@ const TabNavigation = (): JSX.Element => {
           >
             <Icon
               className="ls-tab-navigation__bar-button-icon"
-              icon="userGear"
+              icon="user"
               size="xl"
               fixedWidth
             />
-            <IonLabel>{t('navigation.account')}</IonLabel>
           </IonTabButton>
         </IonTabBar>
       </IonTabs>

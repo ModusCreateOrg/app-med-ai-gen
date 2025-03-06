@@ -21,6 +21,7 @@ import {
   faUserGear,
   faUsers,
   faXmark,
+  faArrowUpFromBracket
 } from '@fortawesome/free-solid-svg-icons';
 import classNames from 'classnames';
 
@@ -31,6 +32,7 @@ import { BaseComponentProps } from '../types';
  * used in the applciation.
  */
 export type IconName =
+  | 'arrowUpFromBracket'
   | 'building'
   | 'calendar'
   | 'circleInfo'
@@ -66,6 +68,7 @@ export interface IconProps
  * A key/value mapping of every icon used in the application.
  */
 const icons: Record<IconName, IconProp> = {
+  arrowUpFromBracket: faArrowUpFromBracket,
   building: faBuilding,
   calendar: faCalendar,
   circleInfo: faCircleInfo,

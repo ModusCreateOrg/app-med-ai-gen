@@ -23,13 +23,15 @@
 
 /* @import '@ionic/react/css/palettes/dark.always.css'; */
 /* @import '@ionic/react/css/palettes/dark.class.css'; */
-@import '@ionic/react/css/palettes/dark.system.css';
+/* @import '@ionic/react/css/palettes/dark.system.css'; */
 
 /* Custom app CSS */
 /* normalize / reset */
 @import './normalize.css';
 /* variables / Ionic variable overrides */
 @import './variables.css';
+/* theme overrides */
+@import './theme-overrides.css';
 /* fonts */
 @import './fonts.css';
 /* typography */
