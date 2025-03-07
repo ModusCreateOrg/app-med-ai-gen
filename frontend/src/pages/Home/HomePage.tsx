@@ -9,7 +9,6 @@ import {
   IonCardContent,
   IonRouterLink,
   IonAvatar,
-  IonHeader,
 } from '@ionic/react';
 import { useTranslation } from 'react-i18next';
 import { useHistory } from 'react-router-dom';

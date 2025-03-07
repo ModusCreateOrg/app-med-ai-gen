@@ -3,6 +3,10 @@
   "scripts": {
     "dev": "docker compose up --build",
     "down": "docker compose down",
-    "clean": "docker compose down -v --remove-orphans"
+    "clean": "docker compose down -v --remove-orphans",
+    "prepare": "husky"
+  },
+  "devDependencies": {
+    "husky": "^9.1.7"
   }
 }
