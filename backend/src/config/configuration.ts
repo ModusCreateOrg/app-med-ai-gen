@@ -4,7 +4,7 @@ export default () => ({
   aws: {
     region: process.env.AWS_REGION || 'us-east-1',
     dynamodb: {
-      reportsTable: process.env.DYNAMODB_REPORTS_TABLE || 'reports',
+      reportsTable: process.env.DYNAMODB_REPORTS_TABLE || 'ReportsTable',
     },
     cognito: {
       userPoolId: process.env.AWS_COGNITO_USER_POOL_ID || 'us-east-1_example',

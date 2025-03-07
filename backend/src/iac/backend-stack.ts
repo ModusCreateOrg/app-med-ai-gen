@@ -3,12 +3,23 @@ import * as ec2 from 'aws-cdk-lib/aws-ec2';
 import * as ecs from 'aws-cdk-lib/aws-ecs';
 import * as ecsPatterns from 'aws-cdk-lib/aws-ecs-patterns';
 import * as apigateway from 'aws-cdk-lib/aws-apigateway';
-import * as ecr from 'aws-cdk-lib/aws-ecr';
+import * as dynamodb from 'aws-cdk-lib/aws-dynamodb';
+import { RemovalPolicy } from 'aws-cdk-lib';
 import { Construct } from 'constructs';
 
 export class BackendStack extends cdk.Stack {
   constructor(scope: Construct, id: string, props?: cdk.StackProps) {
     super(scope, id, props);
+
+    // DynamoDB Table
+    const reportsTable = new dynamodb.Table(this, 'ReportsTable', {
+      tableName: 'reports',
+      partitionKey: { name: 'userId', type: dynamodb.AttributeType.STRING },
+      sortKey: { name: 'id', type: dynamodb.AttributeType.STRING },
+      billingMode: dynamodb.BillingMode.PAY_PER_REQUEST,
+      removalPolicy: RemovalPolicy.RETAIN,
+      timeToLiveAttribute: 'ttl', // Optional: if you want to add TTL
+    });
 
     // VPC
     const vpc = new ec2.Vpc(this, 'MedicalReportsVPC', {
@@ -35,6 +46,9 @@ export class BackendStack extends cdk.Stack {
         },
       },
     });
+
+    // Add DynamoDB permissions to ECS Task Role
+    reportsTable.grantReadWriteData(fargateService.taskDefinition.taskRole);
 
     // API Gateway
     const api = new apigateway.RestApi(this, 'MedicalReportsApi', {
@@ -75,6 +89,12 @@ export class BackendStack extends cdk.Stack {
     new cdk.CfnOutput(this, 'LoadBalancerDNS', {
       value: fargateService.loadBalancer.loadBalancerDnsName,
       description: 'Load Balancer DNS',
+    });
+
+    new cdk.CfnOutput(this, 'ReportsTableName', {
+      value: reportsTable.tableName,
+      description: 'DynamoDB Reports Table Name',
+      exportName: 'ReportsTableName',
     });
   }
 }

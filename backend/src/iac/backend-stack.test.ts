@@ -81,4 +81,84 @@ describe('BackendStack', () => {
     template.hasOutput('ApiUrl', {});
     template.hasOutput('LoadBalancerDNS', {});
   });
+
+  it('should create a DynamoDB table', () => {
+    template.hasResourceProperties('AWS::DynamoDB::Table', {
+      TableName: 'reports',
+      BillingMode: 'PAY_PER_REQUEST',
+      KeySchema: [
+        {
+          AttributeName: 'userId',
+          KeyType: 'HASH',
+        },
+        {
+          AttributeName: 'id',
+          KeyType: 'RANGE',
+        },
+      ],
+      AttributeDefinitions: [
+        {
+          AttributeName: 'userId',
+          AttributeType: 'S',
+        },
+        {
+          AttributeName: 'id',
+          AttributeType: 'S',
+        },
+        {
+          AttributeName: 'read',
+          AttributeType: 'BOOL',
+        },
+      ],
+      GlobalSecondaryIndexes: [
+        {
+          IndexName: 'ReadStatusIndex',
+          KeySchema: [
+            {
+              AttributeName: 'userId',
+              KeyType: 'HASH',
+            },
+            {
+              AttributeName: 'read',
+              KeyType: 'RANGE',
+            },
+          ],
+          Projection: {
+            ProjectionType: 'ALL',
+          },
+        },
+      ],
+      TimeToLiveSpecification: {
+        AttributeName: 'ttl',
+        Enabled: true,
+      },
+    });
+  });
+
+  it('should grant table permissions to ECS task', () => {
+    template.hasResourceProperties('AWS::IAM::Policy', {
+      PolicyDocument: {
+        Statement: expect.arrayContaining([
+          expect.objectContaining({
+            Action: [
+              'dynamodb:BatchGetItem',
+              'dynamodb:GetRecords',
+              'dynamodb:GetShardIterator',
+              'dynamodb:Query',
+              'dynamodb:GetItem',
+              'dynamodb:Scan',
+              'dynamodb:BatchWriteItem',
+              'dynamodb:PutItem',
+              'dynamodb:UpdateItem',
+              'dynamodb:DeleteItem',
+            ],
+            Effect: 'Allow',
+            Resource: {
+              'Fn::GetAtt': [expect.stringMatching(/ReportsTable.*/), 'Arn'],
+            },
+          }),
+        ]),
+      },
+    });
+  });
 });
