@@ -7,6 +7,8 @@ import { AwsSecretsService } from './services/aws-secrets.service';
 import { PerplexityService } from './services/perplexity.service';
 import { PerplexityController } from './controllers/perplexity/perplexity.controller';
 import { AuthModule } from './auth/auth.module';
+import { ReportsController } from './reports/reports.controller';
+import { ReportsService } from './reports/reports.service';
 
 @Module({
   imports: [
@@ -16,7 +18,7 @@ import { AuthModule } from './auth/auth.module';
     }),
     AuthModule,
   ],
-  controllers: [AppController, PerplexityController],
-  providers: [AppService, AwsSecretsService, PerplexityService],
+  controllers: [AppController, PerplexityController, ReportsController],
+  providers: [AppService, AwsSecretsService, PerplexityService, ReportsService],
 })
 export class AppModule {}
