@@ -4,6 +4,7 @@ import { ReportsService } from './reports.service';
 import { ReportsRepository } from './repositories/reports.repository';
 import { CreateReportDto } from './dto/create-report.dto';
 import { UpdateReportDto } from './dto/update-report.dto';
+import { ReportStatus } from '../models/report.model';
 
 describe('ReportsService', () => {
   let service: ReportsService;
@@ -14,7 +15,7 @@ describe('ReportsService', () => {
     userId: 'user1',
     title: 'Test Report',
     content: 'Test Content',
-    read: false,
+    status: ReportStatus.UNREAD,
     createdAt: new Date().toISOString(),
     updatedAt: new Date().toISOString(),
   };
@@ -25,6 +26,8 @@ describe('ReportsService', () => {
     findByUser: jest.fn(),
     update: jest.fn(),
     delete: jest.fn(),
+    countByUser: jest.fn(),
+    updateStatus: jest.fn(),
   };
 
   beforeEach(async () => {
@@ -108,13 +111,13 @@ describe('ReportsService', () => {
 
   describe('markAsRead', () => {
     it('should mark a report as read', async () => {
-      const updatedReport = { ...mockReport, read: true };
-      mockReportsRepository.update.mockResolvedValue(updatedReport);
+      const updatedReport = { ...mockReport, status: ReportStatus.READ };
+      mockReportsRepository.updateStatus.mockResolvedValue(updatedReport);
 
       const result = await service.markAsRead('user1', '1');
 
       expect(result).toEqual(updatedReport);
-      expect(repository.update).toHaveBeenCalledWith('user1', '1', { read: true });
+      expect(repository.updateStatus).toHaveBeenCalledWith('user1', '1', ReportStatus.READ);
     });
   });
 
@@ -131,6 +134,34 @@ describe('ReportsService', () => {
       mockReportsRepository.delete.mockResolvedValue(false);
 
       await expect(service.deleteReport('user1', '1')).rejects.toThrow(NotFoundException);
+    });
+  });
+
+  describe('getLatestReports', () => {
+    it('should return paginated reports', async () => {
+      const mockPaginatedResponse = {
+        items: [mockReport],
+        nextCursor: 'nextPageToken',
+      };
+      const mockCount = 1;
+
+      jest.spyOn(repository, 'findByUser').mockResolvedValue(mockPaginatedResponse);
+      jest.spyOn(repository, 'countByUser').mockResolvedValue(mockCount);
+
+      const result = await service.getLatestReports('user1', { limit: 10, page: 1 });
+
+      expect(result.items).toHaveLength(1);
+      expect(result.metadata.total).toBe(mockCount);
+      expect(result.metadata.hasMore).toBe(true);
+    });
+
+    it('should throw NotFoundException when no reports found', async () => {
+      jest.spyOn(repository, 'findByUser').mockResolvedValue({ items: [] });
+      jest.spyOn(repository, 'countByUser').mockResolvedValue(0);
+
+      await expect(
+        service.getLatestReports('user1', { limit: 10, page: 1 }),
+      ).rejects.toThrow(NotFoundException);
     });
   });
 });

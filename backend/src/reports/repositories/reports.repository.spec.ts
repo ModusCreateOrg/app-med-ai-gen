@@ -1,11 +1,29 @@
+import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { Test, TestingModule } from '@nestjs/testing';
 import { ConfigService } from '@nestjs/config';
 import { ReportsRepository } from './reports.repository';
 import { DynamoDBClient } from '@aws-sdk/client-dynamodb';
 import { DynamoDBDocumentClient, PutCommand, GetCommand, QueryCommand, UpdateCommand, DeleteCommand } from '@aws-sdk/lib-dynamodb';
+import { ReportStatus } from '../models/report.model';
 
-jest.mock('@aws-sdk/client-dynamodb');
-jest.mock('@aws-sdk/lib-dynamodb');
+vi.mock('@aws-sdk/client-dynamodb', () => ({
+  DynamoDBClient: vi.fn().mockImplementation(() => ({
+    // Add any methods you need to mock
+  })),
+}));
+
+vi.mock('@aws-sdk/lib-dynamodb', () => ({
+  DynamoDBDocumentClient: {
+    from: vi.fn().mockReturnValue({
+      send: vi.fn(),
+    }),
+  },
+  PutCommand: vi.fn(),
+  GetCommand: vi.fn(),
+  QueryCommand: vi.fn(),
+  UpdateCommand: vi.fn(),
+  DeleteCommand: vi.fn(),
+}));
 
 describe('ReportsRepository', () => {
   let repository: ReportsRepository;
@@ -17,18 +35,18 @@ describe('ReportsRepository', () => {
     userId: 'user1',
     title: 'Test Report',
     content: 'Test Content',
-    read: false,
+    status: ReportStatus.UNREAD,
     createdAt: new Date().toISOString(),
     updatedAt: new Date().toISOString(),
   };
 
   beforeEach(async () => {
-    mockDynamoDBClient = new DynamoDBClient({}) as jest.Mocked<DynamoDBClient>;
+    mockDynamoDBClient = new DynamoDBClient({}) as any;
     mockDocumentClient = {
-      send: jest.fn(),
-    } as unknown as jest.Mocked<DynamoDBDocumentClient>;
+      send: vi.fn(),
+    } as any;
 
-    (DynamoDBDocumentClient.from as jest.Mock).mockReturnValue(mockDocumentClient);
+    (DynamoDBDocumentClient.from as any).mockReturnValue(mockDocumentClient);
 
     const module: TestingModule = await Test.createTestingModule({
       providers: [
@@ -36,7 +54,7 @@ describe('ReportsRepository', () => {
         {
           provide: ConfigService,
           useValue: {
-            get: jest.fn((key: string) => {
+            get: vi.fn((key: string) => {
               const config = {
                 'aws.region': 'us-east-1',
                 'aws.dynamodb.reportsTable': 'reports',
@@ -49,6 +67,7 @@ describe('ReportsRepository', () => {
     }).compile();
 
     repository = module.get<ReportsRepository>(ReportsRepository);
+    (repository as any).docClient = mockDocumentClient;
   });
 
   describe('create', () => {
@@ -69,7 +88,7 @@ describe('ReportsRepository', () => {
         userId: 'user1',
         title: createReportDto.title,
         content: createReportDto.content,
-        read: false,
+        status: ReportStatus.UNREAD,
       });
     });
   });
@@ -96,23 +115,37 @@ describe('ReportsRepository', () => {
   });
 
   describe('findByUser', () => {
-    it('should find all reports for a user', async () => {
-      mockDocumentClient.send.mockResolvedValueOnce({ Items: [mockReport] });
+    it('should return paginated reports', async () => {
+      const mockResponse = {
+        Items: [mockReport],
+        LastEvaluatedKey: { userId: 'user1', id: 'lastId' },
+      };
 
-      const result = await repository.findByUser('user1');
+      mockDocumentClient.send.mockResolvedValueOnce(mockResponse);
 
-      expect(mockDocumentClient.send).toHaveBeenCalledWith(
-        expect.any(QueryCommand)
-      );
-      expect(result).toEqual([mockReport]);
+      const result = await repository.findByUser('user1', { limit: 10 });
+
+      expect(result.items).toEqual([mockReport]);
+      expect(result.nextCursor).toBeDefined();
     });
 
-    it('should return empty array when no reports found', async () => {
+    it('should handle empty results', async () => {
       mockDocumentClient.send.mockResolvedValueOnce({ Items: [] });
 
       const result = await repository.findByUser('user1');
 
-      expect(result).toEqual([]);
+      expect(result.items).toEqual([]);
+      expect(result.nextCursor).toBeUndefined();
+    });
+  });
+
+  describe('countByUser', () => {
+    it('should return total count', async () => {
+      mockDocumentClient.send.mockResolvedValueOnce({ Count: 5 });
+
+      const result = await repository.countByUser('user1');
+
+      expect(result).toBe(5);
     });
   });
 

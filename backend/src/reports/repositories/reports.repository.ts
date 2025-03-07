@@ -39,7 +39,7 @@ export class ReportsRepository {
       userId,
       title: createReportDto.title,
       content: createReportDto.content,
-      read: false,
+      status: ReportStatus.UNREAD,
       createdAt: now,
       updatedAt: now,
     };
