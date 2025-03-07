@@ -100,7 +100,7 @@ const HomePage: React.FC = () => {
   };
 
   return (
-    <IonPage>
+    <IonPage data-testid="page-home">
       <IonContent>
         <div className="home-page ion-padding">
           <div className="home-page__greeting">
