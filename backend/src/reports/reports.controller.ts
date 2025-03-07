@@ -9,14 +9,24 @@ import {
   Req,
   NotFoundException,
   ValidationPipe,
-  UsePipes
+  UsePipes,
+  Patch,
+  Query,
+  BadRequestException,
+  ParseIntPipe,
+  DefaultValuePipe,
 } from '@nestjs/common';
 import { Auth } from '../auth/auth.decorator';
 import { ReportsService } from './reports.service';
 import { CreateReportDto } from './dto/create-report.dto';
 import { UpdateReportDto } from './dto/update-report.dto';
+import { GetLatestReportsQuery } from './models/report.model';
+import { GetReportsQueryDto } from './dto/get-reports.query.dto';
+import { PaginatedReportsResponseDto } from './dto/report.response.dto';
+import { ApiTags, ApiOperation, ApiQuery, ApiResponse } from '@nestjs/swagger';
 
 @Controller('reports')
+@ApiTags('reports')
 @Auth()
 @UsePipes(new ValidationPipe({ transform: true }))
 export class ReportsController {
@@ -27,9 +37,36 @@ export class ReportsController {
     return this.reportsService.createReport(req.user.sub, createReportDto);
   }
 
+  @Get('latest')
+  @ApiOperation({ summary: 'Get latest reports with pagination' })
+  @ApiQuery({ name: 'limit', required: false, type: Number })
+  @ApiQuery({ name: 'page', required: false, type: Number })
+  @ApiQuery({ name: 'cursor', required: false, type: String })
+  @ApiResponse({ status: 200, type: PaginatedReportsResponseDto })
+  async getLatestReports(
+    @Query(new ValidationPipe({ transform: true })) query: GetReportsQueryDto,
+    @Req() req: any,
+  ): Promise<PaginatedReportsResponseDto> {
+    try {
+      return await this.reportsService.getLatestReports(req.user.sub, query);
+    } catch (error) {
+      if (error instanceof NotFoundException) {
+        throw error;
+      }
+      throw new BadRequestException('Invalid request');
+    }
+  }
+
   @Get()
-  async getReports(@Req() req: any) {
-    return this.reportsService.getReports(req.user.sub);
+  async getAllReports(@Req() req: any) {
+    try {
+      return await this.reportsService.getAllReports(req.user.sub);
+    } catch (error) {
+      if (error instanceof NotFoundException) {
+        throw error;
+      }
+      throw new BadRequestException('Invalid request');
+    }
   }
 
   @Get(':id')
@@ -46,9 +83,16 @@ export class ReportsController {
     return this.reportsService.updateReport(req.user.sub, id, updateReportDto);
   }
 
-  @Put(':id/read')
-  async markAsRead(@Req() req: any, @Param('id') id: string) {
-    return this.reportsService.markAsRead(req.user.sub, id);
+  @Patch(':id/read')
+  async markAsRead(@Param('id') id: string, @Req() req: any) {
+    try {
+      return await this.reportsService.markAsRead(req.user.sub, id);
+    } catch (error) {
+      if (error instanceof NotFoundException) {
+        throw error;
+      }
+      throw new BadRequestException('Invalid request');
+    }
   }
 
   @Delete(':id')

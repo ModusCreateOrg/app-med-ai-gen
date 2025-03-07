@@ -10,7 +10,12 @@ import {
   DeleteCommand
 } from '@aws-sdk/lib-dynamodb';
 import { v4 as uuidv4 } from 'uuid';
-import { Report, CreateReportDto, UpdateReportDto } from '../models/report.model';
+import { Report, CreateReportDto, UpdateReportDto, ReportStatus } from '../models/report.model';
+
+interface FindByUserOptions {
+  limit?: number;
+  cursor?: string;
+}
 
 @Injectable()
 export class ReportsRepository {
@@ -64,20 +69,33 @@ export class ReportsRepository {
     }
   }
 
-  async findByUser(userId: string): Promise<Report[]> {
+  async findByUser(userId: string, options?: FindByUserOptions): Promise<{ items: Report[]; nextCursor?: string }> {
     try {
-      const response = await this.docClient.send(new QueryCommand({
+      const command = new QueryCommand({
         TableName: this.tableName,
         KeyConditionExpression: 'userId = :userId',
         ExpressionAttributeValues: {
           ':userId': userId,
         },
-      }));
+        ScanIndexForward: false, // Sort in descending order (newest first)
+        Limit: options?.limit,
+        ...(options?.cursor && { ExclusiveStartKey: JSON.parse(Buffer.from(options.cursor, 'base64').toString()) }),
+      });
 
-      return response.Items as Report[];
+      const response = await this.docClient.send(command);
+
+      let nextCursor: string | undefined;
+      if (response.LastEvaluatedKey) {
+        nextCursor = Buffer.from(JSON.stringify(response.LastEvaluatedKey)).toString('base64');
+      }
+
+      return {
+        items: response.Items as Report[],
+        nextCursor,
+      };
     } catch (error) {
       this.logger.error(`Error fetching user reports: ${error}`);
-      return [];
+      return { items: [] };
     }
   }
 
@@ -128,6 +146,50 @@ export class ReportsRepository {
     } catch (error) {
       this.logger.error(`Error deleting report: ${error}`);
       return false;
+    }
+  }
+
+  async updateStatus(userId: string, reportId: string, status: ReportStatus): Promise<Report | null> {
+    try {
+      const response = await this.docClient.send(new UpdateCommand({
+        TableName: this.tableName,
+        Key: {
+          userId,
+          id: reportId,
+        },
+        UpdateExpression: 'SET #status = :status, updatedAt = :updatedAt',
+        ExpressionAttributeNames: {
+          '#status': 'status',
+        },
+        ExpressionAttributeValues: {
+          ':status': status,
+          ':updatedAt': new Date().toISOString(),
+        },
+        ReturnValues: 'ALL_NEW',
+      }));
+
+      return response.Attributes as Report;
+    } catch (error) {
+      this.logger.error(`Error updating report status: ${error}`);
+      return null;
+    }
+  }
+
+  async countByUser(userId: string): Promise<number> {
+    try {
+      const response = await this.docClient.send(new QueryCommand({
+        TableName: this.tableName,
+        KeyConditionExpression: 'userId = :userId',
+        ExpressionAttributeValues: {
+          ':userId': userId,
+        },
+        Select: 'COUNT',
+      }));
+
+      return response.Count || 0;
+    } catch (error) {
+      this.logger.error(`Error counting user reports: ${error}`);
+      return 0;
     }
   }
 }
