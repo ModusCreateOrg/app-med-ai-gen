@@ -71,7 +71,13 @@ vi.mock('../../Menu/AppMenu', () => ({
 
 // Mock the Icon component
 vi.mock('../../Icon/Icon', () => ({
-  default: ({ icon, iconStyle, className, size, fixedWidth }: any) => (
+  default: ({ icon, iconStyle, className, size, fixedWidth }: {
+    icon: string;
+    iconStyle?: string;
+    className?: string;
+    size?: string;
+    fixedWidth?: boolean;
+  }) => (
     <div 
       data-testid={`mock-icon-${icon}`} 
       data-icon-style={iconStyle} 

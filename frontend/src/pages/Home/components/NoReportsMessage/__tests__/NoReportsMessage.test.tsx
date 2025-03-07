@@ -3,14 +3,40 @@ import { render as defaultRender, screen, fireEvent } from '@testing-library/rea
 import NoReportsMessage from '../NoReportsMessage';
 import WithMinimalProviders from 'test/wrappers/WithMinimalProviders';
 
+// Mock react-i18next
+vi.mock('react-i18next', async () => {
+  const actual = await vi.importActual('react-i18next');
+  return {
+    ...actual,
+    useTranslation: () => ({
+      t: (key: string) => {
+        const translations: Record<string, string> = {
+          'reports.noReports.title': 'No Reports',
+          'reports.noReports.message': 'Upload a report or try again later',
+          'reports.noReports.uploadButton': 'Upload Report'
+        };
+        return translations[key] || key;
+      },
+      i18n: {
+        changeLanguage: vi.fn(),
+      },
+    }),
+  };
+});
+
 // Use a custom render that uses our minimal providers
 const render = (ui: React.ReactElement) => {
   return defaultRender(ui, { wrapper: WithMinimalProviders });
 };
 
-// Only mock the Icon component, use real Ionic components
+// Mock the Icon component
 vi.mock('common/components/Icon/Icon', () => ({
-  default: ({ icon, iconStyle, className, size }: any) => (
+  default: ({ icon, iconStyle, className, size }: {
+    icon: string;
+    iconStyle?: string;
+    className?: string;
+    size?: string;
+  }) => (
     <div data-testid={`mocked-icon-${icon}`} data-icon-style={iconStyle} className={className} data-size={size}>
       {icon}
     </div>

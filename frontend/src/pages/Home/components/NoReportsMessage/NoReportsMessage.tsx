@@ -20,8 +20,8 @@ const NoReportsMessage: React.FC<NoReportsMessageProps> = ({ onUpload, onRetry }
         <Icon icon="fileLines" iconStyle="regular" className="no-reports__icon" size="4x" />
       </div>
       
-      <h2 className="no-reports__title">No Reports</h2>
-      <p className="no-reports__message">Upload a report or try again later</p>
+      <h2 className="no-reports__title">{t('reports.noReports.title')}</h2>
+      <p className="no-reports__message">{t('reports.noReports.message')}</p>
       
       <div className="no-reports__actions">
         <IonButton 
@@ -29,7 +29,7 @@ const NoReportsMessage: React.FC<NoReportsMessageProps> = ({ onUpload, onRetry }
           onClick={onUpload}
           className="no-reports__button"
         >
-          Upload Report
+          {t('reports.noReports.uploadButton')}
         </IonButton>
         
         {onRetry && (

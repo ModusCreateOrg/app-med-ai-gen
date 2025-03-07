@@ -1,6 +1,5 @@
 import { IonRouterOutlet, IonTabBar, IonTabButton, IonTabs } from '@ionic/react';
 import { Redirect, Route } from 'react-router';
-import { useTranslation } from 'react-i18next';
 
 import './TabNavigation.scss';
 import AppMenu from '../Menu/AppMenu';
@@ -29,8 +28,6 @@ import DiagnosticsPage from 'pages/Account/components/Diagnostics/DiagnosticsPag
  * @see {@link AppMenu}
  */
 const TabNavigation = (): JSX.Element => {
-  const { t } = useTranslation();
-
   return (
     <>
       <AppMenu />

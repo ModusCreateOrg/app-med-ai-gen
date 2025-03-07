@@ -33,7 +33,6 @@ import {
   faFileLines as faRegularFileLines,
   faComment as faRegularComment,
   faUser as faRegularUser,
-  faCircle as faRegularCircle,
   faBookmark as faRegularBookmark
 } from '@fortawesome/free-regular-svg-icons';
 import classNames from 'classnames';

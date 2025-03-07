@@ -1,20 +1,12 @@
 import {
   IonContent,
-  IonHeader,
   IonPage,
-  IonTitle,
-  IonToolbar,
   IonList,
   IonItem,
   IonLabel,
   IonSkeletonText,
-  IonButton,
-  IonRow,
-  IonCol,
   IonCard,
   IonCardContent,
-  IonIcon,
-  IonText,
   IonRouterLink,
   IonAvatar,
 } from '@ionic/react';
@@ -49,10 +41,6 @@ const HomePage: React.FC = () => {
 
   const handleRetry = () => {
     window.location.reload();
-  };
-
-  const handleConnect = () => {
-    history.push('/connect');
   };
 
   const renderReportsList = () => {

@@ -1,8 +1,8 @@
 import axios from 'axios';
-import { MedicalReport, ReportStatus } from '../models/medicalReport';
+import { MedicalReport, ReportStatus, ReportCategory } from '../models/medicalReport';
 
 // Base API URL - should be configured from environment variables in a real app
-const API_URL = '/api';
+// Removed unused API_URL variable
 
 /**
  * Error thrown when report operations fail.
@@ -22,7 +22,7 @@ export class ReportError extends Error {
 export const fetchLatestReports = async (limit = 3): Promise<MedicalReport[]> => {
   try {
     // In a real app, this would be an actual API call
-    // const response = await axios.get(`${API_URL}/reports/latest?limit=${limit}`);
+    // const response = await axios.get(`/api/reports/latest?limit=${limit}`);
     // return response.data;
     
     // For now, return mock data
@@ -42,7 +42,7 @@ export const fetchLatestReports = async (limit = 3): Promise<MedicalReport[]> =>
 export const fetchAllReports = async (): Promise<MedicalReport[]> => {
   try {
     // In a real app, this would be an actual API call
-    // const response = await axios.get(`${API_URL}/reports`);
+    // const response = await axios.get(`/api/reports`);
     // return response.data;
     
     // For now, return mock data
@@ -63,7 +63,7 @@ export const fetchAllReports = async (): Promise<MedicalReport[]> => {
 export const markReportAsRead = async (reportId: string): Promise<MedicalReport> => {
   try {
     // In a real app, this would be an actual API call
-    // const response = await axios.patch(`${API_URL}/reports/${reportId}`, {
+    // const response = await axios.patch(`/api/reports/${reportId}`, {
     //   status: ReportStatus.READ
     // });
     // return response.data;
@@ -89,7 +89,7 @@ const mockReports: MedicalReport[] = [
   {
     id: '1',
     title: 'Blood Test',
-    category: 'General' as any,
+    category: ReportCategory.GENERAL,
     date: '2025-01-27',
     status: ReportStatus.UNREAD,
     doctor: 'Dr. Smith',
@@ -98,7 +98,7 @@ const mockReports: MedicalReport[] = [
   {
     id: '2',
     title: 'Cranial Nerve Exam',
-    category: 'Neurological' as any,
+    category: ReportCategory.NEUROLOGICAL,
     date: '2025-01-19',
     status: ReportStatus.UNREAD,
     doctor: 'Dr. Johnson',
@@ -107,7 +107,7 @@ const mockReports: MedicalReport[] = [
   {
     id: '3',
     title: 'Stress Test',
-    category: 'Heart' as any,
+    category: ReportCategory.HEART,
     date: '2024-12-26',
     status: ReportStatus.READ,
     doctor: 'Dr. Williams',

@@ -1,7 +1,7 @@
 import { describe, expect, it, vi } from 'vitest';
 import { render as defaultRender, screen, fireEvent } from '@testing-library/react';
 import ReportItem from '../ReportItem';
-import { MedicalReport, ReportStatus } from 'common/models/medicalReport';
+import { MedicalReport, ReportStatus, ReportCategory } from 'common/models/medicalReport';
 import WithMinimalProviders from 'test/wrappers/WithMinimalProviders';
 
 // Mock react-i18next
@@ -28,7 +28,11 @@ const render = (ui: React.ReactElement) => {
 
 // Only mock the Icon component and date-fns format function
 vi.mock('common/components/Icon/Icon', () => ({
-  default: ({ icon, iconStyle, className }: any) => (
+  default: ({ icon, iconStyle, className }: {
+    icon: string;
+    iconStyle?: string;
+    className?: string;
+  }) => (
     <div data-testid={`mocked-icon-${icon}`} data-icon-style={iconStyle} className={className}>
       {icon}
     </div>
@@ -44,7 +48,7 @@ describe('ReportItem', () => {
   const mockReport: MedicalReport = {
     id: '1',
     title: 'Blood Test',
-    category: 'General' as any,
+    category: ReportCategory.GENERAL,
     date: '2025-01-27',
     status: ReportStatus.UNREAD,
     doctor: 'Dr. Smith',
@@ -100,9 +104,9 @@ describe('ReportItem', () => {
   it('should render different icons for different categories', () => {
     // Test with different categories
     const categories = [
-      { category: 'General' as any, icon: 'user' },
-      { category: 'Neurological' as any, icon: 'circleInfo' },
-      { category: 'Heart' as any, icon: 'circleInfo' }
+      { category: ReportCategory.GENERAL, icon: 'user' },
+      { category: ReportCategory.NEUROLOGICAL, icon: 'circleInfo' },
+      { category: ReportCategory.HEART, icon: 'circleInfo' }
     ];
 
     categories.forEach(({ category, icon }) => {
