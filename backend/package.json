@@ -9,6 +9,7 @@
     "bootstrap": "dotenv -- npx cdk bootstrap",
     "deploy": "dotenv -- npx cdk deploy --require-approval never",
     "destroy": "dotenv -- cdk destroy -f",
+    "docs": "npx compodoc -p tsconfig.json -s",
     "format": "prettier --write \"src/**/*.ts\"",
     "start": "nest start",
     "start:dev": "nest start --watch",
@@ -31,8 +32,9 @@
     "@nestjs/config": "^3.1.1",
     "@nestjs/core": "^10.0.0",
     "@nestjs/platform-express": "^10.0.0",
-    "aws-cdk-lib": "2.139.0",
     "@types/jest": "^29.5.12",
+    "aws-cdk-lib": "2.139.0",
+    "aws-jwt-verify": "^4.0.0",
     "axios": "^1.8.1",
     "class-transformer": "^0.5.1",
     "class-validator": "^0.14.1",
@@ -41,11 +43,11 @@
     "reflect-metadata": "^0.1.13",
     "rxjs": "^7.8.1",
     "source-map-support": "^0.5.21",
-    "web-vitals": "^2.1.4",
-    "aws-jwt-verify": "^4.0.0"
+    "web-vitals": "^2.1.4"
   },
   "devDependencies": {
     "@aws-cdk/assert": "^2.68.0",
+    "@compodoc/compodoc": "^1.1.26",
     "@nestjs/cli": "^10.0.0",
     "@nestjs/schematics": "^10.0.0",
     "@nestjs/testing": "^10.0.0",
