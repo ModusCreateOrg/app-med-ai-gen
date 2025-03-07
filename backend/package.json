@@ -41,7 +41,8 @@
     "reflect-metadata": "^0.1.13",
     "rxjs": "^7.8.1",
     "source-map-support": "^0.5.21",
-    "web-vitals": "^2.1.4"
+    "web-vitals": "^2.1.4",
+    "aws-jwt-verify": "^4.0.0"
   },
   "devDependencies": {
     "@aws-cdk/assert": "^2.68.0",

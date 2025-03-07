@@ -4,5 +4,11 @@
     "dev": "docker compose up --build",
     "down": "docker compose down",
     "clean": "docker compose down -v --remove-orphans"
+  },
+  "dependencies": {
+    "@nestjs/passport": "^11.0.5",
+    "jwks-rsa": "^3.1.0",
+    "passport": "^0.7.0",
+    "passport-jwt": "^4.0.1"
   }
-} 
+}

@@ -6,6 +6,7 @@ import { AppService } from './app.service';
 import { AwsSecretsService } from './services/aws-secrets.service';
 import { PerplexityService } from './services/perplexity.service';
 import { PerplexityController } from './controllers/perplexity/perplexity.controller';
+import { AuthModule } from './auth/auth.module';
 
 @Module({
   imports: [
@@ -13,6 +14,7 @@ import { PerplexityController } from './controllers/perplexity/perplexity.contro
       isGlobal: true,
       load: [configuration],
     }),
+    AuthModule,
   ],
   controllers: [AppController, PerplexityController],
   providers: [AppService, AwsSecretsService, PerplexityService],
