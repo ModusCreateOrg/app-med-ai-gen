@@ -9,6 +9,7 @@ import { PerplexityController } from './controllers/perplexity/perplexity.contro
 import { AuthModule } from './auth/auth.module';
 import { ReportsController } from './reports/reports.controller';
 import { ReportsService } from './reports/reports.service';
+import { ReportsRepository } from './reports/repositories/reports.repository';
 
 @Module({
   imports: [
@@ -19,6 +20,6 @@ import { ReportsService } from './reports/reports.service';
     AuthModule,
   ],
   controllers: [AppController, PerplexityController, ReportsController],
-  providers: [AppService, AwsSecretsService, PerplexityService, ReportsService],
+  providers: [AppService, AwsSecretsService, PerplexityService, ReportsService, ReportsRepository],
 })
 export class AppModule {}
