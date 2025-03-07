@@ -6,17 +6,21 @@ import { DynamoDBClient } from '@aws-sdk/client-dynamodb';
 import { DynamoDBDocumentClient, PutCommand, GetCommand, QueryCommand, UpdateCommand, DeleteCommand } from '@aws-sdk/lib-dynamodb';
 import { ReportStatus } from '../models/report.model';
 
+// Create a mock DynamoDB client before mocking the module
+const mockDocumentClient = {
+  send: vi.fn(),
+};
+
+// Mock AWS SDK modules
 vi.mock('@aws-sdk/client-dynamodb', () => ({
-  DynamoDBClient: vi.fn().mockImplementation(() => ({
-    // Add any methods you need to mock
+  DynamoDBClient: vi.fn(() => ({
+    // Empty implementation as we'll use DynamoDBDocumentClient
   })),
 }));
 
 vi.mock('@aws-sdk/lib-dynamodb', () => ({
   DynamoDBDocumentClient: {
-    from: vi.fn().mockReturnValue({
-      send: vi.fn(),
-    }),
+    from: vi.fn(() => mockDocumentClient),
   },
   PutCommand: vi.fn(),
   GetCommand: vi.fn(),
@@ -27,8 +31,7 @@ vi.mock('@aws-sdk/lib-dynamodb', () => ({
 
 describe('ReportsRepository', () => {
   let repository: ReportsRepository;
-  let mockDynamoDBClient: jest.Mocked<DynamoDBClient>;
-  let mockDocumentClient: jest.Mocked<DynamoDBDocumentClient>;
+  let configService: ConfigService;
 
   const mockReport = {
     id: '1',
@@ -41,33 +44,31 @@ describe('ReportsRepository', () => {
   };
 
   beforeEach(async () => {
-    mockDynamoDBClient = new DynamoDBClient({}) as any;
-    mockDocumentClient = {
-      send: vi.fn(),
-    } as any;
+    // Reset mock calls
+    vi.clearAllMocks();
 
-    (DynamoDBDocumentClient.from as any).mockReturnValue(mockDocumentClient);
+    // Create config service with mock implementation
+    configService = {
+      get: vi.fn((key: string) => {
+        const config = {
+          'aws.region': 'us-east-1',
+          'aws.dynamodb.reportsTable': 'reports',
+        };
+        return config[key];
+      }),
+    } as any;
 
     const module: TestingModule = await Test.createTestingModule({
       providers: [
         ReportsRepository,
         {
           provide: ConfigService,
-          useValue: {
-            get: vi.fn((key: string) => {
-              const config = {
-                'aws.region': 'us-east-1',
-                'aws.dynamodb.reportsTable': 'reports',
-              };
-              return config[key];
-            }),
-          },
+          useValue: configService,
         },
       ],
     }).compile();
 
     repository = module.get<ReportsRepository>(ReportsRepository);
-    (repository as any).docClient = mockDocumentClient;
   });
 
   describe('create', () => {

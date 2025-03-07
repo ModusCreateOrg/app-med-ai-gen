@@ -23,10 +23,8 @@ import { UpdateReportDto } from './dto/update-report.dto';
 import { GetLatestReportsQuery } from './models/report.model';
 import { GetReportsQueryDto } from './dto/get-reports.query.dto';
 import { PaginatedReportsResponseDto } from './dto/report.response.dto';
-import { ApiTags, ApiOperation, ApiQuery, ApiResponse } from '@nestjs/swagger';
 
 @Controller('reports')
-@ApiTags('reports')
 @Auth()
 @UsePipes(new ValidationPipe({ transform: true }))
 export class ReportsController {
@@ -38,11 +36,6 @@ export class ReportsController {
   }
 
   @Get('latest')
-  @ApiOperation({ summary: 'Get latest reports with pagination' })
-  @ApiQuery({ name: 'limit', required: false, type: Number })
-  @ApiQuery({ name: 'page', required: false, type: Number })
-  @ApiQuery({ name: 'cursor', required: false, type: String })
-  @ApiResponse({ status: 200, type: PaginatedReportsResponseDto })
   async getLatestReports(
     @Query(new ValidationPipe({ transform: true })) query: GetReportsQueryDto,
     @Req() req: any,
