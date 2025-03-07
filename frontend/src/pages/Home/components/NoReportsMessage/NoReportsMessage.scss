@@ -5,15 +5,22 @@
   justify-content: center;
   text-align: center;
   padding: 2rem 1rem;
-  background: white;
-  border-radius: 1rem;
-  box-shadow: 0 0.125rem 0.5rem rgba(0, 0, 0, 0.03);
+  width: 100%;
+  
+  &__icon-container {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100px;
+    height: 100px;
+    border-radius: 50%;
+    background-color: #f4f6ff;
+    margin-bottom: 1.5rem;
+  }
   
   &__icon {
-    font-size: 4rem;
-    color: var(--ion-color-medium);
-    margin-bottom: 1rem;
-    opacity: 0.5;
+    color: #6b78ff;
+    opacity: 0.7;
   }
   
   &__title {
@@ -32,19 +39,19 @@
   
   &__actions {
     width: 100%;
-    max-width: 20rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
   }
   
   &__button {
-    margin-bottom: 1rem;
-    --background: var(--ion-color-primary);
-    --color: white;
+    margin: 0;
+    --border-radius: 0.5rem;
     
-    &:last-child {
-      margin-bottom: 0;
+    &--secondary {
       --background: white;
       --color: var(--ion-color-primary);
-      --border-color: var(--ion-color-primary);
+      --border-color: var(--ion-color-light);
     }
   }
 } 

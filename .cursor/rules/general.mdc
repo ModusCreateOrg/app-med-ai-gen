@@ -56,11 +56,18 @@ Technologies:
 
  For visual context, you can use this images:
 
- [1 - Home.png](mdc:docs/assets/images/1 - Home.png)
- [3 - upload2.png](mdc:docs/assets/images/3 - upload2.png)
- [4 - processing.png](mdc:docs/assets/images/4 - processing.png)
- [5 - Results analysis.png](mdc:docs/assets/images/5 - Results analysis.png)
- [6 - Results Archive.png](mdc:docs/assets/images/6 - Results Archive.png)
- [8 -  AI.png](mdc:docs/assets/images/8 -  AI.png)
+[1 - Home copy.png](mdc:docs/assets/images/1 - Home copy.png)
+[1 - Home_avatar.png](mdc:docs/assets/images/1 - Home_avatar.png)
+[1a - Home_NoReports.png](mdc:docs/assets/images/1a - Home_NoReports.png)
+[1b - Home_NoLoad.png](mdc:docs/assets/images/1b - Home_NoLoad.png)
+[2 - upload1.png](mdc:docs/assets/images/2 - upload1.png)
+[2 - upload1_url.png](mdc:docs/assets/images/2 - upload1_url.png)
+[3 - upload2.png](mdc:docs/assets/images/3 - upload2.png)
+[3 - upload2_url.png](mdc:docs/assets/images/3 - upload2_url.png)
+[4 - processing.png](mdc:docs/assets/images/4 - processing.png)
+[5 - Results analysis.png](mdc:docs/assets/images/5 - Results analysis.png)
+[6 - Results Archive.png](mdc:docs/assets/images/6 - Results Archive.png)
+[7 - Detail.png](mdc:docs/assets/images/7 - Detail.png)
 
+ 
 AWS architecture: [aws architecture.pdf](mdc:docs/assets/aws architecture.pdf)

@@ -5,14 +5,26 @@
   --padding-bottom: 0.75rem;
   --background: white;
   --border-color: rgba(0, 0, 0, 0.05);
-  box-shadow: 0 0.125rem 0.5rem rgba(0, 0, 0, 0.03);
   border-radius: 0.75rem;
-  margin-bottom: 0.5rem;
+  margin-bottom: 0.75rem;
   
   &__category {
     font-size: 0.75rem;
-    color: var(--ion-color-medium);
+    color: #ff7a45;
     margin-bottom: 0.25rem;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    
+    &::before {
+      content: '';
+      display: inline-block;
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background-color: #ff7a45;
+      margin-right: 6px;
+    }
   }
   
   &__title {
@@ -20,66 +32,60 @@
     margin: 0;
     font-size: 1rem;
     color: var(--ion-color-dark);
+    line-height: 1.3;
   }
   
   &__date {
-    display: flex;
-    align-items: center;
     font-size: 0.75rem;
     color: var(--ion-color-medium);
     margin-top: 0.25rem;
   }
   
-  &__unread-dot {
-    width: 0.5rem;
-    height: 0.5rem;
-    border-radius: 50%;
-    background-color: #ff9500;
-    margin-right: 0.5rem;
-    display: inline-block;
-  }
-  
   &__bookmark {
     color: var(--ion-color-primary);
     font-size: 1.25rem;
-  }
-}
-
-.report-icon {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 2.5rem;
-  height: 2.5rem;
-  border-radius: 0.75rem;
-  margin-right: 1rem;
-  color: white;
-  
-  &.general {
-    background-color: #4765ff;
+    
+    &--inactive {
+      opacity: 0.3;
+    }
   }
   
-  &.neurological {
-    background-color: #5856d6;
-  }
-  
-  &.oftalmological {
-    background-color: #34c759;
-  }
-  
-  &.heart {
-    background-color: #ff2d55;
-  }
-  
-  &.gastro {
-    background-color: #ff9500;
-  }
-  
-  &.orthopedic {
-    background-color: #007aff;
-  }
-  
-  &.other {
-    background-color: #8e8e93;
+  &__icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 2.5rem;
+    height: 2.5rem;
+    border-radius: 0.75rem;
+    margin-right: 1rem;
+    color: white;
+    
+    &--general {
+      background-color: #4765ff;
+    }
+    
+    &--neurological {
+      background-color: #5856d6;
+    }
+    
+    &--oftalmological {
+      background-color: #34c759;
+    }
+    
+    &--heart {
+      background-color: #ff2d55;
+    }
+    
+    &--gastro {
+      background-color: #ff9500;
+    }
+    
+    &--orthopedic {
+      background-color: #007aff;
+    }
+    
+    &--other {
+      background-color: #8e8e93;
+    }
   }
 } 

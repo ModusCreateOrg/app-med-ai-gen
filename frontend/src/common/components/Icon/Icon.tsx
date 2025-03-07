@@ -3,6 +3,7 @@ import { IonText } from '@ionic/react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { IconProp } from '@fortawesome/fontawesome-svg-core';
 import {
+  faBookmark,
   faBuilding,
   faCalendar,
   faCircleInfo,
@@ -21,8 +22,20 @@ import {
   faUserGear,
   faUsers,
   faXmark,
-  faArrowUpFromBracket
+  faArrowUpFromBracket,
+  faHome,
+  faFileLines as faSolidFileLines,
+  faUpload,
+  faComment,
+  faUserCircle
 } from '@fortawesome/free-solid-svg-icons';
+import {
+  faFileLines as faRegularFileLines,
+  faComment as faRegularComment,
+  faUser as faRegularUser,
+  faCircle as faRegularCircle,
+  faBookmark as faRegularBookmark
+} from '@fortawesome/free-regular-svg-icons';
 import classNames from 'classnames';
 
 import { BaseComponentProps } from '../types';
@@ -31,12 +44,18 @@ import { BaseComponentProps } from '../types';
  * A union type of all Font Awesome icon names (without the `fa-` prefix)
  * used in the applciation.
  */
+export type IconStyle = 'solid' | 'regular';
+
 export type IconName =
   | 'arrowUpFromBracket'
+  | 'bookmark'
   | 'building'
   | 'calendar'
   | 'circleInfo'
+  | 'comment'
   | 'envelope'
+  | 'fileLines'
+  | 'home'
   | 'house'
   | 'link'
   | 'mapLocationDot'
@@ -47,7 +66,9 @@ export type IconName =
   | 'signOut'
   | 'trash'
   | 'triangleExclamation'
+  | 'upload'
   | 'user'
+  | 'userCircle'
   | 'users'
   | 'userGear'
   | 'xmark';
@@ -62,17 +83,22 @@ export interface IconProps
     Omit<ComponentPropsWithoutRef<typeof FontAwesomeIcon>, 'color' | 'icon'>,
     Pick<ComponentPropsWithoutRef<typeof IonText>, 'color' | 'slot'> {
   icon: IconName;
+  iconStyle?: IconStyle;
 }
 
 /**
- * A key/value mapping of every icon used in the application.
+ * A key/value mapping of every solid icon used in the application.
  */
-const icons: Record<IconName, IconProp> = {
+const solidIcons: Record<IconName, IconProp> = {
   arrowUpFromBracket: faArrowUpFromBracket,
+  bookmark: faBookmark,
   building: faBuilding,
   calendar: faCalendar,
   circleInfo: faCircleInfo,
+  comment: faComment,
   envelope: faEnvelope,
+  fileLines: faSolidFileLines,
+  home: faHome,
   house: faHouse,
   link: faLink,
   mapLocationDot: faMapLocationDot,
@@ -83,10 +109,23 @@ const icons: Record<IconName, IconProp> = {
   signOut: faSignOutAlt,
   trash: faTrash,
   triangleExclamation: faTriangleExclamation,
-  userGear: faUserGear,
+  upload: faUpload,
   user: faUser,
+  userCircle: faUserCircle,
+  userGear: faUserGear,
   users: faUsers,
   xmark: faXmark,
+};
+
+/**
+ * A key/value mapping of regular icons used in the application.
+ * Only includes icons that have regular variants.
+ */
+const regularIcons: Partial<Record<IconName, IconProp>> = {
+  comment: faRegularComment,
+  fileLines: faRegularFileLines,
+  user: faRegularUser,
+  bookmark: faRegularBookmark
 };
 
 /**
@@ -100,11 +139,15 @@ const Icon = ({
   className,
   color,
   icon,
+  iconStyle = 'solid',
   slot = '',
   testid = 'icon',
   ...iconProps
 }: IconProps): JSX.Element => {
-  const faIcon = icons[icon];
+  // Select icon based on style
+  const faIcon = iconStyle === 'regular' && regularIcons[icon] 
+    ? regularIcons[icon] 
+    : solidIcons[icon];
 
   return (
     <IonText color={color} slot={slot} data-testid={testid}>

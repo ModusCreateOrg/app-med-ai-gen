@@ -1,26 +1,27 @@
-import { IonButton, IonIcon } from '@ionic/react';
+import { IonButton } from '@ionic/react';
 import { useTranslation } from 'react-i18next';
 import './NoReportsMessage.scss';
+import Icon from 'common/components/Icon/Icon';
 
 interface NoReportsMessageProps {
   onUpload?: () => void;
-  onConnect?: () => void;
+  onRetry?: () => void;
 }
 
 /**
  * Component to display when no reports are available.
  */
-const NoReportsMessage: React.FC<NoReportsMessageProps> = ({ onUpload, onConnect }) => {
+const NoReportsMessage: React.FC<NoReportsMessageProps> = ({ onUpload, onRetry }) => {
   const { t } = useTranslation();
 
   return (
     <div className="no-reports">
-      <div className="no-reports__icon">
-        <IonIcon icon="document-text" />
+      <div className="no-reports__icon-container">
+        <Icon icon="fileLines" iconStyle="regular" className="no-reports__icon" size="4x" />
       </div>
       
-      <h2 className="no-reports__title">{t('reports.noReports.title')}</h2>
-      <p className="no-reports__message">{t('reports.noReports.message')}</p>
+      <h2 className="no-reports__title">No Reports</h2>
+      <p className="no-reports__message">Upload a report or try again later</p>
       
       <div className="no-reports__actions">
         <IonButton 
@@ -28,19 +29,19 @@ const NoReportsMessage: React.FC<NoReportsMessageProps> = ({ onUpload, onConnect
           onClick={onUpload}
           className="no-reports__button"
         >
-          <IonIcon slot="start" icon="cloud-upload" />
-          {t('reports.noReports.uploadButton')}
+          Upload Report
         </IonButton>
         
-        <IonButton 
-          expand="block" 
-          fill="outline" 
-          onClick={onConnect}
-          className="no-reports__button"
-        >
-          <IonIcon slot="start" icon="link" />
-          {t('reports.noReports.connectButton')}
-        </IonButton>
+        {onRetry && (
+          <IonButton 
+            expand="block" 
+            fill="outline" 
+            onClick={onRetry}
+            className="no-reports__button no-reports__button--secondary"
+          >
+            Retry
+          </IonButton>
+        )}
       </div>
     </div>
   );

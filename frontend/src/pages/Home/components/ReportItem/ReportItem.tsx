@@ -1,6 +1,7 @@
-import { IonIcon, IonItem, IonLabel } from '@ionic/react';
+import { IonItem, IonLabel } from '@ionic/react';
 import { format } from 'date-fns';
 import { MedicalReport, ReportStatus } from 'common/models/medicalReport';
+import Icon from 'common/components/Icon/Icon';
 import './ReportItem.scss';
 
 interface ReportItemProps {
@@ -15,50 +16,51 @@ const ReportItem: React.FC<ReportItemProps> = ({ report, onClick }) => {
   const { title, category, date, status } = report;
   const isUnread = status === ReportStatus.UNREAD;
   
-  // Format the date from ISO string to DD/MM/YYYY
-  const formattedDate = format(new Date(date), 'dd/MM/yyyy');
+  // Format the date from ISO string to MM/DD/YYYY
+  const formattedDate = format(new Date(date), 'MM/dd/yyyy');
   
   // Get the appropriate icon based on report category
   const getCategoryIcon = () => {
     switch (category) {
       case 'General':
-        return <div className="report-icon general"><IonIcon icon="person" /></div>;
+        return <div className="report-item__icon report-item__icon--general"><Icon icon="user" iconStyle="regular" /></div>;
       case 'Neurological':
-        return <div className="report-icon neurological"><IonIcon icon="brain" /></div>;
+        return <div className="report-item__icon report-item__icon--neurological"><Icon icon="circleInfo" /></div>;
       case 'Oftalmological':
-        return <div className="report-icon oftalmological"><IonIcon icon="eye" /></div>;
+        return <div className="report-item__icon report-item__icon--oftalmological"><Icon icon="circleInfo" /></div>;
       case 'Heart':
-        return <div className="report-icon heart"><IonIcon icon="heart" /></div>;
+        return <div className="report-item__icon report-item__icon--heart"><Icon icon="circleInfo" /></div>;
       case 'Gastroenterology':
-        return <div className="report-icon gastro"><IonIcon icon="medical" /></div>;
+        return <div className="report-item__icon report-item__icon--gastro"><Icon icon="circleInfo" /></div>;
       case 'Orthopedic':
-        return <div className="report-icon orthopedic"><IonIcon icon="body" /></div>;
+        return <div className="report-item__icon report-item__icon--orthopedic"><Icon icon="circleInfo" /></div>;
       default:
-        return <div className="report-icon other"><IonIcon icon="document" /></div>;
+        return <div className="report-item__icon report-item__icon--other"><Icon icon="fileLines" iconStyle="regular" /></div>;
     }
   };
 
   return (
     <IonItem 
       className={`report-item ${isUnread ? 'report-item--unread' : ''}`}
-      detail={true}
       onClick={onClick}
       lines="full"
-      button
+      button={true}
     >
       {getCategoryIcon()}
       
       <IonLabel>
         <div className="report-item__category">{category}</div>
-        <h2 className="report-item__title">{title}</h2>
+        <div className="report-item__title">{title}</div>
         <div className="report-item__date">
-          {isUnread && <span className="report-item__unread-dot"></span>}
-          {formattedDate}
+          Upload Date • {formattedDate}
         </div>
       </IonLabel>
       
       <div className="report-item__bookmark">
-        <IonIcon icon="bookmark" />
+        {isUnread ? 
+          <Icon icon="bookmark" /> :
+          <Icon icon="bookmark" className="report-item__bookmark--inactive" />
+        }
       </div>
     </IonItem>
   );

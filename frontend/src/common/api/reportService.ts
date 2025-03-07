@@ -97,7 +97,7 @@ const mockReports: MedicalReport[] = [
   },
   {
     id: '2',
-    title: 'Magnetic Ressonance',
+    title: 'Cranial Nerve Exam',
     category: 'Neurological' as any,
     date: '2025-01-19',
     status: ReportStatus.UNREAD,
@@ -106,29 +106,11 @@ const mockReports: MedicalReport[] = [
   },
   {
     id: '3',
-    title: 'Sight Test',
-    category: 'Oftalmological' as any,
+    title: 'Stress Test',
+    category: 'Heart' as any,
     date: '2024-12-26',
     status: ReportStatus.READ,
     doctor: 'Dr. Williams',
-    facility: 'Vision Care Clinic'
-  },
-  {
-    id: '4',
-    title: 'Cardiac Evaluation',
-    category: 'Heart' as any,
-    date: '2024-12-15',
-    status: ReportStatus.READ,
-    doctor: 'Dr. Brown',
     facility: 'Heart Institute'
-  },
-  {
-    id: '5',
-    title: 'Endoscopy Results',
-    category: 'Gastro' as any,
-    date: '2024-11-30',
-    status: ReportStatus.READ,
-    doctor: 'Dr. Davis',
-    facility: 'Digestive Health Center'
   }
 ]; 

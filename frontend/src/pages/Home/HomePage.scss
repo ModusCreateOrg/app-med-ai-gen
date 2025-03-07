@@ -207,6 +207,22 @@
       }
     }
   }
+
+  &__reports-list {
+    margin-bottom: 2rem;
+    box-shadow: none;
+    background: transparent;
+  }
+
+  &__empty-state {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 300px;
+    width: 100%;
+    border-radius: 8px;
+    padding: 1.5rem;
+  }
 }
 
 // Add a more specific selector to override Ionic's default styles

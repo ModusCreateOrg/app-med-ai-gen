@@ -1,4 +1,4 @@
-import { IonLabel, IonRouterOutlet, IonTabBar, IonTabButton, IonTabs } from '@ionic/react';
+import { IonRouterOutlet, IonTabBar, IonTabButton, IonTabs } from '@ionic/react';
 import { Redirect, Route } from 'react-router';
 import { useTranslation } from 'react-i18next';
 
@@ -68,7 +68,7 @@ const TabNavigation = (): JSX.Element => {
           <IonTabButton className="ls-tab-navigation__bar-button" tab="home" href="/tabs/home">
             <Icon
               className="ls-tab-navigation__bar-button-icon"
-              icon="house"
+              icon="home"
               size="xl"
               fixedWidth
             />
@@ -76,7 +76,8 @@ const TabNavigation = (): JSX.Element => {
           <IonTabButton className="ls-tab-navigation__bar-button" tab="analytics" href="/tabs/analytics">
             <Icon
               className="ls-tab-navigation__bar-button-icon"
-              icon="link"
+              icon="fileLines"
+              iconStyle="regular"
               size="xl"
               fixedWidth
             />
@@ -94,7 +95,8 @@ const TabNavigation = (): JSX.Element => {
           <IonTabButton className="ls-tab-navigation__bar-button" tab="chat" href="/tabs/chat">
             <Icon
               className="ls-tab-navigation__bar-button-icon"
-              icon="envelope"
+              icon="comment"
+              iconStyle="regular"
               size="xl"
               fixedWidth
             />
@@ -106,7 +108,7 @@ const TabNavigation = (): JSX.Element => {
           >
             <Icon
               className="ls-tab-navigation__bar-button-icon"
-              icon="user"
+              icon="userCircle"
               size="xl"
               fixedWidth
             />

@@ -47,6 +47,10 @@ const HomePage: React.FC = () => {
     history.push('/upload');
   };
 
+  const handleRetry = () => {
+    window.location.reload();
+  };
+
   const handleConnect = () => {
     history.push('/connect');
   };
@@ -69,16 +73,21 @@ const HomePage: React.FC = () => {
 
     if (isError) {
       return (
-        <IonItem lines="none">
-          <IonLabel className="ion-text-center">
-            <IonText color="danger">{t('reports.error')}</IonText>
-          </IonLabel>
-        </IonItem>
+        <div className="home-page__empty-state">
+          <NoReportsMessage 
+            onUpload={handleUpload} 
+            onRetry={handleRetry} 
+          />
+        </div>
       );
     }
 
     if (!reports || reports.length === 0) {
-      return <NoReportsMessage onUpload={handleUpload} onConnect={handleConnect} />;
+      return (
+        <div className="home-page__empty-state">
+          <NoReportsMessage onUpload={handleUpload} />
+        </div>
+      );
     }
 
     return reports.map((report) => (
