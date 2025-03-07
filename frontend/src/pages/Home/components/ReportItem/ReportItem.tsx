@@ -1,5 +1,6 @@
 import { IonItem, IonLabel } from '@ionic/react';
 import { format } from 'date-fns';
+import { useTranslation } from 'react-i18next';
 import { MedicalReport, ReportStatus } from 'common/models/medicalReport';
 import Icon from 'common/components/Icon/Icon';
 import './ReportItem.scss';
@@ -13,6 +14,7 @@ interface ReportItemProps {
  * Component to display a single medical report item.
  */
 const ReportItem: React.FC<ReportItemProps> = ({ report, onClick }) => {
+  const { t } = useTranslation();
   const { title, category, date, status } = report;
   const isUnread = status === ReportStatus.UNREAD;
   
@@ -52,7 +54,7 @@ const ReportItem: React.FC<ReportItemProps> = ({ report, onClick }) => {
         <div className="report-item__category">{category}</div>
         <div className="report-item__title">{title}</div>
         <div className="report-item__date">
-          Upload Date • {formattedDate}
+        {t('reports.uploadDate')} • {formattedDate}
         </div>
       </IonLabel>
       

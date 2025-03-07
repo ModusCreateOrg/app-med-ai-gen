@@ -23,6 +23,7 @@
     "latestTitle": "Derniers Rapports",
     "seeAll": "Voir Tout",
     "error": "Échec du chargement des rapports",
+    "uploadDate": "Date de Téléchargement",
     "noReports": {
       "title": "Pas Encore de Rapports",
       "message": "Téléchargez vos rapports médicaux ou connectez-vous avec votre prestataire de santé pour commencer.",

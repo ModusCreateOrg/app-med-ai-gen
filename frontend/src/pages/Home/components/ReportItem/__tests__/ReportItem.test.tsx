@@ -4,6 +4,23 @@ import ReportItem from '../ReportItem';
 import { MedicalReport, ReportStatus } from 'common/models/medicalReport';
 import WithMinimalProviders from 'test/wrappers/WithMinimalProviders';
 
+// Mock react-i18next
+vi.mock('react-i18next', async () => {
+  const actual = await vi.importActual('react-i18next');
+  return {
+    ...actual,
+    useTranslation: () => ({
+      t: (key: string) => {
+        if (key === 'reports.uploadDate') return 'Upload Date';
+        return key;
+      },
+      i18n: {
+        changeLanguage: vi.fn(),
+      },
+    }),
+  };
+});
+
 // Use a custom render that uses our minimal providers
 const render = (ui: React.ReactElement) => {
   return defaultRender(ui, { wrapper: WithMinimalProviders });

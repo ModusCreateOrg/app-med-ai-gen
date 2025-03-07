@@ -23,6 +23,7 @@
     "latestTitle": "Últimos Informes",
     "seeAll": "Ver Todos",
     "error": "Error al cargar los informes",
+    "uploadDate": "Fecha de Subida",
     "noReports": {
       "title": "Aún No Hay Informes",
       "message": "Sube tus informes médicos o conéctate con tu proveedor de salud para comenzar.",
