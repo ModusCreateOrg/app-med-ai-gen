@@ -18,16 +18,16 @@ describe('AuthLoadingIndicator', () => {
   it('should render spinner and default message when loading is true', () => {
     render(<AuthLoadingIndicator isLoading={true} />);
     
-    // Check that the component is rendered
-    const loadingElement = screen.getByTestId('auth-loading-indicator');
+    // Check that the component is rendered with the correct testid
+    const loadingElement = screen.getByTestId('auth-loading');
     expect(loadingElement).toBeDefined();
     
-    // Check that the spinner is rendered
-    const spinner = screen.getByTestId('loading-spinner');
+    // Check that the spinner is rendered - using element type instead of role
+    const spinner = loadingElement.querySelector('ion-spinner');
     expect(spinner).toBeDefined();
     
     // Check that the default message is displayed
-    const message = screen.getByText('auth.processing');
+    const message = screen.getByText('loading');
     expect(message).toBeDefined();
   });
 
@@ -43,7 +43,7 @@ describe('AuthLoadingIndicator', () => {
     const customClass = 'custom-class';
     render(<AuthLoadingIndicator isLoading={true} className={customClass} />);
     
-    const loadingElement = screen.getByTestId('auth-loading-indicator');
+    const loadingElement = screen.getByTestId('auth-loading');
     expect(loadingElement.className).toContain(customClass);
   });
 

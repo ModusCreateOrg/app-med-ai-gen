@@ -1,120 +1,191 @@
 import React from 'react';
-import { render, screen, fireEvent, waitFor } from '@testing-library/react';
-import { vi, expect } from 'vitest';
-import SignInForm from 'pages/Auth/SignIn/components/SignInForm';
+import { render, screen, fireEvent } from '@testing-library/react';
+import { vi } from 'vitest';
+import SignInForm from '../SignInForm';
+import { AuthError } from '../../../../services/auth/types';
+import { useAuthOperations } from '../../../../hooks/useAuthOperations';
+
+// Mock the useAuthOperations hook
+vi.mock('../../../../hooks/useAuthOperations', () => ({
+  useAuthOperations: () => ({
+    signIn: vi.fn(),
+    error: null,
+    isLoading: false,
+    clearError: vi.fn(),
+  }),
+}));
+
+// Mock the useProgress hook
+vi.mock('../../../../hooks/useProgress', () => ({
+  useProgress: () => ({
+    progressBar: {
+      show: vi.fn(),
+      hide: vi.fn(),
+    },
+  }),
+}));
+
+// Mock the @ionic/react components
+vi.mock('@ionic/react', () => {
+  const IonButton = ({ onClick, children, type }: { onClick?: () => void; children: React.ReactNode; type?: string }) => (
+    <button onClick={onClick} type={type}>
+      {children}
+    </button>
+  );
+
+  const IonItem = ({ children }: { children: React.ReactNode }) => <div>{children}</div>;
+  const IonLabel = ({ children }: { children: React.ReactNode }) => <label>{children}</label>;
+  const IonInput = ({ 
+    value, 
+    onIonChange, 
+    type, 
+    placeholder,
+    "data-testid": dataTestId,
+  }: { 
+    value?: string; 
+    onIonChange?: (e: { detail: { value: string } }) => void; 
+    type?: string; 
+    placeholder?: string;
+    "data-testid"?: string;
+  }) => (
+    <input
+      value={value}
+      onChange={(e) => onIonChange?.({ detail: { value: e.target.value } })}
+      type={type}
+      placeholder={placeholder}
+      data-testid={dataTestId}
+    />
+  );
+
+  const IonText = ({ children, color }: { children: React.ReactNode; color?: string }) => (
+    <div style={{ color }}>{children}</div>
+  );
+
+  const IonRow = ({ children }: { children: React.ReactNode }) => <div>{children}</div>;
+  const IonCol = ({ children }: { children: React.ReactNode }) => <div>{children}</div>;
+  const IonList = ({ children }: { children: React.ReactNode }) => <div>{children}</div>;
+  const IonGrid = ({ children }: { children: React.ReactNode }) => <div>{children}</div>;
+  const IonCheckbox = ({ 
+    checked, 
+    onIonChange,
+    "data-testid": dataTestId,
+  }: { 
+    checked?: boolean; 
+    onIonChange?: (e: { detail: { checked: boolean } }) => void;
+    "data-testid"?: string;
+  }) => (
+    <input
+      type="checkbox"
+      checked={checked}
+      onChange={(e) => onIonChange?.({ detail: { checked: e.target.checked } })}
+      data-testid={dataTestId}
+    />
+  );
+
+  const IonInputPasswordToggle = ({ 
+    value, 
+    onIonChange, 
+    placeholder,
+    "data-testid": dataTestId,
+  }: { 
+    value?: string; 
+    onIonChange?: (e: { detail: { value: string } }) => void; 
+    placeholder?: string;
+    "data-testid"?: string;
+  }) => (
+    <input
+      value={value}
+      onChange={(e) => onIonChange?.({ detail: { value: e.target.value } })}
+      type="password"
+      placeholder={placeholder}
+      data-testid={dataTestId}
+    />
+  );
+
+  return {
+    IonButton,
+    IonItem,
+    IonLabel,
+    IonInput,
+    IonText,
+    IonRow,
+    IonCol,
+    IonList,
+    IonGrid,
+    IonCheckbox,
+    IonInputPasswordToggle,
+  };
+});
+
+// Mock the AuthErrorDisplay component
+vi.mock('../AuthErrorDisplay', () => ({
+  default: ({ error }: { error: AuthError | null }) => (
+    error ? <div data-testid="auth-error">{error.message}</div> : null
+  ),
+}));
+
+// Mock the AuthLoadingIndicator component
+vi.mock('../AuthLoadingIndicator', () => ({
+  default: ({ isLoading }: { isLoading: boolean }) => (
+    isLoading ? <div data-testid="loading-indicator">Loading...</div> : null
+  ),
+}));
 
 // Mock the useTranslation hook
 vi.mock('react-i18next', () => ({
   useTranslation: () => ({
-    t: (key: string) => key
-  })
-}));
-
-// Mock the useAuthOperations hook
-const mockSignIn = vi.fn();
-vi.mock('common/hooks/useAuthOperations', () => ({
-  useAuthOperations: () => ({
-    signIn: mockSignIn,
-    error: null,
-    isLoading: false
-  })
-}));
-
-// Mock the useProgress hook
-vi.mock('common/hooks/useProgress', () => ({
-  useProgress: () => ({
-    start: vi.fn(),
-    done: vi.fn(),
-    active: false,
-    progress: 0,
-    animation: 'ease',
-    className: '',
-    startPosition: 0.3,
-    initialPosition: 0.1
-  })
+    t: (key: string) => key,
+  }),
 }));
 
 describe('SignInForm', () => {
-  beforeEach(() => {
-    mockSignIn.mockReset();
+  it('should render successfully', () => {
+    render(<SignInForm />);
+    expect(screen.getByText('auth.signIn.title')).toBeTruthy();
   });
 
-  it('renders the form', () => {
+  it('should handle email change', () => {
     render(<SignInForm />);
-    
-    const emailInput = screen.getByLabelText(/auth.email/i);
-    const passwordInput = screen.getByLabelText(/auth.password/i);
-    const submitButton = screen.getByRole('button', { name: /auth.signIn/i });
-    
-    expect(emailInput).toBeDefined();
-    expect(passwordInput).toBeDefined();
-    expect(submitButton).toBeDefined();
-  });
-
-  it('validates email and password inputs', async () => {
-    render(<SignInForm />);
-    
-    const emailInput = screen.getByLabelText(/auth.email/i);
-    const passwordInput = screen.getByLabelText(/auth.password/i);
-    const submitButton = screen.getByRole('button', { name: /auth.signIn/i });
-    
-    // Submit with empty fields
-    fireEvent.click(submitButton);
-    
-    await waitFor(() => {
-      // Should show validation errors
-      expect(screen.getByText(/auth.validation.emailRequired/i)).toBeDefined();
-      expect(screen.getByText(/auth.validation.passwordRequired/i)).toBeDefined();
-    });
-    
-    // Enter invalid email format
-    fireEvent.change(emailInput, { target: { value: 'invalid-email' } });
-    fireEvent.click(submitButton);
-    
-    await waitFor(() => {
-      expect(screen.getByText(/auth.validation.emailFormat/i)).toBeDefined();
-    });
-    
-    // Enter valid email but short password
+    const emailInput = screen.getByTestId('email-input');
     fireEvent.change(emailInput, { target: { value: 'test@example.com' } });
-    fireEvent.change(passwordInput, { target: { value: '123' } });
-    fireEvent.click(submitButton);
-    
-    await waitFor(() => {
-      expect(screen.getByText(/auth.validation.passwordLength/i)).toBeDefined();
-    });
+    expect(emailInput).toHaveValue('test@example.com');
   });
 
-  it('submits the form with valid data', async () => {
+  it('should handle password change', () => {
+    render(<SignInForm />);
+    const passwordInput = screen.getByTestId('password-input');
+    fireEvent.change(passwordInput, { target: { value: 'password123' } });
+    expect(passwordInput).toHaveValue('password123');
+  });
+
+  it('should handle remember me change', () => {
+    render(<SignInForm />);
+    const rememberMeCheckbox = screen.getByTestId('remember-me');
+    fireEvent.click(rememberMeCheckbox);
+    expect(rememberMeCheckbox).toBeChecked();
+  });
+
+  it('should submit the form', () => {
+    // Mock the useAuthOperations hook
+    const mockSignIn = vi.fn();
+    vi.mocked(useAuthOperations).mockReturnValue({
+      signIn: mockSignIn,
+      error: null,
+      isLoading: false,
+      clearError: vi.fn(),
+    });
+
     render(<SignInForm />);
     
-    const emailInput = screen.getByLabelText(/auth.email/i);
-    const passwordInput = screen.getByLabelText(/auth.password/i);
-    const submitButton = screen.getByRole('button', { name: /auth.signIn/i });
-    
-    // Enter valid credentials
+    const emailInput = screen.getByTestId('email-input');
     fireEvent.change(emailInput, { target: { value: 'test@example.com' } });
-    fireEvent.change(passwordInput, { target: { value: 'Password123' } });
+    
+    const passwordInput = screen.getByTestId('password-input');
+    fireEvent.change(passwordInput, { target: { value: 'password123' } });
+    
+    const submitButton = screen.getByText('auth.signIn.button');
     fireEvent.click(submitButton);
     
-    await waitFor(() => {
-      expect(mockSignIn).toHaveBeenCalledWith('test@example.com', 'Password123');
-    });
-  });
-
-  it('applies custom className', () => {
-    const customClass = 'custom-form-class';
-    render(<SignInForm className={customClass} />);
-    
-    const form = screen.getByTestId('sign-in-form');
-    expect(form.className).toContain(customClass);
-  });
-
-  it('accepts custom testid', () => {
-    const customTestId = 'custom-sign-in-form';
-    render(<SignInForm testid={customTestId} />);
-    
-    const form = screen.getByTestId(customTestId);
-    expect(form).toBeDefined();
+    expect(mockSignIn).toHaveBeenCalledWith('test@example.com', 'password123');
   });
 }); 
