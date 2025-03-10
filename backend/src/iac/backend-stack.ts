@@ -6,9 +6,15 @@ import * as apigateway from 'aws-cdk-lib/aws-apigateway';
 import * as ecr from 'aws-cdk-lib/aws-ecr';
 import { Construct } from 'constructs';
 
+interface BackendStackProps extends cdk.StackProps {
+  environment: 'staging' | 'production';
+}
+
 export class BackendStack extends cdk.Stack {
-  constructor(scope: Construct, id: string, props?: cdk.StackProps) {
+  constructor(scope: Construct, id: string, props: BackendStackProps) {
     super(scope, id, props);
+
+    const isProd = props.environment === 'production';
 
     // VPC
     const vpc = new ec2.Vpc(this, 'MedicalReportsVPC', {
@@ -29,12 +35,15 @@ export class BackendStack extends cdk.Stack {
       desiredCount: 2,
       taskImageOptions: {
         image: ecs.ContainerImage.fromAsset('../backend/', {
-          file: 'Dockerfile.prod'
+          file: 'Dockerfile.prod',
+          buildArgs: {
+            NODE_ENV: props.environment,
+          },
         }),
         containerPort: 3000,
         environment: {
-          NODE_ENV: 'production',
-          PERPLEXITY_API_KEY_SECRET_NAME: 'medical-reports-explainer/perplexity-api-key',
+          NODE_ENV: props.environment,
+          PERPLEXITY_API_KEY_SECRET_NAME: `medical-reports-explainer/${props.environment}/perplexity-api-key`,
           PERPLEXITY_MODEL: 'sonar',
           PERPLEXITY_MAX_TOKENS: '2048',
         },
