@@ -13,7 +13,8 @@ export class ReportsService {
   }
 
   async getReports(userId: string): Promise<Report[]> {
-    return this.reportsRepository.findByUser(userId);
+    const { items } = await this.reportsRepository.findByUser(userId);
+    return items;
   }
 
   async getReport(userId: string, reportId: string): Promise<Report> {
@@ -88,10 +89,10 @@ export class ReportsService {
   async getAllReports(userId: string): Promise<Report[]> {
     const reports = await this.reportsRepository.findByUser(userId);
 
-    if (!reports.length) {
+    if (!reports.items.length) {
       throw new NotFoundException('No reports found');
     }
 
-    return reports;
+    return reports.items;
   }
 }

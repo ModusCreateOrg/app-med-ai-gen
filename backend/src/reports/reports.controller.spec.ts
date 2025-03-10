@@ -2,7 +2,7 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { NotFoundException, BadRequestException } from '@nestjs/common';
 import { ReportsController } from './reports.controller';
 import { ReportsService } from './reports.service';
-import { ReportStatus } from '../models/report.model';
+import { ReportStatus } from './models/report.model';
 
 describe('ReportsController', () => {
   let controller: ReportsController;

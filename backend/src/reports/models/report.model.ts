@@ -13,7 +13,10 @@ export interface Report {
   updatedAt: string;
 }
 
-export type CreateReportDto = Omit<Report, 'id' | 'createdAt' | 'updatedAt' | 'status' | 'userId'>;
+export interface CreateReportDto {
+  title: string;
+  content: string;
+}
 
 export type UpdateReportDto = Partial<Omit<Report, 'id' | 'userId' | 'createdAt' | 'updatedAt'>>;
 

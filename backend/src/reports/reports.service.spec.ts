@@ -4,7 +4,7 @@ import { ReportsService } from './reports.service';
 import { ReportsRepository } from './repositories/reports.repository';
 import { CreateReportDto } from './dto/create-report.dto';
 import { UpdateReportDto } from './dto/update-report.dto';
-import { ReportStatus } from '../models/report.model';
+import { ReportStatus } from './models/report.model';
 
 describe('ReportsService', () => {
   let service: ReportsService;

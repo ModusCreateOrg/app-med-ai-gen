@@ -50,7 +50,7 @@ describe('ReportsRepository', () => {
     // Create config service with mock implementation
     configService = {
       get: vi.fn((key: string) => {
-        const config = {
+        const config: Record<string, any> = {
           'aws.region': 'us-east-1',
           'aws.dynamodb.reportsTable': 'reports',
         };

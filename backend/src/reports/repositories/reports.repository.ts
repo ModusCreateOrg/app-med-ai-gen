@@ -7,7 +7,8 @@ import {
   GetCommand,
   QueryCommand,
   UpdateCommand,
-  DeleteCommand
+  DeleteCommand,
+  QueryCommandInput
 } from '@aws-sdk/lib-dynamodb';
 import { v4 as uuidv4 } from 'uuid';
 import { Report, CreateReportDto, UpdateReportDto, ReportStatus } from '../models/report.model';
@@ -35,7 +36,7 @@ export class ReportsRepository {
   async create(userId: string, createReportDto: CreateReportDto): Promise<Report> {
     const now = new Date().toISOString();
     const report: Report = {
-      id: createReportDto.id || uuidv4(),
+      id: uuidv4(),
       userId,
       title: createReportDto.title,
       content: createReportDto.content,
@@ -71,30 +72,26 @@ export class ReportsRepository {
 
   async findByUser(userId: string, options?: FindByUserOptions): Promise<{ items: Report[]; nextCursor?: string }> {
     try {
-      const command = new QueryCommand({
+      const queryParams: QueryCommandInput = {
         TableName: this.tableName,
         KeyConditionExpression: 'userId = :userId',
         ExpressionAttributeValues: {
           ':userId': userId,
         },
-        ScanIndexForward: false, // Sort in descending order (newest first)
         Limit: options?.limit,
-        ...(options?.cursor && { ExclusiveStartKey: JSON.parse(Buffer.from(options.cursor, 'base64').toString()) }),
-      });
+        ExclusiveStartKey: options?.cursor ? JSON.parse(Buffer.from(options.cursor, 'base64').toString()) : undefined,
+      };
 
-      const response = await this.docClient.send(command);
-
-      let nextCursor: string | undefined;
-      if (response.LastEvaluatedKey) {
-        nextCursor = Buffer.from(JSON.stringify(response.LastEvaluatedKey)).toString('base64');
-      }
+      const response = await this.docClient.send(new QueryCommand(queryParams));
 
       return {
         items: response.Items as Report[],
-        nextCursor,
+        nextCursor: response.LastEvaluatedKey
+          ? Buffer.from(JSON.stringify(response.LastEvaluatedKey)).toString('base64')
+          : undefined,
       };
     } catch (error) {
-      this.logger.error(`Error fetching user reports: ${error}`);
+      this.logger.error(`Error fetching reports: ${error}`);
       return { items: [] };
     }
   }
