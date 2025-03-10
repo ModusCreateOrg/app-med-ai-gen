@@ -1,5 +1,5 @@
 import { signIn, signUp, confirmSignUp, signOut, 
-  fetchAuthSession, getCurrentUser } from '@aws-amplify/auth';
+  fetchAuthSession, getCurrentUser, resendSignUpCode } from '@aws-amplify/auth';
 import { Amplify } from 'aws-amplify';
 import { amplifyConfig } from '../../config/aws-config';
 import { UserTokens } from '../../models/auth';
@@ -68,6 +68,20 @@ export class CognitoAuthService {
   static async confirmSignUp(username: string, code: string) {
     try {
       return await confirmSignUp({ username, confirmationCode: code });
+    } catch (error) {
+      this.handleAuthError(error);
+      throw error;
+    }
+  }
+
+  /**
+   * Resend confirmation code to the user's email
+   * @param username Email address
+   * @returns Promise resolving when the code is sent
+   */
+  static async resendConfirmationCode(username: string) {
+    try {
+      return await resendSignUpCode({ username });
     } catch (error) {
       this.handleAuthError(error);
       throw error;

@@ -102,8 +102,11 @@ const SignUpForm = ({ className, testid = 'form-signup' }: SignUpFormProps): JSX
             setShowProgress(true);
             await signUp(values.email, values.password, values.firstName, values.lastName);
             
-            // If no error, redirect to sign in page
-            router.push('/auth/signin', 'forward', 'replace');
+            // Store the email in sessionStorage for the verification page
+            sessionStorage.setItem('verification_email', values.email);
+            
+            // Navigate to verification page
+            router.push('/auth/verify', 'forward', 'replace');
           } catch (err) {
             setError(getAuthErrorMessage(err));
           } finally {

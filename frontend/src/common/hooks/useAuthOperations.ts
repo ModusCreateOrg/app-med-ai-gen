@@ -102,12 +102,10 @@ export const useAuthOperations = () => {
   const resendConfirmationCode = async (email: string): Promise<void> => {
     setIsLoading(true);
     clearError();
-    console.log('resendConfirmationCode', email);
     
     try {
-      // This would need to be implemented in the Cognito service
-      // For now, we'll throw an error
-      throw new Error('Not implemented');
+      await CognitoAuthService.resendConfirmationCode(email);
+      // Success - code resent to user's email
     } catch (err) {
       setError(formatAuthError(err));
       throw err;
