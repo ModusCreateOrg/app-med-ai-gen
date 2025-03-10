@@ -4,6 +4,7 @@ import * as ecs from 'aws-cdk-lib/aws-ecs';
 import * as ecsPatterns from 'aws-cdk-lib/aws-ecs-patterns';
 import * as apigateway from 'aws-cdk-lib/aws-apigateway';
 import * as dynamodb from 'aws-cdk-lib/aws-dynamodb';
+import * as cognito from 'aws-cdk-lib/aws-cognito';
 import { RemovalPolicy } from 'aws-cdk-lib';
 import { Construct } from 'constructs';
 
@@ -19,6 +20,36 @@ export class BackendStack extends cdk.Stack {
       billingMode: dynamodb.BillingMode.PAY_PER_REQUEST,
       removalPolicy: RemovalPolicy.RETAIN,
       timeToLiveAttribute: 'ttl', // Optional: if you want to add TTL
+    });
+
+    // Cognito User Pool
+    const userPool = new cognito.UserPool(this, 'AICognitoMedicalReportsUserPool', {
+      userPoolName: 'ai-cognito-medical-reports-user-pool',
+      selfSignUpEnabled: true,
+      autoVerify: { email: true },
+      standardAttributes: {
+        email: { required: true, mutable: true },
+        givenName: { required: true, mutable: true },
+        familyName: { required: true, mutable: true },
+      },
+      passwordPolicy: {
+        minLength: 8,
+        requireLowercase: true,
+        requireUppercase: true,
+        requireDigits: true,
+        requireSymbols: false,
+      },
+      removalPolicy: RemovalPolicy.RETAIN,
+    });
+
+    // User Pool Client
+    const userPoolClient = new cognito.UserPoolClient(this, 'AICognitoMedicalReportsUserPoolClient', {
+      userPool,
+      authFlows: {
+        userPassword: true,
+        userSrp: true,
+      },
+      generateSecret: false,
     });
 
     // VPC
@@ -95,6 +126,19 @@ export class BackendStack extends cdk.Stack {
       value: reportsTable.tableName,
       description: 'DynamoDB Reports Table Name',
       exportName: 'ReportsTableName',
+    });
+
+    // Cognito Outputs
+    new cdk.CfnOutput(this, 'UserPoolId', {
+      value: userPool.userPoolId,
+      description: 'Cognito User Pool ID',
+      exportName: 'UserPoolId',
+    });
+
+    new cdk.CfnOutput(this, 'UserPoolClientId', {
+      value: userPoolClient.userPoolClientId,
+      description: 'Cognito User Pool Client ID',
+      exportName: 'UserPoolClientId',
     });
   }
 }
