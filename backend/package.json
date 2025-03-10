@@ -10,6 +10,7 @@
     "deploy": "dotenv -- npx cdk deploy --require-approval never",
     "destroy": "dotenv -- cdk destroy -f",
     "docs": "npx compodoc -p tsconfig.json -s",
+    "build": "nest build",
     "format": "prettier --write \"src/**/*.ts\"",
     "start": "nest start",
     "start:dev": "nest start --watch",
