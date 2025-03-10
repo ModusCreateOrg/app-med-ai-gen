@@ -1,6 +1,5 @@
-import { IonLabel, IonRouterOutlet, IonTabBar, IonTabButton, IonTabs } from '@ionic/react';
+import { IonRouterOutlet, IonTabBar, IonTabButton, IonTabs } from '@ionic/react';
 import { Redirect, Route } from 'react-router';
-import { useTranslation } from 'react-i18next';
 
 import './TabNavigation.scss';
 import AppMenu from '../Menu/AppMenu';
@@ -29,8 +28,6 @@ import DiagnosticsPage from 'pages/Account/components/Diagnostics/DiagnosticsPag
  * @see {@link AppMenu}
  */
 const TabNavigation = (): JSX.Element => {
-  const { t } = useTranslation();
-
   return (
     <>
       <AppMenu />
@@ -68,20 +65,38 @@ const TabNavigation = (): JSX.Element => {
           <IonTabButton className="ls-tab-navigation__bar-button" tab="home" href="/tabs/home">
             <Icon
               className="ls-tab-navigation__bar-button-icon"
-              icon="house"
+              icon="home"
               size="xl"
               fixedWidth
             />
-            <IonLabel>{t('navigation.home')}</IonLabel>
           </IonTabButton>
-          <IonTabButton className="ls-tab-navigation__bar-button" tab="users" href="/tabs/users">
+          <IonTabButton className="ls-tab-navigation__bar-button" tab="analytics" href="/tabs/analytics">
             <Icon
               className="ls-tab-navigation__bar-button-icon"
-              icon="users"
+              icon="fileLines"
+              iconStyle="regular"
               size="xl"
               fixedWidth
             />
-            <IonLabel>{t('navigation.users')}</IonLabel>
+          </IonTabButton>
+          <IonTabButton className="ls-tab-navigation__bar-button ls-tab-navigation__bar-button--upload" tab="upload" href="/tabs/upload">
+            <div className="ls-tab-navigation__bar-button-upload-wrapper">
+              <Icon
+                className="ls-tab-navigation__bar-button-icon"
+                icon="arrowUpFromBracket"
+                size="xl"
+                fixedWidth
+              />
+            </div>
+          </IonTabButton>
+          <IonTabButton className="ls-tab-navigation__bar-button" tab="chat" href="/tabs/chat">
+            <Icon
+              className="ls-tab-navigation__bar-button-icon"
+              icon="comment"
+              iconStyle="regular"
+              size="xl"
+              fixedWidth
+            />
           </IonTabButton>
           <IonTabButton
             className="ls-tab-navigation__bar-button"
@@ -90,11 +105,10 @@ const TabNavigation = (): JSX.Element => {
           >
             <Icon
               className="ls-tab-navigation__bar-button-icon"
-              icon="userGear"
+              icon="userCircle"
               size="xl"
               fixedWidth
             />
-            <IonLabel>{t('navigation.account')}</IonLabel>
           </IonTabButton>
         </IonTabBar>
       </IonTabs>

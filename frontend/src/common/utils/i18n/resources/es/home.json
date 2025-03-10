@@ -6,5 +6,42 @@
       "2": "marco lógico y",
       "3": "componentes"
     }
+  },
+  "pages": {
+    "home": {
+      "title": "Inicio",
+      "greeting": "¡Bienvenido, {{name}}!",
+      "howAreYou": "¿Cómo Estás Hoy?",
+      "aiAssistant": {
+        "title": "¡MedReport AI está contigo!",
+        "description": "Haz preguntas sobre tus informes médicos y obtén respuestas instantáneas.",
+        "button": "Hacer Preguntas"
+      }
+    }
+  },
+  "reports": {
+    "latestTitle": "Últimos Informes",
+    "seeAll": "Ver Todos",
+    "error": "Error al cargar los informes",
+    "uploadDate": "Fecha de Subida",
+    "noReports": {
+      "title": "Aún No Hay Informes",
+      "message": "Sube tus informes médicos o conéctate con tu proveedor de salud para comenzar.",
+      "uploadButton": "Subir Informe",
+      "connectButton": "Conectar Proveedor"
+    },
+    "categories": {
+      "general": "General",
+      "neurological": "Neurológico",
+      "oftalmological": "Oftalmológico",
+      "heart": "Cardíaco",
+      "gastro": "Gastroenterología",
+      "orthopedic": "Ortopédico",
+      "other": "Otro"
+    },
+    "status": {
+      "read": "Leído",
+      "unread": "No Leído"
+    }
   }
 }

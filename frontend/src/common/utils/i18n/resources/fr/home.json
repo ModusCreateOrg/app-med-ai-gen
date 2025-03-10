@@ -6,5 +6,42 @@
       "2": "cadre et",
       "3": "composants"
     }
+  },
+  "pages": {
+    "home": {
+      "title": "Accueil",
+      "greeting": "Bienvenue, {{name}} !",
+      "howAreYou": "Comment Allez-Vous Aujourd'hui ?",
+      "aiAssistant": {
+        "title": "MedReport AI est avec vous !",
+        "description": "Posez des questions sur vos rapports médicaux et obtenez des réponses instantanées.",
+        "button": "Poser des Questions"
+      }
+    }
+  },
+  "reports": {
+    "latestTitle": "Derniers Rapports",
+    "seeAll": "Voir Tout",
+    "error": "Échec du chargement des rapports",
+    "uploadDate": "Date de Téléchargement",
+    "noReports": {
+      "title": "Pas Encore de Rapports",
+      "message": "Téléchargez vos rapports médicaux ou connectez-vous avec votre prestataire de santé pour commencer.",
+      "uploadButton": "Télécharger un Rapport",
+      "connectButton": "Connecter un Prestataire"
+    },
+    "categories": {
+      "general": "Général",
+      "neurological": "Neurologique",
+      "oftalmological": "Ophtalmologique",
+      "heart": "Cardiaque",
+      "gastro": "Gastroentérologie",
+      "orthopedic": "Orthopédique",
+      "other": "Autre"
+    },
+    "status": {
+      "read": "Lu",
+      "unread": "Non Lu"
+    }
   }
 }
