@@ -11,12 +11,14 @@ import { useTranslation } from 'react-i18next';
 
 import './VerificationForm.scss';
 import { BaseComponentProps } from 'common/components/types';
+import { AuthError } from 'common/models/auth';
 import { useAuth } from 'common/hooks/useAuth';
 import { useProgress } from 'common/hooks/useProgress';
 import Input from 'common/components/Input/Input';
-import ErrorCard from 'common/components/Card/ErrorCard';
 import HeaderRow from 'common/components/Text/HeaderRow';
-import { getAuthErrorMessage } from 'common/utils/auth-errors';
+import { formatAuthError } from 'common/utils/auth-errors';
+import AuthErrorDisplay from 'common/components/Auth/AuthErrorDisplay';
+import AuthLoadingIndicator from 'common/components/Auth/AuthLoadingIndicator';
 
 /**
  * Properties for the `VerificationForm` component.
@@ -38,8 +40,9 @@ interface VerificationFormValues {
  * @returns {JSX.Element} JSX
  */
 const VerificationForm = ({ className, email, testid = 'form-verification' }: VerificationFormProps): JSX.Element => {
-  const [error, setError] = useState<string>('');
+  const [error, setError] = useState<AuthError | null>(null);
   const [successMessage, setSuccessMessage] = useState<string>('');
+  const [isLoading, setIsLoading] = useState(false);
   const { setIsActive: setShowProgress } = useProgress();
   const router = useIonRouter();
   const { confirmSignUp, resendConfirmationCode } = useAuth();
@@ -50,9 +53,9 @@ const VerificationForm = ({ className, email, testid = 'form-verification' }: Ve
    */
   const validationSchema = object({
     code: string()
-      .matches(/^\d+$/, t('validation.numeric'))
-      .length(6, t('validation.exact-length', { length: 6 }))
-      .required(t('validation.required')),
+      .matches(/^\d+$/, t('validation.numeric', { ns: 'auth' }))
+      .length(6, t('validation.exact-length', { length: 6, ns: 'auth' }))
+      .required(t('validation.required', { ns: 'auth' })),
   });
 
   /**
@@ -60,32 +63,43 @@ const VerificationForm = ({ className, email, testid = 'form-verification' }: Ve
    */
   const handleResendCode = async () => {
     if (!email) {
-      setError(t('error.no-email', { ns: 'auth' }));
+      setError(formatAuthError({
+        code: 'NoEmailError',
+        message: t('error.no-email', { ns: 'auth' }),
+        name: 'NoEmailError'
+      }));
       return;
     }
 
     try {
-      setError('');
+      setError(null);
       setSuccessMessage('');
+      setIsLoading(true);
       setShowProgress(true);
       await resendConfirmationCode(email);
       setSuccessMessage(t('email-verification.code-resent', { ns: 'auth' }));
     } catch (err) {
-      setError(getAuthErrorMessage(err));
+      setError(formatAuthError(err));
     } finally {
       setShowProgress(false);
+      setIsLoading(false);
     }
   };
 
   return (
     <div className={classNames('ls-verification-form', className)} data-testid={testid}>
-      {error && (
-        <ErrorCard
-          content={error}
-          className="ion-margin-bottom"
-          testid={`${testid}-error`}
-        />
-      )}
+      <AuthErrorDisplay 
+        error={error} 
+        showDetails={true}
+        className="ion-margin-bottom"
+        testid={`${testid}-error`}
+      />
+
+      <AuthLoadingIndicator 
+        isLoading={isLoading} 
+        message={t('verification.loading', { ns: 'auth' })}
+        testid={`${testid}-loading`}
+      />
 
       {successMessage && (
         <div className="ls-verification-form__success" data-testid={`${testid}-success`}>
@@ -99,26 +113,35 @@ const VerificationForm = ({ className, email, testid = 'form-verification' }: Ve
         }}
         onSubmit={async (values, { setSubmitting }) => {
           if (!email) {
-            setError(t('error.no-email', { ns: 'auth' }));
+            setError(formatAuthError({
+              code: 'NoEmailError',
+              message: t('error.no-email', { ns: 'auth' }),
+              name: 'NoEmailError'
+            }));
             return;
           }
 
           try {
-            setError('');
+            setError(null);
             setSuccessMessage('');
+            setIsLoading(true);
             setShowProgress(true);
             await confirmSignUp(email, values.code);
             
             // Show success message briefly before redirecting
             setSuccessMessage(t('email-verification.success', { ns: 'auth' }));
+            setIsLoading(false);
+            
+            // Short delay before redirect to allow user to see success message
             setTimeout(() => {
               router.push('/auth/signin', 'forward', 'replace');
             }, 1500);
           } catch (err) {
-            setError(getAuthErrorMessage(err));
+            setError(formatAuthError(err));
           } finally {
             setShowProgress(false);
             setSubmitting(false);
+            setIsLoading(false);
           }
         }}
         validationSchema={validationSchema}
@@ -156,7 +179,7 @@ const VerificationForm = ({ className, email, testid = 'form-verification' }: Ve
               color="primary"
               className="ls-verification-form__button"
               expand="block"
-              disabled={isSubmitting || !dirty}
+              disabled={isSubmitting || !dirty || isLoading}
               data-testid={`${testid}-button-submit`}
             >
               {t('confirm', { ns: 'auth' })}
@@ -167,7 +190,7 @@ const VerificationForm = ({ className, email, testid = 'form-verification' }: Ve
                 fill="clear"
                 color="medium"
                 onClick={handleResendCode}
-                disabled={isSubmitting}
+                disabled={isSubmitting || isLoading}
                 data-testid={`${testid}-button-resend`}
               >
                 {t('resend-code', { ns: 'auth' })}

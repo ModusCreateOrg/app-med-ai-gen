@@ -15,12 +15,14 @@ import { useTranslation } from 'react-i18next';
 
 import './SignUpForm.scss';
 import { BaseComponentProps } from 'common/components/types';
+import { AuthError } from 'common/models/auth';
 import { useSignUp } from 'common/hooks/useAuth';
 import { useProgress } from 'common/hooks/useProgress';
 import Input from 'common/components/Input/Input';
-import ErrorCard from 'common/components/Card/ErrorCard';
 import HeaderRow from 'common/components/Text/HeaderRow';
-import { getAuthErrorMessage } from 'common/utils/auth-errors';
+import { formatAuthError } from 'common/utils/auth-errors';
+import AuthErrorDisplay from 'common/components/Auth/AuthErrorDisplay';
+import AuthLoadingIndicator from 'common/components/Auth/AuthLoadingIndicator';
 
 /**
  * Properties for the `SignUpForm` component.
@@ -45,10 +47,11 @@ interface SignUpFormValues {
  */
 const SignUpForm = ({ className, testid = 'form-signup' }: SignUpFormProps): JSX.Element => {
   const focusInput = useRef<HTMLIonInputElement>(null);
-  const [error, setError] = useState<string>('');
+  const [error, setError] = useState<AuthError | null>(null);
+  const [isLoading, setIsLoading] = useState(false);
   const { setIsActive: setShowProgress } = useProgress();
   const router = useIonRouter();
-  const { signUp, isLoading } = useSignUp();
+  const { signUp, isLoading: isSignUpLoading } = useSignUp();
   const { t } = useTranslation();
 
   /**
@@ -56,22 +59,22 @@ const SignUpForm = ({ className, testid = 'form-signup' }: SignUpFormProps): JSX
    */
   const validationSchema = object({
     email: string()
-      .email(t('validation.email'))
-      .required(t('validation.required')),
+      .email(t('validation.email', { ns: 'auth' }))
+      .required(t('validation.required', { ns: 'auth' })),
     firstName: string()
-      .min(2, t('validation.min-length', { length: 2 }))
-      .max(50, t('validation.max-length', { length: 50 }))
-      .required(t('validation.required')),
+      .min(2, t('validation.min-length', { length: 2, ns: 'auth' }))
+      .max(50, t('validation.max-length', { length: 50, ns: 'auth' }))
+      .required(t('validation.required', { ns: 'auth' })),
     lastName: string()
-      .min(2, t('validation.min-length', { length: 2 }))
-      .max(50, t('validation.max-length', { length: 50 }))
-      .required(t('validation.required')),
+      .min(2, t('validation.min-length', { length: 2, ns: 'auth' }))
+      .max(50, t('validation.max-length', { length: 50, ns: 'auth' }))
+      .required(t('validation.required', { ns: 'auth' })),
     password: string()
-      .min(8, t('validation.min-length', { length: 8 }))
-      .required(t('validation.required')),
+      .min(8, t('validation.min-length', { length: 8, ns: 'auth' }))
+      .required(t('validation.required', { ns: 'auth' })),
     confirmPassword: string()
-      .oneOf([ref('password')], t('validation.passwords-match'))
-      .required(t('validation.required')),
+      .oneOf([ref('password')], t('validation.passwords-match', { ns: 'auth' }))
+      .required(t('validation.required', { ns: 'auth' })),
   });
 
   useIonViewDidEnter(() => {
@@ -80,13 +83,18 @@ const SignUpForm = ({ className, testid = 'form-signup' }: SignUpFormProps): JSX
 
   return (
     <div className={classNames('ls-signup-form', className)} data-testid={testid}>
-      {error && (
-        <ErrorCard
-          content={error}
-          className="ion-margin-bottom"
-          testid={`${testid}-error`}
-        />
-      )}
+      <AuthErrorDisplay 
+        error={error} 
+        showDetails={true}
+        className="ion-margin-bottom"
+        testid={`${testid}-error`}
+      />
+
+      <AuthLoadingIndicator 
+        isLoading={isLoading} 
+        message={t('signup.loading', { ns: 'auth' })}
+        testid={`${testid}-loading`}
+      />
 
       <Formik<SignUpFormValues>
         initialValues={{
@@ -98,20 +106,25 @@ const SignUpForm = ({ className, testid = 'form-signup' }: SignUpFormProps): JSX
         }}
         onSubmit={async (values, { setSubmitting }) => {
           try {
-            setError('');
+            setError(null);
+            setIsLoading(true);
             setShowProgress(true);
             await signUp(values.email, values.password, values.firstName, values.lastName);
             
             // Store the email in sessionStorage for the verification page
             sessionStorage.setItem('verification_email', values.email);
             
+            // Show success briefly before redirecting
+            setIsLoading(false);
+            
             // Navigate to verification page
             router.push('/auth/verify', 'forward', 'replace');
           } catch (err) {
-            setError(getAuthErrorMessage(err));
+            setError(formatAuthError(err));
           } finally {
             setShowProgress(false);
             setSubmitting(false);
+            setIsLoading(false);
           }
         }}
         validationSchema={validationSchema}
@@ -185,7 +198,7 @@ const SignUpForm = ({ className, testid = 'form-signup' }: SignUpFormProps): JSX
               color="primary"
               className="ls-signup-form__button"
               expand="block"
-              disabled={isSubmitting || !dirty || isLoading}
+              disabled={isSubmitting || !dirty || isSignUpLoading || isLoading}
               data-testid={`${testid}-button-submit`}
             >
               {t('signup', { ns: 'auth' })}

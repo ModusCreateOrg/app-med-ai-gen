@@ -17,18 +17,19 @@ import { useTranslation } from 'react-i18next';
 
 import './SignInForm.scss';
 import { BaseComponentProps } from 'common/components/types';
-import { RememberMe } from 'common/models/auth';
+import { AuthError, RememberMe } from 'common/models/auth';
 import storage from 'common/utils/storage';
 import { StorageKey } from 'common/utils/constants';
 import { useSignIn } from 'common/hooks/useAuth';
 import { useProgress } from 'common/hooks/useProgress';
 import Input from 'common/components/Input/Input';
-import ErrorCard from 'common/components/Card/ErrorCard';
 import Icon from 'common/components/Icon/Icon';
 import HeaderRow from 'common/components/Text/HeaderRow';
 import CheckboxInput from 'common/components/Input/CheckboxInput';
 import SocialLoginButtons from 'common/components/SocialLogin/SocialLoginButtons';
-import { getAuthErrorMessage } from 'common/utils/auth-errors';
+import { formatAuthError } from 'common/utils/auth-errors';
+import AuthErrorDisplay from 'common/components/Auth/AuthErrorDisplay';
+import AuthLoadingIndicator from 'common/components/Auth/AuthLoadingIndicator';
 
 /**
  * Properties for the `SignInForm` component.
@@ -53,10 +54,11 @@ interface SignInFormValues {
  */
 const SignInForm = ({ className, testid = 'form-signin' }: SignInFormProps): JSX.Element => {
   const focusInput = useRef<HTMLIonInputElement>(null);
-  const [error, setError] = useState<string>('');
+  const [error, setError] = useState<AuthError | null>(null);
+  const [isLoading, setIsLoading] = useState(false);
   const { setIsActive: setShowProgress } = useProgress();
   const router = useIonRouter();
-  const { signIn, isLoading } = useSignIn();
+  const { signIn, isLoading: isSignInLoading } = useSignIn();
   const { t } = useTranslation();
 
   /**
@@ -79,13 +81,18 @@ const SignInForm = ({ className, testid = 'form-signin' }: SignInFormProps): JSX
 
   return (
     <div className={classNames('ls-signin-form', className)} data-testid={testid}>
-      {error && (
-        <ErrorCard
-          content={`${t('error.unable-to-verify', { ns: 'auth' })} ${error}`}
-          className="ion-margin-bottom"
-          testid={`${testid}-error`}
-        />
-      )}
+      <AuthErrorDisplay 
+        error={error} 
+        showDetails={true}
+        className="ion-margin-bottom"
+        testid={`${testid}-error`}
+      />
+
+      <AuthLoadingIndicator 
+        isLoading={isLoading} 
+        message={t('signin.loading', { ns: 'auth' })}
+        testid={`${testid}-loading`}
+      />
 
       <Formik<SignInFormValues>
         enableReinitialize={true}
@@ -96,7 +103,8 @@ const SignInForm = ({ className, testid = 'form-signin' }: SignInFormProps): JSX
         }}
         onSubmit={async (values, { setSubmitting }) => {
           try {
-            setError('');
+            setError(null);
+            setIsLoading(true);
             setShowProgress(true);
             await signIn(values.email, values.password);
             
@@ -108,12 +116,15 @@ const SignInForm = ({ className, testid = 'form-signin' }: SignInFormProps): JSX
               storage.removeItem(StorageKey.RememberMe);
             }
             
+            // Show success message before redirecting
+            setIsLoading(false);
             router.push('/tabs', 'forward', 'replace');
           } catch (err) {
-            setError(getAuthErrorMessage(err));
+            setError(formatAuthError(err));
           } finally {
             setShowProgress(false);
             setSubmitting(false);
+            setIsLoading(false);
           }
         }}
         validationSchema={validationSchema}
@@ -162,7 +173,7 @@ const SignInForm = ({ className, testid = 'form-signin' }: SignInFormProps): JSX
               color="primary"
               className="ls-signin-form__button"
               expand="block"
-              disabled={isSubmitting || !dirty || isLoading}
+              disabled={isSubmitting || !dirty || isSignInLoading || isLoading}
               data-testid={`${testid}-button-submit`}
             >
               {t('signin', { ns: 'auth' })}
@@ -170,7 +181,7 @@ const SignInForm = ({ className, testid = 'form-signin' }: SignInFormProps): JSX
 
             <SocialLoginButtons 
               className="ls-signin-form__social-buttons" 
-              disabled={isSubmitting} 
+              disabled={isSubmitting || isLoading} 
               testid={`${testid}-social-buttons`}
             />
             

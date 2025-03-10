@@ -4,13 +4,9 @@ import { signIn, signUp, confirmSignUp, signOut,
 import { Amplify } from 'aws-amplify';
 import { amplifyConfig } from '../../config/aws-config';
 import { UserTokens } from '../../models/auth';
-import { AuthProvider } from '@aws-amplify/auth/dist/esm/types/inputs';
 
-// Provider enum for OAuth
-enum OAuthProvider {
-  Google = 'Google',
-  Apple = 'Apple'
-}
+// We need to define this type since it's not exported from @aws-amplify/auth
+type AuthProvider = 'Google' | 'Apple' | 'Facebook' | 'Amazon';
 
 /**
  * Initialize AWS Amplify with the configuration
@@ -174,9 +170,9 @@ export class CognitoAuthService {
   static async federatedSignIn(provider: 'Google' | 'SignInWithApple'): Promise<void> {
     try {
       // Map our provider names to Cognito's provider identifiers
-      const providerMap: Record<string, string> = {
-        'Google': OAuthProvider.Google,
-        'SignInWithApple': OAuthProvider.Apple
+      const providerMap: Record<string, AuthProvider> = {
+        'Google': 'Google' as AuthProvider,
+        'SignInWithApple': 'Apple' as AuthProvider
       };
       
       // Get the OAuth provider
@@ -186,7 +182,7 @@ export class CognitoAuthService {
       }
       
       // Initiate the OAuth redirect flow
-      await signInWithRedirect({ provider: oauthProvider as AuthProvider });
+      await signInWithRedirect({ provider: oauthProvider });
       
       // This function will redirect the browser and not return
       // The user will be redirected back to the app after authentication
