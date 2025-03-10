@@ -48,6 +48,9 @@
   
   /* Base toolbar height */
   --ion-toolbar-base-height: 2.75rem;
+  
+  /* Tab bar height */
+  --tab-bar-height: 3.5rem;
 } 
 
 /* Global safe area padding for all pages */
@@ -58,4 +61,35 @@ ion-content {
 /* Remove left padding from router outlet to avoid double padding */
 ion-router-outlet {
   padding-top: 0;
+}
+
+/* Tab bar fixed size for all platforms */
+.ls-tab-navigation__bar {
+  height: var(--tab-bar-height);
+  max-height: var(--tab-bar-height);
+  padding-bottom: 0;
+  padding-top: 0;
+  contain: strict;
+}
+
+/* Fix for iOS tab bar bottom padding */
+.ios ion-tab-bar {
+  height: var(--tab-bar-height);
+  max-height: var(--tab-bar-height);
+  padding-bottom: 0;
+}
+
+/* Position tab bar items correctly for all platforms */
+.ls-tab-navigation__bar-button {
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Ensure upload button is correctly positioned */
+.ls-tab-navigation__bar-button--upload .ls-tab-navigation__bar-button-upload-wrapper {
+  bottom: calc(50% - 1.5rem);
+  top: auto;
+  position: absolute;
 }
