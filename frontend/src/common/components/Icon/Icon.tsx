@@ -3,7 +3,7 @@ import { IonText } from '@ionic/react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { IconProp } from '@fortawesome/fontawesome-svg-core';
 import {
-  faBookmark,
+  faBookmark as faSolidBookmark,
   faBuilding,
   faCalendar,
   faCircleInfo,
@@ -27,7 +27,9 @@ import {
   faFileLines as faSolidFileLines,
   faUpload,
   faComment,
-  faUserCircle
+  faUserCircle,
+  faGlobe as faGoogle,
+  faA as faApple
 } from '@fortawesome/free-solid-svg-icons';
 import {
   faFileLines as faRegularFileLines,
@@ -70,7 +72,9 @@ export type IconName =
   | 'userCircle'
   | 'users'
   | 'userGear'
-  | 'xmark';
+  | 'xmark'
+  | 'google'
+  | 'apple';
 
 /**
  * Properties for the `Icon` component.
@@ -90,7 +94,7 @@ export interface IconProps
  */
 const solidIcons: Record<IconName, IconProp> = {
   arrowUpFromBracket: faArrowUpFromBracket,
-  bookmark: faBookmark,
+  bookmark: faSolidBookmark,
   building: faBuilding,
   calendar: faCalendar,
   circleInfo: faCircleInfo,
@@ -114,6 +118,8 @@ const solidIcons: Record<IconName, IconProp> = {
   userGear: faUserGear,
   users: faUsers,
   xmark: faXmark,
+  google: faGoogle,
+  apple: faApple,
 };
 
 /**

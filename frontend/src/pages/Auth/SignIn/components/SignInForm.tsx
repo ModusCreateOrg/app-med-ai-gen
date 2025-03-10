@@ -5,6 +5,9 @@ import {
   IonPopover,
   useIonRouter,
   useIonViewDidEnter,
+  IonText,
+  IonRow,
+  IonCol,
 } from '@ionic/react';
 import { useRef, useState } from 'react';
 import classNames from 'classnames';
@@ -17,13 +20,15 @@ import { BaseComponentProps } from 'common/components/types';
 import { RememberMe } from 'common/models/auth';
 import storage from 'common/utils/storage';
 import { StorageKey } from 'common/utils/constants';
-import { useSignIn } from '../api/useSignIn';
+import { useSignIn } from 'common/hooks/useAuth';
 import { useProgress } from 'common/hooks/useProgress';
 import Input from 'common/components/Input/Input';
 import ErrorCard from 'common/components/Card/ErrorCard';
 import Icon from 'common/components/Icon/Icon';
 import HeaderRow from 'common/components/Text/HeaderRow';
 import CheckboxInput from 'common/components/Input/CheckboxInput';
+import { useSocialSignIn } from 'common/hooks/useAuth';
+import { getAuthErrorMessage } from 'common/utils/auth-errors';
 
 /**
  * Properties for the `SignInForm` component.
@@ -32,11 +37,11 @@ interface SignInFormProps extends BaseComponentProps {}
 
 /**
  * Sign in form values.
- * @param {string} username - A username.
+ * @param {string} email - User's email.
  * @param {string} password - A password.
  */
 interface SignInFormValues {
-  username: string;
+  email: string;
   password: string;
   rememberMe: boolean;
 }
@@ -51,14 +56,17 @@ const SignInForm = ({ className, testid = 'form-signin' }: SignInFormProps): JSX
   const [error, setError] = useState<string>('');
   const { setIsActive: setShowProgress } = useProgress();
   const router = useIonRouter();
-  const { mutate: signIn } = useSignIn();
+  const { signIn, isLoading } = useSignIn();
+  const { signInWithGoogle, signInWithApple } = useSocialSignIn();
   const { t } = useTranslation();
 
   /**
    * Sign in form validation schema.
    */
   const validationSchema = object<SignInFormValues>({
-    username: string().required(t('validation.required')),
+    email: string()
+      .email(t('validation.email'))
+      .required(t('validation.required')),
     password: string().required(t('validation.required')),
     rememberMe: boolean().default(false),
   });
@@ -69,6 +77,34 @@ const SignInForm = ({ className, testid = 'form-signin' }: SignInFormProps): JSX
   useIonViewDidEnter(() => {
     focusInput.current?.setFocus();
   });
+
+  // Handle sign in with Google
+  const handleGoogleSignIn = async () => {
+    try {
+      setError('');
+      setShowProgress(true);
+      await signInWithGoogle();
+      router.push('/tabs', 'forward', 'replace');
+    } catch (err) {
+      setError(getAuthErrorMessage(err));
+    } finally {
+      setShowProgress(false);
+    }
+  };
+
+  // Handle sign in with Apple
+  const handleAppleSignIn = async () => {
+    try {
+      setError('');
+      setShowProgress(true);
+      await signInWithApple();
+      router.push('/tabs', 'forward', 'replace');
+    } catch (err) {
+      setError(getAuthErrorMessage(err));
+    } finally {
+      setShowProgress(false);
+    }
+  };
 
   return (
     <div className={classNames('ls-signin-form', className)} data-testid={testid}>
@@ -83,32 +119,31 @@ const SignInForm = ({ className, testid = 'form-signin' }: SignInFormProps): JSX
       <Formik<SignInFormValues>
         enableReinitialize={true}
         initialValues={{
-          username: rememberMe?.username ?? '',
+          email: rememberMe?.username ?? '',
           password: '',
           rememberMe: !!rememberMe,
         }}
-        onSubmit={(values, { setSubmitting }) => {
-          setError('');
-          setShowProgress(true);
-          signIn(values.username, {
-            onSuccess: () => {
-              if (values.rememberMe) {
-                storage.setJsonItem<RememberMe>(StorageKey.RememberMe, {
-                  username: values.username,
-                });
-              } else {
-                storage.removeItem(StorageKey.RememberMe);
-              }
-              router.push('/tabs', 'forward', 'replace');
-            },
-            onError: (err: Error) => {
-              setError(err.message);
-            },
-            onSettled: () => {
-              setShowProgress(false);
-              setSubmitting(false);
-            },
-          });
+        onSubmit={async (values, { setSubmitting }) => {
+          try {
+            setError('');
+            setShowProgress(true);
+            await signIn(values.email, values.password);
+            
+            if (values.rememberMe) {
+              storage.setJsonItem<RememberMe>(StorageKey.RememberMe, {
+                username: values.email,
+              });
+            } else {
+              storage.removeItem(StorageKey.RememberMe);
+            }
+            
+            router.push('/tabs', 'forward', 'replace');
+          } catch (err) {
+            setError(getAuthErrorMessage(err));
+          } finally {
+            setShowProgress(false);
+            setSubmitting(false);
+          }
         }}
         validationSchema={validationSchema}
       >
@@ -120,14 +155,15 @@ const SignInForm = ({ className, testid = 'form-signin' }: SignInFormProps): JSX
             </HeaderRow>
 
             <Input
-              name="username"
-              label={t('label.username', { ns: 'auth' })}
+              name="email"
+              label={t('label.email', { ns: 'auth' })}
               labelPlacement="stacked"
-              maxlength={30}
-              autocomplete="off"
+              maxlength={50}
+              autocomplete="email"
               className="ls-signin-form__input"
               ref={focusInput}
-              data-testid={`${testid}-field-username`}
+              data-testid={`${testid}-field-email`}
+              type="email"
             />
             <Input
               type="password"
@@ -135,7 +171,7 @@ const SignInForm = ({ className, testid = 'form-signin' }: SignInFormProps): JSX
               label={t('label.password', { ns: 'auth' })}
               labelPlacement="stacked"
               maxlength={30}
-              autocomplete="off"
+              autocomplete="current-password"
               className="ls-signin-form__input"
               data-testid={`${testid}-field-password`}
             >
@@ -155,11 +191,57 @@ const SignInForm = ({ className, testid = 'form-signin' }: SignInFormProps): JSX
               color="primary"
               className="ls-signin-form__button"
               expand="block"
-              disabled={isSubmitting || !dirty}
+              disabled={isSubmitting || !dirty || isLoading}
               data-testid={`${testid}-button-submit`}
             >
               {t('signin', { ns: 'auth' })}
             </IonButton>
+
+            <IonRow className="ion-text-center ion-padding">
+              <IonCol>
+                <IonText color="medium">
+                  {t('or-signin-with', { ns: 'auth' })}
+                </IonText>
+              </IonCol>
+            </IonRow>
+
+            <IonRow>
+              <IonCol>
+                <IonButton
+                  expand="block"
+                  fill="outline"
+                  color="medium"
+                  onClick={handleGoogleSignIn}
+                  disabled={isLoading}
+                  data-testid={`${testid}-button-google`}
+                >
+                  <Icon icon="google" slot="start" />
+                  Google
+                </IonButton>
+              </IonCol>
+              <IonCol>
+                <IonButton
+                  expand="block"
+                  fill="outline"
+                  color="dark"
+                  onClick={handleAppleSignIn}
+                  disabled={isLoading}
+                  data-testid={`${testid}-button-apple`}
+                >
+                  <Icon icon="apple" slot="start" />
+                  Apple
+                </IonButton>
+              </IonCol>
+            </IonRow>
+            
+            <IonRow className="ion-text-center ion-padding-top">
+              <IonCol>
+                <IonText color="medium">
+                  {t('no-account', { ns: 'auth' })}{' '}
+                  <a href="/auth/signup">{t('signup', { ns: 'auth' })}</a>
+                </IonText>
+              </IonCol>
+            </IonRow>
 
             <IonPopover
               trigger="signinInfo"
@@ -168,20 +250,11 @@ const SignInForm = ({ className, testid = 'form-signin' }: SignInFormProps): JSX
             >
               <IonContent className="ion-padding">
                 <p>
-                  {t('info-username.part1', { ns: 'auth' })}
-                  <a
-                    href="https://jsonplaceholder.typicode.com/users"
-                    target="_blank"
-                    rel="noreferrer"
-                  >
-                    {t('info-username.part2', { ns: 'auth' })}
-                  </a>
-                  . {t('info-username.part3', { ns: 'auth' })}{' '}
-                  <span className="inline-code">Bret</span>{' '}
-                  {t('info-username.part4', { ns: 'auth' })}{' '}
-                  <span className="inline-code">Samantha</span>.
+                  {t('info-email.part1', { ns: 'auth' })}
                 </p>
-                <p>{t('info-username.part5', { ns: 'auth' })}</p>
+                <p>
+                  {t('info-email.part2', { ns: 'auth' })}
+                </p>
               </IonContent>
             </IonPopover>
           </Form>

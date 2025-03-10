@@ -5,6 +5,7 @@ import { Redirect, Route } from 'react-router';
 import PrivateOutlet from './PrivateOutlet';
 import TabNavigation from './TabNavigation';
 import SignInPage from 'pages/Auth/SignIn/SignInPage';
+import SignUpPage from 'pages/Auth/SignUp/SignUpPage';
 import SignOutPage from 'pages/Auth/SignOut/SignOutPage';
 
 /**
@@ -29,6 +30,7 @@ const AppRouter = (): JSX.Element => {
           )}
         />
         <Route exact path="/auth/signin" render={() => <SignInPage />} />
+        <Route exact path="/auth/signup" render={() => <SignUpPage />} />
         <Route exact path="/auth/signout" render={() => <SignOutPage />} />
         <Route exact path="/">
           <Redirect to="/tabs" />
