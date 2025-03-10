@@ -39,4 +39,23 @@
   --ion-color-step-850: #262626;
   --ion-color-step-900: #191919;
   --ion-color-step-950: #0d0d0d;
+
+  /* Safe area insets variables */
+  --ion-safe-area-top: env(safe-area-inset-top);
+  --ion-safe-area-bottom: env(safe-area-inset-bottom);
+  --ion-safe-area-left: env(safe-area-inset-left);
+  --ion-safe-area-right: env(safe-area-inset-right);
+  
+  /* Base toolbar height */
+  --ion-toolbar-base-height: 2.75rem;
 } 
+
+/* Global safe area padding for all pages */
+ion-content {
+  --padding-top: var(--ion-safe-area-top, 1rem);
+}
+
+/* Remove left padding from router outlet to avoid double padding */
+ion-router-outlet {
+  padding-top: 0;
+}
