@@ -28,10 +28,15 @@ export class BackendStack extends cdk.Stack {
       cpu: 256,
       desiredCount: 2,
       taskImageOptions: {
-        image: ecs.ContainerImage.fromAsset('../backend'),
+        image: ecs.ContainerImage.fromAsset('../backend/', {
+          file: 'Dockerfile.prod'
+        }),
         containerPort: 3000,
         environment: {
           NODE_ENV: 'production',
+          PERPLEXITY_API_KEY_SECRET_NAME: 'medical-reports-explainer/perplexity-api-key',
+          PERPLEXITY_MODEL: 'sonar',
+          PERPLEXITY_MAX_TOKENS: '2048',
         },
       },
     });
