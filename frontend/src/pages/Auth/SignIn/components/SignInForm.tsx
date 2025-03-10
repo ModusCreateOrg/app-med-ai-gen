@@ -27,7 +27,7 @@ import ErrorCard from 'common/components/Card/ErrorCard';
 import Icon from 'common/components/Icon/Icon';
 import HeaderRow from 'common/components/Text/HeaderRow';
 import CheckboxInput from 'common/components/Input/CheckboxInput';
-import { useSocialSignIn } from 'common/hooks/useAuth';
+import SocialLoginButtons from 'common/components/SocialLogin/SocialLoginButtons';
 import { getAuthErrorMessage } from 'common/utils/auth-errors';
 
 /**
@@ -57,7 +57,6 @@ const SignInForm = ({ className, testid = 'form-signin' }: SignInFormProps): JSX
   const { setIsActive: setShowProgress } = useProgress();
   const router = useIonRouter();
   const { signIn, isLoading } = useSignIn();
-  const { signInWithGoogle, signInWithApple } = useSocialSignIn();
   const { t } = useTranslation();
 
   /**
@@ -77,34 +76,6 @@ const SignInForm = ({ className, testid = 'form-signin' }: SignInFormProps): JSX
   useIonViewDidEnter(() => {
     focusInput.current?.setFocus();
   });
-
-  // Handle sign in with Google
-  const handleGoogleSignIn = async () => {
-    try {
-      setError('');
-      setShowProgress(true);
-      await signInWithGoogle();
-      router.push('/tabs', 'forward', 'replace');
-    } catch (err) {
-      setError(getAuthErrorMessage(err));
-    } finally {
-      setShowProgress(false);
-    }
-  };
-
-  // Handle sign in with Apple
-  const handleAppleSignIn = async () => {
-    try {
-      setError('');
-      setShowProgress(true);
-      await signInWithApple();
-      router.push('/tabs', 'forward', 'replace');
-    } catch (err) {
-      setError(getAuthErrorMessage(err));
-    } finally {
-      setShowProgress(false);
-    }
-  };
 
   return (
     <div className={classNames('ls-signin-form', className)} data-testid={testid}>
@@ -197,42 +168,11 @@ const SignInForm = ({ className, testid = 'form-signin' }: SignInFormProps): JSX
               {t('signin', { ns: 'auth' })}
             </IonButton>
 
-            <IonRow className="ion-text-center ion-padding">
-              <IonCol>
-                <IonText color="medium">
-                  {t('or-signin-with', { ns: 'auth' })}
-                </IonText>
-              </IonCol>
-            </IonRow>
-
-            <IonRow>
-              <IonCol>
-                <IonButton
-                  expand="block"
-                  fill="outline"
-                  color="medium"
-                  onClick={handleGoogleSignIn}
-                  disabled={isLoading}
-                  data-testid={`${testid}-button-google`}
-                >
-                  <Icon icon="google" slot="start" />
-                  Google
-                </IonButton>
-              </IonCol>
-              <IonCol>
-                <IonButton
-                  expand="block"
-                  fill="outline"
-                  color="dark"
-                  onClick={handleAppleSignIn}
-                  disabled={isLoading}
-                  data-testid={`${testid}-button-apple`}
-                >
-                  <Icon icon="apple" slot="start" />
-                  Apple
-                </IonButton>
-              </IonCol>
-            </IonRow>
+            <SocialLoginButtons 
+              className="ls-signin-form__social-buttons" 
+              disabled={isSubmitting} 
+              testid={`${testid}-social-buttons`}
+            />
             
             <IonRow className="ion-text-center ion-padding-top">
               <IonCol>

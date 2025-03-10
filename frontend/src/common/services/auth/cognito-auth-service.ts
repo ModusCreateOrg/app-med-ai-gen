@@ -1,8 +1,16 @@
 import { signIn, signUp, confirmSignUp, signOut, 
-  fetchAuthSession, getCurrentUser, resendSignUpCode } from '@aws-amplify/auth';
+  fetchAuthSession, getCurrentUser, resendSignUpCode, signInWithRedirect,
+  type AuthUser } from '@aws-amplify/auth';
 import { Amplify } from 'aws-amplify';
 import { amplifyConfig } from '../../config/aws-config';
 import { UserTokens } from '../../models/auth';
+import { AuthProvider } from '@aws-amplify/auth/dist/esm/types/inputs';
+
+// Provider enum for OAuth
+enum OAuthProvider {
+  Google = 'Google',
+  Apple = 'Apple'
+}
 
 /**
  * Initialize AWS Amplify with the configuration
@@ -105,12 +113,12 @@ export class CognitoAuthService {
    * Get current authenticated user
    * @returns Promise resolving to the current authenticated user
    */
-  static async getCurrentUser() {
+  static async getCurrentUser(): Promise<AuthUser | null> {
     try {
       return await getCurrentUser();
-    } catch (_error) {
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    } catch (_) {
       // Not throwing here as this is often used to check if a user is signed in
-      console.error('Error getting current user:', _error);
       return null;
     }
   }
@@ -122,8 +130,8 @@ export class CognitoAuthService {
   static async getCurrentSession() {
     try {
       return await fetchAuthSession();
-    } catch (_error) {
-      console.error('Error getting current session:', _error);
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    } catch (_) {
       return null;
     }
   }
@@ -152,8 +160,8 @@ export class CognitoAuthService {
         expires_in: Math.floor((new Date(expirationTime * 1000).getTime() - Date.now()) / 1000),
         expires_at: new Date(expirationTime * 1000).toISOString(),
       };
-    } catch (_error) {
-      this.handleAuthError(_error);
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    } catch (_) {
       return null;
     }
   }
@@ -161,17 +169,27 @@ export class CognitoAuthService {
   /**
    * Initiate social sign in (Google or Apple)
    * @param provider 'Google' or 'SignInWithApple'
-   * @returns Promise
+   * @returns Promise resolving to void (redirects to the IdP)
    */
-  static async federatedSignIn(provider: 'Google' | 'SignInWithApple') {
+  static async federatedSignIn(provider: 'Google' | 'SignInWithApple'): Promise<void> {
     try {
-      // This needs OAuth configuration in the Amplify setup
-      // In AWS Amplify v6, we'd use a different approach for federated sign in
-      // Placeholder for now
-      console.warn('federatedSignIn is not implemented in this version', provider);
-      // In production, federated sign-in would be handled differently
-      // For example, using a hosted UI or custom implementation
-      return null;
+      // Map our provider names to Cognito's provider identifiers
+      const providerMap: Record<string, string> = {
+        'Google': OAuthProvider.Google,
+        'SignInWithApple': OAuthProvider.Apple
+      };
+      
+      // Get the OAuth provider
+      const oauthProvider = providerMap[provider];
+      if (!oauthProvider) {
+        throw new Error(`Unsupported provider: ${provider}`);
+      }
+      
+      // Initiate the OAuth redirect flow
+      await signInWithRedirect({ provider: oauthProvider as AuthProvider });
+      
+      // This function will redirect the browser and not return
+      // The user will be redirected back to the app after authentication
     } catch (error) {
       this.handleAuthError(error);
       throw error;

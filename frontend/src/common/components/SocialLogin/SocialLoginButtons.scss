@@ -1,0 +1,15 @@
+.ls-social-login-buttons {
+  margin-top: 1rem;
+
+  &__google {
+    --background-hover: #f2f2f2;
+    --color-hover: #4285f4;
+    --border-color: #dddddd;
+  }
+
+  &__apple {
+    --background-hover: #000000;
+    --color-hover: #ffffff;
+    --border-color: #333333;
+  }
+} 
