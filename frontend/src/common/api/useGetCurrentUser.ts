@@ -1,33 +1,42 @@
 import { useQuery } from '@tanstack/react-query';
 
-import { User } from 'common/models/user';
-import { QueryKey, StorageKey } from 'common/utils/constants';
-import storage from 'common/utils/storage';
+import { CognitoUser } from 'common/models/user';
+import { QueryKey } from 'common/utils/constants';
+import CognitoAuthService from 'common/services/auth/cognito-auth-service';
+import { mapCognitoUserToAppUser } from 'common/utils/user-mapper';
 
 /**
- * An API hook which fetches the currently authenticated `User`.
- * @returns Returns a `UseQueryResult` with `User` data.
+ * An API hook which fetches the currently authenticated user from Cognito.
+ * @returns Returns a `UseQueryResult` with `CognitoUser` data.
  */
 export const useGetCurrentUser = () => {
   /**
-   * Fetch the details about the currently authenticated `User`.
-   * @returns A Promise which resolves to a `User`.
+   * Fetch the details about the currently authenticated user.
+   * @returns A Promise which resolves to a `CognitoUser`.
    */
-  const getCurentUser = (): Promise<User> => {
-    // TODO: This is contrived, example logic. Replace with an actual
-    //       integration with your Identity Provider, IdP.
-    return new Promise((resolve, reject) => {
-      try {
-        const storedUser = storage.getItem(StorageKey.User);
-        if (storedUser) {
-          const user = JSON.parse(storedUser) as unknown as User;
-          return resolve(user);
-        }
-        return reject(new Error('Not found.'));
-      } catch (err) {
-        return reject(err);
+  const getCurentUser = async (): Promise<CognitoUser> => {
+    try {
+      // Get current user from Cognito
+      const cognitoUser = await CognitoAuthService.getCurrentUser();
+      
+      if (!cognitoUser) {
+        throw new Error('User not found');
       }
-    });
+      
+      // Map Cognito user data to our application's user model
+      const userData = {
+        username: cognitoUser.username || '',
+        attributes: {
+          // Extract whatever attributes are available from the user object
+          email: cognitoUser.signInDetails?.loginId || '',
+        }
+      };
+      
+      return mapCognitoUserToAppUser(userData);
+    } catch (error) {
+      console.error('Error getting current user:', error);
+      throw error;
+    }
   };
 
   return useQuery({

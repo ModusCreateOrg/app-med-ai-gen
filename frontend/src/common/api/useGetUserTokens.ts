@@ -1,44 +1,34 @@
 import { useQuery } from '@tanstack/react-query';
-import dayjs from 'dayjs';
 
 import { UserTokens } from 'common/models/auth';
-import { QueryKey, StorageKey } from 'common/utils/constants';
-import storage from 'common/utils/storage';
+import { QueryKey } from 'common/utils/constants';
+import CognitoAuthService from 'common/services/auth/cognito-auth-service';
 
 /**
- * An API hook which fetches tokens from the application Identity Provider, IdP.
- * This hook contains example logic which should be replaced with an actual
- * IdP integration.
+ * An API hook which fetches tokens from AWS Cognito.
  * @returns Returns a `UseQueryResult` with `UserTokens` data.
  */
 export const useGetUserTokens = () => {
   const getUserTokens = async (): Promise<UserTokens> => {
-    // TODO: replace with logic to fetch tokens from your IdP
-    return new Promise((resolve, reject) => {
-      const storedTokens = storage.getItem(StorageKey.UserTokens);
-
-      if (storedTokens) {
-        // tokens found
-        const tokens = JSON.parse(storedTokens) as unknown as UserTokens;
-        const now = dayjs();
-        if (now.isBefore(tokens.expires_at)) {
-          // tokens not expired
-          return resolve(tokens);
-        } else {
-          // tokens expired
-          return reject(new Error('Tokens expired.'));
-        }
+    try {
+      // Get tokens from Cognito
+      const tokens = await CognitoAuthService.getUserTokens();
+      
+      if (!tokens) {
+        throw new Error('Tokens not found.');
       }
-
-      // tokens not found
-      return reject(new Error('Tokens not found.'));
-    });
+      
+      return tokens;
+    } catch (error) {
+      console.error('Error getting user tokens:', error);
+      throw error;
+    }
   };
 
   return useQuery({
     queryKey: [QueryKey.UserTokens],
     queryFn: () => getUserTokens(),
     retry: 0,
-    refetchInterval: 60000,
+    refetchInterval: 60000, // Refresh tokens every minute
   });
 };
