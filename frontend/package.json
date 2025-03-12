@@ -16,8 +16,11 @@
     "test": "vitest",
     "test:ci": "vitest run --coverage --silent",
     "test:coverage": "vitest --coverage",
+    "clean:coverage": "./scripts/clean-coverage.sh",
     "test:e2e": "cypress run",
     "lint": "eslint .",
+    "lint:scss": "stylelint \"**/*.scss\"",
+    "lint:all": "npm run lint && npm run lint:scss",
     "android": "npx cap sync android && npx cap open android",
     "ios": "npx cap sync ios && npx cap open ios",
     "prepare": "husky"
@@ -26,9 +29,15 @@
     "*.{ts,tsx}": [
       "eslint --fix",
       "vitest related --run"
+    ],
+    "*.scss": [
+      "stylelint --fix"
     ]
   },
   "dependencies": {
+    "@aws-amplify/auth": "^6.0.15",
+    "@aws-amplify/core": "^6.0.15",
+    "@aws-amplify/ui-react": "^6.1.1",
     "@capacitor/android": "6.2.0",
     "@capacitor/app": "6.0.2",
     "@capacitor/assets": "3.0.5",
@@ -92,6 +101,9 @@
     "lint-staged": "^15.4.3",
     "msw": "2.7.0",
     "sass": "1.83.1",
+    "stylelint": "^16.15.0",
+    "stylelint-config-standard-scss": "^14.0.0",
+    "stylelint-scss": "^6.11.1",
     "terser": "5.37.0",
     "typescript": "5.7.2",
     "typescript-eslint": "8.19.1",

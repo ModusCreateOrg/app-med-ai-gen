@@ -18,6 +18,7 @@ import pluginReactRefresh from 'eslint-plugin-react-refresh';
  */
 export default tseslint.config(
   {
+    // Only target TypeScript files
     files: ['**/*.ts', '**/*.tsx'],
     extends: [eslint.configs.recommended, ...tseslint.configs.recommended],
     languageOptions: {
@@ -44,6 +45,15 @@ export default tseslint.config(
   {
     // global ignores
     // do not add any other keys to this object
-    ignores: ['coverage/', 'dist/'],
+    ignores: [
+      'coverage/', 
+      'dist/',
+      'android/app/build/**',
+      'android/.gradle/**',
+      'android/build/**',
+      'android/capacitor-cordova-android-plugins/build/**',
+      'android/app/src/main/assets/public/**',
+      '**/node_modules/**'
+    ],
   },
 );

@@ -34,3 +34,33 @@ export type User = {
   address: Address;
   company: Company;
 };
+
+/**
+ * Cognito User type aligned with AWS Cognito attributes
+ */
+export type CognitoUser = {
+  // Unique identifier (sub from Cognito)
+  id: string;
+  // Username (usually email in our case)
+  username: string;
+  // Email address
+  email: string;
+  // Full name composed of given_name and family_name
+  name?: string;
+  // First name from Cognito given_name attribute
+  firstName?: string;
+  // Last name from Cognito family_name attribute
+  lastName?: string;
+  // Phone number
+  phone?: string;
+  // Whether email is verified
+  emailVerified?: boolean;
+  // Whether phone is verified
+  phoneVerified?: boolean;
+  // User groups/roles
+  groups?: string[];
+  // Created date
+  createdAt?: string;
+  // Updated date
+  updatedAt?: string;
+};

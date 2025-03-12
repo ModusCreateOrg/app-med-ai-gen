@@ -1,15 +1,14 @@
 import { describe, expect, it } from 'vitest';
-
-import { render, screen } from 'test/test-utils';
+import { render, screen } from '@testing-library/react';
 import LoaderSpinner from '../LoaderSpinner';
 
 describe('LoaderSpinner', () => {
-  it('should render successfully', async () => {
+  it('should render successfully', () => {
     // ARRANGE
     render(<LoaderSpinner />);
-    await screen.findByTestId('loader-spinner');
 
     // ASSERT
-    expect(screen.getByTestId('loader-spinner')).toBeDefined();
+    const loaderElement = screen.getByTestId('loader-spinner');
+    expect(loaderElement).toBeDefined();
   });
 });

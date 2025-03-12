@@ -1,10 +1,11 @@
 import { IonContent, IonPage, useIonRouter } from '@ionic/react';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 
 import './SignOutPage.scss';
 import { PropsWithTestId } from 'common/components/types';
-import { useSignOut } from './api/useSignOut';
+import { useSignOut } from 'common/hooks/useAuth';
 import LoaderSpinner from 'common/components/Loader/LoaderSpinner';
+import { getAuthErrorMessage } from 'common/utils/auth-errors';
 
 /**
  * The `SignOutPage` renders a loader while the application removes
@@ -14,24 +15,37 @@ import LoaderSpinner from 'common/components/Loader/LoaderSpinner';
  */
 const SignOutPage = ({ testid = 'page-signout' }: PropsWithTestId): JSX.Element => {
   const router = useIonRouter();
-  const { mutate: signOut } = useSignOut();
+  const { signOut } = useSignOut();
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    signOut(undefined, {
-      onSuccess: () => {
+    const performSignOut = async () => {
+      try {
+        await signOut();
         router.push('/auth/signin', 'forward', 'replace');
-      },
-      onError: () => {
-        // TODO handle sign out error
-        router.push('/tabs/home', 'forward', 'replace');
-      },
-    });
-  }, []);
+      } catch (err) {
+        setError(getAuthErrorMessage(err));
+        // If sign out fails, redirect to home after a short delay
+        setTimeout(() => {
+          router.push('/auth/signin', 'forward', 'replace');
+        }, 2000);
+      }
+    };
+
+    performSignOut();
+  }, [signOut, router]);
 
   return (
     <IonPage className="ls-page-signout" data-testid={testid}>
       <IonContent fullscreen>
-        <LoaderSpinner className="ls-page-signout__loader-spinner" />
+        {error ? (
+          <div className="ls-page-signout__error">
+            <p>Sign out failed: {error}</p>
+            <p>Redirecting to sign in page...</p>
+          </div>
+        ) : (
+          <LoaderSpinner className="ls-page-signout__loader-spinner" />
+        )}
       </IonContent>
     </IonPage>
   );

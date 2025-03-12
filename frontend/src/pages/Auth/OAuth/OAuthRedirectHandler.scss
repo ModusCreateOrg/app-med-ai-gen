@@ -1,0 +1,15 @@
+.ls-oauth-handler {
+  .ls-oauth-handler__content {
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    padding: 2rem;
+  }
+
+  .ls-oauth-handler__spinner {
+    margin-top: 2rem;
+  }
+} 

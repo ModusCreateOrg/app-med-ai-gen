@@ -1,0 +1,13 @@
+.ls-signup-page {
+  .ls-signup-page__container {
+    max-width: 32rem;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+  }
+
+  .ls-signup-page__form {
+    width: 100%;
+  }
+} 

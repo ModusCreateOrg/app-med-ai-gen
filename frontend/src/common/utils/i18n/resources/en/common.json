@@ -24,6 +24,9 @@
     "signout": "Sign Out",
     "users": "Users"
   },
+  "reports": {
+    "uploadDate": "Upload Date"
+  },
   "validation": {
     "email": "Must be an email address. ",
     "max": "Must be at most {{max}} characters. ",

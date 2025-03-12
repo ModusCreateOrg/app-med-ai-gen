@@ -5,8 +5,11 @@ import {
   IonPopover,
   useIonRouter,
   useIonViewDidEnter,
+  IonText,
+  IonRow,
+  IonCol,
 } from '@ionic/react';
-import { useRef, useState } from 'react';
+import { useRef, useState, useEffect } from 'react';
 import classNames from 'classnames';
 import { Form, Formik } from 'formik';
 import { boolean, object, string } from 'yup';
@@ -14,16 +17,19 @@ import { useTranslation } from 'react-i18next';
 
 import './SignInForm.scss';
 import { BaseComponentProps } from 'common/components/types';
-import { RememberMe } from 'common/models/auth';
+import { AuthError, RememberMe } from 'common/models/auth';
 import storage from 'common/utils/storage';
 import { StorageKey } from 'common/utils/constants';
-import { useSignIn } from '../api/useSignIn';
+import { useSignIn, useCurrentUser } from 'common/hooks/useAuth';
 import { useProgress } from 'common/hooks/useProgress';
 import Input from 'common/components/Input/Input';
-import ErrorCard from 'common/components/Card/ErrorCard';
 import Icon from 'common/components/Icon/Icon';
 import HeaderRow from 'common/components/Text/HeaderRow';
 import CheckboxInput from 'common/components/Input/CheckboxInput';
+import { formatAuthError } from 'common/utils/auth-errors';
+import AuthErrorDisplay from 'common/components/Auth/AuthErrorDisplay';
+import AuthLoadingIndicator from 'common/components/Auth/AuthLoadingIndicator';
+import { useGetUserTokens } from 'common/api/useGetUserTokens';
 
 /**
  * Properties for the `SignInForm` component.
@@ -32,11 +38,12 @@ interface SignInFormProps extends BaseComponentProps {}
 
 /**
  * Sign in form values.
- * @param {string} username - A username.
+ * @param {string} email - User's email.
  * @param {string} password - A password.
+ * @param {boolean} rememberMe - Whether to remember the user's credentials.
  */
 interface SignInFormValues {
-  username: string;
+  email: string;
   password: string;
   rememberMe: boolean;
 }
@@ -48,17 +55,24 @@ interface SignInFormValues {
  */
 const SignInForm = ({ className, testid = 'form-signin' }: SignInFormProps): JSX.Element => {
   const focusInput = useRef<HTMLIonInputElement>(null);
-  const [error, setError] = useState<string>('');
+  const [error, setError] = useState<AuthError | null>(null);
+  const [isLoading, setIsLoading] = useState(false);
+  const [shouldRedirect, setShouldRedirect] = useState(false);
+  const [isSignInComplete, setIsSignInComplete] = useState(false);
   const { setIsActive: setShowProgress } = useProgress();
   const router = useIonRouter();
-  const { mutate: signIn } = useSignIn();
+  const { signIn, isLoading: isSignInLoading } = useSignIn();
   const { t } = useTranslation();
+  const currentUser = useCurrentUser();
+  const { isSuccess: hasTokens, refetch: refetchTokens } = useGetUserTokens();
 
   /**
    * Sign in form validation schema.
    */
   const validationSchema = object<SignInFormValues>({
-    username: string().required(t('validation.required')),
+    email: string()
+      .email(t('validation.email'))
+      .required(t('validation.required')),
     password: string().required(t('validation.required')),
     rememberMe: boolean().default(false),
   });
@@ -70,45 +84,79 @@ const SignInForm = ({ className, testid = 'form-signin' }: SignInFormProps): JSX
     focusInput.current?.setFocus();
   });
 
+  // Effect to handle redirection after sign-in is complete and user data is available
+  useEffect(() => {
+    if (isSignInComplete && shouldRedirect && currentUser && hasTokens) {
+      console.log('User data loaded, redirecting to home');
+      setIsLoading(false);
+      router.push('/tabs/home', 'forward', 'replace');
+    }
+  }, [isSignInComplete, shouldRedirect, currentUser, hasTokens, router]);
+
   return (
     <div className={classNames('ls-signin-form', className)} data-testid={testid}>
-      {error && (
-        <ErrorCard
-          content={`${t('error.unable-to-verify', { ns: 'auth' })} ${error}`}
-          className="ion-margin-bottom"
-          testid={`${testid}-error`}
-        />
-      )}
+      <AuthErrorDisplay 
+        error={error} 
+        showDetails={true}
+        className="ion-margin-bottom"
+        testid={`${testid}-error`}
+      />
+
+      <AuthLoadingIndicator 
+        isLoading={isLoading} 
+        message={t('signin.loading', { ns: 'auth' })}
+        testid={`${testid}-loading`}
+      />
 
       <Formik<SignInFormValues>
         enableReinitialize={true}
         initialValues={{
-          username: rememberMe?.username ?? '',
+          email: rememberMe?.username ?? '',
           password: '',
           rememberMe: !!rememberMe,
         }}
-        onSubmit={(values, { setSubmitting }) => {
-          setError('');
-          setShowProgress(true);
-          signIn(values.username, {
-            onSuccess: () => {
-              if (values.rememberMe) {
-                storage.setJsonItem<RememberMe>(StorageKey.RememberMe, {
-                  username: values.username,
-                });
-              } else {
-                storage.removeItem(StorageKey.RememberMe);
-              }
-              router.push('/tabs', 'forward', 'replace');
-            },
-            onError: (err: Error) => {
-              setError(err.message);
-            },
-            onSettled: () => {
-              setShowProgress(false);
-              setSubmitting(false);
-            },
-          });
+        onSubmit={async (values, { setSubmitting }) => {
+          try {
+            setError(null);
+            setIsLoading(true);
+            setShowProgress(true);
+            setShouldRedirect(false);
+            setIsSignInComplete(false);
+            
+            const result = await signIn(values.email, values.password);
+            
+            // Check if user is already signed in
+            if (result.alreadySignedIn) {
+              // User is already signed in, but we still need to wait for user data
+              console.log('User is already signed in, waiting for user data');
+              // Trigger a token refresh to ensure we have the latest user data
+              await refetchTokens();
+              setIsSignInComplete(true);
+              setShouldRedirect(true);
+              return;
+            }
+            
+            if (values.rememberMe) {
+              storage.setJsonItem<RememberMe>(StorageKey.RememberMe, {
+                username: values.email,
+              });
+            } else {
+              storage.removeItem(StorageKey.RememberMe);
+            }
+            
+            // Trigger a token refresh to ensure we have the latest user data
+            await refetchTokens();
+            setIsSignInComplete(true);
+            setShouldRedirect(true);
+            
+            // The redirection will happen in the useEffect when user data is available
+          } catch (err) {
+            setError(formatAuthError(err));
+            setIsLoading(false);
+          } finally {
+            setShowProgress(false);
+            setSubmitting(false);
+          }
         }}
         validationSchema={validationSchema}
       >
@@ -120,14 +168,15 @@ const SignInForm = ({ className, testid = 'form-signin' }: SignInFormProps): JSX
             </HeaderRow>
 
             <Input
-              name="username"
-              label={t('label.username', { ns: 'auth' })}
+              name="email"
+              label={t('label.email', { ns: 'auth' })}
               labelPlacement="stacked"
-              maxlength={30}
-              autocomplete="off"
+              maxlength={50}
+              autocomplete="email"
               className="ls-signin-form__input"
               ref={focusInput}
-              data-testid={`${testid}-field-username`}
+              data-testid={`${testid}-field-email`}
+              type="email"
             />
             <Input
               type="password"
@@ -135,11 +184,11 @@ const SignInForm = ({ className, testid = 'form-signin' }: SignInFormProps): JSX
               label={t('label.password', { ns: 'auth' })}
               labelPlacement="stacked"
               maxlength={30}
-              autocomplete="off"
+              autocomplete="current-password"
               className="ls-signin-form__input"
               data-testid={`${testid}-field-password`}
             >
-              <IonInputPasswordToggle slot="end"></IonInputPasswordToggle>
+              <IonInputPasswordToggle slot="end" />
             </Input>
 
             <CheckboxInput
@@ -155,33 +204,34 @@ const SignInForm = ({ className, testid = 'form-signin' }: SignInFormProps): JSX
               color="primary"
               className="ls-signin-form__button"
               expand="block"
-              disabled={isSubmitting || !dirty}
+              disabled={isSubmitting || !dirty || isSignInLoading || isLoading}
               data-testid={`${testid}-button-submit`}
             >
               {t('signin', { ns: 'auth' })}
             </IonButton>
 
+            <IonRow className="ion-text-center ion-padding-top">
+              <IonCol>
+                <IonText color="medium">
+                  {t('no-account', { ns: 'auth' })}{' '}
+                  <a href="/auth/signup">{t('signup', { ns: 'auth' })}</a>
+                </IonText>
+              </IonCol>
+            </IonRow>
+
             <IonPopover
               trigger="signinInfo"
               triggerAction="hover"
               className="ls-signin-form-popover"
+              data-testid={`${testid}-popover`}
             >
               <IonContent className="ion-padding">
                 <p>
-                  {t('info-username.part1', { ns: 'auth' })}
-                  <a
-                    href="https://jsonplaceholder.typicode.com/users"
-                    target="_blank"
-                    rel="noreferrer"
-                  >
-                    {t('info-username.part2', { ns: 'auth' })}
-                  </a>
-                  . {t('info-username.part3', { ns: 'auth' })}{' '}
-                  <span className="inline-code">Bret</span>{' '}
-                  {t('info-username.part4', { ns: 'auth' })}{' '}
-                  <span className="inline-code">Samantha</span>.
+                  {t('info-email.part1', { ns: 'auth' })}
                 </p>
-                <p>{t('info-username.part5', { ns: 'auth' })}</p>
+                <p>
+                  {t('info-email.part2', { ns: 'auth' })}
+                </p>
               </IonContent>
             </IonPopover>
           </Form>

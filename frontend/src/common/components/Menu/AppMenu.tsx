@@ -51,7 +51,7 @@ const AppMenu = ({ className, testid = 'menu-app' }: AppMenuProps): JSX.Element 
           <IonTitle className="ls-app-menu__title" data-testid={`${testid}-title`}>
             {showUserHeader ? (
               <IonRow className="ion-align-items-center">
-                <Avatar className="ls-app-menu__title-avatar" value={currentUser.name} />
+                <Avatar className="ls-app-menu__title-avatar" value={currentUser.name || ''} />
                 <div>{currentUser.name}</div>
               </IonRow>
             ) : (
