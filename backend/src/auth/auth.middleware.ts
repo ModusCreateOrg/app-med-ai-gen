@@ -13,10 +13,8 @@ export class AuthMiddleware implements NestMiddleware {
       try {
         const user = await this.jwtService.verifyToken(token);
         req.user = user;
-      } catch (error: unknown) {
-        // Just log the error but don't block the request
-        // This allows routes without @UseGuards(JwtAuthGuard) to still work
-        console.error('Token validation failed:', error instanceof Error ? error.message : 'Unknown error');
+      } catch (error) {
+        console.error('Token validation failed:', error.message);
       }
     }
 
