@@ -16,6 +16,7 @@
     "test": "vitest",
     "test:ci": "vitest run --coverage --silent",
     "test:coverage": "vitest --coverage",
+    "clean:coverage": "./scripts/clean-coverage.sh",
     "test:e2e": "cypress run",
     "lint": "eslint .",
     "lint:scss": "stylelint \"**/*.scss\"",

@@ -26,7 +26,6 @@ import Input from 'common/components/Input/Input';
 import Icon from 'common/components/Icon/Icon';
 import HeaderRow from 'common/components/Text/HeaderRow';
 import CheckboxInput from 'common/components/Input/CheckboxInput';
-import SocialLoginButtons from 'common/components/SocialLogin/SocialLoginButtons';
 import { formatAuthError } from 'common/utils/auth-errors';
 import AuthErrorDisplay from 'common/components/Auth/AuthErrorDisplay';
 import AuthLoadingIndicator from 'common/components/Auth/AuthLoadingIndicator';
@@ -211,12 +210,6 @@ const SignInForm = ({ className, testid = 'form-signin' }: SignInFormProps): JSX
               {t('signin', { ns: 'auth' })}
             </IonButton>
 
-            <SocialLoginButtons 
-              className="ls-signin-form__social-buttons" 
-              disabled={isSubmitting || isLoading} 
-              testid={`${testid}-social-buttons`}
-            />
-            
             <IonRow className="ion-text-center ion-padding-top">
               <IonCol>
                 <IonText color="medium">

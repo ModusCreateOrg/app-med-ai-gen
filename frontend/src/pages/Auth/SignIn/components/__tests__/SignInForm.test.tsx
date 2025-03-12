@@ -11,12 +11,6 @@ vi.mock('../../../../../common/hooks/useAuth', () => ({
     isLoading: false,
     error: null,
   }),
-  useSocialSignIn: () => ({
-    signInWithGoogle: vi.fn(),
-    signInWithApple: vi.fn(),
-    isLoading: false,
-    error: null,
-  }),
   useSignIn: () => ({
     signIn: vi.fn(),
     isLoading: false,
@@ -156,14 +150,6 @@ vi.mock('../../../../../common/components/Text/HeaderRow', () => ({
   default: ({ children, ...props }: React.HTMLAttributes<HTMLDivElement> & { children: React.ReactNode }) => (
     <div data-testid="header-row" {...props}>
       {children}
-    </div>
-  ),
-}));
-
-vi.mock('../../../../../common/components/SocialLogin/SocialLoginButtons', () => ({
-  default: ({ className, disabled, testid }: { className?: string; disabled?: boolean; testid?: string }) => (
-    <div className={className} data-disabled={disabled} data-testid={testid}>
-      Social Login Buttons
     </div>
   ),
 }));

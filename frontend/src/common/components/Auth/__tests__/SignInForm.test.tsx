@@ -216,12 +216,7 @@ vi.mock('../../../../common/hooks/useAuth', () => ({
     data: null,
     isLoading: false,
   }),
-  useSocialSignIn: () => ({
-    signInWithGoogle: vi.fn(),
-    signInWithApple: vi.fn(),
-    isLoading: false,
-    error: null,
-  }),
+  // Removed useSocialSignIn mock
 }));
 
 // Mock the AuthErrorDisplay component

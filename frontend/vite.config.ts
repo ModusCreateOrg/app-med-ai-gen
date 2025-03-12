@@ -31,6 +31,7 @@ export default defineConfig({
         '**/__fixtures__/**',
         '**/__mocks__/**',
         'android/**',
+        'ios/App/App/public/**',
         'src/main.tsx',
         'src/test',
         'capacitor.config.ts',
