@@ -28,6 +28,10 @@ export interface AuthContextValue {
   resendConfirmationCode: (email: string) => Promise<void>;
   signOut: () => Promise<void>;
   
+  // Password recovery
+  forgotPassword: (email: string) => Promise<void>;
+  confirmResetPassword: (email: string, code: string, newPassword: string) => Promise<void>;
+  
   // Social authentication
   signInWithGoogle: () => Promise<void>;
   signInWithApple: () => Promise<void>;
@@ -51,6 +55,8 @@ const DEFAULT_CONTEXT_VALUE: AuthContextValue = {
   confirmSignUp: async () => { throw new Error('AuthContext not initialized'); },
   resendConfirmationCode: async () => { throw new Error('AuthContext not initialized'); },
   signOut: async () => { throw new Error('AuthContext not initialized'); },
+  forgotPassword: async () => { throw new Error('AuthContext not initialized'); },
+  confirmResetPassword: async () => { throw new Error('AuthContext not initialized'); },
   signInWithGoogle: async () => { throw new Error('AuthContext not initialized'); },
   signInWithApple: async () => { throw new Error('AuthContext not initialized'); },
   clearError: () => { /* empty implementation */ },

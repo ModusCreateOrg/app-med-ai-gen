@@ -1,5 +1,6 @@
 import { signIn, signUp, confirmSignUp, signOut, 
   fetchAuthSession, getCurrentUser, resendSignUpCode, signInWithRedirect,
+  resetPassword, confirmResetPassword,
   type AuthUser } from '@aws-amplify/auth';
 import { Amplify } from 'aws-amplify';
 import { amplifyConfig } from '../../config/aws-config';
@@ -203,6 +204,40 @@ export class CognitoAuthService {
       
       // This function will redirect the browser and not return
       // The user will be redirected back to the app after authentication
+    } catch (error) {
+      this.handleAuthError(error);
+      throw error;
+    }
+  }
+
+  /**
+   * Initiate password reset flow by sending a code to the user's email
+   * @param username Email address
+   * @returns Promise resolving when the code is sent
+   */
+  static async forgotPassword(username: string) {
+    try {
+      return await resetPassword({ username });
+    } catch (error) {
+      this.handleAuthError(error);
+      throw error;
+    }
+  }
+
+  /**
+   * Confirm password reset with verification code and new password
+   * @param username Email address
+   * @param code Verification code
+   * @param newPassword New password
+   * @returns Promise resolving when the password is reset
+   */
+  static async confirmResetPassword(username: string, code: string, newPassword: string) {
+    try {
+      return await confirmResetPassword({ 
+        username, 
+        confirmationCode: code,
+        newPassword 
+      });
     } catch (error) {
       this.handleAuthError(error);
       throw error;

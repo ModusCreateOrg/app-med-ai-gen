@@ -9,6 +9,8 @@ import SignUpPage from 'pages/Auth/SignUp/SignUpPage';
 import SignOutPage from 'pages/Auth/SignOut/SignOutPage';
 import VerificationPage from 'pages/Auth/Verify/VerificationPage';
 import OAuthRedirectHandler from 'pages/Auth/OAuth/OAuthRedirectHandler';
+import ForgotPasswordPage from 'pages/Auth/ForgotPassword/ForgotPasswordPage';
+import ResetPasswordPage from 'pages/Auth/ResetPassword/ResetPasswordPage';
 
 /**
  * The application router.  This is the main router for the Ionic React
@@ -36,6 +38,8 @@ const AppRouter = (): JSX.Element => {
         <Route exact path="/auth/verify" render={() => <VerificationPage />} />
         <Route exact path="/auth/oauth" render={() => <OAuthRedirectHandler />} />
         <Route exact path="/auth/signout" render={() => <SignOutPage />} />
+        <Route exact path="/auth/forgot-password" render={() => <ForgotPasswordPage />} />
+        <Route exact path="/auth/reset-password" render={() => <ResetPasswordPage />} />
         <Route exact path="/">
           <Redirect to="/tabs" />
         </Route>

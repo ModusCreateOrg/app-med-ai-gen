@@ -213,6 +213,16 @@ const SignInForm = ({ className, testid = 'form-signin' }: SignInFormProps): JSX
             <IonRow className="ion-text-center ion-padding-top">
               <IonCol>
                 <IonText color="medium">
+                  <a href="/auth/forgot-password" data-testid={`${testid}-link-forgot-password`}>
+                    {t('forgot-password', { ns: 'auth' })}
+                  </a>
+                </IonText>
+              </IonCol>
+            </IonRow>
+
+            <IonRow className="ion-text-center ion-padding-top">
+              <IonCol>
+                <IonText color="medium">
                   {t('no-account', { ns: 'auth' })}{' '}
                   <a href="/auth/signup">{t('signup', { ns: 'auth' })}</a>
                 </IonText>

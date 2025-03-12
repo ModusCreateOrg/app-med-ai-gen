@@ -23,6 +23,8 @@ describe('PrivateOutlet', () => {
       signOut: vi.fn(),
       signInWithGoogle: vi.fn(),
       signInWithApple: vi.fn(),
+      forgotPassword: vi.fn(),
+      confirmResetPassword: vi.fn(),
       clearError: vi.fn()
     });
   });
@@ -53,6 +55,8 @@ describe('PrivateOutlet', () => {
       signOut: vi.fn(),
       signInWithGoogle: vi.fn(),
       signInWithApple: vi.fn(),
+      forgotPassword: vi.fn(),
+      confirmResetPassword: vi.fn(),
       clearError: vi.fn()
     });
     
