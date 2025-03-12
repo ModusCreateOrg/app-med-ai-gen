@@ -71,3 +71,55 @@ Technologies:
 
  
 AWS architecture: [aws architecture.pdf](mdc:docs/assets/aws architecture.pdf)
+
+# CSS Units Standards
+
+## Relative Units Requirement
+
+- **ALWAYS use relative units** instead of absolute pixel values (px) in CSS/SCSS
+- **Preferred relative units**:
+  - `rem` for most measurements (margins, paddings, font sizes)
+  - `em` for spacing related to the current element's font size
+  - `%` for responsive layouts and containers
+  - `vh/vw` for viewport-relative sizing
+  - `ch` for width measurements related to character width
+
+## Conversion Reference
+
+- `1rem` = base font size (typically 16px)
+- To convert px to rem: `[px value] / 16 = [rem value]`
+  - Example: `16px` = `1rem`, `24px` = `1.5rem`, `8px` = `0.5rem`
+
+## Why Relative Units?
+
+- **Accessibility**: Scales with user font size preferences
+- **Responsiveness**: Adapts to different viewport sizes
+- **Maintainability**: Easier to scale entire UI by changing root font size
+- **Consistency**: Creates a more harmonious design system
+
+## Limited Exceptions
+
+- Media queries may use px units (`@media (min-width: 768px)`)
+- 1px borders when a single-pixel line is required
+- Box shadows where precise control is needed
+
+## Examples
+
+```scss
+// ❌ AVOID
+.element {
+  margin: 16px;
+  padding: 8px 12px;
+  font-size: 14px;
+}
+
+// ✅ PREFERRED
+.element {
+  margin: 1rem;
+  padding: 0.5rem 0.75rem;
+  font-size: 0.875rem;
+}
+```
+```
+
+This rule provides clear guidelines on what units to use, how to convert between units, and why it's important for your project. You can add this to your general rules to ensure consistency across the codebase.

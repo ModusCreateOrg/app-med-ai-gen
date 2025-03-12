@@ -59,6 +59,8 @@ const AuthProvider = ({ children }: PropsWithChildren): JSX.Element => {
     signOut,
     signInWithGoogle,
     signInWithApple,
+    forgotPassword,
+    confirmResetPassword,
   } = useAuthOperations();
 
   // Extract user info from tokens when they change
@@ -167,6 +169,8 @@ const AuthProvider = ({ children }: PropsWithChildren): JSX.Element => {
     signOut,
     signInWithGoogle,
     signInWithApple,
+    forgotPassword,
+    confirmResetPassword,
   };
 
   // Only render children when not initializing

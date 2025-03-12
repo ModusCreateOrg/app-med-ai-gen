@@ -17,6 +17,8 @@ vi.mock('common/services/auth/cognito-auth-service', () => ({
     resendConfirmationCode: vi.fn(),
     signOut: vi.fn(),
     getCurrentUser: vi.fn(),
+    forgotPassword: vi.fn(),
+    confirmResetPassword: vi.fn(),
   }
 }));
 
@@ -261,6 +263,80 @@ describe('useAuthOperations', () => {
       
       // Verify error is cleared
       expect(result.current.error).toBeUndefined();
+    });
+  });
+
+  describe('forgotPassword', () => {
+    it('should call CognitoAuthService.forgotPassword with correct parameters', async () => {
+      const { result } = renderHook(() => useAuthOperations());
+      
+      await act(async () => {
+        await result.current.forgotPassword('test@example.com');
+      });
+      
+      expect(CognitoAuthService.forgotPassword).toHaveBeenCalledWith('test@example.com');
+      expect(result.current.isLoading).toBe(false);
+    });
+    
+    it('should handle forgotPassword errors', async () => {
+      const error = new Error('Invalid email');
+      vi.mocked(CognitoAuthService.forgotPassword).mockRejectedValueOnce(error);
+      
+      const mockError = { code: 'MockError', message: 'Invalid email', name: 'MockError' };
+      vi.mocked(AuthErrorUtils.formatAuthError).mockReturnValueOnce(mockError as AuthError);
+      
+      const { result } = renderHook(() => useAuthOperations());
+      
+      await act(async () => {
+        try {
+          await result.current.forgotPassword('test@example.com');
+        } catch {
+          // Error is handled in the hook
+        }
+      });
+      
+      expect(CognitoAuthService.forgotPassword).toHaveBeenCalledWith('test@example.com');
+      expect(result.current.isLoading).toBe(false);
+      expect(result.current.error).toBeDefined();
+      expect(result.current.error).toEqual(mockError);
+      expect(AuthErrorUtils.formatAuthError).toHaveBeenCalledWith(error);
+    });
+  });
+  
+  describe('confirmResetPassword', () => {
+    it('should call CognitoAuthService.confirmResetPassword with correct parameters', async () => {
+      const { result } = renderHook(() => useAuthOperations());
+      
+      await act(async () => {
+        await result.current.confirmResetPassword('test@example.com', '123456', 'newPassword123');
+      });
+      
+      expect(CognitoAuthService.confirmResetPassword).toHaveBeenCalledWith('test@example.com', '123456', 'newPassword123');
+      expect(result.current.isLoading).toBe(false);
+    });
+    
+    it('should handle confirmResetPassword errors', async () => {
+      const error = new Error('Invalid verification code');
+      vi.mocked(CognitoAuthService.confirmResetPassword).mockRejectedValueOnce(error);
+      
+      const mockError = { code: 'MockError', message: 'Invalid verification code', name: 'MockError' };
+      vi.mocked(AuthErrorUtils.formatAuthError).mockReturnValueOnce(mockError as AuthError);
+      
+      const { result } = renderHook(() => useAuthOperations());
+      
+      await act(async () => {
+        try {
+          await result.current.confirmResetPassword('test@example.com', '123456', 'newPassword123');
+        } catch {
+          // Error is handled in the hook
+        }
+      });
+      
+      expect(CognitoAuthService.confirmResetPassword).toHaveBeenCalledWith('test@example.com', '123456', 'newPassword123');
+      expect(result.current.isLoading).toBe(false);
+      expect(result.current.error).toBeDefined();
+      expect(result.current.error).toEqual(mockError);
+      expect(AuthErrorUtils.formatAuthError).toHaveBeenCalledWith(error);
     });
   });
 }); 

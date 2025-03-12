@@ -202,6 +202,50 @@ export const useAuthOperations = () => {
     }
   };
 
+  /**
+   * Initiate password reset flow
+   * @param email User's email
+   */
+  const forgotPassword = async (email: string): Promise<void> => {
+    setIsLoading(true);
+    clearError();
+    
+    try {
+      await CognitoAuthService.forgotPassword(email);
+      // Success - code sent to user's email
+    } catch (err) {
+      setError(formatAuthError(err));
+      throw err;
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  /**
+   * Confirm password reset with code and set new password
+   * @param email User's email
+   * @param code Verification code
+   * @param newPassword New password
+   */
+  const confirmResetPassword = async (
+    email: string, 
+    code: string, 
+    newPassword: string
+  ): Promise<void> => {
+    setIsLoading(true);
+    clearError();
+    
+    try {
+      await CognitoAuthService.confirmResetPassword(email, code, newPassword);
+      // Success - password reset complete
+    } catch (err) {
+      setError(formatAuthError(err));
+      throw err;
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   return {
     isLoading,
     error,
@@ -215,5 +259,7 @@ export const useAuthOperations = () => {
     signOut,
     signInWithGoogle,
     signInWithApple,
+    forgotPassword,
+    confirmResetPassword,
   };
 }; 
