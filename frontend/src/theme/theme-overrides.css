@@ -1,0 +1,95 @@
+/* 
+ * Theme overrides for Ionic
+ * This file contains overrides for Ionic's default theme variables
+ */
+
+:root {
+  /* Set light background */
+  --ion-background-color: #f8f9fb;
+  --ion-background-color-rgb: 248, 249, 251;
+  
+  /* Card and item backgrounds */
+  --ion-card-background: #ffffff;
+  --ion-item-background: #ffffff;
+  
+  /* Text colors */
+  --ion-text-color: #1a1a1a;
+  --ion-text-color-rgb: 26, 26, 26;
+  
+  /* Border colors */
+  --ion-border-color: rgba(0, 0, 0, 0.1);
+  
+  /* Other light theme adjustments */
+  --ion-color-step-50: #f2f2f2;
+  --ion-color-step-100: #e6e6e6;
+  --ion-color-step-150: #d9d9d9;
+  --ion-color-step-200: #cccccc;
+  --ion-color-step-250: #bfbfbf;
+  --ion-color-step-300: #b3b3b3;
+  --ion-color-step-350: #a6a6a6;
+  --ion-color-step-400: #999999;
+  --ion-color-step-450: #8c8c8c;
+  --ion-color-step-500: #808080;
+  --ion-color-step-550: #737373;
+  --ion-color-step-600: #666666;
+  --ion-color-step-650: #595959;
+  --ion-color-step-700: #4d4d4d;
+  --ion-color-step-750: #404040;
+  --ion-color-step-800: #333333;
+  --ion-color-step-850: #262626;
+  --ion-color-step-900: #191919;
+  --ion-color-step-950: #0d0d0d;
+
+  /* Safe area insets variables */
+  --ion-safe-area-top: env(safe-area-inset-top);
+  --ion-safe-area-bottom: env(safe-area-inset-bottom);
+  --ion-safe-area-left: env(safe-area-inset-left);
+  --ion-safe-area-right: env(safe-area-inset-right);
+  
+  /* Base toolbar height */
+  --ion-toolbar-base-height: 2.75rem;
+  
+  /* Tab bar height */
+  --tab-bar-height: 3.5rem;
+} 
+
+/* Global safe area padding for all pages */
+ion-content {
+  --padding-top: var(--ion-safe-area-top, 1rem);
+}
+
+/* Remove left padding from router outlet to avoid double padding */
+ion-router-outlet {
+  padding-top: 0;
+}
+
+/* Tab bar fixed size for all platforms */
+.ls-tab-navigation__bar {
+  height: var(--tab-bar-height);
+  max-height: var(--tab-bar-height);
+  padding-bottom: 0;
+  padding-top: 0;
+  contain: strict;
+}
+
+/* Fix for iOS tab bar bottom padding */
+.ios ion-tab-bar {
+  height: var(--tab-bar-height);
+  max-height: var(--tab-bar-height);
+  padding-bottom: 0;
+}
+
+/* Position tab bar items correctly for all platforms */
+.ls-tab-navigation__bar-button {
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Ensure upload button is correctly positioned */
+.ls-tab-navigation__bar-button--upload .ls-tab-navigation__bar-button-upload-wrapper {
+  bottom: calc(50% - 1.5rem);
+  top: auto;
+  position: absolute;
+}

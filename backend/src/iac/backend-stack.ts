@@ -8,8 +8,12 @@ import * as cognito from 'aws-cdk-lib/aws-cognito';
 import { RemovalPolicy } from 'aws-cdk-lib';
 import { Construct } from 'constructs';
 
+interface BackendStackProps extends cdk.StackProps {
+  environment: 'staging' | 'production';
+}
+
 export class BackendStack extends cdk.Stack {
-  constructor(scope: Construct, id: string, props?: cdk.StackProps) {
+  constructor(scope: Construct, id: string, props: BackendStackProps) {
     super(scope, id, props);
 
     // DynamoDB Table
@@ -70,10 +74,18 @@ export class BackendStack extends cdk.Stack {
       cpu: 256,
       desiredCount: 2,
       taskImageOptions: {
-        image: ecs.ContainerImage.fromAsset('../backend'),
+        image: ecs.ContainerImage.fromAsset('../backend/', {
+          file: 'Dockerfile.prod',
+          buildArgs: {
+            NODE_ENV: props.environment,
+          },
+        }),
         containerPort: 3000,
         environment: {
-          NODE_ENV: 'production',
+          NODE_ENV: props.environment,
+          PERPLEXITY_API_KEY_SECRET_NAME: `medical-reports-explainer/${props.environment}/perplexity-api-key`,
+          PERPLEXITY_MODEL: 'sonar',
+          PERPLEXITY_MAX_TOKENS: '2048',
         },
       },
     });

@@ -3,12 +3,19 @@
   "scripts": {
     "dev": "docker compose up --build",
     "down": "docker compose down",
-    "clean": "docker compose down -v --remove-orphans"
+    "clean": "docker compose down -v --remove-orphans",
+    "prepare": "husky",
+    "build": "cd backend && npm run build",
+    "build:backend": "cd backend && npm run build",
+    "build:frontend": "cd frontend && npm run build"
   },
   "dependencies": {
     "@nestjs/passport": "^11.0.5",
     "jwks-rsa": "^3.1.0",
     "passport": "^0.7.0",
     "passport-jwt": "^4.0.1"
+  },
+  "devDependencies": {
+    "husky": "^9.1.7"
   }
 }
