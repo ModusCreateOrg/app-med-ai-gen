@@ -1,0 +1,39 @@
+name: Frontend Tests
+
+on:
+  pull_request:
+    branches: [ main ]
+    paths:
+      - 'frontend/**'
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ./frontend
+
+    steps:
+    - uses: actions/checkout@v3
+
+    - name: Set up Node.js
+      uses: actions/setup-node@v3
+      with:
+        node-version: '18'
+        cache: 'npm'
+        cache-dependency-path: './frontend/package-lock.json'
+
+    - name: Install dependencies
+      run: npm ci
+
+    - name: Run tests
+      run: npm test
+
+    - name: Generate test summary
+      if: always()
+      run: |
+        echo "# Frontend Test Results" >> $GITHUB_STEP_SUMMARY
+        if [ ${{ job.status }} == "success" ]; then
+          echo "✅ All tests passed successfully!" >> $GITHUB_STEP_SUMMARY
+        else
+          echo "❌ Some tests failed. Please check the logs for details." >> $GITHUB_STEP_SUMMARY
