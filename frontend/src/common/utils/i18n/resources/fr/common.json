@@ -24,6 +24,9 @@
     "signout": "Déconnecter",
     "users": "Utilisateurs"
   },
+  "reports": {
+    "uploadDate": "Date de téléchargement"
+  },
   "validation": {
     "email": "Doit être une adresse e-mail. ",
     "max": "Doit contenir au maximum {{max}} caractères. ",

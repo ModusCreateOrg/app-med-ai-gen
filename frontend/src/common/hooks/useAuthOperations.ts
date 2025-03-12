@@ -5,6 +5,9 @@ import CognitoAuthService from 'common/services/auth/cognito-auth-service';
 import { formatAuthError } from 'common/utils/auth-errors';
 import { mapCognitoUserToAppUser } from 'common/utils/user-mapper';
 
+// Error message for already signed in user
+const ALREADY_SIGNED_IN_ERROR = 'There is already a signed in user';
+
 /**
  * Hook for authentication operations
  * @returns Authentication methods and state
@@ -23,8 +26,9 @@ export const useAuthOperations = () => {
    * Sign in with email and password
    * @param email User's email
    * @param password User's password
+   * @returns Object with alreadySignedIn flag if that error occurs
    */
-  const signIn = async (email: string, password: string): Promise<void> => {
+  const signIn = async (email: string, password: string): Promise<{ alreadySignedIn?: boolean }> => {
     setIsLoading(true);
     clearError();
     
@@ -35,12 +39,38 @@ export const useAuthOperations = () => {
         username: email,
         attributes: {
           email,
+          given_name: email.split('@')[0] || '', // Use email username as firstName
           // Other attributes would be filled from the session if needed
         }
       };
       const cognitoUser = mapCognitoUserToAppUser(userData);
       setUser(cognitoUser);
+      return {}; // Success
     } catch (err) {
+      // Check if this is the "already signed in" error
+      const errorMessage = err instanceof Error ? err.message : String(err);
+      if (errorMessage.includes(ALREADY_SIGNED_IN_ERROR)) {
+        console.log('User is already signed in, getting current user');
+        
+        try {
+          // Try to get the current user
+          const currentUser = await CognitoAuthService.getCurrentUser();
+          if (currentUser) {
+            // Get tokens to extract user info
+            const tokens = await CognitoAuthService.getUserTokens();
+            if (tokens?.id_token) {
+              // We'll let the AuthProvider handle setting the user from the token
+              console.log('Retrieved tokens for already signed in user');
+            }
+          }
+        } catch (innerErr) {
+          console.error('Error getting current user after already signed in error:', innerErr);
+        }
+        
+        return { alreadySignedIn: true };
+      }
+      
+      // For other errors, set the error state and throw
       setError(formatAuthError(err));
       throw err;
     } finally {
@@ -176,6 +206,7 @@ export const useAuthOperations = () => {
     isLoading,
     error,
     user,
+    setUser,
     clearError,
     signIn,
     signUp,

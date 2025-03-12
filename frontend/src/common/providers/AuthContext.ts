@@ -19,9 +19,10 @@ export interface AuthContextValue {
   
   // User data
   user?: CognitoUser;
+  setUser?: (user: CognitoUser) => void;
   
   // Authentication methods
-  signIn: (email: string, password: string) => Promise<void>;
+  signIn: (email: string, password: string) => Promise<{ alreadySignedIn?: boolean }>;
   signUp: (email: string, password: string, firstName: string, lastName: string) => Promise<void>;
   confirmSignUp: (email: string, code: string) => Promise<void>;
   resendConfirmationCode: (email: string) => Promise<void>;

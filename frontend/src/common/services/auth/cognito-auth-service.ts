@@ -31,6 +31,23 @@ export class CognitoAuthService {
       const user = await signIn({ username, password });
       return user;
     } catch (error) {
+      // Check if this is the "already signed in" error
+      const errorMessage = error instanceof Error ? error.message : String(error);
+      if (errorMessage.includes('There is already a signed in user')) {
+        // Get the current user instead of throwing an error
+        console.log('User is already signed in, getting current user');
+        try {
+          const currentUser = await this.getCurrentUser();
+          // Also refresh the session to ensure we have valid tokens
+          await this.getCurrentSession();
+          return currentUser;
+        } catch (innerError) {
+          console.error('Error getting current user after already signed in error:', innerError);
+          // Re-throw the original error if we can't get the current user
+          throw error;
+        }
+      }
+      
       this.handleAuthError(error);
       throw error;
     }

@@ -9,7 +9,7 @@ import {
   IonRow,
   IonCol,
 } from '@ionic/react';
-import { useRef, useState } from 'react';
+import { useRef, useState, useEffect } from 'react';
 import classNames from 'classnames';
 import { Form, Formik } from 'formik';
 import { boolean, object, string } from 'yup';
@@ -20,7 +20,7 @@ import { BaseComponentProps } from 'common/components/types';
 import { AuthError, RememberMe } from 'common/models/auth';
 import storage from 'common/utils/storage';
 import { StorageKey } from 'common/utils/constants';
-import { useSignIn } from 'common/hooks/useAuth';
+import { useSignIn, useCurrentUser } from 'common/hooks/useAuth';
 import { useProgress } from 'common/hooks/useProgress';
 import Input from 'common/components/Input/Input';
 import Icon from 'common/components/Icon/Icon';
@@ -30,6 +30,7 @@ import SocialLoginButtons from 'common/components/SocialLogin/SocialLoginButtons
 import { formatAuthError } from 'common/utils/auth-errors';
 import AuthErrorDisplay from 'common/components/Auth/AuthErrorDisplay';
 import AuthLoadingIndicator from 'common/components/Auth/AuthLoadingIndicator';
+import { useGetUserTokens } from 'common/api/useGetUserTokens';
 
 /**
  * Properties for the `SignInForm` component.
@@ -56,10 +57,14 @@ const SignInForm = ({ className, testid = 'form-signin' }: SignInFormProps): JSX
   const focusInput = useRef<HTMLIonInputElement>(null);
   const [error, setError] = useState<AuthError | null>(null);
   const [isLoading, setIsLoading] = useState(false);
+  const [shouldRedirect, setShouldRedirect] = useState(false);
+  const [isSignInComplete, setIsSignInComplete] = useState(false);
   const { setIsActive: setShowProgress } = useProgress();
   const router = useIonRouter();
   const { signIn, isLoading: isSignInLoading } = useSignIn();
   const { t } = useTranslation();
+  const currentUser = useCurrentUser();
+  const { isSuccess: hasTokens, refetch: refetchTokens } = useGetUserTokens();
 
   /**
    * Sign in form validation schema.
@@ -78,6 +83,15 @@ const SignInForm = ({ className, testid = 'form-signin' }: SignInFormProps): JSX
   useIonViewDidEnter(() => {
     focusInput.current?.setFocus();
   });
+
+  // Effect to handle redirection after sign-in is complete and user data is available
+  useEffect(() => {
+    if (isSignInComplete && shouldRedirect && currentUser && hasTokens) {
+      console.log('User data loaded, redirecting to home');
+      setIsLoading(false);
+      router.push('/tabs/home', 'forward', 'replace');
+    }
+  }, [isSignInComplete, shouldRedirect, currentUser, hasTokens, router]);
 
   return (
     <div className={classNames('ls-signin-form', className)} data-testid={testid}>
@@ -106,7 +120,21 @@ const SignInForm = ({ className, testid = 'form-signin' }: SignInFormProps): JSX
             setError(null);
             setIsLoading(true);
             setShowProgress(true);
-            await signIn(values.email, values.password);
+            setShouldRedirect(false);
+            setIsSignInComplete(false);
+            
+            const result = await signIn(values.email, values.password);
+            
+            // Check if user is already signed in
+            if (result.alreadySignedIn) {
+              // User is already signed in, but we still need to wait for user data
+              console.log('User is already signed in, waiting for user data');
+              // Trigger a token refresh to ensure we have the latest user data
+              await refetchTokens();
+              setIsSignInComplete(true);
+              setShouldRedirect(true);
+              return;
+            }
             
             if (values.rememberMe) {
               storage.setJsonItem<RememberMe>(StorageKey.RememberMe, {
@@ -116,15 +144,18 @@ const SignInForm = ({ className, testid = 'form-signin' }: SignInFormProps): JSX
               storage.removeItem(StorageKey.RememberMe);
             }
             
-            // Show success message before redirecting
-            setIsLoading(false);
-            router.push('/tabs', 'forward', 'replace');
+            // Trigger a token refresh to ensure we have the latest user data
+            await refetchTokens();
+            setIsSignInComplete(true);
+            setShouldRedirect(true);
+            
+            // The redirection will happen in the useEffect when user data is available
           } catch (err) {
             setError(formatAuthError(err));
+            setIsLoading(false);
           } finally {
             setShowProgress(false);
             setSubmitting(false);
-            setIsLoading(false);
           }
         }}
         validationSchema={validationSchema}

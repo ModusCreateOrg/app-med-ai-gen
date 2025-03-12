@@ -49,8 +49,8 @@ const OAuthRedirectHandler = ({ testid = 'page-oauth-handler' }: OAuthRedirectHa
             mapCognitoUserToAppUser(userData);
           }
           
-          // Redirect to the home page
-          router.push('/tabs', 'forward', 'replace');
+          // Redirect to app home
+          router.push('/tabs/home', 'forward', 'replace');
         } else {
           throw new Error('No valid session found');
         }

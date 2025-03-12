@@ -11,6 +11,30 @@ import CognitoAuthService from 'common/services/auth/cognito-auth-service';
 import { mapCognitoUserToAppUser } from 'common/utils/user-mapper';
 
 /**
+ * Extract user information from ID token
+ * @param idToken ID token string
+ * @returns User attributes from token
+ */
+const extractUserInfoFromToken = (idToken: string) => {
+  try {
+    // Decode the JWT token to get the payload
+    const payload = JSON.parse(atob(idToken.split('.')[1]));
+    
+    return {
+      sub: payload.sub,
+      email: payload.email,
+      given_name: payload.given_name || payload.email?.split('@')[0] || '',
+      family_name: payload.family_name || '',
+      email_verified: payload.email_verified,
+      name: payload.name,
+    };
+  } catch (error) {
+    console.error('Error extracting user info from token:', error);
+    return null;
+  }
+};
+
+/**
  * The `AuthProvider` component creates and provides access to the `AuthContext`
  * value.
  * @param {PropsWithChildren} props - Component properties.
@@ -26,6 +50,7 @@ const AuthProvider = ({ children }: PropsWithChildren): JSX.Element => {
     isLoading,
     error,
     user,
+    setUser,
     clearError,
     signIn,
     signUp,
@@ -36,6 +61,31 @@ const AuthProvider = ({ children }: PropsWithChildren): JSX.Element => {
     signInWithApple,
   } = useAuthOperations();
 
+  // Extract user info from tokens when they change
+  useEffect(() => {
+    if (userTokens?.id_token) {
+      const userInfo = extractUserInfoFromToken(userTokens.id_token);
+      
+      if (userInfo) {
+        const userData = {
+          username: userInfo.email || '',
+          attributes: {
+            sub: userInfo.sub,
+            email: userInfo.email || '',
+            given_name: userInfo.given_name || '',
+            family_name: userInfo.family_name || '',
+            email_verified: String(userInfo.email_verified || false),
+            name: userInfo.name || '',
+          }
+        };
+        
+        const appUser = mapCognitoUserToAppUser(userData);
+        console.log('User from token:', appUser);
+        setUser?.(appUser);
+      }
+    }
+  }, [userTokens, setUser]);
+
   // Check if there's an authenticated session on mount
   useEffect(() => {
     const checkAuthState = async () => {
@@ -44,21 +94,46 @@ const AuthProvider = ({ children }: PropsWithChildren): JSX.Element => {
         const currentUser = await CognitoAuthService.getCurrentUser();
         
         if (currentUser) {
-          // In Amplify v6, the user information might be structured differently
-          // We can't directly access attributes, so we need to extract what we can
-          const userData = {
-            username: currentUser.username || '',
-            attributes: {
-              // Extract whatever attributes are available from the user object
-              email: currentUser.signInDetails?.loginId || '',
-            }
-          };
-          
-          // Map the userData to our app's user model
-          mapCognitoUserToAppUser(userData);
-          
           // If we have a user, update the auth state
           setAuthState(AuthState.SIGNED_IN);
+          
+          // Get tokens to extract user info
+          const tokens = await CognitoAuthService.getUserTokens();
+          if (tokens?.id_token) {
+            const userInfo = extractUserInfoFromToken(tokens.id_token);
+            
+            if (userInfo) {
+              const userData = {
+                username: userInfo.email || '',
+                attributes: {
+                  sub: userInfo.sub,
+                  email: userInfo.email || '',
+                  given_name: userInfo.given_name || '',
+                  family_name: userInfo.family_name || '',
+                  email_verified: String(userInfo.email_verified || false),
+                  name: userInfo.name || '',
+                }
+              };
+              
+              const appUser = mapCognitoUserToAppUser(userData);
+              console.log('User from token on init:', appUser);
+              setUser?.(appUser);
+            }
+          } else {
+            // Fallback if no tokens available
+            const userData = {
+              username: currentUser.username || '',
+              attributes: {
+                email: currentUser.signInDetails?.loginId || '',
+                given_name: currentUser.username?.split('@')[0] || '',
+                family_name: ''
+              }
+            };
+            
+            const appUser = mapCognitoUserToAppUser(userData);
+            console.log('Fallback user:', appUser);
+            setUser?.(appUser);
+          }
         } else {
           setAuthState(AuthState.SIGNED_OUT);
         }
@@ -73,7 +148,7 @@ const AuthProvider = ({ children }: PropsWithChildren): JSX.Element => {
     };
 
     checkAuthState();
-  }, []);
+  }, [setUser]);
 
   // The combined auth context value
   const value: AuthContextValue = {

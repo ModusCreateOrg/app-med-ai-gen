@@ -8,11 +8,12 @@ import {
   IonCard,
   IonCardContent,
   IonRouterLink,
-  IonAvatar,
 } from '@ionic/react';
 import { useTranslation } from 'react-i18next';
 import { useHistory } from 'react-router-dom';
 import { useGetLatestReports, useMarkReportAsRead } from 'common/hooks/useReports';
+import { useCurrentUser } from 'common/hooks/useAuth';
+import Avatar from 'common/components/Icon/Avatar';
 import ReportItem from './components/ReportItem/ReportItem';
 import NoReportsMessage from './components/NoReportsMessage/NoReportsMessage';
 import healthcareImage from '../../assets/img/healthcare.svg';
@@ -26,7 +27,11 @@ const HomePage: React.FC = () => {
   const history = useHistory();
   const { data: reports, isLoading, isError } = useGetLatestReports(3);
   const { mutate: markAsRead } = useMarkReportAsRead();
-
+  const currentUser = useCurrentUser();
+  
+  // Get user display name from token data
+  const displayName = currentUser?.firstName || currentUser?.name?.split(' ')[0] || 'User';
+  
   const handleReportClick = (reportId: string) => {
     // Mark the report as read
     markAsRead(reportId);
@@ -94,13 +99,18 @@ const HomePage: React.FC = () => {
           <div className="home-page__greeting">
             <div className="home-page__greeting-container">
               <div className="home-page__avatar">
-                <IonAvatar>
-                  <img src="https://ionicframework.com/docs/img/demos/avatar.svg" alt="User avatar" />
-                </IonAvatar>
+                <Avatar 
+                  value={currentUser?.name || currentUser?.email || ''}
+                  size="large"
+                  shape="round"
+                  testid="home-user-avatar"
+                />
               </div>
               <div className="home-page__greeting-text">
                 <h1 className="home-page__greeting-title">
-                  {t('pages.home.greeting', { name: 'Wesley' })}
+                  {t('pages.home.greeting', { 
+                    name: displayName
+                  })}
                 </h1>
                 <h2 className="home-page__greeting-subtitle">{t('pages.home.howAreYou')}</h2>
               </div>

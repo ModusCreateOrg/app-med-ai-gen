@@ -24,6 +24,9 @@
     "signout": "Desconecta",
     "users": "Usuarios"
   },
+  "reports": {
+    "uploadDate": "Fecha de carga"
+  },
   "validation": {
     "email": "Debe ser una dirección de correo electrónico. ",
     "max": "Debe tener como máximo {{max}} caracteres. ",

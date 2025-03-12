@@ -4,6 +4,7 @@ import { Route } from 'react-router';
 
 import { render, screen } from 'test/test-utils';
 import * as UseAuth from 'common/hooks/useAuth';
+import { AuthState } from 'common/models/auth';
 
 import PrivateOutlet from '../PrivateOutlet';
 
@@ -11,7 +12,19 @@ describe('PrivateOutlet', () => {
   const useAuthSpy = vi.spyOn(UseAuth, 'useAuth');
 
   beforeEach(() => {
-    useAuthSpy.mockReturnValue({ isAuthenticated: true });
+    useAuthSpy.mockReturnValue({
+      isAuthenticated: true,
+      authState: AuthState.SIGNED_IN,
+      isLoading: false,
+      signIn: vi.fn(),
+      signUp: vi.fn(),
+      confirmSignUp: vi.fn(),
+      resendConfirmationCode: vi.fn(),
+      signOut: vi.fn(),
+      signInWithGoogle: vi.fn(),
+      signInWithApple: vi.fn(),
+      clearError: vi.fn()
+    });
   });
 
   it('should render successfully', async () => {
@@ -29,7 +42,20 @@ describe('PrivateOutlet', () => {
 
   it('should redirect when not authenticated', async () => {
     // ARRANGE
-    useAuthSpy.mockReturnValueOnce({ isAuthenticated: false });
+    useAuthSpy.mockReturnValueOnce({
+      isAuthenticated: false,
+      authState: AuthState.SIGNED_OUT,
+      isLoading: false,
+      signIn: vi.fn(),
+      signUp: vi.fn(),
+      confirmSignUp: vi.fn(),
+      resendConfirmationCode: vi.fn(),
+      signOut: vi.fn(),
+      signInWithGoogle: vi.fn(),
+      signInWithApple: vi.fn(),
+      clearError: vi.fn()
+    });
+    
     render(
       <IonRouterOutlet>
         <Route path="/auth/signin" render={() => <div data-testid="page-signin"></div>} />
