@@ -6,12 +6,14 @@ import {
   IonText,
   IonRow,
   IonCol,
+  IonIcon,
 } from '@ionic/react';
 import { useRef, useState } from 'react';
 import classNames from 'classnames';
-import { Form, Formik } from 'formik';
+import { Form, Formik, useFormikContext } from 'formik';
 import { object, string, ref } from 'yup';
 import { useTranslation } from 'react-i18next';
+import { checkmarkCircle, closeCircle } from 'ionicons/icons';
 
 import './SignUpForm.scss';
 import { BaseComponentProps } from 'common/components/types';
@@ -39,6 +41,44 @@ interface SignUpFormValues {
   password: string;
   confirmPassword: string;
 }
+
+/**
+ * Password guidelines component
+ */
+const PasswordGuidelines = () => {
+  const { values } = useFormikContext<SignUpFormValues>();
+  const password = values.password || '';
+  const { t } = useTranslation();
+
+  const hasMinLength = password.length >= 8;
+  const hasUppercase = /[A-Z]/.test(password);
+  const hasNumber = /[0-9]/.test(password);
+  const hasSpecialChar = /[^A-Za-z0-9]/.test(password);
+
+  const renderGuideline = (isValid: boolean, text: string) => {
+    return (
+      <div className={`ls-signup-form__password-guidelines-item ls-signup-form__password-guidelines-item-${isValid ? 'valid' : 'invalid'}`}>
+        <IonIcon 
+          icon={isValid ? checkmarkCircle : closeCircle} 
+          className="ls-signup-form__password-guidelines-item-icon" 
+        />
+        <span>{text}</span>
+      </div>
+    );
+  };
+
+  return (
+    <div className="ls-signup-form__password-guidelines">
+      <div className="ls-signup-form__password-guidelines-header">
+        {t('password-requirements', { ns: 'auth' })}
+      </div>
+      {renderGuideline(hasMinLength, t('validation.min-length', { length: 8, ns: 'auth' }))}
+      {renderGuideline(hasUppercase, t('validation.uppercase', { ns: 'auth' }))}
+      {renderGuideline(hasNumber, t('validation.number', { ns: 'auth' }))}
+      {renderGuideline(hasSpecialChar, t('validation.special-char', { ns: 'auth' }))}
+    </div>
+  );
+};
 
 /**
  * The `SignUpForm` component renders a form for user registration.
@@ -71,6 +111,9 @@ const SignUpForm = ({ className, testid = 'form-signup' }: SignUpFormProps): JSX
       .required(t('validation.required', { ns: 'auth' })),
     password: string()
       .min(8, t('validation.min-length', { length: 8, ns: 'auth' }))
+      .matches(/[A-Z]/, t('validation.uppercase', { ns: 'auth' }))
+      .matches(/[0-9]/, t('validation.number', { ns: 'auth' }))
+      .matches(/[^A-Za-z0-9]/, t('validation.special-char', { ns: 'auth' }))
       .required(t('validation.required', { ns: 'auth' })),
     confirmPassword: string()
       .oneOf([ref('password')], t('validation.passwords-match', { ns: 'auth' }))
@@ -179,6 +222,8 @@ const SignUpForm = ({ className, testid = 'form-signup' }: SignUpFormProps): JSX
             >
               <IonInputPasswordToggle slot="end"></IonInputPasswordToggle>
             </Input>
+
+            <PasswordGuidelines />
 
             <Input
               type="password"

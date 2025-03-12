@@ -2,10 +2,39 @@
   padding: 1rem;
 
   .ls-signup-form__input {
-    margin-bottom: 1rem;
+    margin-bottom: 16px;
   }
 
   .ls-signup-form__button {
-    margin-top: 1.5rem;
+    margin-top: 16px;
+  }
+
+  &__password-guidelines {
+    margin-top: -8px;
+    margin-bottom: 16px;
+    font-size: 0.85rem;
+    
+    &-header {
+      margin-bottom: 4px;
+      font-weight: 500;
+    }
+    
+    &-item {
+      display: flex;
+      align-items: center;
+      margin-bottom: 2px;
+      
+      &-icon {
+        margin-right: 6px;
+      }
+      
+      &-valid {
+        color: var(--ion-color-success);
+      }
+      
+      &-invalid {
+        color: var(--ion-color-medium);
+      }
+    }
   }
 } 
