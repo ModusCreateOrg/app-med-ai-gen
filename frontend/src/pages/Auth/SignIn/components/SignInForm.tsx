@@ -41,6 +41,7 @@ interface SignInFormProps extends BaseComponentProps {}
  * Sign in form values.
  * @param {string} email - User's email.
  * @param {string} password - A password.
+ * @param {boolean} rememberMe - Whether to remember the user's credentials.
  */
 interface SignInFormValues {
   email: string;
@@ -188,7 +189,7 @@ const SignInForm = ({ className, testid = 'form-signin' }: SignInFormProps): JSX
               className="ls-signin-form__input"
               data-testid={`${testid}-field-password`}
             >
-              <IonInputPasswordToggle slot="end"></IonInputPasswordToggle>
+              <IonInputPasswordToggle slot="end" />
             </Input>
 
             <CheckboxInput
@@ -229,6 +230,7 @@ const SignInForm = ({ className, testid = 'form-signin' }: SignInFormProps): JSX
               trigger="signinInfo"
               triggerAction="hover"
               className="ls-signin-form-popover"
+              data-testid={`${testid}-popover`}
             >
               <IonContent className="ion-padding">
                 <p>
