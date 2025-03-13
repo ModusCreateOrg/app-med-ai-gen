@@ -6,7 +6,6 @@ import { vi, describe, it, expect, beforeEach } from 'vitest';
 
 describe('AuthMiddleware', () => {
   let middleware: AuthMiddleware;
-  let jwtService: JwtService;
 
   const mockJwtService = {
     verify: vi.fn(),
@@ -32,7 +31,6 @@ describe('AuthMiddleware', () => {
     }).compile();
 
     middleware = module.get<AuthMiddleware>(AuthMiddleware);
-    jwtService = module.get<JwtService>(JwtService);
   });
 
   it('should be defined', () => {

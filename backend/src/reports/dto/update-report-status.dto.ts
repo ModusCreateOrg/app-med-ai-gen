@@ -6,7 +6,7 @@ export class UpdateReportStatusDto {
   @ApiProperty({
     description: 'New status for the report',
     enum: ReportStatus,
-    example: ReportStatus.READ
+    example: ReportStatus.READ,
   })
   @IsNotEmpty()
   @IsEnum(ReportStatus)

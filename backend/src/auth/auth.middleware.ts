@@ -7,7 +7,7 @@ import { ConfigService } from '@nestjs/config';
 export class AuthMiddleware implements NestMiddleware {
   constructor(
     private readonly jwtService: JwtService,
-    private readonly configService: ConfigService
+    private readonly configService: ConfigService,
   ) {}
 
   use(req: Request, res: Response, next: NextFunction) {
@@ -17,7 +17,7 @@ export class AuthMiddleware implements NestMiddleware {
       try {
         const token = authHeader.substring(7);
         const payload = this.jwtService.verify(token, {
-          secret: this.configService.get<string>('JWT_SECRET')
+          secret: this.configService.get<string>('JWT_SECRET'),
         });
 
         req.user = {

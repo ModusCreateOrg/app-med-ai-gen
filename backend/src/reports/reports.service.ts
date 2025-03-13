@@ -5,10 +5,9 @@ import {
   ScanCommand,
   GetItemCommand,
   UpdateItemCommand,
-  QueryCommand
 } from '@aws-sdk/client-dynamodb';
 import { marshall, unmarshall } from '@aws-sdk/util-dynamodb';
-import { Report, ReportStatus } from './models/report.model';
+import { Report } from './models/report.model';
 import { GetReportsQueryDto } from './dto/get-reports.dto';
 import { UpdateReportStatusDto } from './dto/update-report-status.dto';
 
@@ -45,9 +44,9 @@ export class ReportsService {
     const reports = (response.Items || []).map(item => unmarshall(item) as Report);
 
     // Sort by createdAt in descending order
-    return reports.sort((a, b) =>
-      new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
-    ).slice(0, limit);
+    return reports
+      .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
+      .slice(0, limit);
   }
 
   async findOne(id: string): Promise<Report> {

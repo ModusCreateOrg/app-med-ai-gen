@@ -27,7 +27,7 @@ export class Report {
   @ApiProperty({
     description: 'Status of the report',
     enum: ReportStatus,
-    default: ReportStatus.UNREAD
+    default: ReportStatus.UNREAD,
   })
   status: ReportStatus;
 }

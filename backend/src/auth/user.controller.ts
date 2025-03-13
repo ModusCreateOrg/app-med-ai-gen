@@ -1,5 +1,5 @@
-import { Controller, Get, Post, Body, Param, UseGuards, NotFoundException } from '@nestjs/common';
-import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth } from '@nestjs/swagger';
+import { Controller, Get, Param, NotFoundException } from '@nestjs/common';
+import { ApiTags, ApiOperation, ApiResponse } from '@nestjs/swagger';
 import { User } from './user.interface';
 
 @ApiTags('users')

@@ -6,7 +6,7 @@ export class GetReportsQueryDto {
   @ApiProperty({
     description: 'Maximum number of reports to return',
     required: false,
-    default: 10
+    default: 10,
   })
   @IsOptional()
   @Type(() => Number)

@@ -32,7 +32,7 @@ describe('UserController', () => {
         id: '123',
         username: 'testuser',
         email: 'test@example.com',
-        groups: ['users']
+        groups: ['users'],
       };
 
       const result = controller.getProfile(mockUser);
@@ -48,7 +48,7 @@ describe('UserController', () => {
         id: '456',
         username: 'minimaluser',
         email: 'minimal@example.com',
-        groups: []
+        groups: [],
       };
 
       const result = controller.getProfile(minimalUser);

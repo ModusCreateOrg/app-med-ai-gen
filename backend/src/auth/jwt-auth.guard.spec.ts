@@ -18,10 +18,7 @@ describe('JwtAuthGuard', () => {
           signOptions: { expiresIn: '1h' },
         }),
       ],
-      providers: [
-        JwtAuthGuard,
-        JwtStrategy,
-      ],
+      providers: [JwtAuthGuard, JwtStrategy],
     }).compile();
 
     guard = module.get<JwtAuthGuard>(JwtAuthGuard);

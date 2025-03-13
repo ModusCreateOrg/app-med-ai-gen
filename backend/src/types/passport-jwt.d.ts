@@ -29,6 +29,8 @@ declare module 'passport-jwt' {
     export function fromHeader(header_name: string): (request: any) => string | null;
     export function fromBodyField(field_name: string): (request: any) => string | null;
     export function fromUrlQueryParameter(param_name: string): (request: any) => string | null;
-    export function fromExtractors(extractors: Array<(request: any) => string | null>): (request: any) => string | null;
+    export function fromExtractors(
+      extractors: Array<(request: any) => string | null>,
+    ): (request: any) => string | null;
   }
 }

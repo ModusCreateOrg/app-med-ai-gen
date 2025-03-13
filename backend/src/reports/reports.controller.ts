@@ -6,7 +6,7 @@ import {
   Body,
   Query,
   UseGuards,
-  ValidationPipe
+  ValidationPipe,
 } from '@nestjs/common';
 import {
   ApiTags,
@@ -14,11 +14,11 @@ import {
   ApiResponse,
   ApiBearerAuth,
   ApiParam,
-  ApiQuery
+  ApiQuery,
 } from '@nestjs/swagger';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { ReportsService } from './reports.service';
-import { Report, ReportStatus } from './models/report.model';
+import { Report } from './models/report.model';
 import { GetReportsQueryDto } from './dto/get-reports.dto';
 import { UpdateReportStatusDto } from './dto/update-report-status.dto';
 
@@ -33,7 +33,7 @@ export class ReportsController {
   @ApiResponse({
     status: 200,
     description: 'Returns all reports',
-    type: [Report]
+    type: [Report],
   })
   @Get()
   async findAll(): Promise<Report[]> {
@@ -44,12 +44,12 @@ export class ReportsController {
   @ApiResponse({
     status: 200,
     description: 'Returns the latest reports',
-    type: [Report]
+    type: [Report],
   })
   @ApiQuery({
     name: 'limit',
     required: false,
-    description: 'Maximum number of reports to return'
+    description: 'Maximum number of reports to return',
   })
   @Get('latest')
   async findLatest(@Query(ValidationPipe) queryDto: GetReportsQueryDto): Promise<Report[]> {
@@ -60,20 +60,20 @@ export class ReportsController {
   @ApiResponse({
     status: 200,
     description: 'Report status updated successfully',
-    type: Report
+    type: Report,
   })
   @ApiResponse({
     status: 404,
-    description: 'Report not found'
+    description: 'Report not found',
   })
   @ApiParam({
     name: 'id',
-    description: 'Report ID'
+    description: 'Report ID',
   })
   @Patch(':id/status')
   async updateStatus(
     @Param('id') id: string,
-    @Body(ValidationPipe) updateDto: UpdateReportStatusDto
+    @Body(ValidationPipe) updateDto: UpdateReportStatusDto,
   ): Promise<Report> {
     return this.reportsService.updateStatus(id, updateDto);
   }
