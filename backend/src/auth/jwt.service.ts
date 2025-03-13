@@ -8,7 +8,7 @@ interface JWK {
   alg: string;
   e: string;
   kid: string;
-  kty: "RSA";
+  kty: 'RSA';
   n: string;
   use: string;
 }
@@ -40,7 +40,12 @@ export class JwtService {
       // Decode the token without verification to get the key ID (kid)
       const decodedToken = jwt.decode(token, { complete: true });
 
-      if (!decodedToken || typeof decodedToken !== 'object' || !decodedToken.header || !decodedToken.header.kid) {
+      if (
+        !decodedToken ||
+        typeof decodedToken !== 'object' ||
+        !decodedToken.header ||
+        !decodedToken.header.kid
+      ) {
         throw new Error('Invalid token format');
       }
 
@@ -56,20 +61,25 @@ export class JwtService {
 
       // Verify the token
       const region = this.configService.get<string>('AWS_REGION', 'us-east-1');
-      const userPoolId = this.configService.get<string>('COGNITO_USER_POOL_ID', 'ai-cognito-medical-reports-user-pool');
+      const userPoolId = this.configService.get<string>(
+        'COGNITO_USER_POOL_ID',
+        'ai-cognito-medical-reports-user-pool',
+      );
 
       const verified = jwt.verify(token, pem, {
         algorithms: ['RS256'],
-        issuer: `https://cognito-idp.${region}.amazonaws.com/${userPoolId}`
+        issuer: `https://cognito-idp.${region}.amazonaws.com/${userPoolId}`,
       }) as DecodedToken;
 
       return {
         id: verified.sub,
         email: verified.email,
-        groups: verified['cognito:groups'] || []
+        groups: verified['cognito:groups'] || [],
       };
     } catch (error: unknown) {
-      this.logger.error(`Token verification failed: ${error instanceof Error ? error.message : 'Unknown error'}`);
+      this.logger.error(
+        `Token verification failed: ${error instanceof Error ? error.message : 'Unknown error'}`,
+      );
       throw error;
     }
   }
@@ -78,13 +88,19 @@ export class JwtService {
     const now = Date.now();
 
     // Return cached JWKs if they're still valid
-    if (Object.keys(this.jwksCache).length > 0 && now - this.jwksCacheTime < this.JWKS_CACHE_DURATION) {
+    if (
+      Object.keys(this.jwksCache).length > 0 &&
+      now - this.jwksCacheTime < this.JWKS_CACHE_DURATION
+    ) {
       return this.jwksCache;
     }
 
     try {
       const region = this.configService.get<string>('AWS_REGION', 'us-east-1');
-      const userPoolId = this.configService.get<string>('COGNITO_USER_POOL_ID', 'ai-cognito-medical-reports-user-pool');
+      const userPoolId = this.configService.get<string>(
+        'COGNITO_USER_POOL_ID',
+        'ai-cognito-medical-reports-user-pool',
+      );
       const jwksUrl = `https://cognito-idp.${region}.amazonaws.com/${userPoolId}/.well-known/jwks.json`;
 
       const response = await axios.get<CognitoJWKS>(jwksUrl);
@@ -99,7 +115,9 @@ export class JwtService {
 
       return jwks;
     } catch (error: unknown) {
-      this.logger.error(`Error fetching JWKs: ${error instanceof Error ? error.message : 'Unknown error'}`);
+      this.logger.error(
+        `Error fetching JWKs: ${error instanceof Error ? error.message : 'Unknown error'}`,
+      );
       throw new Error('Failed to fetch JWKs');
     }
   }

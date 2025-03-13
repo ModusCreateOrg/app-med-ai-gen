@@ -1,20 +1,19 @@
 import { ExecutionContext } from '@nestjs/common';
-import { GetUser } from './get-user.decorator';
 import { vi, describe, it, expect } from 'vitest';
 
 // We need to mock the NestJS decorator factory
 vi.mock('@nestjs/common', async () => {
   const actual = await vi.importActual('@nestjs/common');
   return {
-    ...actual as any,
-    createParamDecorator: (factory: Function) => {
+    ...(actual as any),
+    createParamDecorator: (factory: (data: any, ctx: ExecutionContext) => any) => {
       return (data?: string) => {
         return {
           factory,
-          data
+          data,
         };
       };
-    }
+    },
   };
 });
 
@@ -80,7 +79,7 @@ describe('GetUser Decorator', () => {
       id: 'user123',
       email: 'test@example.com',
       groups: ['users'],
-      preferences: { theme: 'dark' }
+      preferences: { theme: 'dark' },
     };
 
     // Create mock context

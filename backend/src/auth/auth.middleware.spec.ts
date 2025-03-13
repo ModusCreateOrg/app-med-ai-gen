@@ -8,7 +8,7 @@ describe('AuthMiddleware', () => {
 
   // Create a mock JwtService
   const mockJwtService = {
-    verifyToken: vi.fn()
+    verifyToken: vi.fn(),
   };
 
   beforeEach(async () => {

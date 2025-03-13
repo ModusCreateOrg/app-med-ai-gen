@@ -10,7 +10,7 @@ export class UserController {
   getProfile(@GetUser() user: User) {
     return {
       message: 'Authentication successful',
-      user
+      user,
     };
   }
 }

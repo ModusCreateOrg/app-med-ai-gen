@@ -5,10 +5,9 @@ export interface User {
 }
 
 // Extend Express Request interface to include user property
-declare global {
-  namespace Express {
-    interface Request {
-      user?: User;
-    }
+// Using module augmentation instead of namespace
+declare module 'express' {
+  interface Request {
+    user?: User;
   }
 }
