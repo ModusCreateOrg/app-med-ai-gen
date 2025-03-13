@@ -1,6 +1,6 @@
 .chat-header {
   &__toolbar {
-    --background: #f7f7f7;
+    --background: var(--chat-header-bg);
     --border-color: transparent;
     padding: 0.75rem 1rem;
     display: flex;
@@ -11,7 +11,7 @@
   &__title {
     font-size: 1.125rem;
     font-weight: 600;
-    color: #333;
+    color: var(--chat-text-color);
   }
   
   &__actions {
@@ -41,19 +41,32 @@
     }
     
     &--clear {
-      color: #ff6b6b;
+      color: var(--chat-icon-danger);
     }
     
     &--expand {
-      color: #4765ff;
+      color: var(--chat-icon-primary);
     }
     
     &--close {
-      color: #888;
+      color: var(--chat-icon-secondary);
     }
   }
   
   &__icon {
     font-size: 1.25rem;
+  }
+}
+
+// Dark theme adjustments
+.dark-theme .chat-header {
+  &__button {
+    &:hover {
+      background-color: rgba(255, 255, 255, 0.1);
+    }
+    
+    &:active {
+      background-color: rgba(255, 255, 255, 0.15);
+    }
   }
 } 

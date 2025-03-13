@@ -4,6 +4,7 @@ import ChatHeader from '../ChatHeader/ChatHeader';
 import ChatInput from '../ChatInput/ChatInput';
 import ChatMessage from '../ChatMessage/ChatMessage';
 import TypingIndicator from '../ChatMessage/TypingIndicator';
+import SuggestedPrompts from '../SuggestedPrompts/SuggestedPrompts';
 import { useChatContext } from '../../hooks/useChatContext';
 import { ChatSessionStatus } from 'common/models/chat';
 import './AIChat.scss';
@@ -33,6 +34,11 @@ const AIChat: React.FC<AIChatProps> = ({
     await sendMessage(text);
   };
   
+  // Handle suggested prompt selection
+  const handleSelectPrompt = (prompt: string) => {
+    handleSendMessage(prompt);
+  };
+  
   // Scroll to bottom when messages change or when typing
   useEffect(() => {
     if (contentRef.current) {
@@ -53,6 +59,7 @@ const AIChat: React.FC<AIChatProps> = ({
           {messages.length === 0 ? (
             <div className="ai-chat__empty-state">
               <p>Ask me anything about your medical reports or health questions.</p>
+              <SuggestedPrompts onSelectPrompt={handleSelectPrompt} />
             </div>
           ) : (
             messages.map(message => (

@@ -16,7 +16,9 @@ import ScrollProvider from 'common/providers/ScrollProvider';
 import { AIChatProvider } from 'common/providers/AIChatProvider';
 import Toasts from 'common/components/Toast/Toasts';
 import AppRouter from 'common/components/Router/AppRouter';
+import ThemeProvider from 'pages/Chat/context/ThemeContext';
 
+import 'pages/Chat/styles/theme-variables.scss';
 import './theme/main.css';
 
 setupIonicReact({
@@ -59,11 +61,13 @@ const App = (): JSX.Element => {
               <AxiosProvider>
                 <ToastProvider>
                   <ScrollProvider>
-                    <AIChatProvider>
-                      <AppRouter />
-                      <Toasts />
-                      <ReactQueryDevtools initialIsOpen={false} buttonPosition="bottom-left" />
-                    </AIChatProvider>
+                    <ThemeProvider>
+                      <AIChatProvider>
+                        <AppRouter />
+                        <Toasts />
+                        <ReactQueryDevtools initialIsOpen={false} buttonPosition="bottom-left" />
+                      </AIChatProvider>
+                    </ThemeProvider>
                   </ScrollProvider>
                 </ToastProvider>
               </AxiosProvider>

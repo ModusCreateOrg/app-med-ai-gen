@@ -1,0 +1,97 @@
+// Base theme variables
+
+// Light theme (default)
+:root, .light-theme {
+  // Colors
+  --chat-bg-color: #ffffff;
+  --chat-header-bg: #f7f7f7;
+  --chat-border-color: #efefef;
+  --chat-text-color: #333333;
+  --chat-secondary-text: #666666;
+  --chat-placeholder-color: #aaaaaa;
+  
+  // Message bubbles
+  --chat-user-bubble-bg: #4765ff;
+  --chat-user-bubble-color: #ffffff;
+  --chat-ai-bubble-bg: #f0f0f0;
+  --chat-ai-bubble-color: #333333;
+  --chat-ai-bubble-border: transparent;
+  
+  // Inputs
+  --chat-input-bg: #ffffff;
+  --chat-input-border: #dddddd;
+  --chat-input-focus-border: #4765ff;
+  --chat-input-focus-shadow: rgba(71, 101, 255, 0.2);
+  
+  // Buttons
+  --chat-button-bg: #4765ff;
+  --chat-button-color: #ffffff;
+  --chat-button-hover-bg: #3b52cc;
+  --chat-button-disabled-bg: #cccccc;
+  
+  // Icons
+  --chat-icon-primary: #4765ff;
+  --chat-icon-secondary: #888888;
+  --chat-icon-danger: #ff6b6b;
+  --chat-icon-success: #2ecc71;
+  
+  // Feedback
+  --chat-positive-color: #2ecc71;
+  --chat-negative-color: #e74c3c;
+  
+  // Error messages
+  --chat-error-bg: rgba(255, 0, 0, 0.1);
+  --chat-error-border: #f44336;
+  --chat-error-text: #d32f2f;
+  
+  // Shadows
+  --chat-shadow-color: rgba(0, 0, 0, 0.1);
+}
+
+// Dark theme
+.dark-theme {
+  // Colors
+  --chat-bg-color: #121212;
+  --chat-header-bg: #1e1e1e;
+  --chat-border-color: #2c2c2c;
+  --chat-text-color: #f0f0f0;
+  --chat-secondary-text: #bbbbbb;
+  --chat-placeholder-color: #777777;
+  
+  // Message bubbles
+  --chat-user-bubble-bg: #3b52cc;
+  --chat-user-bubble-color: #ffffff;
+  --chat-ai-bubble-bg: #2c2c2c;
+  --chat-ai-bubble-color: #f0f0f0;
+  --chat-ai-bubble-border: #3c3c3c;
+  
+  // Inputs
+  --chat-input-bg: #1e1e1e;
+  --chat-input-border: #3c3c3c;
+  --chat-input-focus-border: #4765ff;
+  --chat-input-focus-shadow: rgba(71, 101, 255, 0.3);
+  
+  // Buttons
+  --chat-button-bg: #4765ff;
+  --chat-button-color: #ffffff;
+  --chat-button-hover-bg: #5d78ff;
+  --chat-button-disabled-bg: #444444;
+  
+  // Icons
+  --chat-icon-primary: #5d78ff;
+  --chat-icon-secondary: #aaaaaa;
+  --chat-icon-danger: #ff6b6b;
+  --chat-icon-success: #2ecc71;
+  
+  // Feedback
+  --chat-positive-color: #2ecc71;
+  --chat-negative-color: #e74c3c;
+  
+  // Error messages
+  --chat-error-bg: rgba(255, 0, 0, 0.15);
+  --chat-error-border: #f44336;
+  --chat-error-text: #ff6b6b;
+  
+  // Shadows
+  --chat-shadow-color: rgba(0, 0, 0, 0.3);
+} 

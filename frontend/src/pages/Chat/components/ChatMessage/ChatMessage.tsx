@@ -3,6 +3,7 @@ import { format } from 'date-fns';
 import ReactMarkdown from 'react-markdown';
 import rehypeSanitize from 'rehype-sanitize';
 import { ChatMessage as ChatMessageType } from 'common/models/chat';
+import MessageActions from './MessageActions';
 import './ChatMessage.scss';
 
 interface ChatMessageProps {
@@ -53,6 +54,8 @@ const ChatMessage: React.FC<ChatMessageProps> = ({ message }) => {
           <div className={`chat-message__time ${showTime ? 'chat-message__time--visible' : ''}`}>
             {formattedTime}
           </div>
+          
+          {isAI && <MessageActions text={text} />}
         </div>
       </div>
     </div>

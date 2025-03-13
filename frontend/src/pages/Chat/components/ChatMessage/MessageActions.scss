@@ -1,0 +1,50 @@
+.message-actions {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 0.5rem;
+  opacity: 0;
+  transition: opacity 0.2s ease;
+  
+  &__button {
+    background: transparent;
+    border: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 2rem;
+    height: 2rem;
+    border-radius: 50%;
+    padding: 0;
+    cursor: pointer;
+    color: #777;
+    transition: all 0.2s ease;
+    
+    &:hover {
+      background-color: rgba(0, 0, 0, 0.05);
+      color: #444;
+    }
+    
+    &--active {
+      color: #4765ff;
+    }
+    
+    &--positive {
+      color: #2ecc71;
+    }
+    
+    &--negative {
+      color: #e74c3c;
+    }
+  }
+  
+  &__feedback {
+    display: flex;
+    gap: 0.25rem;
+  }
+}
+
+// Make actions visible when the message bubble is hovered
+.chat-message__bubble:hover .message-actions {
+  opacity: 1;
+} 

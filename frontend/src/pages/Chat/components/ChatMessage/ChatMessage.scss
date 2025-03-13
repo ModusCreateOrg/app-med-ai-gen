@@ -20,8 +20,8 @@
     }
     
     .chat-message__bubble {
-      background-color: #4765ff;
-      color: white;
+      background-color: var(--chat-user-bubble-bg);
+      color: var(--chat-user-bubble-color);
       border-radius: 1.25rem 0 1.25rem 1.25rem;
       
       .chat-message__time {
@@ -34,9 +34,10 @@
     align-items: flex-start;
     
     .chat-message__bubble {
-      background-color: #f0f0f0;
-      color: #333;
+      background-color: var(--chat-ai-bubble-bg);
+      color: var(--chat-ai-bubble-color);
       border-radius: 0 1.25rem 1.25rem 1.25rem;
+      border: 1px solid var(--chat-ai-bubble-border);
     }
   }
   
@@ -44,7 +45,7 @@
     width: 2rem;
     height: 2rem;
     border-radius: 50%;
-    background-color: #4765ff;
+    background-color: var(--chat-icon-primary);
     display: flex;
     align-items: center;
     justify-content: center;
@@ -52,7 +53,7 @@
   }
   
   &__avatar-icon {
-    color: white;
+    color: var(--chat-user-bubble-color);
     font-size: 0.875rem;
     font-weight: 600;
   }
@@ -103,7 +104,7 @@
   
   &__time {
     font-size: 0.75rem;
-    color: #999;
+    color: var(--chat-secondary-text);
     margin-top: 0.25rem;
     text-align: right;
     opacity: 0;

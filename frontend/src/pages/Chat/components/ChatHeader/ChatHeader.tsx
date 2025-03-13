@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { IonHeader, IonIcon, IonToolbar, IonAlert } from '@ionic/react';
 import { close, expandOutline, contractOutline, trashOutline } from 'ionicons/icons';
 import { useChatContext } from '../../hooks/useChatContext';
+import ThemeToggle from '../ThemeToggle/ThemeToggle';
 import './ChatHeader.scss';
 
 interface ChatHeaderProps {
@@ -37,6 +38,7 @@ const ChatHeader: React.FC<ChatHeaderProps> = ({
           AI Assistant
         </div>
         <div className="chat-header__actions">
+          <ThemeToggle />
           <button 
             className="chat-header__button chat-header__button--clear" 
             onClick={handleClearClick}

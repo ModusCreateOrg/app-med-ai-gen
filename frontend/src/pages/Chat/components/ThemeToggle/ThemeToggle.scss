@@ -1,0 +1,36 @@
+.theme-toggle {
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 2rem;
+  height: 2rem;
+  border-radius: 50%;
+  transition: background-color 0.2s ease;
+  
+  &:hover {
+    background-color: rgba(0, 0, 0, 0.05);
+  }
+  
+  &:active {
+    background-color: rgba(0, 0, 0, 0.1);
+  }
+  
+  &__icon {
+    color: var(--chat-icon-secondary);
+    font-size: 1.25rem;
+  }
+}
+
+// Dark theme adjustments
+.dark-theme .theme-toggle {
+  &:hover {
+    background-color: rgba(255, 255, 255, 0.1);
+  }
+  
+  &:active {
+    background-color: rgba(255, 255, 255, 0.15);
+  }
+} 

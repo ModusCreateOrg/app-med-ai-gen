@@ -1,0 +1,67 @@
+.share-modal {
+  --width: 90%;
+  --max-width: 400px;
+  --height: auto;
+  --border-radius: 1rem;
+  
+  &__content {
+    padding: 1rem;
+  }
+  
+  &__message {
+    margin-bottom: 1.5rem;
+    
+    h3 {
+      font-size: 1.125rem;
+      font-weight: 600;
+      margin-bottom: 0.75rem;
+      color: #333;
+    }
+  }
+  
+  &__preview {
+    background-color: #f5f5f5;
+    border-radius: 0.5rem;
+    padding: 1rem;
+    font-size: 0.875rem;
+    color: #555;
+    line-height: 1.4;
+    margin-bottom: 1rem;
+    white-space: pre-wrap;
+  }
+  
+  &__actions {
+    margin-bottom: 1.5rem;
+  }
+  
+  &__action-item {
+    --padding-start: 0.5rem;
+    margin-bottom: 0.5rem;
+    border-radius: 0.5rem;
+    
+    &:last-child {
+      margin-bottom: 0;
+    }
+  }
+  
+  &__action-icon {
+    margin-right: 0.5rem;
+    color: #4765ff;
+  }
+  
+  &__link-section {
+    background-color: #f5f5f5;
+    border-radius: 0.5rem;
+    padding: 0.5rem;
+  }
+  
+  &__link-input {
+    --background: transparent;
+    --padding-start: 0.5rem;
+    --inner-padding-end: 0;
+    
+    ion-input {
+      font-size: 0.875rem;
+    }
+  }
+} 
