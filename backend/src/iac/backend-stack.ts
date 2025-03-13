@@ -4,7 +4,6 @@ import * as ecs from 'aws-cdk-lib/aws-ecs';
 import * as logs from 'aws-cdk-lib/aws-logs';
 import * as elbv2 from 'aws-cdk-lib/aws-elasticloadbalancingv2';
 import * as cognito from 'aws-cdk-lib/aws-cognito';
-import * as iam from 'aws-cdk-lib/aws-iam';
 import * as elbv2_actions from 'aws-cdk-lib/aws-elasticloadbalancingv2-actions';
 import { Construct } from 'constructs';
 
@@ -82,7 +81,7 @@ export class BackendStack extends cdk.Stack {
     const userPool = cognito.UserPool.fromUserPoolId(
       this,
       `${appName}UserPool`,
-      'ai-cognito-medical-reports-user-pool'
+      'ai-cognito-medical-reports-user-pool',
     );
 
     // Create a Cognito domain if it doesn't exist
