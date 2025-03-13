@@ -1,17 +1,11 @@
-import React, { useState } from 'react';
+import React, { useRef, useEffect } from 'react';
 import { IonContent } from '@ionic/react';
 import ChatHeader from '../ChatHeader/ChatHeader';
 import ChatInput from '../ChatInput/ChatInput';
 import ChatMessage from '../ChatMessage/ChatMessage';
+import { useChatContext } from '../../hooks/useChatContext';
+import { ChatSessionStatus } from 'common/models/chat';
 import './AIChat.scss';
-
-// Mock data structure for a chat message
-export interface ChatMessageType {
-  id: string;
-  text: string;
-  sender: 'user' | 'ai';
-  timestamp: Date;
-}
 
 interface AIChatProps {
   isExpanded: boolean;
@@ -27,40 +21,23 @@ const AIChat: React.FC<AIChatProps> = ({
   onClose, 
   onToggleExpand 
 }) => {
-  const [messages, setMessages] = useState<ChatMessageType[]>([]);
-  const [isLoading, setIsLoading] = useState(false);
-
+  const { state, sendMessage } = useChatContext();
+  const { messages, status, error } = state;
+  const contentRef = useRef<HTMLIonContentElement>(null);
+  const isLoading = status === ChatSessionStatus.LOADING;
+  
   // Function to handle sending a new message
-  const handleSendMessage = (text: string) => {
+  const handleSendMessage = async (text: string) => {
     if (!text.trim()) return;
-    
-    // Create a new user message
-    const newUserMessage: ChatMessageType = {
-      id: Date.now().toString(),
-      text,
-      sender: 'user',
-      timestamp: new Date()
-    };
-    
-    // Add the user message to the chat
-    setMessages(prevMessages => [...prevMessages, newUserMessage]);
-    
-    // Simulate AI response with loading state
-    setIsLoading(true);
-    
-    // Mock AI response after a delay
-    setTimeout(() => {
-      const aiResponse: ChatMessageType = {
-        id: (Date.now() + 1).toString(),
-        text: `This is a mock response to: "${text}"`,
-        sender: 'ai',
-        timestamp: new Date()
-      };
-      
-      setMessages(prevMessages => [...prevMessages, aiResponse]);
-      setIsLoading(false);
-    }, 1000);
+    await sendMessage(text);
   };
+  
+  // Scroll to bottom when messages change
+  useEffect(() => {
+    if (contentRef.current) {
+      contentRef.current.scrollToBottom(300);
+    }
+  }, [messages]);
 
   return (
     <div className={`ai-chat ${isExpanded ? 'ai-chat--expanded' : ''}`}>
@@ -70,7 +47,7 @@ const AIChat: React.FC<AIChatProps> = ({
         isExpanded={isExpanded}
       />
       
-      <IonContent className="ai-chat__content">
+      <IonContent className="ai-chat__content" ref={contentRef}>
         <div className="ai-chat__messages">
           {messages.length === 0 ? (
             <div className="ai-chat__empty-state">
@@ -92,6 +69,12 @@ const AIChat: React.FC<AIChatProps> = ({
                 <span></span>
                 <span></span>
               </div>
+            </div>
+          )}
+          
+          {error && status === ChatSessionStatus.ERROR && (
+            <div className="ai-chat__error">
+              <p>{error}</p>
             </div>
           )}
         </div>

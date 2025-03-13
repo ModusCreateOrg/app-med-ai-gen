@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import AIChat from '../AIChat/AIChat';
+import { ChatProvider } from '../../context/ChatContext';
 import './AIChatContainer.scss';
 
 /**
@@ -42,7 +43,7 @@ const AIChatContainer: React.FC = () => {
   }, [isVisible]);
   
   return (
-    <>
+    <ChatProvider>
       {/* AI Chat toggle button for bottom nav */}
       <div className="ai-chat-container__toggle">
         <button 
@@ -64,7 +65,7 @@ const AIChatContainer: React.FC = () => {
           />
         </div>
       )}
-    </>
+    </ChatProvider>
   );
 };
 

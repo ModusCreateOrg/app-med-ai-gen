@@ -1,6 +1,6 @@
 import React from 'react';
 import { format } from 'date-fns';
-import { ChatMessageType } from '../AIChat/AIChat';
+import { ChatMessage as ChatMessageType } from 'common/models/chat';
 import './ChatMessage.scss';
 
 interface ChatMessageProps {
