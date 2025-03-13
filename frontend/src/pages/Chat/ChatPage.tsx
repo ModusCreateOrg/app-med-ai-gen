@@ -1,6 +1,7 @@
-import { IonContent, IonHeader, IonPage, IonTitle, IonToolbar } from '@ionic/react';
+import { IonContent, IonHeader, IonPage, IonTitle, IonToolbar, IonButton } from '@ionic/react';
 import { useTranslation } from 'react-i18next';
-import AIChatContainer from './components/AIChatContainer/AIChatContainer';
+import { useAIChat } from 'common/providers/AIChatProvider';
+import { useEffect } from 'react';
 
 /**
  * The `ChatPage` component displays the chat interface.
@@ -10,6 +11,12 @@ import AIChatContainer from './components/AIChatContainer/AIChatContainer';
  */
 const ChatPage = (): JSX.Element => {
   const { t } = useTranslation();
+  const { openChat } = useAIChat();
+
+  // Automatically open the chat when navigating to this page
+  useEffect(() => {
+    openChat();
+  }, [openChat]);
 
   return (
     <IonPage>
@@ -22,13 +29,14 @@ const ChatPage = (): JSX.Element => {
         <div className="ion-padding">
           <h1>{t('pages.chat.subtitle')}</h1>
           <p>{t('pages.chat.description')}</p>
+          
+          <IonButton 
+            expand="block" 
+            onClick={openChat}
+          >
+            {t('pages.chat.openButton')}
+          </IonButton>
         </div>
-        
-        {/* 
-          We're using the same AIChatContainer component here
-          This demonstrates how we can reuse the component across different views
-        */}
-        <AIChatContainer />
       </IonContent>
     </IonPage>
   );

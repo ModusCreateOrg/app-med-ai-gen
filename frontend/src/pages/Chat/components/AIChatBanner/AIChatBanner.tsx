@@ -2,15 +2,15 @@ import React from 'react';
 import './AIChatBanner.scss';
 
 interface AIChatBannerProps {
-  onOpenChat: () => void;
+  onClick: () => void;
 }
 
 /**
  * AIChatBanner component displays a banner on the home screen for accessing the AI chat
  */
-const AIChatBanner: React.FC<AIChatBannerProps> = ({ onOpenChat }) => {
+const AIChatBanner: React.FC<AIChatBannerProps> = ({ onClick }) => {
   return (
-    <div className="ai-chat-banner" onClick={onOpenChat}>
+    <div className="ai-chat-banner" onClick={onClick}>
       <div className="ai-chat-banner__content">
         <div className="ai-chat-banner__icon">
           <span className="ai-chat-banner__icon-symbol">✨</span>

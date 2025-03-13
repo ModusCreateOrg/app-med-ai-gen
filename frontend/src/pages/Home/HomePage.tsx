@@ -17,7 +17,7 @@ import Avatar from 'common/components/Icon/Avatar';
 import ReportItem from './components/ReportItem/ReportItem';
 import NoReportsMessage from './components/NoReportsMessage/NoReportsMessage';
 import AIChatBanner from 'pages/Chat/components/AIChatBanner/AIChatBanner';
-import AIChatContainer from 'pages/Chat/components/AIChatContainer/AIChatContainer';
+import { useAIChat } from 'common/providers/AIChatProvider';
 import healthcareImage from '../../assets/img/healthcare.svg';
 import './HomePage.scss';
 
@@ -30,123 +30,96 @@ const HomePage: React.FC = () => {
   const { data: reports, isLoading, isError } = useGetLatestReports(3);
   const { mutate: markAsRead } = useMarkReportAsRead();
   const currentUser = useCurrentUser();
+  const { openChat } = useAIChat();
   
   // Get user display name from token data
-  const displayName = currentUser?.firstName || currentUser?.name?.split(' ')[0] || 'User';
+  const userName = currentUser?.name || currentUser?.email || 'User';
   
   const handleReportClick = (reportId: string) => {
-    // Mark the report as read
     markAsRead(reportId);
-    
-    // Navigate to the report detail page
     history.push(`/reports/${reportId}`);
   };
-
+  
   const handleUpload = () => {
     history.push('/upload');
   };
-
+  
   const handleRetry = () => {
     window.location.reload();
   };
-
+  
   const handleAICardClick = () => {
-    history.push('/chat');
+    openChat();
   };
-
+  
   const renderReportsList = () => {
     if (isLoading) {
-      return Array(3)
-        .fill(0)
-        .map((_, index) => (
-          <IonItem key={`skeleton-${index}`}>
-            <div className="report-icon skeleton"></div>
-            <IonLabel>
-              <IonSkeletonText animated style={{ width: '40%' }} />
-              <IonSkeletonText animated style={{ width: '70%' }} />
-              <IonSkeletonText animated style={{ width: '30%' }} />
-            </IonLabel>
-          </IonItem>
-        ));
+      return (
+        <>
+          {[...Array(3)].map((_, index) => (
+            <IonItem key={`skeleton-${index}`}>
+              <IonLabel>
+                <IonSkeletonText animated style={{ width: '70%' }} />
+                <IonSkeletonText animated style={{ width: '40%' }} />
+              </IonLabel>
+            </IonItem>
+          ))}
+        </>
+      );
     }
-
+    
     if (isError) {
-      return (
-        <div className="home-page__empty-state">
-          <NoReportsMessage 
-            onUpload={handleUpload} 
-            onRetry={handleRetry} 
-          />
-        </div>
-      );
+      return <NoReportsMessage onUpload={handleUpload} onRetry={handleRetry} />;
     }
-
+    
     if (!reports || reports.length === 0) {
-      return (
-        <div className="home-page__empty-state">
-          <NoReportsMessage onUpload={handleUpload} />
-        </div>
-      );
+      return <NoReportsMessage onUpload={handleUpload} />;
     }
-
-    return reports.map((report) => (
-      <ReportItem
-        key={report.id}
-        report={report}
-        onClick={() => handleReportClick(report.id)}
-      />
-    ));
+    
+    return (
+      <>
+        {reports.map((report) => (
+          <ReportItem
+            key={report.id}
+            report={report}
+            onClick={() => handleReportClick(report.id)}
+          />
+        ))}
+      </>
+    );
   };
-
+  
   return (
     <IonPage data-testid="page-home">
       <IonContent>
         <div className="home-page ion-padding">
           <div className="home-page__greeting">
-            <div className="home-page__greeting-container">
-              <div className="home-page__avatar">
-                <Avatar 
-                  value={currentUser?.name || currentUser?.email || ''}
-                  size="large"
-                  shape="round"
-                  testid="home-user-avatar"
-                />
-              </div>
-              <div className="home-page__greeting-text">
-                <h1 className="home-page__greeting-title">
-                  {t('pages.home.greeting', { 
-                    name: displayName
-                  })}
-                </h1>
-                <h2 className="home-page__greeting-subtitle">{t('pages.home.howAreYou')}</h2>
-              </div>
+            <div>
+              <h1 className="home-page__title">{t('greeting.title', { name: userName })}</h1>
+              <p className="home-page__subtitle">{t('greeting.subtitle')}</p>
+            </div>
+            <div className="home-page__avatar">
+              <Avatar value={userName} />
             </div>
           </div>
 
           {/* AI Chat Banner */}
-          <AIChatBanner onOpenChat={handleAICardClick} />
+          <AIChatBanner onClick={openChat} />
 
           <IonCard className="home-page__ai-card" onClick={handleAICardClick}>
-            <div className="home-page__ai-card-decoration home-page__ai-card-decoration--star1"></div>
-            <div className="home-page__ai-card-decoration home-page__ai-card-decoration--star2"></div>
-            <div className="home-page__ai-card-decoration home-page__ai-card-decoration--circle1"></div>
-            <div className="home-page__ai-card-decoration home-page__ai-card-decoration--circle2"></div>
-            <IonCardContent>
-              <div className="home-page__ai-card-content">
-                <div className="home-page__ai-card-image-container">
-                  <img src={healthcareImage} alt="Healthcare illustration" className="home-page__ai-card-image" />
-                </div>
-                <div className="home-page__ai-card-text-container">
-                  <h3 className="home-page__ai-card-title">
-                    {t('pages.home.aiAssistant.title')} {t('pages.home.aiAssistant.button')}
-                  </h3>
-                </div>
+            <IonCardContent className="home-page__ai-card-content">
+              <div className="home-page__ai-card-icon">
+                <img src={healthcareImage} alt="Healthcare AI" />
+              </div>
+              <div className="home-page__ai-card-text">
+                <h2>{t('aiCard.title')}</h2>
+                <p>{t('aiCard.description')}</p>
               </div>
             </IonCardContent>
           </IonCard>
 
           <div className="home-page__reports-header">
-            <h3 className="home-page__reports-title">{t('reports.latestTitle')}</h3>
+            <h2 className="home-page__section-title">{t('reports.recentTitle')}</h2>
             <IonRouterLink routerLink="/reports" className="home-page__reports-link">
               {t('reports.seeAll')}
             </IonRouterLink>
@@ -157,9 +130,6 @@ const HomePage: React.FC = () => {
           </IonList>
         </div>
       </IonContent>
-      
-      {/* AI Chat Container - This will be accessible from anywhere in the app */}
-      <AIChatContainer />
     </IonPage>
   );
 };

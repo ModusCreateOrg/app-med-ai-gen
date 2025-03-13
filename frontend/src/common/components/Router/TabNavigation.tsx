@@ -1,5 +1,6 @@
 import { IonRouterOutlet, IonTabBar, IonTabButton, IonTabs } from '@ionic/react';
 import { Redirect, Route } from 'react-router';
+import { useAIChat } from 'common/providers/AIChatProvider';
 
 import './TabNavigation.scss';
 import AppMenu from '../Menu/AppMenu';
@@ -29,6 +30,8 @@ import ChatPage from 'pages/Chat/ChatPage';
  * @see {@link AppMenu}
  */
 const TabNavigation = (): JSX.Element => {
+  const { openChat } = useAIChat();
+  
   return (
     <>
       <AppMenu />
@@ -93,7 +96,14 @@ const TabNavigation = (): JSX.Element => {
               />
             </div>
           </IonTabButton>
-          <IonTabButton className="ls-tab-navigation__bar-button" tab="chat" href="/tabs/chat">
+          <IonTabButton 
+            className="ls-tab-navigation__bar-button" 
+            tab="chat" 
+            onClick={(e) => {
+              e.preventDefault();
+              openChat();
+            }}
+          >
             <Icon
               className="ls-tab-navigation__bar-button-icon"
               icon="comment"

@@ -3,26 +3,26 @@ import AIChat from '../AIChat/AIChat';
 import { ChatProvider } from '../../context/ChatContext';
 import './AIChatContainer.scss';
 
+interface AIChatContainerProps {
+  isVisible: boolean;
+  onClose: () => void;
+}
+
 /**
  * AIChatContainer manages the AI chat modal state and handles outside clicks
  */
-const AIChatContainer: React.FC = () => {
-  const [isVisible, setIsVisible] = useState(false);
+const AIChatContainer: React.FC<AIChatContainerProps> = ({ isVisible, onClose }) => {
   const [isExpanded, setIsExpanded] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
   
   const handleClose = () => {
-    setIsVisible(false);
+    onClose();
     // Reset to collapsed state when closing
     setIsExpanded(false);
   };
   
   const handleToggleExpand = () => {
     setIsExpanded(prev => !prev);
-  };
-  
-  const handleOpen = () => {
-    setIsVisible(true);
   };
   
   const handleClickOutside = (event: MouseEvent) => {
@@ -42,19 +42,15 @@ const AIChatContainer: React.FC = () => {
     };
   }, [isVisible]);
   
+  // Reset expanded state when visibility changes
+  useEffect(() => {
+    if (!isVisible) {
+      setIsExpanded(false);
+    }
+  }, [isVisible]);
+  
   return (
     <ChatProvider>
-      {/* AI Chat toggle button for bottom nav */}
-      <div className="ai-chat-container__toggle">
-        <button 
-          className="ai-chat-container__toggle-button"
-          onClick={handleOpen}
-          aria-label="Open AI Chat"
-        >
-          AI
-        </button>
-      </div>
-      
       {/* AI Chat modal */}
       {isVisible && (
         <div className="ai-chat-container" ref={containerRef}>
