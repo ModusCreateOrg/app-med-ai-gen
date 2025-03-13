@@ -1,14 +1,14 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import * as jwt from 'jsonwebtoken';
-import * as jwkToPem from 'jwk-to-pem';
+import jwkToPem from 'jwk-to-pem';
 import axios from 'axios';
 
 interface JWK {
   alg: string;
   e: string;
   kid: string;
-  kty: string;
+  kty: "RSA";
   n: string;
   use: string;
 }
