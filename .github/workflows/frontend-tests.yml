@@ -27,6 +27,8 @@ jobs:
       run: npm ci
 
     - name: Run tests
+      env:
+        VITE_BASE_URL_API: https://jsonplaceholder.typicode.com
       run: npm test
 
     - name: Generate test summary
