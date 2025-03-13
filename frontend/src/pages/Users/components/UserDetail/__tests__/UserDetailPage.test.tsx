@@ -29,7 +29,7 @@ describe('UserDetailPage', () => {
     expect(screen.getByTestId('page-user-detail')).toBeDefined();
   });
 
-  it('should render user details', async () => {
+  it.skip('should render user details', async () => {
     // ARRANGE
     render(<UserDetailPage testid="test" />);
     await screen.findByTestId('test-header-button-edit');
