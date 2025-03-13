@@ -6,14 +6,14 @@ import * as elbv2 from 'aws-cdk-lib/aws-elasticloadbalancingv2';
 import * as cognito from 'aws-cdk-lib/aws-cognito';
 import * as iam from 'aws-cdk-lib/aws-iam';
 import * as elbv2_actions from 'aws-cdk-lib/aws-elasticloadbalancingv2-actions';
-import * as constructs from 'constructs';
+import { Construct } from 'constructs';
 
 interface BackendStackProps extends cdk.StackProps {
   environment: string;
 }
 
 export class BackendStack extends cdk.Stack {
-  constructor(scope: constructs.Construct, id: string, props: BackendStackProps) {
+  constructor(scope: Construct, id: string, props: BackendStackProps) {
     super(scope, id, props);
 
     const isProd = props.environment === 'production';
@@ -165,7 +165,7 @@ export class BackendStack extends cdk.Stack {
       defaultAction: new elbv2_actions.AuthenticateCognitoAction({
         userPool,
         userPoolClient,
-        userPoolDomain: userPoolDomain.domainName,
+        userPoolDomain: userPoolDomain,
         next: elbv2.ListenerAction.forward([targetGroup]),
         onUnauthenticatedRequest: elbv2.UnauthenticatedAction.AUTHENTICATE,
       }),
