@@ -3,6 +3,7 @@ import { IonContent } from '@ionic/react';
 import ChatHeader from '../ChatHeader/ChatHeader';
 import ChatInput from '../ChatInput/ChatInput';
 import ChatMessage from '../ChatMessage/ChatMessage';
+import TypingIndicator from '../ChatMessage/TypingIndicator';
 import { useChatContext } from '../../hooks/useChatContext';
 import { ChatSessionStatus } from 'common/models/chat';
 import './AIChat.scss';
@@ -22,7 +23,7 @@ const AIChat: React.FC<AIChatProps> = ({
   onToggleExpand 
 }) => {
   const { state, sendMessage } = useChatContext();
-  const { messages, status, error } = state;
+  const { messages, status, error, isTyping } = state;
   const contentRef = useRef<HTMLIonContentElement>(null);
   const isLoading = status === ChatSessionStatus.LOADING;
   
@@ -32,12 +33,12 @@ const AIChat: React.FC<AIChatProps> = ({
     await sendMessage(text);
   };
   
-  // Scroll to bottom when messages change
+  // Scroll to bottom when messages change or when typing
   useEffect(() => {
     if (contentRef.current) {
       contentRef.current.scrollToBottom(300);
     }
-  }, [messages]);
+  }, [messages, isTyping]);
 
   return (
     <div className={`ai-chat ${isExpanded ? 'ai-chat--expanded' : ''}`}>
@@ -62,13 +63,9 @@ const AIChat: React.FC<AIChatProps> = ({
             ))
           )}
           
-          {isLoading && (
-            <div className="ai-chat__loading">
-              <div className="ai-chat__loading-dots">
-                <span></span>
-                <span></span>
-                <span></span>
-              </div>
+          {isTyping && (
+            <div className="ai-chat__typing-container">
+              <TypingIndicator />
             </div>
           )}
           

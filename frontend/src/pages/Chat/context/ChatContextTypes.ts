@@ -11,6 +11,7 @@ export interface ChatState {
   conversationHistory: BedrockMessage[];
   status: ChatSessionStatus;
   error: string | null;
+  isTyping: boolean;
 }
 
 // Define the actions that can be performed on the chat state
@@ -20,6 +21,7 @@ export type ChatAction =
   | { type: 'UPDATE_CONVERSATION_HISTORY'; payload: BedrockMessage[] }
   | { type: 'SET_STATUS'; payload: ChatSessionStatus }
   | { type: 'SET_ERROR'; payload: string | null }
+  | { type: 'SET_TYPING'; payload: boolean }
   | { type: 'CLEAR_MESSAGES' };
 
 // Define the context interface
@@ -34,7 +36,8 @@ export const initialState: ChatState = {
   messages: [],
   conversationHistory: [],
   status: ChatSessionStatus.IDLE,
-  error: null
+  error: null,
+  isTyping: false
 };
 
 // Create the context with a default value

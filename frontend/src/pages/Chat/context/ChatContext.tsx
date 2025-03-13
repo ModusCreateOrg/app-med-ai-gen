@@ -58,6 +58,12 @@ const chatReducer = (state: ChatState, action: ChatAction): ChatState => {
         ...state,
         error: action.payload
       };
+
+    case 'SET_TYPING':
+      return {
+        ...state,
+        isTyping: action.payload
+      };
     
     case 'CLEAR_MESSAGES':
       return {
@@ -141,8 +147,9 @@ export const ChatProvider: React.FC<ChatProviderProps> = ({ children }) => {
       payload: updatedHistory 
     });
     
-    // Set loading state
+    // Set loading state and show typing indicator
     dispatch({ type: 'SET_STATUS', payload: ChatSessionStatus.LOADING });
+    dispatch({ type: 'SET_TYPING', payload: true });
     
     try {
       // Send request to Bedrock service
@@ -151,6 +158,12 @@ export const ChatProvider: React.FC<ChatProviderProps> = ({ children }) => {
         temperature: 0.7,
         maxTokens: 500
       });
+      
+      // Short delay to make typing indicator visible
+      await new Promise(resolve => setTimeout(resolve, 500));
+      
+      // Hide typing indicator
+      dispatch({ type: 'SET_TYPING', payload: false });
       
       // Update conversation history with AI response
       const updatedHistoryWithResponse = [
@@ -173,6 +186,10 @@ export const ChatProvider: React.FC<ChatProviderProps> = ({ children }) => {
       dispatch({ type: 'SET_STATUS', payload: ChatSessionStatus.IDLE });
     } catch (error) {
       console.error('Error getting AI response:', error);
+      
+      // Hide typing indicator
+      dispatch({ type: 'SET_TYPING', payload: false });
+      
       dispatch({ 
         type: 'SET_ERROR', 
         payload: 'An error occurred while fetching the response' 

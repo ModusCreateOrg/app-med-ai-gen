@@ -10,13 +10,14 @@ export interface ChatMessage {
   text: string;
   sender: 'user' | 'ai';
   timestamp: Date;
+  isRead?: boolean;
 }
 
 /**
  * API message format for Bedrock
  */
 export interface BedrockMessage {
-  role: 'user' | 'assistant';
+  role: 'user' | 'assistant' | 'system';
   content: string;
 }
 
@@ -27,7 +28,7 @@ export interface ChatCompletionRequest {
   messages: BedrockMessage[];
   temperature?: number;
   maxTokens?: number;
-  model?: string;
+  stream?: boolean;
 }
 
 /**
@@ -35,12 +36,11 @@ export interface ChatCompletionRequest {
  */
 export interface ChatCompletionResponse {
   message: BedrockMessage;
-  usage: {
+  usage?: {
     promptTokens: number;
     completionTokens: number;
     totalTokens: number;
   };
-  model: string;
 }
 
 /**

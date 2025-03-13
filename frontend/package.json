@@ -66,8 +66,10 @@
     "react-dom": "18.3.1",
     "react-error-boundary": "5.0.0",
     "react-i18next": "15.4.0",
+    "react-markdown": "^10.1.0",
     "react-router": "5.3.4",
     "react-router-dom": "5.3.4",
+    "rehype-sanitize": "^6.0.0",
     "uuid": "11.0.4",
     "yup": "1.6.1"
   },
