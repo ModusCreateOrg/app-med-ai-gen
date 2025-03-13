@@ -13,8 +13,8 @@ export class AuthMiddleware implements NestMiddleware {
       try {
         const user = await this.jwtService.verifyToken(token);
         req.user = user;
-      } catch (error) {
-        console.error('Token validation failed:', error.message);
+      } catch (error: unknown) {
+        console.error('Token validation failed:', error instanceof Error ? error.message : 'Unknown error');
       }
     }
 

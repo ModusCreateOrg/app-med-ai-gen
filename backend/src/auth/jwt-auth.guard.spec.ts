@@ -71,7 +71,7 @@ describe('JwtAuthGuard', () => {
         expect(true).toBe(false); // This will fail if no exception is thrown
       } catch (error) {
         expect(error).toBeInstanceOf(UnauthorizedException);
-        expect(error.message).toBe('Invalid token');
+        expect((error as UnauthorizedException).message).toBe('Invalid token');
       }
     });
   });

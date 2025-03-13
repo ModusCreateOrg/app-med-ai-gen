@@ -68,8 +68,8 @@ export class JwtService {
         email: verified.email,
         groups: verified['cognito:groups'] || []
       };
-    } catch (error) {
-      this.logger.error(`Token verification failed: ${error.message}`);
+    } catch (error: unknown) {
+      this.logger.error(`Token verification failed: ${error instanceof Error ? error.message : 'Unknown error'}`);
       throw error;
     }
   }
@@ -98,8 +98,8 @@ export class JwtService {
       this.jwksCacheTime = now;
 
       return jwks;
-    } catch (error) {
-      this.logger.error(`Error fetching JWKs: ${error.message}`);
+    } catch (error: unknown) {
+      this.logger.error(`Error fetching JWKs: ${error instanceof Error ? error.message : 'Unknown error'}`);
       throw new Error('Failed to fetch JWKs');
     }
   }
