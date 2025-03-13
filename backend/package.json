@@ -33,7 +33,9 @@
     "@nestjs/common": "^10.0.0",
     "@nestjs/config": "^3.1.1",
     "@nestjs/core": "^10.0.0",
+    "@nestjs/jwt": "^10.2.0",
     "@nestjs/platform-express": "^10.0.0",
+    "@nestjs/passport": "^10.0.3",
     "@types/jest": "^29.5.12",
     "axios": "^1.8.1",
     "class-transformer": "^0.5.1",
@@ -51,7 +53,9 @@
     "web-vitals": "^2.1.4",
     "aws-cdk-lib": "2.139.0",
     "@nestjs/swagger": "^7.1.13",
-    "swagger-ui-express": "^5.0.0"
+    "swagger-ui-express": "^5.0.0",
+    "passport": "^0.7.0",
+    "passport-jwt": "^4.0.1"
   },
   "devDependencies": {
     "@aws-cdk/assert": "^2.68.0",

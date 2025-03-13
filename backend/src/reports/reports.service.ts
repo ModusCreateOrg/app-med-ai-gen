@@ -39,7 +39,6 @@ export class ReportsService {
     const command = new ScanCommand({
       TableName: this.tableName,
       Limit: limit,
-      ScanIndexForward: false, // This will sort in descending order
     });
 
     const response = await this.dynamoClient.send(command);
@@ -68,7 +67,7 @@ export class ReportsService {
 
   async updateStatus(id: string, updateDto: UpdateReportStatusDto): Promise<Report> {
     // First check if the report exists
-    await this.findOne(id);
+    const existingReport = await this.findOne(id);
 
     const command = new UpdateItemCommand({
       TableName: this.tableName,
@@ -85,6 +84,16 @@ export class ReportsService {
     });
 
     const response = await this.dynamoClient.send(command);
+
+    if (!response.Attributes) {
+      // If for some reason Attributes is undefined, return the existing report with updated status
+      return {
+        ...existingReport,
+        status: updateDto.status,
+        updatedAt: new Date().toISOString(),
+      };
+    }
+
     return unmarshall(response.Attributes) as Report;
   }
 }

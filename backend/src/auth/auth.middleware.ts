@@ -1,23 +1,35 @@
 import { Injectable, NestMiddleware } from '@nestjs/common';
 import { Request, Response, NextFunction } from 'express';
-import { JwtService } from './jwt.service';
+import { JwtService } from '@nestjs/jwt';
+import { ConfigService } from '@nestjs/config';
 
 @Injectable()
 export class AuthMiddleware implements NestMiddleware {
-  constructor(private jwtService: JwtService) {}
+  constructor(
+    private readonly jwtService: JwtService,
+    private readonly configService: ConfigService
+  ) {}
 
-  async use(req: Request, res: Response, next: NextFunction) {
-    const token = req.headers['x-amzn-oidc-data'] as string;
+  use(req: Request, res: Response, next: NextFunction) {
+    const authHeader = req.headers.authorization;
 
-    if (token) {
+    if (authHeader && authHeader.startsWith('Bearer ')) {
       try {
-        const user = await this.jwtService.verifyToken(token);
-        req.user = user;
-      } catch (error: unknown) {
-        console.error(
-          'Token validation failed:',
-          error instanceof Error ? error.message : 'Unknown error',
-        );
+        const token = authHeader.substring(7);
+        const payload = this.jwtService.verify(token, {
+          secret: this.configService.get<string>('JWT_SECRET')
+        });
+
+        req.user = {
+          id: payload.sub,
+          username: payload.username,
+          email: payload.email,
+          groups: payload.groups || [],
+        };
+      } catch (error) {
+        // If token verification fails, we don't set the user
+        // but we also don't block the request - protected routes
+        // will be handled by JwtAuthGuard
       }
     }
 
