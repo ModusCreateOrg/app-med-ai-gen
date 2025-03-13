@@ -16,6 +16,8 @@ import { useCurrentUser } from 'common/hooks/useAuth';
 import Avatar from 'common/components/Icon/Avatar';
 import ReportItem from './components/ReportItem/ReportItem';
 import NoReportsMessage from './components/NoReportsMessage/NoReportsMessage';
+import AIChatBanner from 'pages/Chat/components/AIChatBanner/AIChatBanner';
+import AIChatContainer from 'pages/Chat/components/AIChatContainer/AIChatContainer';
 import healthcareImage from '../../assets/img/healthcare.svg';
 import './HomePage.scss';
 
@@ -46,6 +48,10 @@ const HomePage: React.FC = () => {
 
   const handleRetry = () => {
     window.location.reload();
+  };
+
+  const handleAICardClick = () => {
+    history.push('/chat');
   };
 
   const renderReportsList = () => {
@@ -117,7 +123,10 @@ const HomePage: React.FC = () => {
             </div>
           </div>
 
-          <IonCard className="home-page__ai-card">
+          {/* AI Chat Banner */}
+          <AIChatBanner onOpenChat={handleAICardClick} />
+
+          <IonCard className="home-page__ai-card" onClick={handleAICardClick}>
             <div className="home-page__ai-card-decoration home-page__ai-card-decoration--star1"></div>
             <div className="home-page__ai-card-decoration home-page__ai-card-decoration--star2"></div>
             <div className="home-page__ai-card-decoration home-page__ai-card-decoration--circle1"></div>
@@ -128,10 +137,9 @@ const HomePage: React.FC = () => {
                   <img src={healthcareImage} alt="Healthcare illustration" className="home-page__ai-card-image" />
                 </div>
                 <div className="home-page__ai-card-text-container">
-                  <h3 className="home-page__ai-card-title">{t('pages.home.aiAssistant.title')}</h3>
-                  <div className="home-page__ai-card-button-inline">
-                    <span className="home-page__ai-card-button-inline">{t('pages.home.aiAssistant.button')}</span>
-                  </div>
+                  <h3 className="home-page__ai-card-title">
+                    {t('pages.home.aiAssistant.title')} {t('pages.home.aiAssistant.button')}
+                  </h3>
                 </div>
               </div>
             </IonCardContent>
@@ -149,6 +157,9 @@ const HomePage: React.FC = () => {
           </IonList>
         </div>
       </IonContent>
+      
+      {/* AI Chat Container - This will be accessible from anywhere in the app */}
+      <AIChatContainer />
     </IonPage>
   );
 };

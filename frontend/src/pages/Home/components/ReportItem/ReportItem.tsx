@@ -46,7 +46,6 @@ const ReportItem: React.FC<ReportItemProps> = ({ report, onClick }) => {
       className={`report-item ${isUnread ? 'report-item--unread' : ''}`}
       onClick={onClick}
       lines="full"
-      button={true}
     >
       {getCategoryIcon()}
       

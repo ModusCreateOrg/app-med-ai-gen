@@ -1,0 +1,75 @@
+.chat-message {
+  display: flex;
+  flex-direction: column;
+  max-width: 100%;
+  
+  &__content {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.5rem;
+  }
+  
+  &--user {
+    align-items: flex-end;
+    
+    .chat-message__content {
+      flex-direction: row-reverse;
+    }
+    
+    .chat-message__bubble {
+      background-color: #4765ff;
+      color: white;
+      border-radius: 1.25rem 0 1.25rem 1.25rem;
+      
+      .chat-message__time {
+        color: rgba(255, 255, 255, 0.7);
+      }
+    }
+  }
+  
+  &--ai {
+    align-items: flex-start;
+    
+    .chat-message__bubble {
+      background-color: #f0f0f0;
+      color: #333;
+      border-radius: 0 1.25rem 1.25rem 1.25rem;
+    }
+  }
+  
+  &__avatar {
+    width: 2rem;
+    height: 2rem;
+    border-radius: 50%;
+    background-color: #4765ff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+  }
+  
+  &__avatar-icon {
+    color: white;
+    font-size: 0.875rem;
+    font-weight: 600;
+  }
+  
+  &__bubble {
+    padding: 0.75rem 1rem;
+    max-width: 80%;
+    word-wrap: break-word;
+  }
+  
+  &__text {
+    font-size: 0.9375rem;
+    line-height: 1.4;
+    white-space: pre-wrap;
+  }
+  
+  &__time {
+    font-size: 0.75rem;
+    color: #999;
+    margin-top: 0.25rem;
+    text-align: right;
+  }
+} 

@@ -1,0 +1,53 @@
+.ai-chat-banner {
+  background-color: #4765ff;
+  border-radius: 0.75rem;
+  padding: 1rem;
+  margin: 1rem 0;
+  cursor: pointer;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  
+  &:hover {
+    transform: translateY(-0.125rem);
+    box-shadow: 0 0.25rem 0.5rem rgba(0, 0, 0, 0.1);
+  }
+  
+  &:active {
+    transform: translateY(0);
+  }
+  
+  &__content {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+  }
+  
+  &__icon {
+    width: 2.5rem;
+    height: 2.5rem;
+    background-color: rgba(255, 255, 255, 0.2);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+  }
+  
+  &__icon-symbol {
+    font-size: 1.25rem;
+  }
+  
+  &__text {
+    color: white;
+  }
+  
+  &__title {
+    font-weight: 600;
+    font-size: 1rem;
+    margin-bottom: 0.25rem;
+  }
+  
+  &__subtitle {
+    font-size: 0.875rem;
+    opacity: 0.9;
+  }
+} 
