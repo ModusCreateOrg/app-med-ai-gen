@@ -48,7 +48,9 @@
     "rxjs": "^7.8.1",
     "source-map-support": "^0.5.21",
     "web-vitals": "^2.1.4",
-    "aws-cdk-lib": "2.139.0"
+    "aws-cdk-lib": "2.139.0",
+    "@nestjs/swagger": "^7.1.13",
+    "swagger-ui-express": "^5.0.0"
   },
   "devDependencies": {
     "@aws-cdk/assert": "^2.68.0",
