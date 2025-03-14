@@ -13,19 +13,19 @@ describe('BackendStack', () => {
   beforeEach(() => {
     app = new cdk.App();
     stackProps = {
-      env: { account: '123456789012', region: 'us-east-1' }
+      env: { account: '123456789012', region: 'us-east-1' },
     };
 
     // Create both staging and production stacks for testing
     stagingStack = new BackendStack(app, 'StagingStack', {
       ...stackProps,
-      environment: 'staging'
+      environment: 'staging',
     });
     stagingTemplate = Template.fromStack(stagingStack);
 
     productionStack = new BackendStack(app, 'ProductionStack', {
       ...stackProps,
-      environment: 'production'
+      environment: 'production',
     });
     productionTemplate = Template.fromStack(productionStack);
   });
@@ -40,9 +40,9 @@ describe('BackendStack', () => {
         Tags: Match.arrayWith([
           {
             Key: 'Name',
-            Value: Match.stringLikeRegexp('AIMedicalReportVPC')
-          }
-        ])
+            Value: Match.stringLikeRegexp('AIMedicalReportVPC'),
+          },
+        ]),
       });
 
       // Verify subnet count for staging (2 AZs = 4 subnets)
@@ -60,9 +60,9 @@ describe('BackendStack', () => {
         ClusterSettings: [
           {
             Name: 'containerInsights',
-            Value: 'enabled'
-          }
-        ]
+            Value: 'enabled',
+          },
+        ],
       });
     });
 
@@ -78,25 +78,25 @@ describe('BackendStack', () => {
             Environment: Match.arrayWith([
               { Name: 'NODE_ENV', Value: 'staging' },
               { Name: 'PERPLEXITY_MODEL', Value: 'sonar' },
-              { Name: 'PERPLEXITY_MAX_TOKENS', Value: '2048' }
+              { Name: 'PERPLEXITY_MAX_TOKENS', Value: '2048' },
             ]),
             LogConfiguration: Match.objectLike({
-              LogDriver: 'awslogs'
+              LogDriver: 'awslogs',
             }),
             PortMappings: [
               {
                 ContainerPort: 3000,
-                Protocol: 'tcp'
-              }
-            ]
-          })
-        ])
+                Protocol: 'tcp',
+              },
+            ],
+          }),
+        ]),
       });
 
       // Test production task definition has higher resources
       productionTemplate.hasResourceProperties('AWS::ECS::TaskDefinition', {
         Cpu: '512',
-        Memory: '1024'
+        Memory: '1024',
       });
     });
 
@@ -107,14 +107,14 @@ describe('BackendStack', () => {
         DesiredCount: 1,
         NetworkConfiguration: Match.objectLike({
           AwsvpcConfiguration: {
-            AssignPublicIp: 'DISABLED'
-          }
-        })
+            AssignPublicIp: 'DISABLED',
+          },
+        }),
       });
 
       // Test production service has higher count
       productionTemplate.hasResourceProperties('AWS::ECS::Service', {
-        DesiredCount: 2
+        DesiredCount: 2,
       });
     });
 
@@ -125,13 +125,13 @@ describe('BackendStack', () => {
       // Production should have auto-scaling
       productionTemplate.hasResourceProperties('AWS::ApplicationAutoScaling::ScalableTarget', {
         MinCapacity: 2,
-        MaxCapacity: 10
+        MaxCapacity: 10,
       });
 
       productionTemplate.hasResourceProperties('AWS::ApplicationAutoScaling::ScalingPolicy', {
         TargetTrackingScalingPolicyConfiguration: {
-          TargetValue: 70
-        }
+          TargetValue: 70,
+        },
       });
     });
   });
@@ -141,13 +141,13 @@ describe('BackendStack', () => {
       // Staging log group with 1 week retention
       stagingTemplate.hasResourceProperties('AWS::Logs::LogGroup', {
         LogGroupName: '/ecs/AIMedicalReport-staging',
-        RetentionInDays: 7
+        RetentionInDays: 7,
       });
 
       // Production log group with 1 month retention
       productionTemplate.hasResourceProperties('AWS::Logs::LogGroup', {
         LogGroupName: '/ecs/AIMedicalReport-production',
-        RetentionInDays: 30
+        RetentionInDays: 30,
       });
     });
   });
@@ -156,7 +156,7 @@ describe('BackendStack', () => {
     it('should create a Cognito domain', () => {
       stagingTemplate.hasResourceProperties('AWS::Cognito::UserPoolDomain', {
         Domain: 'aimedicalreport-auth',
-        UserPoolId: Match.anyValue()
+        UserPoolId: Match.anyValue(),
       });
     });
 
@@ -165,12 +165,9 @@ describe('BackendStack', () => {
         GenerateSecret: true,
         AllowedOAuthFlows: ['code'],
         CallbackURLs: Match.arrayWith([
-          Match.stringLikeRegexp('http://aimedicalreport.example.com/oauth2/idpresponse')
+          Match.stringLikeRegexp('http://aimedicalreport.example.com/oauth2/idpresponse'),
         ]),
-        ExplicitAuthFlows: Match.arrayWith([
-          'ALLOW_USER_PASSWORD_AUTH',
-          'ALLOW_USER_SRP_AUTH'
-        ])
+        ExplicitAuthFlows: Match.arrayWith(['ALLOW_USER_PASSWORD_AUTH', 'ALLOW_USER_SRP_AUTH']),
       });
     });
   });
@@ -182,10 +179,10 @@ describe('BackendStack', () => {
         LoadBalancerAttributes: Match.arrayWith([
           {
             Key: 'deletion_protection.enabled',
-            Value: 'false'
-          }
+            Value: 'false',
+          },
         ]),
-        Type: 'application'
+        Type: 'application',
       });
     });
 
@@ -196,7 +193,7 @@ describe('BackendStack', () => {
         TargetType: 'ip',
         HealthCheckPath: '/health',
         HealthCheckTimeoutSeconds: 5,
-        HealthCheckIntervalSeconds: 30
+        HealthCheckIntervalSeconds: 30,
       });
     });
 
@@ -211,16 +208,16 @@ describe('BackendStack', () => {
               UserPoolArn: Match.anyValue(),
               UserPoolClientId: Match.anyValue(),
               UserPoolDomain: Match.anyValue(),
-              OnUnauthenticatedRequest: 'authenticate'
+              OnUnauthenticatedRequest: 'authenticate',
             },
-            Order: 1
+            Order: 1,
           }),
           Match.objectLike({
             Type: 'forward',
             TargetGroupArn: Match.anyValue(),
-            Order: 2
-          })
-        ])
+            Order: 2,
+          }),
+        ]),
       });
     });
   });

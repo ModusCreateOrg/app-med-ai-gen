@@ -1,0 +1,41 @@
+name: Frontend Tests
+
+on:
+  pull_request:
+    branches: [ main ]
+    paths:
+      - 'frontend/**'
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ./frontend
+
+    steps:
+    - uses: actions/checkout@v3
+
+    - name: Set up Node.js
+      uses: actions/setup-node@v3
+      with:
+        node-version: '18'
+        cache: 'npm'
+        cache-dependency-path: './frontend/package-lock.json'
+
+    - name: Install dependencies
+      run: npm ci
+
+    - name: Run tests
+      env:
+        VITE_BASE_URL_API: https://jsonplaceholder.typicode.com
+        VITE_BUILD_DATE: 1970-01-01
+        VITE_BUILD_TIME: 00:00:00
+        VITE_BUILD_TS: 1970-01-01T00:00:00+0000
+        VITE_BUILD_COMMIT_SHA: test
+        VITE_BUILD_ENV_CODE: test
+        VITE_BUILD_WORKFLOW_RUNNER: test
+        VITE_BUILD_WORKFLOW_NAME: test
+        VITE_BUILD_WORKFLOW_RUN_NUMBER: 1
+        VITE_BUILD_WORKFLOW_RUN_ATTEMPT: 1
+      run: npm test
