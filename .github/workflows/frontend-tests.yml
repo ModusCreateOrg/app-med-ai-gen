@@ -38,7 +38,7 @@ jobs:
         VITE_BUILD_WORKFLOW_NAME: test
         VITE_BUILD_WORKFLOW_RUN_NUMBER: 1
         VITE_BUILD_WORKFLOW_RUN_ATTEMPT: 1
-      run: npm test
+      run: npm test:ci
 
     - name: Generate test summary
       if: always()
