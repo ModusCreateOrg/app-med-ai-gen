@@ -6,6 +6,7 @@ import { IonReactRouter } from '@ionic/react-router';
 import { QueryClientProvider } from '@tanstack/react-query';
 import i18n from 'common/utils/i18n';
 import { queryClient } from '../query-client';
+import { AIChatProvider } from 'common/providers/AIChatProvider';
 
 /* Core CSS required for Ionic components to work properly */
 import '@ionic/react/css/core.css';
@@ -29,7 +30,9 @@ const WithMinimalProviders = ({ children }: PropsWithChildren): JSX.Element => {
       <QueryClientProvider client={queryClient}>
         <IonApp>
           <IonReactRouter>
-            <MemoryRouter>{children}</MemoryRouter>
+            <AIChatProvider>
+              <MemoryRouter>{children}</MemoryRouter>
+            </AIChatProvider>
           </IonReactRouter>
         </IonApp>
       </QueryClientProvider>

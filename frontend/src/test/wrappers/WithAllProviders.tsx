@@ -8,6 +8,7 @@ import ToastProvider from 'common/providers/ToastProvider';
 import AxiosProvider from 'common/providers/AxiosProvider';
 import AuthProvider from 'common/providers/AuthProvider';
 import ScrollProvider from 'common/providers/ScrollProvider';
+import { AIChatProvider } from 'common/providers/AIChatProvider';
 
 const WithAllProviders = ({ children }: PropsWithChildren): JSX.Element => {
   return (
@@ -17,7 +18,9 @@ const WithAllProviders = ({ children }: PropsWithChildren): JSX.Element => {
           <AxiosProvider>
             <ToastProvider>
               <ScrollProvider>
-                <MemoryRouter>{children}</MemoryRouter>
+                <AIChatProvider>
+                  <MemoryRouter>{children}</MemoryRouter>
+                </AIChatProvider>
               </ScrollProvider>
             </ToastProvider>
           </AxiosProvider>

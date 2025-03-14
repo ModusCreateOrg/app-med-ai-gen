@@ -104,6 +104,16 @@ vi.mock('common/hooks/useAuth', () => ({
   }),
 }));
 
+// Mock the useAIChat hook
+vi.mock('common/providers/AIChatProvider', () => ({
+  useAIChat: () => ({
+    openChat: vi.fn(),
+    closeChat: vi.fn(),
+    isVisible: false
+  }),
+  AIChatProvider: ({ children }: { children: React.ReactNode }) => <>{children}</>
+}));
+
 // Use a custom render that uses our minimal providers
 const render = (ui: React.ReactElement) => {
   return defaultRender(ui, { wrapper: WithMinimalProviders });
@@ -148,9 +158,10 @@ describe('TabNavigation', () => {
     const uploadTab = screen.getByTestId('mock-icon-arrowUpFromBracket').closest('ion-tab-button');
     expect(uploadTab).toHaveAttribute('href', '/tabs/upload');
     
-    // Check for chat tab button
+    // Check for chat tab button - Now uses onClick instead of href
     const chatTab = screen.getByTestId('mock-icon-comment').closest('ion-tab-button');
-    expect(chatTab).toHaveAttribute('href', '/tabs/chat');
+    expect(chatTab).not.toHaveAttribute('href');
+    expect(chatTab).toHaveAttribute('tab', 'chat');
     
     // Check for account tab button
     const accountTab = screen.getByTestId('mock-icon-userCircle').closest('ion-tab-button');
