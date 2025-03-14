@@ -9,6 +9,8 @@ import { PerplexityController } from './controllers/perplexity/perplexity.contro
 import { AuthModule } from './auth/auth.module';
 import { UserController } from './user/user.controller';
 import { AuthMiddleware } from './auth/auth.middleware';
+import { UserModule } from './user/user.module';
+import { ReportsModule } from './reports/reports.module';
 
 @Module({
   imports: [
@@ -17,6 +19,8 @@ import { AuthMiddleware } from './auth/auth.middleware';
       load: [configuration],
     }),
     AuthModule,
+    UserModule,
+    ReportsModule,
   ],
   controllers: [AppController, PerplexityController, UserController],
   providers: [AppService, AwsSecretsService, PerplexityService],

@@ -29,7 +29,8 @@ describe('UserController', () => {
   describe('getProfile', () => {
     it('should return user profile', () => {
       const mockUser = {
-        id: 'user123',
+        id: '123',
+        username: 'testuser',
         email: 'test@example.com',
         groups: ['users'],
       };
@@ -44,7 +45,8 @@ describe('UserController', () => {
 
     it('should handle user with minimal information', () => {
       const minimalUser = {
-        id: 'user456',
+        id: '456',
+        username: 'minimaluser',
         email: 'minimal@example.com',
         groups: [],
       };

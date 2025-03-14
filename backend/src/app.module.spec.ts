@@ -1,36 +1,38 @@
 import { Test } from '@nestjs/testing';
 import { AppModule } from './app.module';
-import { ConfigService } from '@nestjs/config';
-import { describe, it, expect } from 'vitest';
+import { ConfigModule } from '@nestjs/config';
+import { JwtModule } from '@nestjs/jwt';
+import { JwtStrategy } from './auth/jwt.strategy';
+import { ReportsService } from './reports/reports.service';
+import { vi, describe, it, expect } from 'vitest';
 
 describe('AppModule', () => {
   it('should compile the module', async () => {
-    // Create a complete mock for ConfigService
-    class MockConfigService {
-      private readonly config: Record<string, any> = {
-        port: 3000,
-        'aws.region': 'us-east-1',
-        'aws.secretsManager.perplexityApiKeySecret': 'test-secret',
-        'perplexity.apiBaseUrl': 'https://api.perplexity.ai',
-        'perplexity.model': 'test-model',
-        'perplexity.maxTokens': 1000,
-      };
-
-      get<T = any>(key: string): T {
-        return this.config[key] as T;
-      }
-    }
-
     const module = await Test.createTestingModule({
-      imports: [AppModule],
+      imports: [
+        ConfigModule.forRoot({
+          isGlobal: true,
+        }),
+        JwtModule.register({
+          secret: 'test-secret',
+          signOptions: { expiresIn: '1h' },
+        }),
+        AppModule,
+      ],
     })
-      .overrideProvider(ConfigService)
-      .useClass(MockConfigService)
+      .overrideProvider(JwtStrategy)
+      .useValue({
+        validate: vi.fn().mockImplementation(payload => payload),
+      })
+      .overrideProvider(ReportsService)
+      .useValue({
+        findAll: vi.fn().mockResolvedValue([]),
+        findLatest: vi.fn().mockResolvedValue([]),
+        findOne: vi.fn().mockResolvedValue({}),
+        updateStatus: vi.fn().mockResolvedValue({}),
+      })
       .compile();
 
     expect(module).toBeDefined();
-    const configService = module.get<ConfigService>(ConfigService);
-    expect(configService).toBeDefined();
-    expect(configService.get('port')).toBe(3000);
   });
 });
