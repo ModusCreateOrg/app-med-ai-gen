@@ -27,22 +27,28 @@
     "cdk:synth": "dotenv -- npx cdk synth"
   },
   "dependencies": {
+    "@aws-sdk/client-dynamodb": "^3.758.0",
     "@aws-sdk/client-secrets-manager": "^3.758.0",
     "@nestjs/common": "^10.0.0",
     "@nestjs/config": "^3.1.1",
     "@nestjs/core": "^10.0.0",
     "@nestjs/platform-express": "^10.0.0",
-    "aws-cdk-lib": "2.139.0",
     "@types/jest": "^29.5.12",
     "axios": "^1.8.1",
     "class-transformer": "^0.5.1",
     "class-validator": "^0.14.1",
     "config": "^3.3.11",
-    "constructs": "^10.3.0",
+    "constructs": "^10.4.2",
+    "cors": "^2.8.5",
+    "express": "^4.18.2",
+    "helmet": "^7.0.0",
+    "jsonwebtoken": "^9.0.2",
+    "jwk-to-pem": "^2.0.5",
     "reflect-metadata": "^0.1.13",
     "rxjs": "^7.8.1",
     "source-map-support": "^0.5.21",
-    "web-vitals": "^2.1.4"
+    "web-vitals": "^2.1.4",
+    "aws-cdk-lib": "2.139.0"
   },
   "devDependencies": {
     "@aws-cdk/assert": "^2.68.0",
@@ -50,14 +56,17 @@
     "@nestjs/schematics": "^10.0.0",
     "@nestjs/testing": "^10.0.0",
     "@types/config": "^3.3.4",
-    "@types/express": "^4.17.17",
+    "@types/cors": "^2.8.15",
+    "@types/express": "^4.17.20",
     "@types/jest": "^29.5.14",
+    "@types/jsonwebtoken": "^9.0.4",
+    "@types/jwk-to-pem": "^2.0.2",
     "@types/node": "^20.12.7",
     "@typescript-eslint/eslint-plugin": "^7.9.0",
     "@typescript-eslint/parser": "^7.9.0",
     "@vitest/coverage-c8": "^0.33.0",
     "aws-cdk": "2.139.0",
-    "aws-cdk-lib": "2.139.0",
+    "aws-cdk-lib": "^2.139.0",
     "dotenv-cli": "^8.0.0",
     "eslint": "^8.57.0",
     "eslint-config-prettier": "^9.0.0",
@@ -75,7 +84,6 @@
     "vitest": "^0.33.0"
   },
   "peerDependencies": {
-    "aws-cdk-lib": "2.139.0",
-    "constructs": "^10.3.0"
+    "aws-cdk-lib": "2.139.0"
   }
 }

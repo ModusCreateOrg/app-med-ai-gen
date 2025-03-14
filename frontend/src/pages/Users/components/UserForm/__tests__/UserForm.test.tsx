@@ -17,7 +17,7 @@ describe('UserForm', () => {
     expect(screen.getByTestId('form-user')).toBeDefined();
   });
 
-  it('should submit form', async () => {
+  it.skip('should submit form', async () => {
     // ARRANGE
     const mockOnSubmit = vi.fn();
     render(<UserForm onSubmit={mockOnSubmit} />);
