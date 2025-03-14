@@ -7,7 +7,6 @@ import { vi, describe, it, expect, beforeEach } from 'vitest';
 describe('AuthMiddleware', () => {
   let middleware: AuthMiddleware;
   let jwtService: JwtService;
-  let configService: ConfigService;
 
   // Create a mock payload that will be returned by the verify method
   const mockPayload = {
@@ -42,7 +41,6 @@ describe('AuthMiddleware', () => {
 
     middleware = module.get<AuthMiddleware>(AuthMiddleware);
     jwtService = module.get<JwtService>(JwtService);
-    configService = module.get<ConfigService>(ConfigService);
   });
 
   it('should be defined', () => {

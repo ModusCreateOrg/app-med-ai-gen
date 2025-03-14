@@ -17,7 +17,7 @@ vi.mock('@nestjs/passport', () => {
     },
     PassportStrategy: () => {
       return class {};
-    }
+    },
   };
 });
 
@@ -29,7 +29,7 @@ vi.mock('./jwt.strategy', () => {
       validate() {
         return { userId: 1 };
       }
-    }
+    },
   };
 });
 
