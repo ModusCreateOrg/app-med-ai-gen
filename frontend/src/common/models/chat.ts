@@ -41,6 +41,7 @@ export interface ChatCompletionResponse {
     completionTokens: number;
     totalTokens: number;
   };
+  model?: string;
 }
 
 /**
