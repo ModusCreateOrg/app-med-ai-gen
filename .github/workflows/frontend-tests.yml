@@ -38,13 +38,4 @@ jobs:
         VITE_BUILD_WORKFLOW_NAME: test
         VITE_BUILD_WORKFLOW_RUN_NUMBER: 1
         VITE_BUILD_WORKFLOW_RUN_ATTEMPT: 1
-      run: npm test:ci
-
-    - name: Generate test summary
-      if: always()
-      run: |
-        echo "# Frontend Test Results" >> $GITHUB_STEP_SUMMARY
-        if [ ${{ job.status }} == "success" ]; then
-          echo "✅ All tests passed successfully!" >> $GITHUB_STEP_SUMMARY
-        else
-          echo "❌ Some tests failed. Please check the logs for details." >> $GITHUB_STEP_SUMMARY
+      run: npm test
