@@ -29,6 +29,10 @@ jobs:
     - name: Run tests
       env:
         VITE_BASE_URL_API: https://jsonplaceholder.typicode.com
+        VITE_BUILD_COMMIT_SHA=test
+        VITE_BUILD_ENV_CODE: test
+        VITE_BUILD_WORKFLOW_RUNNER: test
+        VITE_BUILD_WORKFLOW_NAME: test
       run: npm test
 
     - name: Generate test summary
