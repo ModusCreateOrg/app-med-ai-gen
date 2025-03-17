@@ -94,7 +94,8 @@ describe('AuthMiddleware', () => {
   });
 
   it('should not set user when token verification fails', () => {
-    jwtService.verify.mockImplementation(() => {
+    // Cast the verify method to any to allow mockImplementation
+    (jwtService.verify as any).mockImplementation(() => {
       throw new Error('Invalid token');
     });
 
