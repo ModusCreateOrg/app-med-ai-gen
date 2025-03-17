@@ -123,3 +123,5 @@ AWS architecture: [aws architecture.pdf](mdc:docs/assets/aws architecture.pdf)
 ```
 
 This rule provides clear guidelines on what units to use, how to convert between units, and why it's important for your project. You can add this to your general rules to ensure consistency across the codebase.
+
+Prefer using nullish coalescing operator (`??`) instead of a logical or (`||`), as it is a safer operator.

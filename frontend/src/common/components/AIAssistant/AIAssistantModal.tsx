@@ -11,7 +11,7 @@ import {
   IonFooter,
 } from '@ionic/react';
 import { useState, useRef, useEffect } from 'react';
-import { closeOutline, expandOutline, paperPlaneOutline } from 'ionicons/icons';
+import { closeOutline, expandOutline, contractOutline, paperPlaneOutline, personCircleOutline } from 'ionicons/icons';
 import { useTranslation } from 'react-i18next';
 import iconOnly from '../../../assets/img/icon-only.png';
 import './AIAssistantModal.scss';
@@ -65,6 +65,13 @@ const AIAssistantModal: React.FC<AIAssistantModalProps> = ({
 
   const handleExpand = () => {
     setIsExpanded(!isExpanded);
+    
+    // Ensure scroll position is maintained after expanding/collapsing
+    setTimeout(() => {
+      if (chatContainerRef.current) {
+        chatContainerRef.current.scrollTop = chatContainerRef.current.scrollHeight;
+      }
+    }, 100);
   };
 
   const handleSendMessage = () => {
@@ -107,6 +114,40 @@ const AIAssistantModal: React.FC<AIAssistantModalProps> = ({
     setInputValue(e.detail.value || '');
   };
 
+  const renderMessageWithAvatar = (message: ChatMessage) => {
+    const isUser = message.sender === 'user';
+
+    return (
+      <div 
+        key={message.id} 
+        className={`chat-message ${isUser ? 'user-message' : 'assistant-message'}`}
+        aria-label={`${isUser ? 'You' : 'AI Assistant'}: ${message.text}`}
+      >
+        {isUser && (
+          <div className="message-avatar user-avatar">
+            <IonIcon icon={personCircleOutline} aria-hidden="true" />
+          </div>
+        )}
+        
+        {!isUser && (
+          <div className="message-avatar assistant-avatar">
+            <img src={iconOnly} alt="AI" aria-hidden="true" />
+          </div>
+        )}
+        
+        <div className="message-content">
+          <p>{message.text}</p>
+        </div>
+        <span className="sr-only">
+          {new Intl.DateTimeFormat('en-US', {
+            hour: 'numeric',
+            minute: 'numeric'
+          }).format(message.timestamp)}
+        </span>
+      </div>
+    );
+  };
+
   return (
     <IonModal 
       isOpen={isOpen}
@@ -128,7 +169,7 @@ const AIAssistantModal: React.FC<AIAssistantModalProps> = ({
               aria-label={isExpanded ? "Collapse chat" : "Expand chat"}
               data-testid={`${testid}-expand-button`}
             >
-              <IonIcon icon={expandOutline} aria-hidden="true" />
+              <IonIcon icon={isExpanded ? contractOutline : expandOutline} aria-hidden="true" />
             </IonButton>
             <IonButton 
               onClick={handleClose}
@@ -154,23 +195,7 @@ const AIAssistantModal: React.FC<AIAssistantModalProps> = ({
               <p>{t('common.aiAssistant.emptyState', 'How can I help you today?')}</p>
             </div>
           ) : (
-            messages.map((message) => (
-              <div 
-                key={message.id} 
-                className={`chat-message ${message.sender === 'user' ? 'user-message' : 'assistant-message'}`}
-                aria-label={`${message.sender === 'user' ? 'You' : 'AI Assistant'}: ${message.text}`}
-              >
-                <div className="message-content">
-                  <p>{message.text}</p>
-                </div>
-                <span className="sr-only">
-                  {new Intl.DateTimeFormat('en-US', {
-                    hour: 'numeric',
-                    minute: 'numeric'
-                  }).format(message.timestamp)}
-                </span>
-              </div>
-            ))
+            messages.map(renderMessageWithAvatar)
           )}
         </div>
       </IonContent>

@@ -21,6 +21,15 @@ interface IonInputProps {
   'data-testid'?: string;
 }
 
+// Mock icons
+vi.mock('ionicons/icons', () => ({
+  closeOutline: 'mock-close-icon',
+  expandOutline: 'mock-expand-icon',
+  contractOutline: 'mock-contract-icon',
+  paperPlaneOutline: 'mock-paper-plane-icon',
+  personCircleOutline: 'mock-person-circle-icon'
+}));
+
 // Mock the IonModal implementation
 vi.mock('@ionic/react', async () => {
   const actual = await vi.importActual('@ionic/react');
@@ -45,6 +54,11 @@ vi.mock('@ionic/react', async () => {
         onChange={(e) => onIonInput?.({ detail: { value: e.target.value } })}
         onKeyPress={onKeyPress}
       />
+    ),
+    IonIcon: ({ icon, 'aria-hidden': ariaHidden }: { icon: string; 'aria-hidden'?: boolean }) => (
+      <span data-testid={`icon-${icon}`} aria-hidden={ariaHidden}>
+        {icon}
+      </span>
     )
   };
 });
@@ -100,5 +114,25 @@ describe('AIAssistantModal', () => {
     fireEvent.click(closeButton);
     
     expect(mockSetIsOpen).toHaveBeenCalledWith(false);
+  });
+
+  it('toggles between expanded and collapsed state when expand button is clicked', () => {
+    customRender(<AIAssistantModal {...defaultProps} />);
+    
+    // Initially should show expand icon
+    expect(screen.getByTestId('icon-mock-expand-icon')).toBeDefined();
+    
+    // Click expand button
+    const expandButton = screen.getByTestId('test-ai-assistant-expand-button');
+    fireEvent.click(expandButton);
+    
+    // Now should show contract icon
+    expect(screen.getByTestId('icon-mock-contract-icon')).toBeDefined();
+    
+    // Click again to collapse
+    fireEvent.click(expandButton);
+    
+    // Should show expand icon again
+    expect(screen.getByTestId('icon-mock-expand-icon')).toBeDefined();
   });
 }); 
