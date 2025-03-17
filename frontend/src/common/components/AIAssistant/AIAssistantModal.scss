@@ -5,13 +5,14 @@
   --box-shadow: 0 -0.25rem 1rem rgba(0, 0, 0, 0.1);
   --backdrop-opacity: 0.3;
   align-items: flex-end;
+  transition: --height 0.3s ease-out, --max-height 0.3s ease-out;
   
   &.expanded {
     --height: 85vh;
     --max-height: 85vh;
     
     &::part(content) {
-      margin: 2rem 1rem;
+      margin: 2rem 1rem 5rem 1rem;
     }
   }
   
@@ -20,6 +21,7 @@
     margin: 0 1rem 5rem 1rem;
     display: flex;
     flex-direction: column;
+    transition: margin 0.3s ease-out;
   }
   
   .ai-assistant-header {
@@ -27,149 +29,45 @@
       --padding-top: 0.5rem;
       --padding-bottom: 0.5rem;
     }
-    
-    ion-title {
-      font-weight: 600;
-      font-size: 1.125rem;
-      display: flex;
-      align-items: center;
-      
-      .ai-assistant-title-icon {
-        height: 1.5rem;
-        margin-right: 0.5rem;
-      }
-    }
+  }
+  
+  .ai-assistant-toolbar {
+    --background: transparent;
+    --border-color: transparent;
+    --border-width: 0;
+    --padding-start: 1rem;
+  }
+  
+  .ai-assistant-title-container {
+    display: flex;
+    align-items: center;
+    width: 100%;
+    text-align: left;
+  }
+  
+  .ai-assistant-title-icon {
+    height: 1.5rem;
+    margin-right: 0.5rem;
+  }
+  
+  .ai-assistant-title-text {
+    font-weight: 600;
+    font-size: 1.125rem;
   }
   
   .ai-assistant-content {
     --padding: 0;
     flex: 1;
     overflow: hidden;
-    
-    .chat-container {
-      display: flex;
-      flex-direction: column;
-      gap: 0.75rem;
-      padding: 1rem;
-      height: 100%;
-      overflow-y: auto;
-      
-      .chat-empty-state {
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        height: 100%;
-        color: var(--ion-color-medium);
-        font-style: italic;
-        text-align: center;
-        padding: 0 2rem;
-      }
-      
-      .chat-message {
-        display: flex;
-        flex-direction: column;
-        max-width: 90%;
-        margin-bottom: 0.75rem;
-        
-        .message-content {
-          padding: 0.75rem 1rem;
-          border-radius: 1rem;
-          
-          p {
-            margin: 0;
-            white-space: pre-wrap;
-            word-break: break-word;
-          }
-        }
-        
-        &.user-message {
-          align-self: flex-end;
-          
-          .message-content {
-            background-color: var(--ion-color-primary);
-            color: var(--ion-color-primary-contrast);
-            border-bottom-right-radius: 0.25rem;
-          }
-        }
-        
-        &.assistant-message {
-          align-self: flex-start;
-          
-          .message-content {
-            background-color: var(--ion-color-light);
-            color: var(--ion-color-dark);
-            border-bottom-left-radius: 0.25rem;
-          }
-        }
-        
-        // Avatar styling
-        .message-avatar {
-          width: 1.5rem;
-          height: 1.5rem;
-          border-radius: 50%;
-          margin-bottom: 0.25rem;
-          
-          &.user-avatar {
-            align-self: flex-end;
-            margin-right: 0.25rem;
-          }
-          
-          &.assistant-avatar {
-            align-self: flex-start;
-            margin-left: 0.25rem;
-            background-color: var(--ion-color-primary);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            
-            svg, img {
-              width: 1rem;
-              height: 1rem;
-              filter: brightness(0) invert(1);
-            }
-          }
-        }
-      }
-    }
   }
   
   .ai-assistant-footer {
-    padding: 0.5rem 1rem 1rem;
     background: transparent;
-    position: sticky;
-    bottom: 0;
-    width: 100%;
-    z-index: 2;
-    
-    .input-container {
-      display: flex;
-      align-items: center;
-      background-color: var(--ion-color-light);
-      border-radius: 1.5rem;
-      padding: 0 0.5rem;
-      
-      .message-input {
-        --padding-start: 1rem;
-        --padding-end: 0.5rem;
-        --placeholder-color: var(--ion-color-medium);
-        --placeholder-opacity: 0.8;
-      }
-      
-      .send-button {
-        margin: 0;
-        --padding-start: 0.5rem;
-        --padding-end: 0.5rem;
-        
-        &:disabled {
-          opacity: 0.5;
-        }
-        
-        ion-icon {
-          font-size: 1.25rem;
-          color: var(--ion-color-primary);
-        }
-      }
-    }
+    position: relative;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 0.5rem 0;
   }
 }
 

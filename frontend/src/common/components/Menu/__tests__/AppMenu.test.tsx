@@ -12,4 +12,13 @@ describe('AppMenu', () => {
     // ASSERT
     expect(screen.getByTestId('menu-app')).toBeDefined();
   });
+  
+  it('should include chat menu item when authenticated', async () => {
+    // ARRANGE
+    // The test-utils render includes mock authentication
+    render(<AppMenu />);
+    
+    // ASSERT
+    expect(screen.getByTestId('menu-app-item-chat')).toBeDefined();
+  });
 });

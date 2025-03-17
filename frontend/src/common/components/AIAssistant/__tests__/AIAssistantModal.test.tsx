@@ -1,7 +1,8 @@
 import { describe, expect, it, vi, beforeEach } from 'vitest';
-import { render, screen, fireEvent } from '@testing-library/react';
+import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import AIAssistantModal from '../AIAssistantModal';
 import WithMinimalProviders from 'test/wrappers/WithMinimalProviders';
+import { chatService } from '../../../services/ChatService';
 
 // Define types for the mocked components
 interface IonModalProps {
@@ -12,14 +13,24 @@ interface IonModalProps {
   onDidDismiss?: (event: { detail: { role: string } }) => void;
 }
 
-interface IonInputProps {
-  value?: string;
-  onIonInput?: (event: { detail: { value: string } }) => void;
-  onKeyPress?: (event: React.KeyboardEvent) => void;
-  placeholder?: string;
-  className?: string;
-  'data-testid'?: string;
-}
+// Mock the chat service
+vi.mock('../../../services/ChatService', () => ({
+  chatService: {
+    createUserMessage: vi.fn((text) => ({
+      id: 'mock-user-message-id',
+      text,
+      sender: 'user',
+      timestamp: new Date()
+    })),
+    createAssistantMessage: vi.fn((text) => ({
+      id: 'mock-assistant-message-id',
+      text,
+      sender: 'assistant',
+      timestamp: new Date()
+    })),
+    sendMessage: vi.fn(async (text) => `Response to: "${text}"`)
+  }
+}));
 
 // Mock icons
 vi.mock('ionicons/icons', () => ({
@@ -28,6 +39,40 @@ vi.mock('ionicons/icons', () => ({
   contractOutline: 'mock-contract-icon',
   paperPlaneOutline: 'mock-paper-plane-icon',
   personCircleOutline: 'mock-person-circle-icon'
+}));
+
+// Mock shared components
+vi.mock('../../../components/Chat/ChatContainer', () => ({
+  default: ({ messages, testid }: { messages: Array<{ id: string; text: string; sender: string; timestamp: Date }>; testid: string }) => (
+    <div data-testid={testid}>
+      {messages.length === 0 ? (
+        <div data-testid={`${testid}-empty`}>Empty State</div>
+      ) : (
+        messages.map((message) => (
+          <div key={message.id} data-testid={`${testid}-message-${message.sender}`}>
+            {message.text}
+          </div>
+        ))
+      )}
+    </div>
+  )
+}));
+
+vi.mock('../../../components/Chat/ChatInput', () => ({
+  default: ({ onSendMessage, testid }: { onSendMessage: (text: string) => void; testid: string }) => (
+    <div data-testid={testid}>
+      <input 
+        data-testid={`${testid}-field`}
+        onChange={(_e: React.ChangeEvent<HTMLInputElement>) => {}}
+      />
+      <button 
+        data-testid={`${testid}-send`}
+        onClick={() => onSendMessage('Test message')}
+      >
+        Send
+      </button>
+    </div>
+  )
 }));
 
 // Mock the IonModal implementation
@@ -44,16 +89,6 @@ vi.mock('@ionic/react', async () => {
           {children}
         </div>
       ) : null
-    ),
-    IonInput: ({ value, onIonInput, onKeyPress, placeholder, className, 'data-testid': testId }: IonInputProps) => (
-      <input
-        data-testid={testId}
-        className={className}
-        placeholder={placeholder}
-        value={value}
-        onChange={(e) => onIonInput?.({ detail: { value: e.target.value } })}
-        onKeyPress={onKeyPress}
-      />
     ),
     IonIcon: ({ icon, 'aria-hidden': ariaHidden }: { icon: string; 'aria-hidden'?: boolean }) => (
       <span data-testid={`icon-${icon}`} aria-hidden={ariaHidden}>
@@ -78,6 +113,7 @@ describe('AIAssistantModal', () => {
 
   beforeEach(() => {
     mockSetIsOpen.mockClear();
+    vi.clearAllMocks();
   });
 
   it('renders the modal when isOpen is true', () => {
@@ -87,24 +123,11 @@ describe('AIAssistantModal', () => {
     expect(screen.getByText('AI Assistant')).toBeDefined();
   });
 
-  it('shows empty state message when no messages exist', () => {
+  it('shows empty chat container initially', () => {
     customRender(<AIAssistantModal {...defaultProps} />);
     
-    expect(screen.getByText('How can I help you today?')).toBeDefined();
-  });
-
-  it('allows user to type and send a message', () => {
-    customRender(<AIAssistantModal {...defaultProps} />);
-    
-    const input = screen.getByTestId('test-ai-assistant-input');
-    const sendButton = screen.getByTestId('test-ai-assistant-send-button');
-    
-    // Simulate input value change
-    fireEvent.change(input, { target: { value: 'Test message' } });
-    fireEvent.click(sendButton);
-    
-    // Check that the user message appears
-    expect(screen.getByText('Test message')).toBeDefined();
+    expect(screen.getByTestId('test-ai-assistant-chat-container')).toBeDefined();
+    expect(screen.getByTestId('test-ai-assistant-chat-container-empty')).toBeDefined();
   });
 
   it('calls setIsOpen with false when close button is clicked', () => {
@@ -134,5 +157,37 @@ describe('AIAssistantModal', () => {
     
     // Should show expand icon again
     expect(screen.getByTestId('icon-mock-expand-icon')).toBeDefined();
+  });
+
+  it('automatically expands when the first message is sent', async () => {
+    customRender(<AIAssistantModal {...defaultProps} />);
+    
+    // Initially should show expand icon (not expanded)
+    expect(screen.getByTestId('icon-mock-expand-icon')).toBeDefined();
+    
+    // Find and click the send button
+    const sendButton = screen.getByTestId('test-ai-assistant-input-send');
+    fireEvent.click(sendButton);
+    
+    // After sending the first message, it should automatically expand
+    // and show the contract icon
+    expect(screen.getByTestId('icon-mock-contract-icon')).toBeDefined();
+  });
+
+  it('handles sending messages', async () => {
+    customRender(<AIAssistantModal {...defaultProps} />);
+    
+    // Find and click the send button
+    const sendButton = screen.getByTestId('test-ai-assistant-input-send');
+    fireEvent.click(sendButton);
+    
+    // Verify that the chatService methods were called
+    expect(chatService.createUserMessage).toHaveBeenCalledWith('Test message');
+    expect(chatService.sendMessage).toHaveBeenCalledWith('Test message');
+    
+    // Wait for the response to appear
+    await waitFor(() => {
+      expect(chatService.createAssistantMessage).toHaveBeenCalled();
+    });
   });
 }); 

@@ -11,6 +11,7 @@ import UserEditPage from 'pages/Users/components/UserEdit/UserEditPage';
 import AccountPage from 'pages/Account/AccountPage';
 import ProfilePage from 'pages/Account/components/Profile/ProfilePage';
 import DiagnosticsPage from 'pages/Account/components/Diagnostics/DiagnosticsPage';
+import ChatPage from 'pages/Chat/ChatPage';
 
 /**
  * The `TabNavigation` component provides a router outlet for all of the
@@ -55,6 +56,9 @@ const TabNavigation = (): JSX.Element => {
           </Route>
           <Route exact path="/tabs/account/diagnostics">
             <DiagnosticsPage />
+          </Route>
+          <Route exact path="/tabs/chat">
+            <ChatPage />
           </Route>
           <Route exact path="/">
             <Redirect to="/tabs/home" />

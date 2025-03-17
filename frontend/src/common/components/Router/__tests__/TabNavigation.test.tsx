@@ -40,6 +40,10 @@ vi.mock('pages/Home/HomePage', () => ({
   default: () => <div data-testid="mock-home-page">Home Page</div>,
 }));
 
+vi.mock('pages/Chat/ChatPage', () => ({
+  default: () => <div data-testid="mock-chat-page">Chat Page</div>,
+}));
+
 vi.mock('pages/Users/components/UserList/UserListPage', () => ({
   default: () => <div data-testid="mock-user-list-page">User List Page</div>,
 }));
