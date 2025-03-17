@@ -1,0 +1,156 @@
+.ai-assistant-modal {
+  --height: auto;
+  --max-height: 70vh;
+  --border-radius: 1rem;
+  --box-shadow: 0 -0.25rem 1rem rgba(0, 0, 0, 0.1);
+  --backdrop-opacity: 0.3;
+  align-items: flex-end;
+  
+  &.expanded {
+    --height: 90vh;
+    --max-height: 90vh;
+  }
+  
+  &::part(content) {
+    border-radius: var(--border-radius);
+    margin: 0 1rem 5rem 1rem;
+  }
+  
+  .ai-assistant-header {
+    ion-toolbar {
+      --padding-top: 0.5rem;
+      --padding-bottom: 0.5rem;
+    }
+    
+    ion-title {
+      font-weight: 600;
+      font-size: 1.125rem;
+      display: flex;
+      align-items: center;
+      
+      .ai-assistant-title-icon {
+        height: 1.5rem;
+        margin-right: 0.5rem;
+      }
+    }
+  }
+  
+  .ai-assistant-content {
+    --padding: 0;
+    
+    .chat-container {
+      display: flex;
+      flex-direction: column;
+      gap: 0.75rem;
+      padding: 1rem;
+      height: 100%;
+      overflow-y: auto;
+      
+      .chat-empty-state {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        height: 100%;
+        color: var(--ion-color-medium);
+        font-style: italic;
+        text-align: center;
+        padding: 0 2rem;
+      }
+      
+      .chat-message {
+        display: flex;
+        flex-direction: column;
+        max-width: 80%;
+        
+        .message-content {
+          padding: 0.75rem 1rem;
+          border-radius: 1rem;
+          
+          p {
+            margin: 0;
+            white-space: pre-wrap;
+            word-break: break-word;
+          }
+        }
+        
+        &.user-message {
+          align-self: flex-end;
+          
+          .message-content {
+            background-color: var(--ion-color-primary);
+            color: var(--ion-color-primary-contrast);
+            border-bottom-right-radius: 0.25rem;
+          }
+        }
+        
+        &.assistant-message {
+          align-self: flex-start;
+          
+          .message-content {
+            background-color: var(--ion-color-light);
+            color: var(--ion-color-dark);
+            border-bottom-left-radius: 0.25rem;
+          }
+        }
+      }
+    }
+  }
+  
+  .ai-assistant-footer {
+    padding: 0.5rem 1rem 1rem;
+    background: transparent;
+    
+    .input-container {
+      display: flex;
+      align-items: center;
+      background-color: var(--ion-color-light);
+      border-radius: 1.5rem;
+      padding: 0 0.5rem;
+      
+      .message-input {
+        --padding-start: 1rem;
+        --padding-end: 0.5rem;
+        --placeholder-color: var(--ion-color-medium);
+        --placeholder-opacity: 0.8;
+      }
+      
+      .send-button {
+        margin: 0;
+        --padding-start: 0.5rem;
+        --padding-end: 0.5rem;
+        
+        &:disabled {
+          opacity: 0.5;
+        }
+        
+        ion-icon {
+          font-size: 1.25rem;
+          color: var(--ion-color-primary);
+        }
+      }
+    }
+  }
+}
+
+// Screen reader only class
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  border: 0;
+}
+
+// Additional animation for modal entrance
+ion-modal.ai-assistant-modal {
+  &.show-modal {
+    transition: all 0.3s ease-in-out;
+  }
+  
+  &::part(content) {
+    transition: transform 0.3s cubic-bezier(0.36, 0.66, 0.04, 1);
+  }
+} 
