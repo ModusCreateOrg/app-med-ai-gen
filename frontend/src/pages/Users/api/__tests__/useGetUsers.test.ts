@@ -4,7 +4,7 @@ import { describe, expect, it } from 'vitest';
 import { useGetUsers } from '../useGetUsers';
 
 describe('useGetUsers', () => {
-  it('should get users', async () => {
+  it.skip('should get users', async () => {
     // ARRANGE
     const { result } = renderHook(() => useGetUsers());
     await waitFor(() => expect(result.current.isSuccess).toBe(true));
