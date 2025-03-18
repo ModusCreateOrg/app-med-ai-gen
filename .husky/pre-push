@@ -1,4 +1,53 @@
 #!/usr/bin/env sh
-. "$(dirname -- "$0")/_/husky.sh"
 
-cd frontend && npm run lint && npm run test:ci
+# Get the range of commits being pushed
+# For the remote branch that doesn't exist yet, use the empty tree object
+RANGE="$(git rev-parse --verify HEAD)"
+
+echo "Checking commit range: $RANGE"
+
+# Check if any frontend files were modified in the commits being pushed
+FRONTEND_CHANGES=$(git diff --name-only $RANGE | grep "^frontend/" || true)
+
+# Only run frontend tests if frontend files were modified
+if [ -n "$FRONTEND_CHANGES" ]; then
+  echo "Frontend changes detected. Running frontend tests..."
+
+  # Navigate to frontend directory
+  cd frontend || exit 1
+
+  . "$(dirname -- "$0")/_/husky.sh"
+
+  cd frontend && npm run lint && npm run test:ci
+
+  # Capture the exit code
+  TEST_EXIT_CODE=$?
+
+  # Return to the original directory
+  cd ..
+
+  # If tests failed, prevent the push
+  if [ $TEST_EXIT_CODE -ne 0 ]; then
+    echo "Frontend tests failed. Push aborted."
+    exit 1
+  fi
+
+  echo "Frontend tests passed."
+else
+  echo "No frontend changes detected. Skipping frontend tests."
+fi
+
+# Check if any backend files were modified in the commits being pushed
+BACKEND_CHANGES=$(git diff --name-only $RANGE | grep "^backend/" || true)
+
+if [ -n "$BACKEND_CHANGES" ]; then
+    echo "Backend changes detected. Running backend lint..."
+
+    . "$(dirname -- "$0")/_/husky.sh"
+    cd backend && npm run lint
+else
+  echo "No backend changes detected. Skipping backend tests."
+fi
+
+# Continue with the push
+exit 0
