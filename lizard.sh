@@ -1,7 +1,15 @@
 #!/bin/bash
 
 # Check if lizard is installed
-if ! command -v lizard &> /dev/null; then
+if command -v lizard &> /dev/null; then
+    echo "✅ lizard found in PATH"
+elif [ -x ~/.local/bin/lizard ]; then
+    echo "✅ lizard found in user bin, adding to PATH"
+    export PATH="$HOME/.local/bin:$PATH"
+elif [ -x /usr/local/bin/lizard ]; then
+    echo "✅ lizard found in system bin, adding to PATH"
+    export PATH="/usr/local/bin:$PATH"
+else
     echo "❌ lizard is not installed."
     echo "To install lizard globally, run:"
     echo "  pip install lizard"
