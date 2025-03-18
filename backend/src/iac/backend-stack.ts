@@ -6,6 +6,8 @@ import * as elbv2 from 'aws-cdk-lib/aws-elasticloadbalancingv2';
 import * as cognito from 'aws-cdk-lib/aws-cognito';
 import * as elbv2_actions from 'aws-cdk-lib/aws-elasticloadbalancingv2-actions';
 import { Construct } from 'constructs';
+import { AttributeType, BillingMode, Table } from 'aws-cdk-lib/aws-dynamodb';
+import { RemovalPolicy } from 'aws-cdk-lib';
 
 interface BackendStackProps extends cdk.StackProps {
   environment: string;
@@ -168,6 +170,33 @@ export class BackendStack extends cdk.Stack {
         next: elbv2.ListenerAction.forward([targetGroup]),
         onUnauthenticatedRequest: elbv2.UnauthenticatedAction.AUTHENTICATE,
       }),
+    });
+
+    const table = new Table(scope, id, {
+      tableName: `${appName}ReportsTable`,
+      partitionKey: {
+        name: 'userId',
+        type: AttributeType.STRING,
+      },
+      sortKey: {
+        name: 'id',
+        type: AttributeType.STRING,
+      },
+      billingMode: BillingMode.PAY_PER_REQUEST,
+      removalPolicy: RemovalPolicy.RETAIN,
+    });
+
+    // Add a GSI for querying by date (most recent first)
+    table.addGlobalSecondaryIndex({
+      indexName: 'userIdDateIndex',
+      partitionKey: {
+        name: 'userId',
+        type: AttributeType.STRING,
+      },
+      sortKey: {
+        name: 'date',
+        type: AttributeType.STRING,
+      },
     });
 
     // Add output for Cognito domain
