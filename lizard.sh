@@ -24,7 +24,7 @@ NLOC_LIMIT=250
 FILES=$(git diff --cached --name-only --diff-filter=ACM | grep -E '\.tsx$|\.ts$')
 
 # Check if there are any files to analyze
-if [[ -z "$FILES" ]]; then
+if [ -z "$FILES" ]; then
     echo "No Typescript files to check"
     exit 0  # No files to check, allow commit
 fi
@@ -40,13 +40,13 @@ for FILE in $FILES; do
     OUTPUT=$(lizard -C $COMPLEXITY_LIMIT -Tnloc=$NLOC_LIMIT -w --warning-msvs "$FILE")
     ERROR_CODE=$?
 
-    if [[ "$ERROR_CODE" -ne 0 ]]; then
+    if [ "$ERROR_CODE" -ne 0 ]; then
         ERROR_LIST+="$OUTPUT\n"
     fi
 done
 
 # Check if there were any errors
-if [[ -n "$ERROR_LIST" ]]; then
+if [ -n "$ERROR_LIST" ]; then
     echo "❌ Commit aborted due to the errors in the following files:"
     echo "$ERROR_LIST"
     echo "Limits are: Code Complexity (CCN)=$COMPLEXITY_LIMIT and Number of Lines (NLOC)=$NLOC_LIMIT"
