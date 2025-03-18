@@ -1,7 +1,6 @@
 ---
 description: Follow this rules for every request
 globs: 
-alwaysApply: true
 ---
 
 - Project Proposal Overview: This project proposes an AI-powered medical report translator that simplifies complex medical documents for patients and caregivers. By leveraging AI-driven text extraction and natural language processing (NLP), the system translates medical jargon into plain language, helping users understand their health conditions, diagnoses, and test results without relying on unreliable online searches.
@@ -121,5 +120,9 @@ AWS architecture: [aws architecture.pdf](mdc:docs/assets/aws architecture.pdf)
 }
 ```
 ```
+
+# Typescript rules
+
+- Prefer using nullish coalescing operator (`??`) instead of a logical or (`||`), as it is a safer operator.
 
 This rule provides clear guidelines on what units to use, how to convert between units, and why it's important for your project. You can add this to your general rules to ensure consistency across the codebase.
