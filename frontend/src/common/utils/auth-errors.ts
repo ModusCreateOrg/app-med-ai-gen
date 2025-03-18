@@ -5,13 +5,13 @@ import { AuthError } from '../models/auth';
  */
 export const AUTH_ERROR_MESSAGES: Record<string, string> = {
   // Sign In errors
-  'UserNotFoundException': 'The email address or password you entered is incorrect.',
-  'NotAuthorizedException': 'The email address or password you entered is incorrect.',
+  'UserNotFoundException': 'Incorrect email or password.',
+  'NotAuthorizedException': 'Incorrect email or password.',
   'UserNotConfirmedException': 'Please check your email to verify your account.',
   'PasswordResetRequiredException': 'You need to reset your password. Please check your email.',
   
   // Sign Up errors
-  'UsernameExistsException': 'This email address is already associated with an account. Please sign in or reset your password.',
+  'UsernameExistsException': 'This email is already linked to an account. Please sign in or reset your password.',
   'InvalidPasswordException': 'Password does not meet the requirements. Please use a stronger password.',
   'InvalidParameterException': 'Please check your input and try again.',
   
