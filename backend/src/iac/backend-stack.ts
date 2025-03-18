@@ -172,8 +172,9 @@ export class BackendStack extends cdk.Stack {
       }),
     });
 
-    const table = new Table(scope, id, {
-      tableName: `${appName}ReportsTable`,
+    // Create DynamoDB table for reports
+    const reportsTable = new Table(this, `${appName}ReportsTable`, {
+      tableName: `${appName}ReportsTable${props.environment}`,
       partitionKey: {
         name: 'userId',
         type: AttributeType.STRING,
@@ -183,11 +184,11 @@ export class BackendStack extends cdk.Stack {
         type: AttributeType.STRING,
       },
       billingMode: BillingMode.PAY_PER_REQUEST,
-      removalPolicy: RemovalPolicy.RETAIN,
+      removalPolicy: isProd ? RemovalPolicy.RETAIN : RemovalPolicy.DESTROY,
     });
 
     // Add a GSI for querying by date (most recent first)
-    table.addGlobalSecondaryIndex({
+    reportsTable.addGlobalSecondaryIndex({
       indexName: 'userIdDateIndex',
       partitionKey: {
         name: 'userId',
@@ -197,6 +198,12 @@ export class BackendStack extends cdk.Stack {
         name: 'date',
         type: AttributeType.STRING,
       },
+    });
+
+    // Add output for the table name
+    new cdk.CfnOutput(this, 'ReportsTableName', {
+      value: reportsTable.tableName,
+      description: 'DynamoDB Reports Table Name',
     });
 
     // Add output for Cognito domain
