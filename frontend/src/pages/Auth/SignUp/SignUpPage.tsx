@@ -26,7 +26,7 @@ const SignUpPage = ({ testid = 'page-signup' }: SignUpPageProps): JSX.Element =>
       <ProgressProvider>
         <Header title={t('signup', { ns: 'auth' })} />
 
-        <IonContent fullscreen className="ion-padding">
+        <IonContent fullscreen className="ion-padding" scrollY={true}>
           <Container className="ls-signup-page__container" fixed>
             <SignUpForm className="ls-signup-page__form" />
           </Container>
