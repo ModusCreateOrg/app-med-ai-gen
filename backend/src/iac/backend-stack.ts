@@ -87,15 +87,10 @@ export class BackendStack extends cdk.Stack {
     );
 
     // Create a Cognito domain if it doesn't exist
-    const userPoolDomain = new cognito.UserPoolDomain(
+    const userPoolDomain = cognito.UserPoolDomain.fromDomainName(
       this,
-      `${appName}UserPoolDomain-${props.environment}`,
-      {
-        userPool,
-        cognitoDomain: {
-          domainPrefix: `modus-ai-${props.environment}`,
-        },
-      },
+      `${appName}ExistingDomain-${props.environment}`,
+      'us-east-1pszlvsmwc' // The domain prefix without the .auth.region.amazoncognito.com part
     );
 
     // Create ALB
