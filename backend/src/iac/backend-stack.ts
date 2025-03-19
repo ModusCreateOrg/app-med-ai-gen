@@ -93,7 +93,7 @@ export class BackendStack extends cdk.Stack {
       {
         userPool,
         cognitoDomain: {
-          domainPrefix: `${appName.toLowerCase()}-auth-${props.environment}-modus`,
+          domainPrefix: `modus-ai-${props.environment}`,
         },
       },
     );

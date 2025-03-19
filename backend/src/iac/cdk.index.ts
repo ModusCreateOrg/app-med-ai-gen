@@ -9,7 +9,7 @@ export * from './backend-stack';
 export function main() {
   const app = new cdk.App();
 
-  new BackendStack(app, 'MedicalReportsBackendStack', {
+  new BackendStack(app, 'ai-medical-reports-backend-stack', {
     environment: 'development',
     env: {
       account: process.env.CDK_DEFAULT_ACCOUNT,
