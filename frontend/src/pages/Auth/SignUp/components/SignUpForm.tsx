@@ -129,7 +129,7 @@ const SignUpForm = ({ className, testid = 'form-signup' }: SignUpFormProps): JSX
       <AuthErrorDisplay 
         error={error} 
         showDetails={true}
-        className="ion-margin-bottom"
+        className="ion-margin-bottom ion-margin-top"
         testid={`${testid}-error`}
       />
 

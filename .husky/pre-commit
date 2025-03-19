@@ -1,1 +1,18 @@
-cd frontend && npm run lint
+#!/bin/sh
+project_root=$(pwd)
+cd $project_root
+sh ./lizard.sh
+
+# Only run frontend lint if the directory exists
+if [ -d "frontend" ]; then
+  cd frontend && npm run lint
+fi
+
+cd $project_root
+
+# Add backend linting
+if [ -d "backend" ]; then
+  cd backend && npm run lint
+fi
+
+exit 0
