@@ -9,14 +9,19 @@
 .chat-page-title {
   display: flex;
   align-items: center;
-  text-align: left;
-  justify-content: flex-start;
+  text-align: center;
+  justify-content: center;
   padding-left: 0;
   margin-left: 1rem;
   
   .ai-assistant-title-icon {
-    height: 1.5rem;
-    margin-right: 0.5rem;
+    height: 2.5rem;
+  }
+  
+  .title-container {
+    display: flex;
+    align-items: center;
+    justify-content: left;
   }
 }
 

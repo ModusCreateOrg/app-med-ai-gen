@@ -5,7 +5,7 @@ import ChatContainer from '../../common/components/Chat/ChatContainer';
 import ChatInput from '../../common/components/Chat/ChatInput';
 import { chatService } from '../../common/services/ChatService';
 import { ChatMessageData } from '../../common/components/Chat/ChatMessage';
-import iconOnly from '../../assets/img/icon-only.png';
+import aiIcon from '../../assets/img/ai-icon.svg';
 import './ChatPage.scss';
 
 /**
@@ -36,15 +36,17 @@ const ChatPage = (): JSX.Element => {
       <IonHeader>
         <IonToolbar className="chat-page-toolbar">
           <IonTitle className="chat-page-title">
-            <img src={iconOnly} alt="AI Assistant Icon" className="ai-assistant-title-icon" />
-            {t('pages.chat.title', 'AI Assistant')}
+            <div className="title-container">
+              <img src={aiIcon} alt="AI Assistant Icon" className="ai-assistant-title-icon" />
+              <span>{t('pages.chat.title', 'AI Assistant')}</span>
+            </div>
           </IonTitle>
         </IonToolbar>
       </IonHeader>
       <IonContent className="chat-page-content">
         <ChatContainer
           messages={messages}
-          aiIconSrc={iconOnly}
+          aiIconSrc={aiIcon}
           testid="chat-page-container"
           className="chat-page-container"
         />

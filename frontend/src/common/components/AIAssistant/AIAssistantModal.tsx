@@ -10,7 +10,7 @@ import {
 } from '@ionic/react';
 import { useState, useRef } from 'react';
 import { closeOutline, expandOutline, contractOutline } from 'ionicons/icons';
-import iconOnly from '../../../assets/img/icon-only.png';
+import aiIcon from '../../../assets/img/ai-icon.svg';
 import ChatContainer from '../Chat/ChatContainer';
 import ChatInput from '../Chat/ChatInput';
 import { chatService } from '../../services/ChatService';
@@ -73,7 +73,7 @@ const AIAssistantModal: React.FC<AIAssistantModalProps> = ({
       <IonHeader className="ai-assistant-header">
         <IonToolbar className="ai-assistant-toolbar">
           <div className="ai-assistant-title-container">
-            <img src={iconOnly} alt="AI Assistant Icon" className="ai-assistant-title-icon" />
+            <img src={aiIcon} alt="AI Assistant Icon" className="ai-assistant-title-icon" />
             <span className="ai-assistant-title-text">AI Assistant</span>
           </div>
           <IonButtons slot="end">
@@ -98,7 +98,7 @@ const AIAssistantModal: React.FC<AIAssistantModalProps> = ({
       <IonContent className="ai-assistant-content">
         <ChatContainer
           messages={messages}
-          aiIconSrc={iconOnly}
+          aiIconSrc={aiIcon}
           testid={`${testid}-chat-container`}
         />
       </IonContent>
