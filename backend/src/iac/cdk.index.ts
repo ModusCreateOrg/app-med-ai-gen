@@ -21,7 +21,7 @@ export function main() {
     throw new Error('AWS_COGNITO_CLIENT_ID and AWS_COGNITO_USER_POOL_ID must be set');
   }
 
-  new BackendStack(app, `ai-team-medical-reports-stack-${process.env.NODE_ENV}`, {
+  void new BackendStack(app, `ai-team-medical-reports-stack-${process.env.NODE_ENV}`, {
     environment: process.env.NODE_ENV || 'development',
     env: {
       account: process.env.CDK_DEFAULT_ACCOUNT,
