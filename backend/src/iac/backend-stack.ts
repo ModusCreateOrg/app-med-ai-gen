@@ -121,10 +121,14 @@ export class BackendStack extends cdk.Stack {
     });
 
     // 4. Create a security group for the Fargate service
-    const serviceSecurityGroup = new ec2.SecurityGroup(this, `${appName}ServiceSG-${props.environment}`, {
-      vpc,
-      allowAllOutbound: true,
-    });
+    const serviceSecurityGroup = new ec2.SecurityGroup(
+      this,
+      `${appName}ServiceSG-${props.environment}`,
+      {
+        vpc,
+        allowAllOutbound: true,
+      },
+    );
 
     // 5. Create the Fargate service WITHOUT registering it with the target group yet
     const fargateService = new ecs.FargateService(this, `${appName}Service-${props.environment}`, {
