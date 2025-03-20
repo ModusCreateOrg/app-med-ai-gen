@@ -28,7 +28,7 @@ vi.mock('@ionic/react', async () => {
       className?: string;
       name?: string;
     }) => {
-      const handleClick = () => {
+      const handleChange = () => {
         const newChecked = typeof checked === 'string' ? checked === 'false' : !checked;
         const detailObj = { 
           checked: newChecked,
@@ -42,7 +42,15 @@ vi.mock('@ionic/react', async () => {
       
       return (
         <div 
-          onClick={handleClick}
+          onClick={handleChange}
+          onKeyDown={(e) => {
+            if (e.key === 'Enter' || e.key === ' ') {
+              e.preventDefault();
+              handleChange();
+            }
+          }}
+          role="checkbox"
+          tabIndex={0}
           className={`ion-checkbox ${className || ''}`}
           data-testid={testId}
           aria-checked={ariaChecked as 'false' | 'true'}
