@@ -12,6 +12,8 @@ interface BackendStackProps extends cdk.StackProps {
   environment: string;
   domainName?: string; // Optional domain name for certificate
   hostedZoneId?: string; // Optional hosted zone ID for domain
+  cognitoClientId: string;
+  cognitoUserPoolId: string;
 }
 
 export class BackendStack extends cdk.Stack {
@@ -69,9 +71,7 @@ export class BackendStack extends cdk.Stack {
     });
 
     // Look up existing Cognito User Pool
-    const userPoolId =
-      process.env.AWS_COGNITO_CLIENT_ID ||
-      cognito.UserPool.fromUserPoolId(this, `${appName}UserPool`, 'us-east-1_PszlvSmWc').userPoolId;
+    const userPoolId = props.cognitoUserPoolId || cognito.UserPool.fromUserPoolId(this, `${appName}UserPool`, 'us-east-1_PszlvSmWc').userPoolId;
 
     // Create a Cognito domain if it doesn't exist
     const userPoolDomain = cognito.UserPoolDomain.fromDomainName(
@@ -81,7 +81,7 @@ export class BackendStack extends cdk.Stack {
     );
 
     // Replace the userPoolClient reference with a direct reference to the client ID
-    const userPoolClientId = process.env.AWS_COGNITO_CLIENT_ID || 'default-client-id';
+    const userPoolClientId = props.cognitoClientId;
 
     // Task Definition
     const taskDefinition = new ecs.FargateTaskDefinition(
