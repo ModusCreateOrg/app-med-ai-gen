@@ -10,10 +10,10 @@ import { RemovalPolicy } from 'aws-cdk-lib';
 
 interface BackendStackProps extends cdk.StackProps {
   environment: string;
-  domainName?: string; // Optional domain name for certificate
-  hostedZoneId?: string; // Optional hosted zone ID for domain
   cognitoClientId: string;
   cognitoUserPoolId: string;
+  domainName?: string; // Optional domain name for certificate
+  hostedZoneId?: string; // Optional hosted zone ID for domain
 }
 
 export class BackendStack extends cdk.Stack {
