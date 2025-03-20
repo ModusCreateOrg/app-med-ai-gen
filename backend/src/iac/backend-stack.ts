@@ -4,10 +4,6 @@ import * as ecs from 'aws-cdk-lib/aws-ecs';
 import * as logs from 'aws-cdk-lib/aws-logs';
 import * as elbv2 from 'aws-cdk-lib/aws-elasticloadbalancingv2';
 import * as cognito from 'aws-cdk-lib/aws-cognito';
-import * as elbv2_actions from 'aws-cdk-lib/aws-elasticloadbalancingv2-actions';
-import * as acm from 'aws-cdk-lib/aws-certificatemanager';
-import * as route53 from 'aws-cdk-lib/aws-route53';
-import * as targets from 'aws-cdk-lib/aws-route53-targets';
 import { Construct } from 'constructs';
 import { AttributeType, BillingMode, Table } from 'aws-cdk-lib/aws-dynamodb';
 import { RemovalPolicy } from 'aws-cdk-lib';
@@ -90,43 +86,58 @@ export class BackendStack extends cdk.Stack {
     const userPoolDomain = cognito.UserPoolDomain.fromDomainName(
       this,
       `${appName}ExistingDomain-${props.environment}`,
-      'us-east-1pszlvsmwc' // The domain prefix without the .auth.region.amazoncognito.com part
+      'us-east-1pszlvsmwc', // The domain prefix without the .auth.region.amazoncognito.com part
     );
 
-    // Create ALB
+    // 1. Create ALB
     const alb = new elbv2.ApplicationLoadBalancer(this, `${appName}ALB-${props.environment}`, {
       vpc,
       internetFacing: true,
       loadBalancerName: `${appName}-${props.environment}`,
     });
 
-    // HTTPS IMPLEMENTATION - CERTIFICATE
-    let certificate;
-    if (props.domainName && props.hostedZoneId) {
-      // If domain name is provided, create or import certificate
-      const hostedZone = route53.HostedZone.fromHostedZoneAttributes(this, 'HostedZone', {
-        hostedZoneId: props.hostedZoneId,
-        zoneName: props.domainName,
-      });
+    // 2. Create ALB Target Group
+    const targetGroup = new elbv2.ApplicationTargetGroup(
+      this,
+      `${appName}TargetGroup-${props.environment}`,
+      {
+        vpc,
+        port: 3000,
+        protocol: elbv2.ApplicationProtocol.HTTP,
+        targetType: elbv2.TargetType.IP,
+        healthCheck: {
+          path: '/health',
+          interval: cdk.Duration.seconds(30),
+          timeout: cdk.Duration.seconds(5),
+        },
+      },
+    );
 
-      certificate = new acm.Certificate(this, `${appName}Certificate-${props.environment}`, {
-        domainName: props.domainName,
-        validation: acm.CertificateValidation.fromDns(hostedZone),
-      });
+    // 3. HTTP 80 Listener
+    alb.addListener(`${appName}HttpListener-${props.environment}`, {
+      port: 80,
+      protocol: elbv2.ApplicationProtocol.HTTP,
+      defaultAction: elbv2.ListenerAction.redirect({
+        protocol: elbv2.ApplicationProtocol.HTTPS,
+      }),
+    });
 
-      // Create DNS record for ALB
-      new route53.ARecord(this, `${appName}AliasRecord-${props.environment}`, {
-        zone: hostedZone,
-        recordName: props.domainName,
-        target: route53.RecordTarget.fromAlias(new targets.LoadBalancerTarget(alb)),
-      });
-    } else {
-      // For development or when no domain is provided, generate a self-signed certificate
-      certificate = new acm.Certificate(this, `${appName}SelfSignedCert-${props.environment}`, {
-        domainName: alb.loadBalancerDnsName,
-        validation: acm.CertificateValidation.fromDns(),
-      });
-    }
+    // 4. Create Fargate Service
+    const fargateService = new ecs.FargateService(this, `${appName}Service-${props.environment}`, {
+      cluster,
+      taskDefinition,
+      desiredCount: isProd ? 2 : 1,
+      assignPublicIp: false,
+      securityGroups: [
+        new ec2.SecurityGroup(this, `${appName}ServiceSG-${props.environment}`, {
+          vpc,
+          allowAllOutbound: true,
+        }),
+      ],
+    });
+
+    // 5. Register the service with the Target Group
+    targetGroup.addTarget(fargateService);
 
     // Create a Cognito User Pool Client for the ALB
     const userPoolClient = new cognito.UserPoolClient(
@@ -151,20 +162,6 @@ export class BackendStack extends cdk.Stack {
       },
     );
 
-    // Create Fargate Service
-    const fargateService = new ecs.FargateService(this, `${appName}Service-${props.environment}`, {
-      cluster,
-      taskDefinition,
-      desiredCount: isProd ? 2 : 1,
-      assignPublicIp: false,
-      securityGroups: [
-        new ec2.SecurityGroup(this, `${appName}ServiceSG-${props.environment}`, {
-          vpc,
-          allowAllOutbound: true,
-        }),
-      ],
-    });
-
     // Add autoscaling for production
     if (isProd) {
       const scaling = fargateService.autoScaleTaskCount({
@@ -178,52 +175,6 @@ export class BackendStack extends cdk.Stack {
         scaleOutCooldown: cdk.Duration.seconds(60),
       });
     }
-
-    // Create ALB Target Group
-    const targetGroup = new elbv2.ApplicationTargetGroup(
-      this,
-      `${appName}TargetGroup-${props.environment}`,
-      {
-        vpc,
-        port: 3000,
-        protocol: elbv2.ApplicationProtocol.HTTP,
-        targetType: elbv2.TargetType.IP,
-        healthCheck: {
-          path: '/health',
-          interval: cdk.Duration.seconds(30),
-          timeout: cdk.Duration.seconds(5),
-        },
-        targets: [fargateService],
-      },
-    );
-
-    // HTTPS IMPLEMENTATION - LISTENERS
-
-    // Create HTTPS Listener
-    alb.addListener(`${appName}HttpsListener-${props.environment}`, {
-      port: 443,
-      protocol: elbv2.ApplicationProtocol.HTTPS,
-      certificates: [certificate],
-      sslPolicy: elbv2.SslPolicy.RECOMMENDED,
-      defaultAction: new elbv2_actions.AuthenticateCognitoAction({
-        userPool,
-        userPoolClient,
-        userPoolDomain: userPoolDomain,
-        next: elbv2.ListenerAction.forward([targetGroup]),
-        onUnauthenticatedRequest: elbv2.UnauthenticatedAction.AUTHENTICATE,
-      }),
-    });
-
-    // Create HTTP Listener that redirects to HTTPS
-    alb.addListener(`${appName}HttpListener-${props.environment}`, {
-      port: 80,
-      protocol: elbv2.ApplicationProtocol.HTTP,
-      defaultAction: elbv2.ListenerAction.redirect({
-        protocol: elbv2.ApplicationProtocol.HTTPS,
-        port: '443',
-        permanent: true,
-      }),
-    });
 
     // Create DynamoDB table for reports
     const reportsTable = new Table(this, `${appName}ReportsTable-${props.environment}`, {
