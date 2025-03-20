@@ -11,11 +11,13 @@ import {
 } from '@ionic/react';
 import { useTranslation } from 'react-i18next';
 import { useHistory } from 'react-router-dom';
+import { useState } from 'react';
 import { useGetLatestReports, useMarkReportAsRead } from 'common/hooks/useReports';
 import { useCurrentUser } from 'common/hooks/useAuth';
 import Avatar from 'common/components/Icon/Avatar';
 import ReportItem from './components/ReportItem/ReportItem';
 import NoReportsMessage from './components/NoReportsMessage/NoReportsMessage';
+import AIAssistantModal from 'common/components/AIAssistant/AIAssistantModal';
 import healthcareImage from '../../assets/img/healthcare.svg';
 import './HomePage.scss';
 
@@ -28,6 +30,7 @@ const HomePage: React.FC = () => {
   const { data: reports, isLoading, isError } = useGetLatestReports(3);
   const { mutate: markAsRead } = useMarkReportAsRead();
   const currentUser = useCurrentUser();
+  const [isAIAssistantOpen, setIsAIAssistantOpen] = useState<boolean>(false);
   
   // Get user display name from token data
   const displayName = currentUser?.firstName || currentUser?.name?.split(' ')[0] || 'User';
@@ -46,6 +49,10 @@ const HomePage: React.FC = () => {
 
   const handleRetry = () => {
     window.location.reload();
+  };
+
+  const handleOpenAIAssistant = () => {
+    setIsAIAssistantOpen(true);
   };
 
   const renderReportsList = () => {
@@ -117,7 +124,7 @@ const HomePage: React.FC = () => {
             </div>
           </div>
 
-          <IonCard className="home-page__ai-card">
+          <IonCard className="home-page__ai-card" onClick={handleOpenAIAssistant}>
             <div className="home-page__ai-card-decoration home-page__ai-card-decoration--star1"></div>
             <div className="home-page__ai-card-decoration home-page__ai-card-decoration--star2"></div>
             <div className="home-page__ai-card-decoration home-page__ai-card-decoration--circle1"></div>
@@ -149,6 +156,11 @@ const HomePage: React.FC = () => {
           </IonList>
         </div>
       </IonContent>
+      
+      <AIAssistantModal 
+        isOpen={isAIAssistantOpen}
+        setIsOpen={setIsAIAssistantOpen}
+      />
     </IonPage>
   );
 };

@@ -70,6 +70,12 @@ const AppMenu = ({ className, testid = 'menu-app' }: AppMenuProps): JSX.Element 
               </IonItem>
             </IonMenuToggle>
             <IonMenuToggle>
+              <IonItem routerLink="/tabs/chat" lines="full" data-testid={`${testid}-item-chat`}>
+                <Icon className="ls-app-menu__toggle-icon" icon="comment" fixedWidth />
+                <IonLabel>{t('navigation.chat', 'AI Assistant')}</IonLabel>
+              </IonItem>
+            </IonMenuToggle>
+            <IonMenuToggle>
               <IonItem routerLink="/tabs/users" lines="full" data-testid={`${testid}-item-users`}>
                 <Icon className="ls-app-menu__toggle-icon" icon="users" fixedWidth />
                 <IonLabel>{t('navigation.users')}</IonLabel>

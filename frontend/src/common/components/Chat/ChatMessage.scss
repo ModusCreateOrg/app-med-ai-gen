@@ -1,0 +1,77 @@
+.chat-message {
+  display: flex;
+  flex-direction: row;
+  max-width: 90%;
+  margin-bottom: 0.75rem;
+  align-self: flex-start;
+  
+  .message-content {
+    padding: 0.75rem 1rem;
+    border-radius: 1rem;
+    
+    p {
+      margin: 0;
+      white-space: pre-wrap;
+      word-break: break-word;
+    }
+  }
+  
+  &.user-message {
+    .message-content {
+      background-color: #EBECFD;
+      color: var(--ion-color-dark);
+    }
+  }
+  
+  &.assistant-message {
+    .message-content {
+      background-color: #FFFFFF;
+      color: var(--ion-color-dark);
+    }
+  }
+  
+  // Avatar styling
+  .message-avatar {
+    width: 1.5rem;
+    height: 1.5rem;
+    border-radius: 50%;
+    margin-right: 0.5rem;
+    align-self: flex-start;
+    
+    &.user-avatar {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+
+      ion-icon {
+        width: 1.5rem;
+        height: 1.5rem;
+      }
+
+    }
+    
+    &.assistant-avatar {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      
+      svg, img, ion-icon {
+        width: 1.5rem;
+        height: 1.5rem;
+      }
+
+    }
+  }
+}
+
+// Screen reader only class
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  border: 0;
+} 
