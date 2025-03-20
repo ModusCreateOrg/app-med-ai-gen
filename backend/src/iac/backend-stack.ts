@@ -71,7 +71,9 @@ export class BackendStack extends cdk.Stack {
     });
 
     // Look up existing Cognito User Pool
-    const userPoolId = props.cognitoUserPoolId || cognito.UserPool.fromUserPoolId(this, `${appName}UserPool`, 'us-east-1_PszlvSmWc').userPoolId;
+    const userPoolId =
+      props.cognitoUserPoolId ||
+      cognito.UserPool.fromUserPoolId(this, `${appName}UserPool`, 'us-east-1_PszlvSmWc').userPoolId;
 
     // Create a Cognito domain if it doesn't exist
     const userPoolDomain = cognito.UserPoolDomain.fromDomainName(
