@@ -114,29 +114,31 @@ export class BackendStack extends cdk.Stack {
     );
 
     // 3. HTTP 80 Listener
-    alb.addListener(`${appName}HttpListener-${props.environment}`, {
+    const httpListener = alb.addListener(`${appName}HttpListener-${props.environment}`, {
       port: 80,
       protocol: elbv2.ApplicationProtocol.HTTP,
-      defaultAction: elbv2.ListenerAction.redirect({
-        protocol: elbv2.ApplicationProtocol.HTTPS,
-      }),
+      defaultAction: elbv2.ListenerAction.forward([targetGroup]),
     });
 
-    // 4. Create Fargate Service
+    // 4. Create a security group for the Fargate service
+    const serviceSecurityGroup = new ec2.SecurityGroup(this, `${appName}ServiceSG-${props.environment}`, {
+      vpc,
+      allowAllOutbound: true,
+    });
+
+    // 5. Create the Fargate service WITHOUT registering it with the target group yet
     const fargateService = new ecs.FargateService(this, `${appName}Service-${props.environment}`, {
       cluster,
       taskDefinition,
       desiredCount: isProd ? 2 : 1,
       assignPublicIp: false,
-      securityGroups: [
-        new ec2.SecurityGroup(this, `${appName}ServiceSG-${props.environment}`, {
-          vpc,
-          allowAllOutbound: true,
-        }),
-      ],
+      securityGroups: [serviceSecurityGroup],
     });
 
-    // 5. Register the service with the Target Group
+    // 6. Add explicit dependency to ensure the listener exists before the service
+    fargateService.node.addDependency(httpListener);
+
+    // 7. Now register the service with the target group
     targetGroup.addTarget(fargateService);
 
     // Create a Cognito User Pool Client for the ALB
