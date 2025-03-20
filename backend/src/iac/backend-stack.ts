@@ -40,6 +40,51 @@ export class BackendStack extends cdk.Stack {
       removalPolicy: isProd ? cdk.RemovalPolicy.RETAIN : cdk.RemovalPolicy.DESTROY,
     });
 
+    // Create DynamoDB table for reports
+    const reportsTable = new Table(this, `${appName}ReportsTable-${props.environment}`, {
+      tableName: `${appName}ReportsTable${props.environment}`,
+      partitionKey: {
+        name: 'userId',
+        type: AttributeType.STRING,
+      },
+      sortKey: {
+        name: 'id',
+        type: AttributeType.STRING,
+      },
+      billingMode: BillingMode.PAY_PER_REQUEST,
+      removalPolicy: isProd ? RemovalPolicy.RETAIN : RemovalPolicy.DESTROY,
+    });
+
+    // Add a GSI for querying by date (most recent first)
+    reportsTable.addGlobalSecondaryIndex({
+      indexName: 'userIdDateIndex',
+      partitionKey: {
+        name: 'userId',
+        type: AttributeType.STRING,
+      },
+      sortKey: {
+        name: 'date',
+        type: AttributeType.STRING,
+      },
+    });
+
+    // Look up existing Cognito User Pool
+    const userPoolId = process.env.AWS_COGNITO_CLIENT_ID || cognito.UserPool.fromUserPoolId(
+      this,
+      `${appName}UserPool`,
+      'us-east-1_PszlvSmWc',
+    ).userPoolId;
+
+    // Create a Cognito domain if it doesn't exist
+    const userPoolDomain = cognito.UserPoolDomain.fromDomainName(
+      this,
+      `${appName}ExistingDomain-${props.environment}`,
+      'us-east-1pszlvsmwc', // The domain prefix without the .auth.region.amazoncognito.com part
+    );
+
+    // Replace the userPoolClient reference with a direct reference to the client ID
+    const userPoolClientId = process.env.AWS_COGNITO_CLIENT_ID || 'default-client-id';
+
     // Task Definition
     const taskDefinition = new ecs.FargateTaskDefinition(
       this,
@@ -59,7 +104,17 @@ export class BackendStack extends cdk.Stack {
         },
       }),
       environment: {
+        // Basic environment variables
         NODE_ENV: props.environment,
+        PORT: '3000',
+
+        // AWS related
+        AWS_REGION: this.region,
+        AWS_COGNITO_USER_POOL_ID: userPoolId,
+        AWS_COGNITO_CLIENT_ID: userPoolClientId,
+        DYNAMODB_REPORTS_TABLE: reportsTable.tableName,
+
+        // Perplexity related
         PERPLEXITY_API_KEY_SECRET_NAME: `medical-reports-explainer/${props.environment}/perplexity-api-key`,
         PERPLEXITY_MODEL: 'sonar',
         PERPLEXITY_MAX_TOKENS: '2048',
@@ -74,20 +129,6 @@ export class BackendStack extends cdk.Stack {
       containerPort: 3000,
       protocol: ecs.Protocol.TCP,
     });
-
-    // Look up existing Cognito User Pool
-    const userPool = cognito.UserPool.fromUserPoolId(
-      this,
-      `${appName}UserPool`,
-      'us-east-1_PszlvSmWc',
-    );
-
-    // Create a Cognito domain if it doesn't exist
-    const userPoolDomain = cognito.UserPoolDomain.fromDomainName(
-      this,
-      `${appName}ExistingDomain-${props.environment}`,
-      'us-east-1pszlvsmwc', // The domain prefix without the .auth.region.amazoncognito.com part
-    );
 
     // 1. Create ALB
     const alb = new elbv2.ApplicationLoadBalancer(this, `${appName}ALB-${props.environment}`, {
@@ -145,29 +186,6 @@ export class BackendStack extends cdk.Stack {
     // 7. Now register the service with the target group
     targetGroup.addTarget(fargateService);
 
-    // Create a Cognito User Pool Client for the ALB
-    const userPoolClient = new cognito.UserPoolClient(
-      this,
-      `${appName}UserPoolClient-${props.environment}`,
-      {
-        userPool,
-        generateSecret: true,
-        authFlows: {
-          userPassword: true,
-          userSrp: true,
-        },
-        oAuth: {
-          flows: {
-            authorizationCodeGrant: true,
-          },
-          // Update callback URLs to use HTTPS
-          callbackUrls: props.domainName
-            ? [`https://${props.domainName}/oauth2/idpresponse`]
-            : [`https://${alb.loadBalancerDnsName}/oauth2/idpresponse`],
-        },
-      },
-    );
-
     // Add autoscaling for production
     if (isProd) {
       const scaling = fargateService.autoScaleTaskCount({
@@ -181,34 +199,6 @@ export class BackendStack extends cdk.Stack {
         scaleOutCooldown: cdk.Duration.seconds(60),
       });
     }
-
-    // Create DynamoDB table for reports
-    const reportsTable = new Table(this, `${appName}ReportsTable-${props.environment}`, {
-      tableName: `${appName}ReportsTable${props.environment}`,
-      partitionKey: {
-        name: 'userId',
-        type: AttributeType.STRING,
-      },
-      sortKey: {
-        name: 'id',
-        type: AttributeType.STRING,
-      },
-      billingMode: BillingMode.PAY_PER_REQUEST,
-      removalPolicy: isProd ? RemovalPolicy.RETAIN : RemovalPolicy.DESTROY,
-    });
-
-    // Add a GSI for querying by date (most recent first)
-    reportsTable.addGlobalSecondaryIndex({
-      indexName: 'userIdDateIndex',
-      partitionKey: {
-        name: 'userId',
-        type: AttributeType.STRING,
-      },
-      sortKey: {
-        name: 'date',
-        type: AttributeType.STRING,
-      },
-    });
 
     // Add output for the table name
     new cdk.CfnOutput(this, 'ReportsTableName', {
@@ -226,16 +216,6 @@ export class BackendStack extends cdk.Stack {
     new cdk.CfnOutput(this, 'LoadBalancerDNS', {
       value: alb.loadBalancerDnsName,
       description: 'Load Balancer DNS Name',
-    });
-
-    new cdk.CfnOutput(this, 'UserPoolId', {
-      value: userPool.userPoolId,
-      description: 'Cognito User Pool ID',
-    });
-
-    new cdk.CfnOutput(this, 'UserPoolClientId', {
-      value: userPoolClient.userPoolClientId,
-      description: 'Cognito User Pool Client ID',
     });
   }
 }
