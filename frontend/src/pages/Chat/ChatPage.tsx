@@ -6,6 +6,7 @@ import ChatInput from '../../common/components/Chat/ChatInput';
 import { chatService } from '../../common/services/ChatService';
 import { ChatMessageData } from '../../common/components/Chat/ChatMessage';
 import aiIcon from '../../assets/img/ai-icon.svg';
+import { faRobot } from '@fortawesome/free-solid-svg-icons';
 import './ChatPage.scss';
 
 /**
@@ -46,7 +47,7 @@ const ChatPage = (): JSX.Element => {
       <IonContent className="chat-page-content">
         <ChatContainer
           messages={messages}
-          aiIconSrc={aiIcon}
+          robotIcon={faRobot}
           testid="chat-page-container"
           className="chat-page-container"
         />

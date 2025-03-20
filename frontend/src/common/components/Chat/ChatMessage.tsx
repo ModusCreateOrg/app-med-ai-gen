@@ -1,6 +1,8 @@
 import { IonIcon } from '@ionic/react';
 import { personCircleOutline } from 'ionicons/icons';
 import React from 'react';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { IconDefinition } from '@fortawesome/fontawesome-svg-core';
 import './ChatMessage.scss';
 
 export interface ChatMessageData {
@@ -12,7 +14,8 @@ export interface ChatMessageData {
 
 interface ChatMessageProps {
   message: ChatMessageData;
-  aiIconSrc: string;
+  aiIconSrc?: string;
+  robotIcon?: IconDefinition;
   testid?: string;
 }
 
@@ -23,6 +26,7 @@ interface ChatMessageProps {
 const ChatMessage: React.FC<ChatMessageProps> = ({ 
   message, 
   aiIconSrc,
+  robotIcon,
   testid = 'chat-message' 
 }) => {
   const isUser = message.sender === 'user';
@@ -42,7 +46,13 @@ const ChatMessage: React.FC<ChatMessageProps> = ({
       
       {!isUser && (
         <div className="message-avatar assistant-avatar" data-testid={`${messageTestId}-avatar`}>
-          <img src={aiIconSrc} alt="AI" aria-hidden="true" />
+          {robotIcon ? (
+            <FontAwesomeIcon icon={robotIcon} aria-hidden="true" />
+          ) : aiIconSrc ? (
+            <img src={aiIconSrc} alt="AI" aria-hidden="true" />
+          ) : (
+            <IonIcon icon={personCircleOutline} aria-hidden="true" />
+          )}
         </div>
       )}
       

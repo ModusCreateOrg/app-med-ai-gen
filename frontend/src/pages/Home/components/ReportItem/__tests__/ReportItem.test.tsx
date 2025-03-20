@@ -1,5 +1,5 @@
-import { describe, expect, it, vi } from 'vitest';
-import { render as defaultRender, screen, fireEvent } from '@testing-library/react';
+import { describe, expect, it, vi, afterEach } from 'vitest';
+import { render as defaultRender, screen, fireEvent, cleanup } from '@testing-library/react';
 import ReportItem from '../ReportItem';
 import { MedicalReport, ReportStatus, ReportCategory } from 'common/models/medicalReport';
 import WithMinimalProviders from 'test/wrappers/WithMinimalProviders';
@@ -42,6 +42,11 @@ vi.mock('common/components/Icon/Icon', () => ({
 vi.mock('date-fns', () => ({
   format: () => '01/27/2025'
 }));
+
+// Cleanup after each test to prevent memory leaks and timing issues
+afterEach(() => {
+  cleanup();
+});
 
 describe('ReportItem', () => {
   // Mock medical report for testing
@@ -109,16 +114,17 @@ describe('ReportItem', () => {
       { category: ReportCategory.HEART, icon: 'circleInfo' }
     ];
 
-    categories.forEach(({ category, icon }) => {
+    for (const { category, icon } of categories) {
       const report = { ...mockReport, category };
       
-      // ARRANGE & CLEANUP
-      const { unmount } = render(<ReportItem report={report} />);
+      // ARRANGE
+      render(<ReportItem report={report} />);
       
       // ASSERT
       expect(screen.getByTestId(`mocked-icon-${icon}`)).toBeInTheDocument();
       
-      unmount();
-    });
+      // Clean up after each iteration
+      cleanup();
+    }
   });
 }); 

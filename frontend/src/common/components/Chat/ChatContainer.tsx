@@ -1,11 +1,13 @@
 import React, { useEffect, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
+import { IconDefinition } from '@fortawesome/fontawesome-svg-core';
 import ChatMessage, { ChatMessageData } from './ChatMessage';
 import './ChatContainer.scss';
 
 interface ChatContainerProps {
   messages: ChatMessageData[];
-  aiIconSrc: string;
+  aiIconSrc?: string;
+  robotIcon?: IconDefinition;
   testid?: string;
   className?: string;
 }
@@ -17,6 +19,7 @@ interface ChatContainerProps {
 const ChatContainer: React.FC<ChatContainerProps> = ({
   messages,
   aiIconSrc,
+  robotIcon,
   testid = 'chat-container',
   className = '',
 }) => {
@@ -48,6 +51,7 @@ const ChatContainer: React.FC<ChatContainerProps> = ({
             key={message.id}
             message={message}
             aiIconSrc={aiIconSrc}
+            robotIcon={robotIcon}
             testid={`${testid}-message`}
           />
         ))

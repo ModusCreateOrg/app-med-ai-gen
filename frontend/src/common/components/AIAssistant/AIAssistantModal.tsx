@@ -8,9 +8,10 @@ import {
   IonToolbar,
   IonFooter,
 } from '@ionic/react';
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { closeOutline, expandOutline, contractOutline } from 'ionicons/icons';
-import aiIcon from '../../../assets/img/ai-icon.svg';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faRobot } from '@fortawesome/free-solid-svg-icons';
 import ChatContainer from '../Chat/ChatContainer';
 import ChatInput from '../Chat/ChatInput';
 import { chatService } from '../../services/ChatService';
@@ -31,10 +32,16 @@ const AIAssistantModal: React.FC<AIAssistantModalProps> = ({
   const [isExpanded, setIsExpanded] = useState<boolean>(false);
   const [messages, setMessages] = useState<ChatMessageData[]>([]);
   const modalRef = useRef<HTMLIonModalElement>(null);
+  
+  // Reset expanded state whenever modal opens
+  useEffect(() => {
+    if (isOpen) {
+      setIsExpanded(false);
+    }
+  }, [isOpen]);
 
   const handleClose = () => {
     setIsOpen(false);
-    setIsExpanded(false);
   };
 
   const handleExpand = () => {
@@ -42,8 +49,8 @@ const AIAssistantModal: React.FC<AIAssistantModalProps> = ({
   };
 
   const handleSendMessage = async (text: string) => {
-    // If this is the first message, expand the modal automatically
-    if (messages.length === 0 && !isExpanded) {
+    // Always expand the modal on any message
+    if (!isExpanded) {
       setIsExpanded(true);
     }
     
@@ -73,7 +80,7 @@ const AIAssistantModal: React.FC<AIAssistantModalProps> = ({
       <IonHeader className="ai-assistant-header">
         <IonToolbar className="ai-assistant-toolbar">
           <div className="ai-assistant-title-container">
-            <img src={aiIcon} alt="AI Assistant Icon" className="ai-assistant-title-icon" />
+            <FontAwesomeIcon icon={faRobot} className="ai-assistant-title-icon" />
             <span className="ai-assistant-title-text">AI Assistant</span>
           </div>
           <IonButtons slot="end">
@@ -98,7 +105,7 @@ const AIAssistantModal: React.FC<AIAssistantModalProps> = ({
       <IonContent className="ai-assistant-content">
         <ChatContainer
           messages={messages}
-          aiIconSrc={aiIcon}
+          robotIcon={faRobot}
           testid={`${testid}-chat-container`}
         />
       </IonContent>
