@@ -1,6 +1,7 @@
 import { IonRouterOutlet, IonTabBar, IonTabButton, IonTabs } from '@ionic/react';
 import { Redirect, Route } from 'react-router';
 import { useState } from 'react';
+import { useHistory } from 'react-router-dom';
 
 import './TabNavigation.scss';
 import AppMenu from '../Menu/AppMenu';
@@ -33,17 +34,18 @@ import UploadPage from 'pages/Upload/UploadPage';
  */
 const TabNavigation = (): JSX.Element => {
   const [isUploadModalOpen, setIsUploadModalOpen] = useState(false);
+  const history = useHistory();
 
   const handleUploadClick = () => {
     setIsUploadModalOpen(true);
   };
 
-  const handleUploadComplete = async (file: File): Promise<void> => {
-    // This would be replaced with actual API call
-    console.log('File upload requested:', file.name);
+  const handleUploadComplete = () => {
+    // Close the modal
+    setIsUploadModalOpen(false);
     
-    // Simulate upload delay
-    await new Promise(resolve => setTimeout(resolve, 2000));
+    // Navigate to home page to see the newly uploaded report
+    history.push('/tabs/home');
   };
 
   return (
@@ -144,7 +146,7 @@ const TabNavigation = (): JSX.Element => {
       <UploadModal 
         isOpen={isUploadModalOpen}
         onClose={() => setIsUploadModalOpen(false)}
-        onUpload={handleUploadComplete}
+        onUploadComplete={handleUploadComplete}
       />
     </>
   );

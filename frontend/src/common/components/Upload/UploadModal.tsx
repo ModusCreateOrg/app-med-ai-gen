@@ -13,15 +13,17 @@ import {
 import { closeOutline, cloudUploadOutline, checkmarkCircleOutline, alertCircleOutline } from 'ionicons/icons';
 import { useTranslation } from 'react-i18next';
 import { UploadStatus, useFileUpload } from '../../hooks/useFileUpload';
+import { MedicalReport } from '../../models/medicalReport';
 import './UploadModal.scss';
 
 export interface UploadModalProps {
   isOpen: boolean;
   onClose: () => void;
-  onUpload: (file: File) => Promise<void>;
+  onUpload?: (file: File) => Promise<void>;
+  onUploadComplete?: (result: MedicalReport) => void;
 }
 
-const UploadModal = ({ isOpen, onClose, onUpload }: UploadModalProps): JSX.Element => {
+const UploadModal = ({ isOpen, onClose, onUploadComplete }: UploadModalProps): JSX.Element => {
   const { t } = useTranslation();
   const fileInputRef = useRef<HTMLInputElement>(null);
   
@@ -34,7 +36,9 @@ const UploadModal = ({ isOpen, onClose, onUpload }: UploadModalProps): JSX.Eleme
     uploadFile,
     reset,
     formatFileSize
-  } = useFileUpload({ onUpload });
+  } = useFileUpload({ 
+    onUploadComplete
+  });
 
   const handleFileChange = (event: ChangeEvent<HTMLInputElement>) => {
     const files = event.target.files;

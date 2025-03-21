@@ -6,6 +6,8 @@ import {
   requestFilePermissions,
   formatFileSize
 } from '../utils/fileUtils';
+import { uploadReport, UploadProgressCallback } from '../api/reportService';
+import { MedicalReport } from '../models/medicalReport';
 
 export enum UploadStatus {
   IDLE = 'idle',
@@ -17,7 +19,7 @@ export enum UploadStatus {
 }
 
 interface UseFileUploadOptions {
-  onUpload?: (file: File) => Promise<void>;
+  onUploadComplete?: (result: MedicalReport) => void;
 }
 
 interface UseFileUploadResult {
@@ -34,7 +36,7 @@ interface UseFileUploadResult {
 /**
  * Custom hook for handling file uploads with validation and permissions
  */
-export const useFileUpload = ({ onUpload }: UseFileUploadOptions = {}): UseFileUploadResult => {
+export const useFileUpload = ({ onUploadComplete }: UseFileUploadOptions = {}): UseFileUploadResult => {
   const { t } = useTranslation();
   const [file, setFile] = useState<File | null>(null);
   const [status, setStatus] = useState<UploadStatus>(UploadStatus.IDLE);
@@ -99,29 +101,22 @@ export const useFileUpload = ({ onUpload }: UseFileUploadOptions = {}): UseFileU
       setStatus(UploadStatus.UPLOADING);
       setProgress(0);
       
-      // Mock progress updates if no custom upload handler
-      const progressInterval = onUpload ? null : setInterval(() => {
-        setProgress((prev) => {
-          const newProgress = prev + 0.1;
-          return newProgress >= 0.9 ? 0.9 : newProgress;
-        });
-      }, 200);
+      // Create a progress callback for the upload
+      const updateProgress: UploadProgressCallback = (progress) => {
+        setProgress(progress);
+      };
       
-      // Call the provided upload function or simulate upload
-      if (onUpload) {
-        await onUpload(file);
-      } else {
-        // Simulate upload delay for testing
-        await new Promise(resolve => setTimeout(resolve, 2000));
-      }
+      // Upload the file using the API service
+      const result = await uploadReport(file, updateProgress);
       
-      // Clear interval and set progress to 100%
-      if (progressInterval) {
-        clearInterval(progressInterval);
-      }
-      
+      // Set progress to 100% to indicate completion
       setProgress(1);
       setStatus(UploadStatus.SUCCESS);
+      
+      // Notify parent component if callback provided
+      if (onUploadComplete) {
+        onUploadComplete(result);
+      }
     } catch (error) {
       setStatus(UploadStatus.ERROR);
       setError(
@@ -130,7 +125,7 @@ export const useFileUpload = ({ onUpload }: UseFileUploadOptions = {}): UseFileU
           : t('upload.error.unknown')
       );
     }
-  }, [file, onUpload, t]);
+  }, [file, onUploadComplete, t]);
 
   return {
     file,

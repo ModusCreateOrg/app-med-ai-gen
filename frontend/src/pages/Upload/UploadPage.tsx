@@ -1,6 +1,7 @@
 import { IonContent, IonHeader, IonPage, IonTitle, IonToolbar, IonButton } from '@ionic/react';
 import { useTranslation } from 'react-i18next';
 import { useState } from 'react';
+import { useHistory } from 'react-router-dom';
 import UploadModal from 'common/components/Upload/UploadModal';
 
 /**
@@ -10,13 +11,14 @@ import UploadModal from 'common/components/Upload/UploadModal';
 const UploadPage = (): JSX.Element => {
   const { t } = useTranslation();
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const history = useHistory();
 
-  const handleUpload = async (file: File): Promise<void> => {
-    // This would be replaced with actual API call
-    console.log('File upload requested from page:', file.name);
+  const handleUploadComplete = () => {
+    // Close the modal
+    setIsModalOpen(false);
     
-    // Simulate upload delay
-    await new Promise(resolve => setTimeout(resolve, 2000));
+    // Navigate to home page to see the newly uploaded report
+    history.push('/tabs/home');
   };
 
   return (
@@ -43,7 +45,7 @@ const UploadPage = (): JSX.Element => {
         <UploadModal
           isOpen={isModalOpen}
           onClose={() => setIsModalOpen(false)}
-          onUpload={handleUpload}
+          onUploadComplete={handleUploadComplete}
         />
       </IonContent>
     </IonPage>
