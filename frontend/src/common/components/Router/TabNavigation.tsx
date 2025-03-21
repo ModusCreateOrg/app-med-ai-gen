@@ -1,9 +1,11 @@
 import { IonRouterOutlet, IonTabBar, IonTabButton, IonTabs } from '@ionic/react';
 import { Redirect, Route } from 'react-router';
+import { useState } from 'react';
 
 import './TabNavigation.scss';
 import AppMenu from '../Menu/AppMenu';
 import Icon from '../Icon/Icon';
+import UploadModal from '../Upload/UploadModal';
 import HomePage from 'pages/Home/HomePage';
 import UserDetailPage from 'pages/Users/components/UserDetail/UserDetailPage';
 import UserListPage from 'pages/Users/components/UserList/UserListPage';
@@ -12,6 +14,7 @@ import AccountPage from 'pages/Account/AccountPage';
 import ProfilePage from 'pages/Account/components/Profile/ProfilePage';
 import DiagnosticsPage from 'pages/Account/components/Diagnostics/DiagnosticsPage';
 import ChatPage from 'pages/Chat/ChatPage';
+import UploadPage from 'pages/Upload/UploadPage';
 
 /**
  * The `TabNavigation` component provides a router outlet for all of the
@@ -29,6 +32,20 @@ import ChatPage from 'pages/Chat/ChatPage';
  * @see {@link AppMenu}
  */
 const TabNavigation = (): JSX.Element => {
+  const [isUploadModalOpen, setIsUploadModalOpen] = useState(false);
+
+  const handleUploadClick = () => {
+    setIsUploadModalOpen(true);
+  };
+
+  const handleUploadComplete = async (file: File): Promise<void> => {
+    // This would be replaced with actual API call
+    console.log('File upload requested:', file.name);
+    
+    // Simulate upload delay
+    await new Promise(resolve => setTimeout(resolve, 2000));
+  };
+
   return (
     <>
       <AppMenu />
@@ -60,6 +77,9 @@ const TabNavigation = (): JSX.Element => {
           <Route exact path="/tabs/chat">
             <ChatPage />
           </Route>
+          <Route exact path="/tabs/upload">
+            <UploadPage />
+          </Route>
           <Route exact path="/">
             <Redirect to="/tabs/home" />
           </Route>
@@ -83,7 +103,11 @@ const TabNavigation = (): JSX.Element => {
               fixedWidth
             />
           </IonTabButton>
-          <IonTabButton className="ls-tab-navigation__bar-button ls-tab-navigation__bar-button--upload" tab="upload" href="/tabs/upload">
+          <IonTabButton 
+            className="ls-tab-navigation__bar-button ls-tab-navigation__bar-button--upload" 
+            tab="upload" 
+            onClick={handleUploadClick}
+          >
             <div className="ls-tab-navigation__bar-button-upload-wrapper">
               <Icon
                 className="ls-tab-navigation__bar-button-icon"
@@ -116,6 +140,12 @@ const TabNavigation = (): JSX.Element => {
           </IonTabButton>
         </IonTabBar>
       </IonTabs>
+
+      <UploadModal 
+        isOpen={isUploadModalOpen}
+        onClose={() => setIsUploadModalOpen(false)}
+        onUpload={handleUploadComplete}
+      />
     </>
   );
 };
