@@ -21,7 +21,7 @@ export class ReportError extends Error {
  */
 export const fetchLatestReports = async (limit = 3): Promise<MedicalReport[]> => {
   try {
-    const response = await axios.get(`${API_URL}/reports/latest?limit=${limit}`);
+    const response = await axios.get(`${API_URL}/api/reports/latest?limit=${limit}`);
     console.log('response', response.data);
     console.log('API_URL', API_URL);
     return response.data;
@@ -39,7 +39,7 @@ export const fetchLatestReports = async (limit = 3): Promise<MedicalReport[]> =>
  */
 export const fetchAllReports = async (): Promise<MedicalReport[]> => {
   try {
-    const response = await axios.get(`${API_URL}/reports`);
+    const response = await axios.get(`${API_URL}/api/reports`);
     return response.data;
   } catch (error) {
     if (axios.isAxiosError(error)) {
@@ -56,7 +56,7 @@ export const fetchAllReports = async (): Promise<MedicalReport[]> => {
  */
 export const markReportAsRead = async (reportId: string): Promise<MedicalReport> => {
   try {
-    const response = await axios.patch(`${API_URL}/reports/${reportId}`, {
+    const response = await axios.patch(`${API_URL}/api/reports/${reportId}`, {
       status: ReportStatus.READ
     });
 
