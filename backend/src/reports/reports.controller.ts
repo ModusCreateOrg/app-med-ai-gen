@@ -1,13 +1,4 @@
-import {
-  Controller,
-  Get,
-  Patch,
-  Param,
-  Body,
-  Query,
-  UseGuards,
-  ValidationPipe,
-} from '@nestjs/common';
+import { Controller, Get, Patch, Param, Body, Query, ValidationPipe } from '@nestjs/common';
 import {
   ApiTags,
   ApiOperation,
@@ -16,7 +7,6 @@ import {
   ApiParam,
   ApiQuery,
 } from '@nestjs/swagger';
-import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { ReportsService } from './reports.service';
 import { Report } from './models/report.model';
 import { GetReportsQueryDto } from './dto/get-reports.dto';
@@ -24,7 +14,6 @@ import { UpdateReportStatusDto } from './dto/update-report-status.dto';
 
 @ApiTags('reports')
 @Controller('reports')
-@UseGuards(JwtAuthGuard)
 @ApiBearerAuth()
 export class ReportsController {
   constructor(private readonly reportsService: ReportsService) {}

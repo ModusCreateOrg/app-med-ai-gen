@@ -17,10 +17,28 @@ export class ReportsService {
   private readonly tableName: string;
 
   constructor(private configService: ConfigService) {
-    this.dynamoClient = new DynamoDBClient({
-      region: this.configService.get<string>('AWS_REGION', 'us-east-1'),
-    });
-    this.tableName = this.configService.get<string>('DYNAMODB_TABLE_NAME', 'reports');
+    const region = this.configService.get<string>('AWS_REGION', 'us-east-1');
+
+    try {
+      this.dynamoClient = new DynamoDBClient({
+        region: this.configService.get<string>('AWS_REGION', 'us-east-1'),
+      });
+    } catch (error: unknown) {
+      console.error('DynamoDB Client Config:', JSON.stringify(error, null, 2));
+      const accessKeyId = this.configService.get<string>('AWS_ACCESS_KEY_ID');
+      const secretAccessKey = this.configService.get<string>('AWS_SECRET_ACCESS_KEY');
+
+      const clientConfig: any = { region };
+
+      // Only add credentials if both values are present
+      if (accessKeyId && secretAccessKey) {
+        clientConfig.credentials = { accessKeyId, secretAccessKey };
+      }
+
+      this.dynamoClient = new DynamoDBClient(clientConfig);
+    }
+
+    this.tableName = this.configService.get<string>('DYNAMODB_REPORTS_TABLE', 'reports');
   }
 
   async findAll(): Promise<Report[]> {
@@ -28,12 +46,24 @@ export class ReportsService {
       TableName: this.tableName,
     });
 
-    const response = await this.dynamoClient.send(command);
-    return (response.Items || []).map(item => unmarshall(item) as Report);
+    try {
+      const response = await this.dynamoClient.send(command);
+      return (response.Items || []).map(item => unmarshall(item) as Report);
+    } catch (error: unknown) {
+      console.error('DynamoDB Error Details:', JSON.stringify(error, null, 2));
+      if (error instanceof Error && error.name === 'UnrecognizedClientException') {
+        throw new Error(
+          'Invalid AWS credentials. Please check your AWS_ACCESS_KEY_ID and AWS_SECRET_ACCESS_KEY.',
+        );
+      }
+      throw error;
+    }
   }
 
   async findLatest(queryDto: GetReportsQueryDto): Promise<Report[]> {
-    const limit = queryDto.limit || 10;
+    // Convert limit to a number to avoid serialization errors
+    const limit =
+      typeof queryDto.limit === 'string' ? parseInt(queryDto.limit, 10) : queryDto.limit || 10;
 
     const command = new ScanCommand({
       TableName: this.tableName,

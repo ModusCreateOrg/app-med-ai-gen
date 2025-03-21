@@ -10,10 +10,14 @@ export default () => ({
     secretsManager: {
       perplexityApiKeySecret: process.env.PERPLEXITY_API_KEY_SECRET_NAME || 'medical-reports-explainer/perplexity-api-key',
     },
+    aws: {
+      accessKeyId: process.env.AWS_ACCESS_KEY_ID,
+      secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
+    }
   },
   perplexity: {
     apiBaseUrl: 'https://api.perplexity.ai',
     model: process.env.PERPLEXITY_MODEL || 'sonar',
     maxTokens: parseInt(process.env.PERPLEXITY_MAX_TOKENS || '2048', 10),
   },
-}); 
+});
