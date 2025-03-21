@@ -21,22 +21,22 @@ export class ReportsService {
 
     try {
       this.dynamoClient = new DynamoDBClient({
-        region: this.configService.get<string>('AWS_REGION', 'us-east-1')
+        region: this.configService.get<string>('AWS_REGION', 'us-east-1'),
       });
     } catch (error: unknown) {
-        console.error('DynamoDB Client Config:', JSON.stringify(error, null, 2));
-        const accessKeyId = this.configService.get<string>('AWS_ACCESS_KEY_ID');
-        const secretAccessKey = this.configService.get<string>('AWS_SECRET_ACCESS_KEY');
+      console.error('DynamoDB Client Config:', JSON.stringify(error, null, 2));
+      const accessKeyId = this.configService.get<string>('AWS_ACCESS_KEY_ID');
+      const secretAccessKey = this.configService.get<string>('AWS_SECRET_ACCESS_KEY');
 
-        const clientConfig: any = { region };
+      const clientConfig: any = { region };
 
-        // Only add credentials if both values are present
-        if (accessKeyId && secretAccessKey) {
-          clientConfig.credentials = { accessKeyId, secretAccessKey };
-        }
-
-        this.dynamoClient = new DynamoDBClient(clientConfig);
+      // Only add credentials if both values are present
+      if (accessKeyId && secretAccessKey) {
+        clientConfig.credentials = { accessKeyId, secretAccessKey };
       }
+
+      this.dynamoClient = new DynamoDBClient(clientConfig);
+    }
 
     this.tableName = this.configService.get<string>('DYNAMODB_REPORTS_TABLE', 'reports');
   }
@@ -52,7 +52,9 @@ export class ReportsService {
     } catch (error: unknown) {
       console.error('DynamoDB Error Details:', JSON.stringify(error, null, 2));
       if (error instanceof Error && error.name === 'UnrecognizedClientException') {
-        throw new Error('Invalid AWS credentials. Please check your AWS_ACCESS_KEY_ID and AWS_SECRET_ACCESS_KEY.');
+        throw new Error(
+          'Invalid AWS credentials. Please check your AWS_ACCESS_KEY_ID and AWS_SECRET_ACCESS_KEY.',
+        );
       }
       throw error;
     }
