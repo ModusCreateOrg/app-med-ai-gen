@@ -1,8 +1,8 @@
 import axios from 'axios';
-import { MedicalReport, ReportStatus, ReportCategory } from '../models/medicalReport';
+import { MedicalReport, ReportStatus } from '../models/medicalReport';
 
-// Base API URL - should be configured from environment variables in a real app
-// Removed unused API_URL variable
+// Get the API URL from environment variables
+const API_URL = import.meta.env.VITE_BASE_URL_API || '';
 
 /**
  * Error thrown when report operations fail.
@@ -21,12 +21,10 @@ export class ReportError extends Error {
  */
 export const fetchLatestReports = async (limit = 3): Promise<MedicalReport[]> => {
   try {
-    // In a real app, this would be an actual API call
-    // const response = await axios.get(`/api/reports/latest?limit=${limit}`);
-    // return response.data;
-    
-    // For now, return mock data
-    return mockReports.slice(0, limit);
+    const response = await axios.get(`${API_URL}/reports/latest?limit=${limit}`);
+    console.log('response', response.data);
+    console.log('API_URL', API_URL);
+    return response.data;
   } catch (error) {
     if (axios.isAxiosError(error)) {
       throw new ReportError(`Failed to fetch latest reports: ${error.message}`);
@@ -41,12 +39,8 @@ export const fetchLatestReports = async (limit = 3): Promise<MedicalReport[]> =>
  */
 export const fetchAllReports = async (): Promise<MedicalReport[]> => {
   try {
-    // In a real app, this would be an actual API call
-    // const response = await axios.get(`/api/reports`);
-    // return response.data;
-    
-    // For now, return mock data
-    return mockReports;
+    const response = await axios.get(`${API_URL}/reports`);
+    return response.data;
   } catch (error) {
     if (axios.isAxiosError(error)) {
       throw new ReportError(`Failed to fetch all reports: ${error.message}`);
@@ -62,18 +56,16 @@ export const fetchAllReports = async (): Promise<MedicalReport[]> => {
  */
 export const markReportAsRead = async (reportId: string): Promise<MedicalReport> => {
   try {
-    // In a real app, this would be an actual API call
-    // const response = await axios.patch(`/api/reports/${reportId}`, {
-    //   status: ReportStatus.READ
-    // });
-    // return response.data;
-    
-    // For now, update mock data
-    const report = mockReports.find(r => r.id === reportId);
+    const response = await axios.patch(`${API_URL}/reports/${reportId}`, {
+      status: ReportStatus.READ
+    });
+
+    const report = response.data;
+
     if (!report) {
       throw new Error(`Report with ID ${reportId} not found`);
     }
-    
+
     report.status = ReportStatus.READ;
     return { ...report };
   } catch (error) {
@@ -83,34 +75,3 @@ export const markReportAsRead = async (reportId: string): Promise<MedicalReport>
     throw new ReportError('Failed to mark report as read');
   }
 };
-
-// Mock data for development
-const mockReports: MedicalReport[] = [
-  {
-    id: '1',
-    title: 'Blood Test',
-    category: ReportCategory.GENERAL,
-    date: '2025-01-27',
-    status: ReportStatus.UNREAD,
-    doctor: 'Dr. Smith',
-    facility: 'City Hospital'
-  },
-  {
-    id: '2',
-    title: 'Cranial Nerve Exam',
-    category: ReportCategory.NEUROLOGICAL,
-    date: '2025-01-19',
-    status: ReportStatus.UNREAD,
-    doctor: 'Dr. Johnson',
-    facility: 'Neurology Center'
-  },
-  {
-    id: '3',
-    title: 'Stress Test',
-    category: ReportCategory.HEART,
-    date: '2024-12-26',
-    status: ReportStatus.READ,
-    doctor: 'Dr. Williams',
-    facility: 'Heart Institute'
-  }
-]; 

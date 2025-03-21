@@ -61,7 +61,9 @@ export class ReportsService {
   }
 
   async findLatest(queryDto: GetReportsQueryDto): Promise<Report[]> {
-    const limit = queryDto.limit || 10;
+    // Convert limit to a number to avoid serialization errors
+    const limit =
+      typeof queryDto.limit === 'string' ? parseInt(queryDto.limit, 10) : queryDto.limit || 10;
 
     const command = new ScanCommand({
       TableName: this.tableName,
