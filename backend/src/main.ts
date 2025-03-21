@@ -10,6 +10,18 @@ async function bootstrap() {
   const configService = app.get(ConfigService);
   const port = configService.get<number>('port') ?? 3000;
 
+  // Enable CORS
+  app.enableCors({
+    origin: [
+      'http://localhost:5173', // Vite default dev server
+      'http://localhost:3000',
+      'http://localhost:4173', // Vite preview
+      ...(process.env.FRONTEND_URL ? [process.env.FRONTEND_URL] : []),
+    ],
+    methods: 'GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS',
+    credentials: true,
+  });
+
   // Add global prefix 'api' to all routes
   app.setGlobalPrefix('api');
 
