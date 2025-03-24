@@ -2,7 +2,6 @@ import { Test } from '@nestjs/testing';
 import { AppModule } from './app.module';
 import { ConfigModule } from '@nestjs/config';
 import { JwtModule } from '@nestjs/jwt';
-import { JwtStrategy } from './auth/jwt.strategy';
 import { ReportsService } from './reports/reports.service';
 import { vi, describe, it, expect } from 'vitest';
 
@@ -20,10 +19,6 @@ describe('AppModule', () => {
         AppModule,
       ],
     })
-      .overrideProvider(JwtStrategy)
-      .useValue({
-        validate: vi.fn().mockImplementation(payload => payload),
-      })
       .overrideProvider(ReportsService)
       .useValue({
         findAll: vi.fn().mockResolvedValue([]),
