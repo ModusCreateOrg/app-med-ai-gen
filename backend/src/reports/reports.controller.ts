@@ -60,9 +60,7 @@ export class ReportsController {
     description: 'Report ID',
   })
   @Get(':id')
-  async getReport(
-    @Param('id') id: string,
-  ): Promise<Report> {
+  async getReport(@Param('id') id: string): Promise<Report> {
     return this.reportsService.findOne(id);
   }
 
