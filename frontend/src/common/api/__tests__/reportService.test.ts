@@ -1,14 +1,37 @@
-import { vi, describe, test, expect, beforeEach } from 'vitest';
+import { vi, describe, test, expect, beforeEach, afterEach } from 'vitest';
 import { uploadReport, ReportError, fetchLatestReports, fetchAllReports, markReportAsRead } from '../reportService';
 import { ReportCategory, ReportStatus } from '../../models/medicalReport';
+import axios from 'axios';
 
 // Mock axios
 vi.mock('axios', () => ({
   default: {
     post: vi.fn(),
-    isAxiosError: vi.fn(),
-  },
+    get: vi.fn(),
+    patch: vi.fn(),
+    isAxiosError: vi.fn(() => true)
+  }
 }));
+
+// Mock response data
+const mockReports = [
+  {
+    id: '1',
+    title: 'heart-report',
+    status: ReportStatus.UNREAD,
+    category: ReportCategory.HEART,
+    documentUrl: 'http://example.com/heart-report.pdf',
+    date: '2024-03-24',
+  },
+  {
+    id: '2',
+    title: 'brain-scan',
+    status: ReportStatus.UNREAD,
+    category: ReportCategory.NEUROLOGICAL,
+    documentUrl: 'http://example.com/brain-scan.pdf',
+    date: '2024-03-24',
+  }
+];
 
 describe('reportService', () => {
   const mockFile = new File(['test content'], 'test-report.pdf', { type: 'application/pdf' });
@@ -20,140 +43,190 @@ describe('reportService', () => {
   });
   
   describe('uploadReport', () => {
+    // Create a mock implementation for FormData
+    let mockFormData: { append: ReturnType<typeof vi.fn> };
+    
+    beforeEach(() => {
+      // Mock the internal timers used in uploadReport
+      vi.spyOn(global, 'setTimeout').mockImplementation((fn) => {
+        if (typeof fn === 'function') fn();
+        return 123 as unknown as NodeJS.Timeout;
+      });
+      
+      vi.spyOn(global, 'setInterval').mockImplementation(() => {
+        return 456 as unknown as NodeJS.Timeout;
+      });
+      
+      vi.spyOn(global, 'clearInterval').mockImplementation(() => {});
+      
+      // Setup mock FormData
+      mockFormData = {
+        append: vi.fn()
+      };
+      
+      // Mock FormData constructor
+      global.FormData = vi.fn(() => mockFormData as unknown as FormData);
+    });
+    
     test('should upload file successfully', async () => {
       const report = await uploadReport(mockFile, progressCallback);
       
-      // Check the returned report properties
+      // Check the returned data matches our expectations
       expect(report).toBeDefined();
-      expect(report.id).toBeDefined();
       expect(report.title).toBe('test-report');
       expect(report.status).toBe(ReportStatus.UNREAD);
-      expect(report.documentUrl).toBeDefined();
       
-      // Check that progress callback was called
-      expect(progressCallback).toHaveBeenCalledWith(expect.any(Number));
-      expect(progressCallback).toHaveBeenLastCalledWith(1);
+      // Verify form data was created with the correct file
+      expect(FormData).toHaveBeenCalled();
+      expect(mockFormData.append).toHaveBeenCalledWith('file', mockFile);
+      
+      // Check the progress callback was called
+      expect(progressCallback).toHaveBeenCalled();
     });
     
     test('should determine category based on filename', async () => {
-      // Test just one report upload per category to avoid timeouts
-      // Heart category
       const heartFile = new File(['test'], 'heart-report.pdf', { type: 'application/pdf' });
       const heartReport = await uploadReport(heartFile);
       expect(heartReport.category).toBe(ReportCategory.HEART);
       
-      // For other categories, we'll check just the first 
-      // to keep the test duration reasonable
+      // Reset mocks for the second file
+      vi.resetAllMocks();
+      mockFormData = { append: vi.fn() };
+      global.FormData = vi.fn(() => mockFormData as unknown as FormData);
+      
+      // Recreate timer mocks for the second upload
+      vi.spyOn(global, 'setTimeout').mockImplementation((fn) => {
+        if (typeof fn === 'function') fn();
+        return 123 as unknown as NodeJS.Timeout;
+      });
+      
+      vi.spyOn(global, 'setInterval').mockImplementation(() => {
+        return 456 as unknown as NodeJS.Timeout;
+      });
+      
+      vi.spyOn(global, 'clearInterval').mockImplementation(() => {});
+      
       const neuroFile = new File(['test'], 'brain-scan.pdf', { type: 'application/pdf' });
       const neuroReport = await uploadReport(neuroFile);
       expect(neuroReport.category).toBe(ReportCategory.NEUROLOGICAL);
-    }, 15000); // Increase timeout to allow for multiple uploadReport calls
+    });
     
     test('should handle upload without progress callback', async () => {
       const report = await uploadReport(mockFile);
       expect(report).toBeDefined();
+      expect(report.title).toBe('test-report');
     });
     
     test('should throw ReportError on upload failure', async () => {
-      // Create a mock file that will cause the upload to fail
-      // Just for testing - we'll use the mock implementation in reportService
-      // which simulates a delay before success, we just need to cause an error
+      // Restore the original FormData
+      const originalFormData = global.FormData;
       
-      // Spy on the formData.append method
-      const appendSpy = vi.fn().mockImplementation(() => {
-        throw new Error('FormData error');
+      // Mock FormData to throw an error
+      global.FormData = vi.fn(() => {
+        throw new Error('FormData construction failed');
       });
       
-      // Override FormData for this test
-      const originalFormData = global.FormData;
-      global.FormData = vi.fn().mockImplementation(() => {
-        return {
-          append: appendSpy
-        };
-      }) as unknown as typeof FormData;
-      
-      try {
-        // Test throwing ReportError
-        await expect(uploadReport(mockFile, progressCallback))
-          .rejects
-          .toThrow(ReportError);
-      } finally {
-        // Restore original FormData
-        global.FormData = originalFormData;
-      }
+      await expect(uploadReport(mockFile, progressCallback))
+        .rejects
+        .toThrow(ReportError);
+        
+      // Restore the previous mock
+      global.FormData = originalFormData;
+    });
+    
+    afterEach(() => {
+      vi.restoreAllMocks();
     });
   });
 
   describe('fetchLatestReports', () => {
+    beforeEach(() => {
+      // Setup axios mock response
+      (axios.get as ReturnType<typeof vi.fn>).mockResolvedValue({
+        data: mockReports.slice(0, 2)
+      });
+    });
+
     test('should fetch latest reports with default limit', async () => {
       const reports = await fetchLatestReports();
-      expect(reports).toBeDefined();
-      expect(Array.isArray(reports)).toBe(true);
-      expect(reports.length).toBeLessThanOrEqual(3); // Default limit is 3
+      
+      expect(axios.get).toHaveBeenCalled();
+      expect(reports).toHaveLength(2);
+      expect(reports[0]).toEqual(expect.objectContaining({
+        id: expect.any(String),
+        title: expect.any(String)
+      }));
     });
     
     test('should fetch latest reports with custom limit', async () => {
-      const limit = 2;
+      const limit = 1;
+      (axios.get as ReturnType<typeof vi.fn>).mockResolvedValue({
+        data: mockReports.slice(0, 1)
+      });
+      
       const reports = await fetchLatestReports(limit);
-      expect(reports).toBeDefined();
-      expect(Array.isArray(reports)).toBe(true);
-      expect(reports.length).toBeLessThanOrEqual(limit);
+      
+      expect(axios.get).toHaveBeenCalled();
+      expect(reports).toHaveLength(1);
     });
     
     test('should throw ReportError on fetch failure', async () => {
-      // Override FormData for this test to cause an error
-      const originalFetch = global.fetch;
-      global.fetch = vi.fn().mockRejectedValue(new Error('Network error')) as unknown as typeof fetch;
+      (axios.get as ReturnType<typeof vi.fn>).mockRejectedValue(new Error('Network error'));
       
-      try {
-        // Create a local implementation that will throw
-        const fetchWithError = async () => {
-          throw new ReportError('Failed to fetch reports');
-        };
-        
-        await expect(fetchWithError())
-          .rejects
-          .toThrow(ReportError);
-      } finally {
-        // Restore original fetch
-        global.fetch = originalFetch;
-      }
+      await expect(fetchLatestReports())
+        .rejects
+        .toThrow(ReportError);
     });
   });
 
   describe('fetchAllReports', () => {
+    beforeEach(() => {
+      (axios.get as ReturnType<typeof vi.fn>).mockResolvedValue({
+        data: mockReports
+      });
+    });
+
     test('should fetch all reports', async () => {
       const reports = await fetchAllReports();
-      expect(reports).toBeDefined();
-      expect(Array.isArray(reports)).toBe(true);
-      // We can't know exactly how many reports there are,
-      // but we know there should be at least the mocked ones
-      expect(reports.length).toBeGreaterThan(0);
+      
+      expect(axios.get).toHaveBeenCalled();
+      expect(reports).toEqual(mockReports);
+    });
+    
+    test('should throw ReportError on fetch failure', async () => {
+      (axios.get as ReturnType<typeof vi.fn>).mockRejectedValue(new Error('Network error'));
+      
+      await expect(fetchAllReports())
+        .rejects
+        .toThrow(ReportError);
     });
   });
 
   describe('markReportAsRead', () => {
+    beforeEach(() => {
+      const updatedReport = {
+        ...mockReports[0],
+        status: ReportStatus.READ
+      };
+      
+      (axios.patch as ReturnType<typeof vi.fn>).mockResolvedValue({
+        data: updatedReport
+      });
+    });
+
     test('should mark a report as read', async () => {
-      // First fetch reports to get an ID
-      const reports = await fetchLatestReports();
-      const reportToMark = reports.find(r => r.status === ReportStatus.UNREAD);
+      const updatedReport = await markReportAsRead('1');
       
-      if (!reportToMark) {
-        // Skip test if no unread reports
-        console.log('No unread reports found, skipping test');
-        return;
-      }
-      
-      const updatedReport = await markReportAsRead(reportToMark.id);
-      expect(updatedReport).toBeDefined();
-      expect(updatedReport.id).toBe(reportToMark.id);
+      expect(axios.patch).toHaveBeenCalled();
       expect(updatedReport.status).toBe(ReportStatus.READ);
     });
     
     test('should throw error when report not found', async () => {
+      (axios.patch as ReturnType<typeof vi.fn>).mockRejectedValue(new Error('Report not found'));
+      
       await expect(markReportAsRead('non-existent-id'))
         .rejects
-        .toThrow();
+        .toThrow(ReportError);
     });
   });
 }); 

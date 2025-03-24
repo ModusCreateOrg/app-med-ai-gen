@@ -10,12 +10,16 @@ vi.mock('react-i18next', async () => {
     ...actual,
     useTranslation: () => ({
       t: (key: string) => {
+        // Handle namespace prefixes by extracting the actual key
+        const actualKey = key.includes(':') ? key.split(':')[1] : key;
+        
         const translations: Record<string, string> = {
           'reports.noReports.title': 'No Reports',
           'reports.noReports.message': 'Upload a report or try again later',
-          'reports.noReports.uploadButton': 'Upload Report'
+          'reports.noReports.uploadButton': 'Upload Report',
+          'label.tryAgain': 'Retry' // Add translation for the retry button
         };
-        return translations[key] || key;
+        return translations[actualKey] || key;
       },
       i18n: {
         changeLanguage: vi.fn(),
