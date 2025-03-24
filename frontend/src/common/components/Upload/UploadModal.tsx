@@ -2,9 +2,6 @@ import { useRef, ChangeEvent } from 'react';
 import {
   IonModal,
   IonContent,
-  IonHeader,
-  IonToolbar,
-  IonTitle,
   IonButton,
   IonIcon,
   IonSpinner,
@@ -74,8 +71,9 @@ const UploadModal = ({ isOpen, onClose, onUploadComplete }: UploadModalProps): J
         </div>
         <div className="upload-modal__file-limits">
           <p>{t('upload.maxFileSize')}</p>
-          <span>{t('upload.imageSizeLimit', { size: 5 })}</span>
-          <span>{t('upload.pdfSizeLimit', { size: 10 })}</span>
+          <p>
+            {t('upload.imageSizeLimit')} / {t('upload.pdfSizeLimit')}
+          </p>
         </div>
         <input
           type="file"
@@ -172,19 +170,17 @@ const UploadModal = ({ isOpen, onClose, onUploadComplete }: UploadModalProps): J
 
   return (
     <IonModal isOpen={isOpen} onDidDismiss={handleClose} className="upload-modal">
-      <IonHeader>
-        <IonToolbar>
-          <IonTitle>{t('upload.addNewFile')}</IonTitle>
+      <IonContent className="upload-modal__content">
+        <div className="upload-modal__header">
+          <h1>{t('upload.addNewFile')}</h1>
           <IonButton 
-            slot="end" 
             fill="clear"
+            className="upload-modal__close-button"
             onClick={handleClose}
           >
             <IonIcon icon={closeOutline} />
           </IonButton>
-        </IonToolbar>
-      </IonHeader>
-      <IonContent className="upload-modal__content">
+        </div>
         {file && status === UploadStatus.IDLE && (
           <div className="upload-modal__selected-file">
             <p className="upload-modal__filename">{file.name}</p>

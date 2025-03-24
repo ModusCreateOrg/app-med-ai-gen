@@ -2,17 +2,41 @@
   --height: 100%;
   --width: 100%;
   --border-radius: 0;
+  --background: var(--ion-color-primary);
   
   @media (min-width: 768px) {
     --width: 28.125rem; // 450px
     --height: 31.25rem; // 500px
-    --border-radius: 0.625rem; // 10px
+    --border-radius: 1.25rem; // 20px
   }
   
   &__content {
     display: flex;
     flex-direction: column;
-    padding: 1rem;
+    padding: 1.25rem;
+    --background: var(--ion-color-primary);
+    --color: white;
+  }
+  
+  &__header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1.5rem;
+    
+    h1 {
+      font-size: 1.25rem;
+      font-weight: 600;
+      margin: 0;
+      color: white;
+    }
+    
+    .upload-modal__close-button {
+      --color: white;
+      margin: 0;
+      --padding-start: 0.5rem;
+      --padding-end: 0.5rem;
+    }
   }
   
   &__initial {
@@ -31,35 +55,39 @@
     justify-content: center;
     width: 100%;
     padding: 2rem 1rem;
-    border: 0.125rem dashed var(--ion-color-medium);
-    border-radius: 0.5rem;
-    background-color: rgba(var(--ion-color-primary-rgb), 0.05);
+    border: 0.0625rem dashed rgba(255, 255, 255, 0.5);
+    border-radius: 0.75rem;
+    background-color: rgba(255, 255, 255, 0.1);
+    margin: 0.75rem 0;
     
     h2 {
       margin-top: 1rem;
       margin-bottom: 0.5rem;
-      font-size: 1.25rem;
-      font-weight: 600;
+      font-size: 1.125rem;
+      font-weight: 500;
+      color: white;
     }
     
     p {
       margin-top: 0;
       margin-bottom: 0.5rem;
-      color: var(--ion-color-medium);
+      color: rgba(255, 255, 255, 0.7);
+      font-size: 0.875rem;
     }
   }
   
   &__icon {
-    font-size: 3rem;
-    color: var(--ion-color-primary);
+    font-size: 2rem;
+    color: white;
   }
   
   &__file-types {
-    margin: 0.5rem 0;
+    margin: 0.25rem 0;
     
     span {
-      font-weight: 600;
-      color: var(--ion-color-primary);
+      font-weight: 500;
+      color: white;
+      font-size: 0.875rem;
     }
   }
   
@@ -68,13 +96,8 @@
     
     p {
       margin-bottom: 0.25rem;
-      font-size: 0.875rem;
-    }
-    
-    span {
-      display: block;
       font-size: 0.75rem;
-      color: var(--ion-color-medium);
+      color: rgba(255, 255, 255, 0.7);
     }
   }
   
@@ -83,13 +106,18 @@
   }
   
   &__upload-btn {
-    margin-top: 1rem;
+    margin-top: 1.5rem;
     width: 100%;
-    max-width: 15rem;
+    max-width: 12rem;
+    font-weight: 500;
+    --background: white;
+    --color: var(--ion-color-primary);
+    --border-radius: 0.5rem;
+    height: 2.5rem;
   }
   
   &__selected-file {
-    background-color: rgba(var(--ion-color-primary-rgb), 0.1);
+    background-color: rgba(255, 255, 255, 0.1);
     border-radius: 0.5rem;
     padding: 1rem;
     margin-bottom: 1rem;
@@ -99,10 +127,13 @@
     font-weight: 600;
     margin-bottom: 0.5rem;
     word-break: break-all;
+    color: white;
   }
   
   &__start-upload {
     margin-top: 0.5rem;
+    --background: white;
+    --color: var(--ion-color-primary);
   }
   
   &__uploading {
@@ -121,7 +152,7 @@
   }
   
   &__filesize {
-    color: var(--ion-color-medium);
+    color: rgba(255, 255, 255, 0.7);
     font-size: 0.875rem;
     margin-top: 0;
   }
@@ -133,6 +164,8 @@
       height: 0.5rem;
       border-radius: 0.25rem;
       overflow: hidden;
+      --background: rgba(255, 255, 255, 0.2);
+      --progress-background: white;
     }
   }
   
@@ -145,11 +178,12 @@
     ion-spinner {
       width: 1rem;
       height: 1rem;
+      --color: white;
     }
     
     span {
       font-size: 0.875rem;
-      color: var(--ion-color-medium);
+      color: rgba(255, 255, 255, 0.7);
     }
   }
   
@@ -166,17 +200,18 @@
       margin-bottom: 0.5rem;
       font-size: 1.25rem;
       font-weight: 600;
+      color: white;
     }
     
     p {
-      color: var(--ion-color-medium);
+      color: rgba(255, 255, 255, 0.7);
       margin-bottom: 2rem;
     }
   }
   
   &__success-icon {
     font-size: 4rem;
-    color: var(--ion-color-success);
+    color: white;
   }
   
   &__error-icon {
@@ -185,10 +220,10 @@
   }
   
   &__error-message {
-    background-color: rgba(var(--ion-color-danger-rgb), 0.1);
+    background-color: rgba(var(--ion-color-danger-rgb), 0.2);
     padding: 0.75rem;
     border-radius: 0.5rem;
-    color: var(--ion-color-danger) !important;
+    color: white !important;
     font-size: 0.875rem;
     width: 100%;
     max-width: 20rem;
@@ -199,6 +234,8 @@
     margin-top: 1rem;
     width: 100%;
     max-width: 15rem;
+    --background: white;
+    --color: var(--ion-color-primary);
   }
   
   &__buttons {
@@ -212,5 +249,7 @@
   
   &__cancel-btn {
     margin-top: 0.5rem;
+    --color: white;
+    --border-color: white;
   }
 } 

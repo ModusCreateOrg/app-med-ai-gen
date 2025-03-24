@@ -27,6 +27,30 @@
   "reports": {
     "uploadDate": "Upload Date"
   },
+  "upload": {
+    "addNewFile": "Add new file",
+    "dropFilesHere": "Upload your file here",
+    "supportedFileTypes": "Supported file types:",
+    "maxFileSize": "Max file Size:",
+    "imageSizeLimit": "Images 5MB",
+    "pdfSizeLimit": "PDF 10MB",
+    "selectFile": "Upload",
+    "upload": "Upload",
+    "uploading": "Uploading",
+    "uploadSuccessful": "Upload Successful",
+    "fileReadyForProcessing": "Your file is ready for processing",
+    "uploadFailed": "Upload Failed",
+    "error": {
+      "noFile": "No file selected",
+      "permissionDenied": "Permission denied",
+      "unknown": "An unknown error occurred"
+    }
+  },
+  "common": {
+    "done": "Done",
+    "tryAgain": "Try Again",
+    "cancel": "Cancel"
+  },
   "validation": {
     "email": "Must be an email address. ",
     "max": "Must be at most {{max}} characters. ",
