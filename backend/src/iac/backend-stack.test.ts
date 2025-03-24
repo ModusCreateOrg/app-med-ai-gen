@@ -10,22 +10,32 @@ describe('BackendStack', () => {
   let stagingTemplate: Template;
   let productionTemplate: Template;
 
-  beforeEach(() => {
+  beforeAll(() => {
     app = new cdk.App();
+
+    // Common props for all stacks
     stackProps = {
-      env: { account: '123456789012', region: 'us-east-1' },
+      env: {
+        account: '123456789012',
+        region: 'us-east-1',
+      },
     };
 
-    // Create both staging and production stacks for testing
+    // Create staging stack
     stagingStack = new BackendStack(app, 'StagingStack', {
       ...stackProps,
       environment: 'staging',
+      cognitoClientId: 'test-client-id',
+      cognitoUserPoolId: 'test-user-pool-id',
     });
     stagingTemplate = Template.fromStack(stagingStack);
 
+    // Create production stack
     productionStack = new BackendStack(app, 'ProductionStack', {
       ...stackProps,
       environment: 'production',
+      cognitoClientId: 'test-client-id',
+      cognitoUserPoolId: 'test-user-pool-id',
     });
     productionTemplate = Template.fromStack(productionStack);
   });
