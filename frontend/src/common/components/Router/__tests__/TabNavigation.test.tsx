@@ -62,6 +62,13 @@ vi.mock('@ionic/react', async () => {
           data-href={href}
           className={className}
           onClick={onClick}
+          onKeyDown={(e) => {
+            if (e.key === 'Enter' && onClick) {
+              onClick();
+            }
+          }}
+          role="button"
+          tabIndex={0}
         >
           {children}
         </div>
