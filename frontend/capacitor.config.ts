@@ -20,7 +20,6 @@ const config: CapacitorConfig = {
   },
   server: {
     allowNavigation: [
-			"http://*",
 			"https://*"
 		]
   }
