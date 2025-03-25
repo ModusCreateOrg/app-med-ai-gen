@@ -45,6 +45,25 @@ export class ReportsController {
     return this.reportsService.findLatest(queryDto);
   }
 
+  @ApiOperation({ summary: 'GET report' })
+  @ApiResponse({
+    status: 200,
+    description: 'Report status updated successfully',
+    type: Report,
+  })
+  @ApiResponse({
+    status: 404,
+    description: 'Report not found',
+  })
+  @ApiParam({
+    name: 'id',
+    description: 'Report ID',
+  })
+  @Get(':id')
+  async getReport(@Param('id') id: string): Promise<Report> {
+    return this.reportsService.findOne(id);
+  }
+
   @ApiOperation({ summary: 'Update report status' })
   @ApiResponse({
     status: 200,
