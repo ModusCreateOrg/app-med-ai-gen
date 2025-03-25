@@ -1,8 +1,8 @@
 import type { CapacitorConfig } from '@capacitor/cli';
 
 const config: CapacitorConfig = {
-  appId: 'net.leanstacks.ionic8',
-  appName: 'Ionic Playground 8',
+  appId: 'com.moduscreate.medreportai',
+  appName: 'MedReportAI',
   webDir: 'dist',
   plugins: {
     StatusBar: {
@@ -17,6 +17,12 @@ const config: CapacitorConfig = {
   android: {
     // Handle status bar color/transparency on Android
     backgroundColor: '#4765ff'
+  },
+  server: {
+    allowNavigation: [
+			"http://*",
+			"https://*"
+		]
   }
 };
 
