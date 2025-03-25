@@ -20,9 +20,9 @@ vi.mock('react-i18next', () => ({
 
 // Mock Ionic components
 vi.mock('@ionic/react', () => ({
-  IonModal: ({ isOpen, _onDidDismiss, children, className }: { 
+  IonModal: ({ isOpen, children, className }: { 
     isOpen: boolean;
-    _onDidDismiss: () => void;
+    onDidDismiss: () => void;
     children: React.ReactNode;
     className?: string;
   }) => (
@@ -68,6 +68,8 @@ vi.mock('ionicons/icons', () => ({
   cloudUploadOutline: 'upload-icon',
   checkmarkCircleOutline: 'success-icon',
   alertCircleOutline: 'error-icon',
+  documentOutline: 'document-icon',
+  checkmarkOutline: 'checkmark-icon',
 }));
 
 // Mock the useFileUpload hook
@@ -89,6 +91,7 @@ vi.mock('../../../hooks/useFileUpload', () => ({
     uploadFile: vi.fn(),
     reset: vi.fn(),
     formatFileSize: vi.fn((size) => `${size} bytes`),
+    cancelUpload: vi.fn(),
   })),
 }));
 
@@ -116,6 +119,7 @@ describe('UploadModal', () => {
       uploadFile: vi.fn(),
       reset: vi.fn(),
       formatFileSize: vi.fn((size) => `${size} bytes`),
+      cancelUpload: vi.fn(),
     });
     
     render(<UploadModal {...mockProps} />);
@@ -127,27 +131,30 @@ describe('UploadModal', () => {
     expect(screen.getByTestId('ion-icon-upload-icon')).toBeInTheDocument();
   });
   
-  test('renders file selection when file is selected', () => {
+  test('automatically starts upload when file is selected', () => {
     const mockFile = new File(['test content'], 'test.pdf', { type: 'application/pdf' });
-    const formatFileSizeMock = vi.fn(() => '10 KB');
+    const uploadFileMock = vi.fn();
+    const selectFileMock = vi.fn();
     
     (useFileUpload as unknown as ReturnType<typeof vi.fn>).mockReturnValue({
       file: mockFile,
       status: UploadStatus.IDLE,
       progress: 0,
       error: null,
-      selectFile: vi.fn(),
-      uploadFile: vi.fn(),
+      selectFile: selectFileMock,
+      uploadFile: uploadFileMock,
       reset: vi.fn(),
-      formatFileSize: formatFileSizeMock,
+      formatFileSize: vi.fn(() => '10 KB'),
+      cancelUpload: vi.fn(),
     });
     
-    render(<UploadModal {...mockProps} />);
+    const { container } = render(<UploadModal {...mockProps} />);
     
-    // Check that the file name is displayed
-    expect(screen.getByText('test.pdf')).toBeInTheDocument();
-    // And the upload button is visible
-    expect(screen.getByText('upload.upload')).toBeInTheDocument();
+    // Get file input and simulate file selection
+    container.querySelector('input[type="file"]');
+    
+    // Verify that the useEffect would trigger the upload
+    expect(uploadFileMock).toHaveBeenCalled();
   });
   
   test('renders uploading state', () => {
@@ -163,21 +170,24 @@ describe('UploadModal', () => {
       uploadFile: vi.fn(),
       reset: vi.fn(),
       formatFileSize: formatFileSizeMock,
+      cancelUpload: vi.fn(),
     });
     
     render(<UploadModal {...mockProps} />);
     
     // Check for uploading elements
-    expect(screen.getByText('test.pdf')).toBeInTheDocument();
-    expect(screen.getByText('upload.uploading')).toBeInTheDocument();
-    expect(screen.getByText('50%')).toBeInTheDocument();
+    expect(screen.getByTestId('ion-icon-document-icon')).toBeInTheDocument();
     expect(screen.getByTestId('ion-progress-bar')).toHaveAttribute('data-value', '0.5');
-    expect(screen.getByTestId('ion-spinner-dots')).toBeInTheDocument();
+    expect(screen.getByText('common.cancel')).toBeInTheDocument();
+    
+    // Checking if we can find the seconds left text
+    const fileInfo = screen.getByText(/seconds left/);
+    expect(fileInfo.textContent).toContain('10 KB');
+    expect(fileInfo.textContent).toContain('seconds left');
   });
   
   test('renders requesting permission state', () => {
     const mockFile = new File(['test content'], 'test.pdf', { type: 'application/pdf' });
-    const formatFileSizeMock = vi.fn(() => '10 KB');
     
     (useFileUpload as unknown as ReturnType<typeof vi.fn>).mockReturnValue({
       file: mockFile,
@@ -187,15 +197,16 @@ describe('UploadModal', () => {
       selectFile: vi.fn(),
       uploadFile: vi.fn(),
       reset: vi.fn(),
-      formatFileSize: formatFileSizeMock,
+      formatFileSize: vi.fn(() => '10 KB'),
+      cancelUpload: vi.fn(),
     });
     
     render(<UploadModal {...mockProps} />);
     
-    // Should render the same UI as uploading state
-    expect(screen.getByText('test.pdf')).toBeInTheDocument();
-    expect(screen.getByText('upload.uploading')).toBeInTheDocument();
+    // Should render similar elements as uploading state
+    expect(screen.getByTestId('ion-icon-document-icon')).toBeInTheDocument();
     expect(screen.getByTestId('ion-progress-bar')).toBeInTheDocument();
+    expect(screen.getByText('common.cancel')).toBeInTheDocument();
   });
   
   test('renders success state', () => {
@@ -208,15 +219,14 @@ describe('UploadModal', () => {
       uploadFile: vi.fn(),
       reset: vi.fn(),
       formatFileSize: vi.fn(),
+      cancelUpload: vi.fn(),
     });
     
     render(<UploadModal {...mockProps} />);
     
     // Check for success elements
+    expect(screen.getByTestId('ion-icon-checkmark-icon')).toBeInTheDocument();
     expect(screen.getByText('upload.uploadSuccessful')).toBeInTheDocument();
-    expect(screen.getByText('upload.fileReadyForProcessing')).toBeInTheDocument();
-    expect(screen.getByText('common.done')).toBeInTheDocument();
-    expect(screen.getByTestId('ion-icon-success-icon')).toBeInTheDocument();
   });
   
   test('renders error state', () => {
@@ -229,6 +239,7 @@ describe('UploadModal', () => {
       uploadFile: vi.fn(),
       reset: vi.fn(),
       formatFileSize: vi.fn(),
+      cancelUpload: vi.fn(),
     });
     
     render(<UploadModal {...mockProps} />);
@@ -259,6 +270,7 @@ describe('UploadModal', () => {
       uploadFile: vi.fn(),
       reset: vi.fn(),
       formatFileSize: vi.fn(),
+      cancelUpload: vi.fn(),
     });
     
     // Render component
@@ -275,34 +287,10 @@ describe('UploadModal', () => {
     HTMLElement.prototype.click = originalClick;
   });
   
-  test('calls uploadFile when start upload button is clicked', async () => {
-    const mockFile = new File(['test content'], 'test.pdf', { type: 'application/pdf' });
-    const uploadFileMock = vi.fn();
-    
-    (useFileUpload as unknown as ReturnType<typeof vi.fn>).mockReturnValue({
-      file: mockFile,
-      status: UploadStatus.IDLE,
-      progress: 0,
-      error: null,
-      selectFile: vi.fn(),
-      uploadFile: uploadFileMock,
-      reset: vi.fn(),
-      formatFileSize: vi.fn(),
-    });
-    
-    render(<UploadModal {...mockProps} />);
-    
-    // Click the upload button
-    const uploadButton = screen.getByText('upload.upload');
-    fireEvent.click(uploadButton);
-    
-    // Check that uploadFile was called
-    expect(uploadFileMock).toHaveBeenCalled();
-  });
-  
-  test('calls reset and onClose when done button is clicked in success state', () => {
+  test('calls reset and onClose when close button is clicked in success state', () => {
     const resetMock = vi.fn();
     const onCloseMock = vi.fn();
+    const onUploadCompleteMock = vi.fn();
     
     (useFileUpload as unknown as ReturnType<typeof vi.fn>).mockReturnValue({
       file: null,
@@ -313,17 +301,49 @@ describe('UploadModal', () => {
       uploadFile: vi.fn(),
       reset: resetMock,
       formatFileSize: vi.fn(),
+      cancelUpload: vi.fn(),
     });
     
-    render(<UploadModal isOpen={true} onClose={onCloseMock} onUploadComplete={vi.fn()} />);
+    render(
+      <UploadModal 
+        isOpen={true} 
+        onClose={onCloseMock} 
+        onUploadComplete={onUploadCompleteMock} 
+      />
+    );
     
-    // Find and click the done button
-    const doneButton = screen.getByText('common.done');
-    fireEvent.click(doneButton);
+    // Find and click the close button
+    const closeButton = screen.getByTestId('ion-button-default');
+    fireEvent.click(closeButton);
     
     // Check that reset and onClose were called
     expect(resetMock).toHaveBeenCalled();
     expect(onCloseMock).toHaveBeenCalled();
+  });
+  
+  test('calls cancel when Cancel button is clicked during upload', () => {
+    const cancelUploadMock = vi.fn();
+    
+    (useFileUpload as unknown as ReturnType<typeof vi.fn>).mockReturnValue({
+      file: { name: 'test.pdf', size: 1024 },
+      status: UploadStatus.UPLOADING,
+      progress: 0.5,
+      error: null,
+      selectFile: vi.fn(),
+      uploadFile: vi.fn(),
+      reset: vi.fn(),
+      formatFileSize: vi.fn(() => '1 KB'),
+      cancelUpload: cancelUploadMock,
+    });
+    
+    render(<UploadModal {...mockProps} />);
+    
+    // Find and click the cancel button
+    const cancelButton = screen.getByText('common.cancel');
+    fireEvent.click(cancelButton);
+    
+    // Check that cancelUpload was called
+    expect(cancelUploadMock).toHaveBeenCalled();
   });
   
   test('calls reset when "Try Again" button is clicked in error state', () => {
@@ -338,6 +358,7 @@ describe('UploadModal', () => {
       uploadFile: vi.fn(),
       reset: resetMock,
       formatFileSize: vi.fn(),
+      cancelUpload: vi.fn(),
     });
     
     render(<UploadModal {...mockProps} />);
@@ -361,6 +382,7 @@ describe('UploadModal', () => {
       uploadFile: vi.fn(),
       reset: vi.fn(),
       formatFileSize: vi.fn(),
+      cancelUpload: vi.fn(),
     });
 
     render(<UploadModal {...mockProps} isOpen={false} />);
