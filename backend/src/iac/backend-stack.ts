@@ -40,7 +40,7 @@ export class BackendStack extends cdk.Stack {
     });
 
     // CloudMap Namespace for service discovery
-    const namespace = cluster.addDefaultCloudMapNamespace({
+    cluster.addDefaultCloudMapNamespace({
       name: `${appName.toLowerCase()}.local`,
     });
 
@@ -138,18 +138,24 @@ export class BackendStack extends cdk.Stack {
     reportsTable.grantReadWriteData(taskDefinition.taskRole);
 
     // Create a secrets manager for the SSL certificate and key
-    const certificateSecret = new cdk.aws_secretsmanager.Secret(this, `${appName}CertSecret-${props.environment}`, {
-      secretName: `${appName}/ssl-cert-${props.environment}`,
-      description: 'SSL certificate and private key for HTTPS',
-      generateSecretString: {
-        secretStringTemplate: JSON.stringify({
-          // You'll need to populate these values after deployment
-          certificate: '-----BEGIN CERTIFICATE-----\nYour certificate here\n-----END CERTIFICATE-----',
-          privateKey: '-----BEGIN PRIVATE KEY-----\nYour private key here\n-----END PRIVATE KEY-----'
-        }),
-        generateStringKey: 'dummy' // This key won't be used but is required
+    const certificateSecret = new cdk.aws_secretsmanager.Secret(
+      this,
+      `${appName}CertSecret-${props.environment}`,
+      {
+        secretName: `${appName}/ssl-cert-${props.environment}`,
+        description: 'SSL certificate and private key for HTTPS',
+        generateSecretString: {
+          secretStringTemplate: JSON.stringify({
+            // You'll need to populate these values after deployment
+            certificate:
+              '-----BEGIN CERTIFICATE-----\nYour certificate here\n-----END CERTIFICATE-----',
+            privateKey:
+              '-----BEGIN PRIVATE KEY-----\nYour private key here\n-----END PRIVATE KEY-----',
+          }),
+          generateStringKey: 'dummy', // This key won't be used but is required
+        },
       },
-    });
+    );
 
     // Container
     const container = taskDefinition.addContainer(`${appName}Container-${props.environment}`, {
@@ -328,8 +334,12 @@ export class BackendStack extends cdk.Stack {
     const executionRole = new iam.Role(this, `${appName}APIGatewayVPCRole-${props.environment}`, {
       assumedBy: new iam.ServicePrincipal('apigateway.amazonaws.com'),
       managedPolicies: [
-        iam.ManagedPolicy.fromAwsManagedPolicyName('service-role/AmazonAPIGatewayPushToCloudWatchLogs'),
-        iam.ManagedPolicy.fromAwsManagedPolicyName('AmazonVPCCrossAccountNetworkInterfaceOperations'),
+        iam.ManagedPolicy.fromAwsManagedPolicyName(
+          'service-role/AmazonAPIGatewayPushToCloudWatchLogs',
+        ),
+        iam.ManagedPolicy.fromAwsManagedPolicyName(
+          'AmazonVPCCrossAccountNetworkInterfaceOperations',
+        ),
       ],
     });
 
