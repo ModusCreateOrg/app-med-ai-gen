@@ -1,6 +1,7 @@
 ---
 description: Follow this rules for every request
 globs: 
+alwaysApply: false
 ---
 
 - Project Proposal Overview: This project proposes an AI-powered medical report translator that simplifies complex medical documents for patients and caregivers. By leveraging AI-driven text extraction and natural language processing (NLP), the system translates medical jargon into plain language, helping users understand their health conditions, diagnoses, and test results without relying on unreliable online searches.
@@ -67,7 +68,10 @@ Technologies:
 [5 - Results analysis.png](mdc:docs/assets/images/5 - Results analysis.png)
 [6 - Results Archive.png](mdc:docs/assets/images/6 - Results Archive.png)
 [7 - Detail.png](mdc:docs/assets/images/7 - Detail.png)
-
+[Upload_default.png](mdc:docs/assets/images/Upload_default.png)
+[Upload_success.png](mdc:docs/assets/images/Upload_success.png)
+[Uploading.png](mdc:docs/assets/images/Uploading.png)
+[Uploading_complete.png](mdc:docs/assets/images/Uploading_complete.png)
  
 AWS architecture: [aws architecture.pdf](mdc:docs/assets/aws architecture.pdf)
 
@@ -121,10 +125,37 @@ AWS architecture: [aws architecture.pdf](mdc:docs/assets/aws architecture.pdf)
 ```
 ```
 
+# General Code Guidelines
+
+## Category Determination Pattern
+When determining categories based on keywords in filenames or text:
+
+1. Define a constant mapping object at module level that maps categories to their identifying keywords
+2. Use TypeScript's Record type to ensure type safety
+3. Convert input to lowercase once at the start
+4. Use Array methods like `find` and `some` for clean keyword matching
+5. Provide a default/fallback category
+6. Include JSDoc with clear parameter and return descriptions
+
+Example:
+```typescript
+const CATEGORY_KEYWORDS: Record<Category, string[]> = {
+  [Category.TYPE_A]: ['keyword1', 'keyword2'],
+  [Category.TYPE_B]: ['keyword3', 'keyword4'],
+  [Category.DEFAULT]: []
+};
+
+const determineCategory = (input: string): Category => {
+  const lowerInput = input.toLowerCase();
+  const matchedCategory = Object.entries(CATEGORY_KEYWORDS)
+    .find(([_, keywords]) => keywords.some(k => lowerInput.includes(k)));
+  return matchedCategory ? (matchedCategory[0] as Category) : Category.DEFAULT;
+};
+``` 
+
 # Typescript rules
 
 - Prefer using nullish coalescing operator (`??`) instead of a logical or (`||`), as it is a safer operator.
 
 This rule provides clear guidelines on what units to use, how to convert between units, and why it's important for your project. You can add this to your general rules to ensure consistency across the codebase.
 
-Prefer using nullish coalescing operator (`??`) instead of a logical or (`||`), as it is a safer operator.

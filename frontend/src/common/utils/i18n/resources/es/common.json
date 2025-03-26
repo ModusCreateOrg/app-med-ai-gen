@@ -15,7 +15,7 @@
     "dismiss": "Despedir",
     "edit": "Editar",
     "save": "Guardar",
-    "try-again": "Intentar otra vez"
+    "tryAgain": "Intentar otra vez"
   },
   "navigation": {
     "account": "Cuenta",
@@ -26,6 +26,30 @@
   },
   "reports": {
     "uploadDate": "Fecha de carga"
+  },
+  "upload": {
+    "addNewFile": "Agregar nuevo archivo",
+    "dropFilesHere": "Sube tu archivo aquí",
+    "supportedFileTypes": "Tipos de archivos compatibles:",
+    "maxFileSize": "Tamaño máximo de archivo:",
+    "imageSizeLimit": "Imágenes 5MB",
+    "pdfSizeLimit": "PDF 10MB",
+    "selectFile": "Subir",
+    "upload": "Subir",
+    "uploading": "Subiendo",
+    "uploadSuccessful": "Carga exitosa",
+    "fileReadyForProcessing": "Tu archivo está listo para ser procesado",
+    "uploadFailed": "Error de carga",
+    "error": {
+      "noFile": "Ningún archivo seleccionado",
+      "permissionDenied": "Permiso denegado",
+      "unknown": "Se produjo un error desconocido"
+    }
+  },
+  "common": {
+    "done": "Hecho",
+    "tryAgain": "Intentar otra vez",
+    "cancel": "Cancelar"
   },
   "validation": {
     "email": "Debe ser una dirección de correo electrónico. ",

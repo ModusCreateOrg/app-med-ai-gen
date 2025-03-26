@@ -12,7 +12,7 @@ interface NoReportsMessageProps {
  * Component to display when no reports are available.
  */
 const NoReportsMessage: React.FC<NoReportsMessageProps> = ({ onUpload, onRetry }) => {
-  const { t } = useTranslation();
+  const { t } = useTranslation('home');
 
   return (
     <div className="no-reports">
@@ -39,7 +39,7 @@ const NoReportsMessage: React.FC<NoReportsMessageProps> = ({ onUpload, onRetry }
             onClick={onRetry}
             className="no-reports__button no-reports__button--secondary"
           >
-            Retry
+            {t('common:label.tryAgain')}
           </IonButton>
         )}
       </div>
