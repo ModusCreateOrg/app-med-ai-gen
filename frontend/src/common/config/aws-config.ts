@@ -27,7 +27,7 @@ export const COGNITO_CONFIG = {
   // User Pool
   USER_POOL_ID: import.meta.env.VITE_COGNITO_USER_POOL_ID || 'us-east-1_xxxxxxxx', // Replace with your User Pool ID
   USER_POOL_WEB_CLIENT_ID: import.meta.env.VITE_COGNITO_APP_CLIENT_ID || 'xxxxxxxxxxxxxxxxxxxxxxxxxx', // Replace with your App Client ID
-  
+  IDENTITY_POOL_ID: import.meta.env.VITE_COGNITO_IDENTITY_POOL_ID,
   // OAuth Configuration (for Social Login)
   OAUTH_DOMAIN: import.meta.env.VITE_COGNITO_DOMAIN || 'your-domain.auth.us-east-1.amazoncognito.com', // Replace with your Cognito domain
   OAUTH_SCOPES: ['email', 'profile', 'openid'],
@@ -63,6 +63,7 @@ export const amplifyConfig = {
     Cognito: {
       userPoolId: COGNITO_CONFIG.USER_POOL_ID,
       userPoolClientId: COGNITO_CONFIG.USER_POOL_WEB_CLIENT_ID,
+      identityPoolId: COGNITO_CONFIG.IDENTITY_POOL_ID,
       loginWith: {
         email: true,
         phone: false,

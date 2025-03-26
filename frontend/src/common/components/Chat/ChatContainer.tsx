@@ -43,7 +43,7 @@ const ChatContainer: React.FC<ChatContainerProps> = ({
     >
       {messages.length === 0 ? (
         <div className="chat-empty-state" data-testid={`${testid}-empty`}>
-          <p>{t('common.aiAssistant.emptyState', 'How can I help you today?')}</p>
+          <p>{t('aiAssistant.emptyState', 'How can I help you today?')}</p>
         </div>
       ) : (
         messages.map((message) => (

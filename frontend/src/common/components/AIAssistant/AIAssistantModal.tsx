@@ -17,6 +17,7 @@ import { chatService } from '../../services/ChatService';
 import { ChatMessageData } from '../Chat/ChatMessage';
 import './AIAssistantModal.scss';
 import aiIcon from '../../../assets/img/ai-icon.svg';
+
 interface AIAssistantModalProps {
   isOpen: boolean;
   setIsOpen: (isOpen: boolean) => void;
@@ -39,12 +40,22 @@ const AIAssistantModal: React.FC<AIAssistantModalProps> = ({
     }
   }, [isOpen]);
 
-  const handleClose = () => {
+  const handleClose = async () => {
     setIsOpen(false);
+    
+    // Reset the chat session and clear messages when modal is closed
+    await chatService.resetSession();
+    setMessages([]);
   };
 
   const handleExpand = () => {
     setIsExpanded(!isExpanded);
+  };
+
+  // Also handle reset when modal is dismissed directly
+  const handleDismiss = async () => {
+    await chatService.resetSession();
+    setMessages([]);
   };
 
   const handleSendMessage = async (text: string) => {
@@ -70,7 +81,10 @@ const AIAssistantModal: React.FC<AIAssistantModalProps> = ({
   return (
     <IonModal 
       isOpen={isOpen}
-      onDidDismiss={() => setIsOpen(false)}
+      onDidDismiss={() => {
+        setIsOpen(false);
+        handleDismiss();
+      }}
       ref={modalRef}
       className={`ai-assistant-modal ${isExpanded ? 'expanded' : ''}`}
       data-testid={testid}

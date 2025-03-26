@@ -22,7 +22,8 @@
     "home": "Inicio",
     "menu": "Menú",
     "signout": "Desconecta",
-    "users": "Usuarios"
+    "users": "Usuarios",
+    "chat": "Asistente IA"
   },
   "reports": {
     "uploadDate": "Fecha de carga"
@@ -48,8 +49,12 @@
   },
   "common": {
     "done": "Hecho",
-    "tryAgain": "Intentar otra vez",
+    "tryAgain": "Intentar de nuevo",
     "cancel": "Cancelar"
+  },
+  "aiAssistant": {
+    "inputPlaceholder": "Escribe tu pregunta...",
+    "emptyState": "¿Cómo puedo ayudarte hoy?"
   },
   "validation": {
     "email": "Debe ser una dirección de correo electrónico. ",
@@ -63,5 +68,10 @@
   "no": "no",
   "updated": "actualizado",
   "welcome": "Bienvenido",
-  "yes": "sí"
+  "yes": "sí",
+  "pages": {
+    "chat": {
+      "title": "Asistente IA"
+    }
+  }
 }

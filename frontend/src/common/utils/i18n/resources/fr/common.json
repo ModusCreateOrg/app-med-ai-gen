@@ -22,7 +22,8 @@
     "home": "Maison",
     "menu": "Menu",
     "signout": "Déconnecter",
-    "users": "Utilisateurs"
+    "users": "Utilisateurs",
+    "chat": "Assistant IA"
   },
   "reports": {
     "uploadDate": "Date de téléchargement"
@@ -48,8 +49,12 @@
   },
   "common": {
     "done": "Terminé",
-    "tryAgain": "Essayer à nouveau",
+    "tryAgain": "Réessayer",
     "cancel": "Annuler"
+  },
+  "aiAssistant": {
+    "inputPlaceholder": "Tapez votre question...",
+    "emptyState": "Comment puis-je vous aider aujourd'hui ?"
   },
   "validation": {
     "email": "Doit être une adresse e-mail. ",
@@ -63,5 +68,10 @@
   "no": "non",
   "updated": "mis à jour",
   "welcome": "Bienvenu",
-  "yes": "oui"
+  "yes": "oui",
+  "pages": {
+    "chat": {
+      "title": "Assistant IA"
+    }
+  }
 }

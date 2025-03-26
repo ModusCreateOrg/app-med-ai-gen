@@ -22,7 +22,8 @@
     "home": "Home",
     "menu": "Menu",
     "signout": "Sign Out",
-    "users": "Users"
+    "users": "Users",
+    "chat": "AI Assistant"
   },
   "reports": {
     "uploadDate": "Upload Date"
@@ -51,6 +52,10 @@
     "tryAgain": "Try Again",
     "cancel": "Cancel"
   },
+  "aiAssistant": {
+    "inputPlaceholder": "Type your question...",
+    "emptyState": "How can I help you today?"
+  },
   "validation": {
     "email": "Must be an email address. ",
     "max": "Must be at most {{max}} characters. ",
@@ -63,5 +68,10 @@
   "no": "no",
   "updated": "updated",
   "welcome": "Welcome",
-  "yes": "yes"
+  "yes": "yes",
+  "pages": {
+    "chat": {
+      "title": "AI Assistant"
+    }
+  }
 }
