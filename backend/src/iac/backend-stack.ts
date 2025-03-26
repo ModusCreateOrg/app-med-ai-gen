@@ -2,8 +2,11 @@ import * as cdk from 'aws-cdk-lib';
 import * as ec2 from 'aws-cdk-lib/aws-ec2';
 import * as ecs from 'aws-cdk-lib/aws-ecs';
 import * as logs from 'aws-cdk-lib/aws-logs';
-import * as elbv2 from 'aws-cdk-lib/aws-elasticloadbalancingv2';
 import * as cognito from 'aws-cdk-lib/aws-cognito';
+import * as apigateway from 'aws-cdk-lib/aws-apigateway';
+import * as servicediscovery from 'aws-cdk-lib/aws-servicediscovery';
+import * as iam from 'aws-cdk-lib/aws-iam';
+
 import { Construct } from 'constructs';
 import { AttributeType, BillingMode, Table } from 'aws-cdk-lib/aws-dynamodb';
 import { RemovalPolicy } from 'aws-cdk-lib';
@@ -12,8 +15,6 @@ interface BackendStackProps extends cdk.StackProps {
   environment: string;
   cognitoClientId: string;
   cognitoUserPoolId: string;
-  domainName?: string; // Optional domain name for certificate
-  hostedZoneId?: string; // Optional hosted zone ID for domain
 }
 
 export class BackendStack extends cdk.Stack {
@@ -23,26 +24,34 @@ export class BackendStack extends cdk.Stack {
     const isProd = props.environment === 'production';
     const appName = 'AIMedicalReport';
 
-    // Look up existing VPC or create a new one
-    const vpc: ec2.IVpc = new ec2.Vpc(this, `${appName}VPC`, {
+    // VPC
+    const vpc = new ec2.Vpc(this, `${appName}VPC`, {
       vpcName: `${appName}VPC-${props.environment}`,
       maxAzs: 2,
+      natGateways: isProd ? 2 : 1,
     });
 
+    // ECS Cluster
     const cluster = new ecs.Cluster(this, `${appName}Cluster`, {
       vpc,
       clusterName: `${appName}Cluster-${props.environment}`,
       containerInsights: true,
+      enableFargateCapacityProviders: true,
     });
 
-    // Create Log Group for container
+    // CloudMap Namespace for service discovery
+    const namespace = cluster.addDefaultCloudMapNamespace({
+      name: `${appName.toLowerCase()}.local`,
+    });
+
+    // Log Group
     const logGroup = new logs.LogGroup(this, `${appName}LogGroup`, {
       logGroupName: `/ecs/${appName}-${props.environment}`,
       retention: isProd ? logs.RetentionDays.ONE_MONTH : logs.RetentionDays.ONE_WEEK,
       removalPolicy: isProd ? cdk.RemovalPolicy.RETAIN : cdk.RemovalPolicy.DESTROY,
     });
 
-    // Create DynamoDB table for reports
+    // DynamoDB table for reports
     const reportsTable = new Table(this, `${appName}ReportsTable-${props.environment}`, {
       tableName: `${appName}ReportsTable${props.environment}`,
       partitionKey: {
@@ -57,7 +66,7 @@ export class BackendStack extends cdk.Stack {
       removalPolicy: isProd ? RemovalPolicy.RETAIN : RemovalPolicy.DESTROY,
     });
 
-    // Add a GSI for querying by date (most recent first)
+    // Add GSI for querying by date
     reportsTable.addGlobalSecondaryIndex({
       indexName: 'userIdDateIndex',
       partitionKey: {
@@ -70,20 +79,50 @@ export class BackendStack extends cdk.Stack {
       },
     });
 
-    // Look up existing Cognito User Pool
-    const userPoolId =
-      props.cognitoUserPoolId ||
-      cognito.UserPool.fromUserPoolId(this, `${appName}UserPool`, 'us-east-1_PszlvSmWc').userPoolId;
+    // Cognito User Pool
+    const userPool = cognito.UserPool.fromUserPoolId(
+      this,
+      `${appName}UserPool`,
+      props.cognitoUserPoolId || 'us-east-1_PszlvSmWc',
+    );
 
-    // Create a Cognito domain if it doesn't exist
+    // Cognito domain
     const userPoolDomain = cognito.UserPoolDomain.fromDomainName(
       this,
       `${appName}ExistingDomain-${props.environment}`,
-      'us-east-1pszlvsmwc', // The domain prefix without the .auth.region.amazoncognito.com part
+      'us-east-1pszlvsmwc',
     );
 
-    // Replace the userPoolClient reference with a direct reference to the client ID
-    const userPoolClientId = props.cognitoClientId;
+    // User Pool Client
+    const userPoolClient = cognito.UserPoolClient.fromUserPoolClientId(
+      this,
+      `${appName}UserPoolClient-${props.environment}`,
+      props.cognitoClientId,
+    );
+
+    // Security Group for Fargate service
+    const serviceSecurityGroup = new ec2.SecurityGroup(
+      this,
+      `${appName}ServiceSG-${props.environment}`,
+      {
+        vpc,
+        allowAllOutbound: true,
+        description: 'Security group for Fargate service',
+      },
+    );
+
+    // Add inbound rules to allow traffic from API Gateway
+    serviceSecurityGroup.addIngressRule(
+      ec2.Peer.ipv4(vpc.vpcCidrBlock),
+      ec2.Port.tcp(3000),
+      'Allow inbound HTTP traffic from within VPC',
+    );
+
+    serviceSecurityGroup.addIngressRule(
+      ec2.Peer.ipv4(vpc.vpcCidrBlock),
+      ec2.Port.tcp(3443),
+      'Allow inbound HTTPS traffic from within VPC',
+    );
 
     // Task Definition
     const taskDefinition = new ecs.FargateTaskDefinition(
@@ -94,6 +133,23 @@ export class BackendStack extends cdk.Stack {
         cpu: isProd ? 512 : 256,
       },
     );
+
+    // Grant DynamoDB permissions to task
+    reportsTable.grantReadWriteData(taskDefinition.taskRole);
+
+    // Create a secrets manager for the SSL certificate and key
+    const certificateSecret = new cdk.aws_secretsmanager.Secret(this, `${appName}CertSecret-${props.environment}`, {
+      secretName: `${appName}/ssl-cert-${props.environment}`,
+      description: 'SSL certificate and private key for HTTPS',
+      generateSecretString: {
+        secretStringTemplate: JSON.stringify({
+          // You'll need to populate these values after deployment
+          certificate: '-----BEGIN CERTIFICATE-----\nYour certificate here\n-----END CERTIFICATE-----',
+          privateKey: '-----BEGIN PRIVATE KEY-----\nYour private key here\n-----END PRIVATE KEY-----'
+        }),
+        generateStringKey: 'dummy' // This key won't be used but is required
+      },
+    });
 
     // Container
     const container = taskDefinition.addContainer(`${appName}Container-${props.environment}`, {
@@ -107,84 +163,67 @@ export class BackendStack extends cdk.Stack {
         // Basic environment variables
         NODE_ENV: props.environment,
         PORT: '3000',
+        HTTPS_PORT: '3443', // Add HTTPS port
+        ENABLE_HTTPS: 'true', // Enable HTTPS
 
         // AWS related
         AWS_REGION: this.region,
-        AWS_COGNITO_USER_POOL_ID: userPoolId,
-        AWS_COGNITO_CLIENT_ID: userPoolClientId,
+        AWS_COGNITO_USER_POOL_ID: userPool.userPoolId,
+        AWS_COGNITO_CLIENT_ID: userPoolClient.userPoolClientId,
         DYNAMODB_REPORTS_TABLE: reportsTable.tableName,
 
         // Perplexity related
         PERPLEXITY_API_KEY_SECRET_NAME: `medical-reports-explainer/${props.environment}/perplexity-api-key`,
         PERPLEXITY_MODEL: 'sonar',
         PERPLEXITY_MAX_TOKENS: '2048',
+
+        // SSL Certificate secret
+        SSL_CERT_SECRET_NAME: certificateSecret.secretName,
       },
       logging: ecs.LogDrivers.awsLogs({
         streamPrefix: appName,
         logGroup,
       }),
+      healthCheck: {
+        command: ['CMD-SHELL', 'curl -f -k https://localhost:3443/api/health || exit 1'],
+        interval: cdk.Duration.seconds(30),
+        timeout: cdk.Duration.seconds(5),
+        retries: 3,
+        startPeriod: cdk.Duration.seconds(60),
+      },
     });
+
+    // Grant the task role access to read the SSL certificate secret
+    certificateSecret.grantRead(taskDefinition.taskRole);
 
     container.addPortMappings({
       containerPort: 3000,
+      name: 'http-api',
       protocol: ecs.Protocol.TCP,
     });
 
-    // 1. Create ALB
-    const alb = new elbv2.ApplicationLoadBalancer(this, `${appName}ALB-${props.environment}`, {
-      vpc,
-      internetFacing: true,
-      loadBalancerName: `${appName}-${props.environment}`,
+    container.addPortMappings({
+      containerPort: 3443,
+      name: 'https-api',
+      protocol: ecs.Protocol.TCP,
     });
 
-    // 2. Create ALB Target Group
-    const targetGroup = new elbv2.ApplicationTargetGroup(
-      this,
-      `${appName}TargetGroup-${props.environment}`,
-      {
-        vpc,
-        port: 3000,
-        protocol: elbv2.ApplicationProtocol.HTTP,
-        targetType: elbv2.TargetType.IP,
-        healthCheck: {
-          path: '/api/health',
-          interval: cdk.Duration.seconds(30),
-          timeout: cdk.Duration.seconds(5),
-        },
-      },
-    );
-
-    // 3. HTTP 80 Listener
-    const httpListener = alb.addListener(`${appName}HttpListener-${props.environment}`, {
-      port: 80,
-      protocol: elbv2.ApplicationProtocol.HTTP,
-      defaultAction: elbv2.ListenerAction.forward([targetGroup]),
-    });
-
-    // 4. Create a security group for the Fargate service
-    const serviceSecurityGroup = new ec2.SecurityGroup(
-      this,
-      `${appName}ServiceSG-${props.environment}`,
-      {
-        vpc,
-        allowAllOutbound: true,
-      },
-    );
-
-    // 5. Create the Fargate service WITHOUT registering it with the target group yet
+    // Create Fargate Service with CloudMap service discovery
     const fargateService = new ecs.FargateService(this, `${appName}Service-${props.environment}`, {
       cluster,
       taskDefinition,
       desiredCount: isProd ? 2 : 1,
-      assignPublicIp: false,
       securityGroups: [serviceSecurityGroup],
+      assignPublicIp: false, // Using private subnets with NAT gateway
+      vpcSubnets: { subnetType: ec2.SubnetType.PRIVATE_WITH_EGRESS },
+      cloudMapOptions: {
+        name: `${appName.toLowerCase()}-service`,
+        dnsRecordType: servicediscovery.DnsRecordType.A,
+        dnsTtl: cdk.Duration.seconds(30),
+        container: container,
+        containerPort: 3000,
+      },
     });
-
-    // 6. Add explicit dependency to ensure the listener exists before the service
-    fargateService.node.addDependency(httpListener);
-
-    // 7. Now register the service with the target group
-    targetGroup.addTarget(fargateService);
 
     // Add autoscaling for production
     if (isProd) {
@@ -200,22 +239,135 @@ export class BackendStack extends cdk.Stack {
       });
     }
 
-    // Add output for the table name
+    // Create VPC Link for API Gateway (using HTTP API VPC Link)
+    const vpcLink = new apigateway.VpcLink(this, `${appName}VpcLink-${props.environment}`, {
+      vpc,
+      description: `VPC Link for ${appName} ${props.environment}`,
+      vpcLinkName: `${appName}VpcLink-${props.environment}`,
+    });
+
+    // Create API Gateway
+    const api = new apigateway.RestApi(this, `${appName}Api-${props.environment}`, {
+      restApiName: `${appName}-${props.environment}`,
+      description: `API for ${appName} ${props.environment}`,
+      deployOptions: {
+        stageName: props.environment,
+        loggingLevel: apigateway.MethodLoggingLevel.INFO,
+        dataTraceEnabled: true,
+      },
+      defaultCorsPreflightOptions: {
+        allowOrigins: apigateway.Cors.ALL_ORIGINS,
+        allowMethods: apigateway.Cors.ALL_METHODS,
+        allowHeaders: ['Content-Type', 'Authorization', 'X-Amz-Date', 'X-Api-Key'],
+      },
+    });
+
+    // Create Cognito Authorizer
+    const authorizer = new apigateway.CognitoUserPoolsAuthorizer(
+      this,
+      `${appName}Authorizer-${props.environment}`,
+      {
+        cognitoUserPools: [userPool],
+        authorizerName: `${appName}Authorizer-${props.environment}`,
+        identitySource: 'method.request.header.Authorization',
+      },
+    );
+
+    // Get the service URL from CloudMap (now using HTTPS)
+    const serviceUrl = `https://${appName.toLowerCase()}-service.${appName.toLowerCase()}.local:3443`;
+
+    // Create proxy resource with Cognito authorization
+    const proxyResource = api.root.addResource('{proxy+}');
+
+    // Integration with Fargate service via VPC Link
+    const integration = new apigateway.Integration({
+      type: apigateway.IntegrationType.HTTP_PROXY,
+      integrationHttpMethod: 'ANY',
+      options: {
+        connectionType: apigateway.ConnectionType.VPC_LINK,
+        vpcLink: vpcLink,
+        requestParameters: {
+          'integration.request.path.proxy': 'method.request.path.proxy',
+        },
+        // Skip TLS verification for self-signed certificates in internal traffic
+        tlsConfig: {
+          insecureSkipVerification: true,
+        },
+      },
+      uri: `${serviceUrl}/{proxy}`,
+    });
+
+    proxyResource.addMethod('ANY', integration, {
+      authorizer: authorizer,
+      authorizationType: apigateway.AuthorizationType.COGNITO,
+      requestParameters: {
+        'method.request.path.proxy': true,
+      },
+    });
+
+    // Add health check endpoint without authorization
+    const healthResource = api.root.addResource('health');
+    healthResource.addMethod(
+      'GET',
+      new apigateway.Integration({
+        type: apigateway.IntegrationType.HTTP_PROXY,
+        integrationHttpMethod: 'GET',
+        options: {
+          connectionType: apigateway.ConnectionType.VPC_LINK,
+          vpcLink: vpcLink,
+          // Skip TLS verification for self-signed certificates in internal traffic
+          tlsConfig: {
+            insecureSkipVerification: true,
+          },
+        },
+        uri: `${serviceUrl}/api/health`,
+      }),
+    );
+
+    // Add execution role policy to allow API Gateway to access VPC resources
+    const executionRole = new iam.Role(this, `${appName}APIGatewayVPCRole-${props.environment}`, {
+      assumedBy: new iam.ServicePrincipal('apigateway.amazonaws.com'),
+      managedPolicies: [
+        iam.ManagedPolicy.fromAwsManagedPolicyName('service-role/AmazonAPIGatewayPushToCloudWatchLogs'),
+        iam.ManagedPolicy.fromAwsManagedPolicyName('AmazonVPCCrossAccountNetworkInterfaceOperations'),
+      ],
+    });
+
+    // Attach the execution role to the API
+    const apiResource = api.node.findChild('Default') as apigateway.CfnRestApi;
+    apiResource.addPropertyOverride('Policy', {
+      Version: '2012-10-17',
+      Statement: [
+        {
+          Effect: 'Allow',
+          Principal: {
+            Service: 'apigateway.amazonaws.com',
+          },
+          Action: 'sts:AssumeRole',
+          Resource: executionRole.roleArn,
+        },
+      ],
+    });
+
+    // Outputs
     new cdk.CfnOutput(this, 'ReportsTableName', {
       value: reportsTable.tableName,
       description: 'DynamoDB Reports Table Name',
     });
 
-    // Add output for Cognito domain
     new cdk.CfnOutput(this, 'CognitoDomain', {
       value: `https://${userPoolDomain.domainName}.auth.${this.region}.amazoncognito.com`,
       description: 'Cognito Domain URL',
     });
 
-    // Outputs
-    new cdk.CfnOutput(this, 'LoadBalancerDNS', {
-      value: alb.loadBalancerDnsName,
-      description: 'Load Balancer DNS Name',
+    new cdk.CfnOutput(this, 'ApiGatewayUrl', {
+      value: api.url,
+      description: 'API Gateway URL',
+    });
+
+    new cdk.CfnOutput(this, 'ServiceDiscoveryUrl', {
+      value: serviceUrl,
+      description: 'Service Discovery URL',
     });
   }
 }
