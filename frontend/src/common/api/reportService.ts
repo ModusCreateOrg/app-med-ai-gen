@@ -33,6 +33,18 @@ export interface UploadProgressCallback {
 }
 
 /**
+ * Maps categories to their identifying keywords for report classification
+ */
+const CATEGORY_KEYWORDS = {
+  [ReportCategory.HEART]: ['heart', 'cardiac', 'stress'],
+  [ReportCategory.NEUROLOGICAL]: ['brain', 'neuro'],
+  [ReportCategory.OFTALMOLOGICAL]: ['eye', 'vision', 'optic'],
+  [ReportCategory.GASTRO]: ['stomach', 'gastro', 'digestive'],
+  [ReportCategory.ORTHOPEDIC]: ['bone', 'joint', 'skeletal'],
+  [ReportCategory.GENERAL]: []
+} as const;
+
+/**
  * Uploads a medical report file
  * @param file - The file to upload
  * @param onProgress - Optional callback for tracking upload progress
@@ -121,25 +133,18 @@ export const uploadReport = async (
 };
 
 /**
- * Determines a report category based on filename
- * This is just for mock demonstration
+ * Determines a report category based on filename keywords
+ * @param filename - Name of the file to categorize
+ * @returns The determined report category
  */
 const determineCategory = (filename: string): ReportCategory => {
   const lowerFilename = filename.toLowerCase();
   
-  if (lowerFilename.includes('heart') || lowerFilename.includes('cardiac') || lowerFilename.includes('stress')) {
-    return ReportCategory.HEART;
-  } else if (lowerFilename.includes('brain') || lowerFilename.includes('neuro')) {
-    return ReportCategory.NEUROLOGICAL;
-  } else if (lowerFilename.includes('eye') || lowerFilename.includes('vision')) {
-    return ReportCategory.OFTALMOLOGICAL;
-  } else if (lowerFilename.includes('stomach') || lowerFilename.includes('gastro')) {
-    return ReportCategory.GASTRO;
-  } else if (lowerFilename.includes('bone') || lowerFilename.includes('joint')) {
-    return ReportCategory.ORTHOPEDIC;
-  }
-  
-  return ReportCategory.GENERAL;
+  const matchedCategory = Object.entries(CATEGORY_KEYWORDS).find(([_, keywords]) => 
+    keywords.some(keyword => lowerFilename.includes(keyword))
+  );
+
+  return matchedCategory ? (matchedCategory[0] as ReportCategory) : ReportCategory.GENERAL;
 };
 
 /**
