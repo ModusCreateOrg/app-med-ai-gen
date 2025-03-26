@@ -364,21 +364,21 @@ export class BackendStack extends cdk.Stack {
       ],
     });
 
-    // Attach the execution role to the API
-    const apiResource = api.node.findChild('Default') as apigateway.CfnRestApi;
-    apiResource.addPropertyOverride('Policy', {
-      Version: '2012-10-17',
-      Statement: [
-        {
-          Effect: 'Allow',
-          Principal: {
-            Service: 'apigateway.amazonaws.com',
-          },
-          Action: 'sts:AssumeRole',
-          Resource: executionRole.roleArn,
-        },
+    // Replace the problematic code with a proper way to set the API Gateway policy
+    const apiPolicy = new iam.PolicyDocument({
+      statements: [
+        new iam.PolicyStatement({
+          effect: iam.Effect.ALLOW,
+          principals: [new iam.ServicePrincipal('apigateway.amazonaws.com')],
+          actions: ['sts:AssumeRole'],
+          resources: [executionRole.roleArn],
+        }),
       ],
     });
+
+    // Apply the policy to the API Gateway using CfnRestApi
+    const cfnApi = api.node.defaultChild as apigateway.CfnRestApi;
+    cfnApi.policy = apiPolicy.toJSON();
 
     // Outputs
     new cdk.CfnOutput(this, 'ReportsTableName', {
