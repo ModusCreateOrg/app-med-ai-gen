@@ -28,14 +28,15 @@
   },
   "dependencies": {
     "@aws-sdk/client-dynamodb": "^3.758.0",
-    "@aws-sdk/util-dynamodb": "^3.758.0",
     "@aws-sdk/client-secrets-manager": "^3.758.0",
+    "@aws-sdk/util-dynamodb": "^3.758.0",
     "@nestjs/common": "^10.0.0",
     "@nestjs/config": "^3.1.1",
     "@nestjs/core": "^10.0.0",
     "@nestjs/jwt": "^10.2.0",
-    "@nestjs/platform-express": "^10.0.0",
     "@nestjs/passport": "^10.0.3",
+    "@nestjs/platform-express": "^10.0.0",
+    "@nestjs/swagger": "^7.1.13",
     "@types/jest": "^29.5.12",
     "axios": "^1.8.1",
     "class-transformer": "^0.5.1",
@@ -47,15 +48,14 @@
     "helmet": "^7.0.0",
     "jsonwebtoken": "^9.0.2",
     "jwk-to-pem": "^2.0.5",
+    "passport": "^0.7.0",
+    "passport-jwt": "^4.0.1",
     "reflect-metadata": "^0.1.13",
     "rxjs": "^7.8.1",
     "source-map-support": "^0.5.21",
-    "web-vitals": "^2.1.4",
-    "aws-cdk-lib": "2.184.1",
-    "@nestjs/swagger": "^7.1.13",
     "swagger-ui-express": "^5.0.0",
-    "passport": "^0.7.0",
-    "passport-jwt": "^4.0.1"
+    "web-vitals": "^2.1.4",
+    "aws-cdk-lib": "^2.185.0"
   },
   "devDependencies": {
     "@aws-cdk/assert": "^2.68.0",
@@ -73,7 +73,7 @@
     "@typescript-eslint/parser": "^7.9.0",
     "@vitest/coverage-c8": "^0.33.0",
     "aws-cdk": "2.139.0",
-    "aws-cdk-lib": "^2.184.1",
+    "aws-cdk-lib": "^2.185.0",
     "dotenv-cli": "^8.0.0",
     "eslint": "^8.57.0",
     "eslint-config-prettier": "^9.0.0",
@@ -91,6 +91,6 @@
     "vitest": "^0.33.0"
   },
   "peerDependencies": {
-    "aws-cdk-lib": "2.184.1"
+    "aws-cdk-lib": "^2.185.0"
   }
 }

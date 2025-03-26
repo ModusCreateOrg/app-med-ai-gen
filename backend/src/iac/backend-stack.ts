@@ -6,6 +6,7 @@ import * as cognito from 'aws-cdk-lib/aws-cognito';
 import * as apigateway from 'aws-cdk-lib/aws-apigateway';
 import * as servicediscovery from 'aws-cdk-lib/aws-servicediscovery';
 import * as iam from 'aws-cdk-lib/aws-iam';
+import * as elbv2 from 'aws-cdk-lib/aws-elasticloadbalancingv2';
 
 import { Construct } from 'constructs';
 import { AttributeType, BillingMode, Table } from 'aws-cdk-lib/aws-dynamodb';
@@ -245,11 +246,39 @@ export class BackendStack extends cdk.Stack {
       });
     }
 
-    // Create VPC Link for API Gateway (using HTTP API VPC Link)
-    const vpcLink = new apigateway.VpcLink(this, `${appName}VpcLink-${props.environment}`, {
+    // Create a Network Load Balancer for the Fargate service
+    const nlb = new elbv2.NetworkLoadBalancer(this, `${appName}NLB-${props.environment}`, {
       vpc,
+      internetFacing: false,
+      vpcSubnets: { subnetType: ec2.SubnetType.PRIVATE_WITH_EGRESS },
+    });
+
+    // Add a listener to the NLB
+    const listener = nlb.addListener(`${appName}Listener-${props.environment}`, {
+      port: 80,
+      protocol: elbv2.Protocol.TCP,
+    });
+
+    // Add the Fargate service as a target to the listener
+    listener.addTargets(`${appName}TargetGroup-${props.environment}`, {
+      targets: [fargateService],
+      port: 3000,
+      protocol: elbv2.Protocol.TCP,
+      healthCheck: {
+        enabled: true,
+        protocol: elbv2.Protocol.HTTP,
+        path: '/api/health',
+        interval: cdk.Duration.seconds(30),
+        healthyThresholdCount: 2,
+        unhealthyThresholdCount: 2,
+        timeout: cdk.Duration.seconds(5),
+      },
+    });
+
+    // Create VPC Link for API Gateway using the NLB
+    const vpcLink = new apigateway.VpcLink(this, `${appName}VpcLink-${props.environment}`, {
+      targets: [nlb],
       description: `VPC Link for ${appName} ${props.environment}`,
-      vpcLinkName: `${appName}VpcLink-${props.environment}`,
     });
 
     // Create API Gateway
@@ -279,8 +308,8 @@ export class BackendStack extends cdk.Stack {
       },
     );
 
-    // Get the service URL from CloudMap (now using HTTPS)
-    const serviceUrl = `https://${appName.toLowerCase()}-service.${appName.toLowerCase()}.local:3443`;
+    // Use the NLB DNS name for the service URL
+    const serviceUrl = `http://${nlb.loadBalancerDnsName}`;
 
     // Create proxy resource with Cognito authorization
     const proxyResource = api.root.addResource('{proxy+}');
@@ -294,10 +323,6 @@ export class BackendStack extends cdk.Stack {
         vpcLink: vpcLink,
         requestParameters: {
           'integration.request.path.proxy': 'method.request.path.proxy',
-        },
-        // Skip TLS verification for self-signed certificates in internal traffic
-        tlsConfig: {
-          insecureSkipVerification: true,
         },
       },
       uri: `${serviceUrl}/{proxy}`,
@@ -321,10 +346,6 @@ export class BackendStack extends cdk.Stack {
         options: {
           connectionType: apigateway.ConnectionType.VPC_LINK,
           vpcLink: vpcLink,
-          // Skip TLS verification for self-signed certificates in internal traffic
-          tlsConfig: {
-            insecureSkipVerification: true,
-          },
         },
         uri: `${serviceUrl}/api/health`,
       }),
@@ -375,9 +396,9 @@ export class BackendStack extends cdk.Stack {
       description: 'API Gateway URL',
     });
 
-    new cdk.CfnOutput(this, 'ServiceDiscoveryUrl', {
-      value: serviceUrl,
-      description: 'Service Discovery URL',
+    new cdk.CfnOutput(this, 'NetworkLoadBalancerDns', {
+      value: nlb.loadBalancerDnsName,
+      description: 'Network Load Balancer DNS Name',
     });
   }
 }
