@@ -352,7 +352,7 @@ export class BackendStack extends cdk.Stack {
     );
 
     // Add execution role policy to allow API Gateway to access VPC resources
-    const executionRole = new iam.Role(this, `${appName}APIGatewayVPCRole-${props.environment}`, {
+    new iam.Role(this, `${appName}APIGatewayVPCRole-${props.environment}`, {
       assumedBy: new iam.ServicePrincipal('apigateway.amazonaws.com'),
       managedPolicies: [
         iam.ManagedPolicy.fromAwsManagedPolicyName(
@@ -364,21 +364,50 @@ export class BackendStack extends cdk.Stack {
       ],
     });
 
-    // Replace the problematic code with a proper way to set the API Gateway policy
-    const apiPolicy = new iam.PolicyDocument({
+    const apiResourcePolicy = new iam.PolicyDocument({
       statements: [
+        // Allow all users to access the health endpoint in all stages
         new iam.PolicyStatement({
           effect: iam.Effect.ALLOW,
-          principals: [new iam.ServicePrincipal('apigateway.amazonaws.com')],
-          actions: ['sts:AssumeRole'],
-          resources: [executionRole.roleArn],
+          principals: [new iam.AnyPrincipal()],
+          actions: ['execute-api:Invoke'],
+          resources: [
+            `arn:aws:execute-api:${this.region}:${this.account}:${api.restApiId}/*/GET/health`,
+          ],
+        }),
+
+        // Allow only authenticated Cognito users to access all other endpoints
+        new iam.PolicyStatement({
+          effect: iam.Effect.ALLOW,
+          principals: [new iam.AnyPrincipal()],
+          actions: ['execute-api:Invoke'],
+          resources: [`arn:aws:execute-api:${this.region}:${this.account}:${api.restApiId}/*/*`],
+          conditions: {
+            StringEquals: {
+              'aws:PrincipalTag/cognito-identity.amazonaws.com:sub':
+                '${cognito-identity.amazonaws.com:sub}',
+            },
+          },
+        }),
+
+        // Deny all non-HTTPS requests
+        new iam.PolicyStatement({
+          effect: iam.Effect.DENY,
+          principals: [new iam.AnyPrincipal()],
+          actions: ['execute-api:Invoke'],
+          resources: [`arn:aws:execute-api:${this.region}:${this.account}:${api.restApiId}/*/*`],
+          conditions: {
+            Bool: {
+              'aws:SecureTransport': 'false',
+            },
+          },
         }),
       ],
     });
 
     // Apply the policy to the API Gateway using CfnRestApi
     const cfnApi = api.node.defaultChild as apigateway.CfnRestApi;
-    cfnApi.policy = apiPolicy.toJSON();
+    cfnApi.policy = apiResourcePolicy.toJSON();
 
     // Outputs
     new cdk.CfnOutput(this, 'ReportsTableName', {
