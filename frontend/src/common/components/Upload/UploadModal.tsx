@@ -5,12 +5,16 @@ import {
   IonButton,
   IonIcon,
   IonProgressBar,
+  IonLabel,
+  IonItem
 } from '@ionic/react';
-import { closeOutline, cloudUploadOutline, alertCircleOutline, documentOutline, checkmarkOutline } from 'ionicons/icons';
+import { closeOutline, cloudUploadOutline, documentOutline, checkmarkOutline } from 'ionicons/icons';
 import { useTranslation } from 'react-i18next';
 import { UploadStatus, useFileUpload } from '../../hooks/useFileUpload';
 import { MedicalReport } from '../../models/medicalReport';
 import './UploadModal.scss';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faCircleXmark } from '@fortawesome/free-regular-svg-icons';
 
 export interface UploadModalProps {
   isOpen: boolean;
@@ -103,6 +107,14 @@ const UploadModal = ({ isOpen, onClose, onUploadComplete }: UploadModalProps): J
             {t('upload.imageSizeLimit')} / {t('upload.pdfSizeLimit')}
           </p>
         </div>
+        {error && 
+          <IonItem className='upload-modal__error-message'>
+            <div className='upload-modal__error-icon' slot='start'>
+              <FontAwesomeIcon icon={faCircleXmark} aria-hidden="true"/>
+            </div>
+            <IonLabel className="upload-modal__error-label ion-text-wrap">{error}</IonLabel>
+          </IonItem>
+        }
         <input
           type="file"
           ref={fileInputRef}
@@ -170,31 +182,6 @@ const UploadModal = ({ isOpen, onClose, onUploadComplete }: UploadModalProps): J
     </div>
   );
 
-  const renderErrorState = () => (
-    <div className="upload-modal__error">
-      <IonIcon icon={alertCircleOutline} className="upload-modal__error-icon" />
-      <h2>{t('upload.uploadFailed')}</h2>
-      <p className="upload-modal__error-message">{error}</p>
-      <div className="upload-modal__buttons">
-        <IonButton 
-          expand="block" 
-          className="upload-modal__retry-btn"
-          onClick={reset}
-        >
-          {t('common.tryAgain')}
-        </IonButton>
-        <IonButton 
-          expand="block" 
-          fill="outline"
-          className="upload-modal__cancel-btn"
-          onClick={handleClose}
-        >
-          {t('common.cancel')}
-        </IonButton>
-      </div>
-    </div>
-  );
-
   const renderContent = () => {
     switch (status) {
       case UploadStatus.UPLOADING:
@@ -203,7 +190,7 @@ const UploadModal = ({ isOpen, onClose, onUploadComplete }: UploadModalProps): J
       case UploadStatus.SUCCESS:
         return renderSuccessState();
       case UploadStatus.ERROR:
-        return renderErrorState();
+        return renderInitialState();
       case UploadStatus.IDLE:
       case UploadStatus.VALIDATING:
       default:

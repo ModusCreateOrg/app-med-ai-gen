@@ -22,7 +22,8 @@
     "home": "Home",
     "menu": "Menu",
     "signout": "Sign Out",
-    "users": "Users"
+    "users": "Users",
+    "chat": "AI Assistant"
   },
   "reports": {
     "uploadDate": "Upload Date"
@@ -43,13 +44,19 @@
     "error": {
       "noFile": "No file selected",
       "permissionDenied": "Permission denied",
-      "unknown": "An unknown error occurred"
+      "unknown": "An unknown error occurred",
+      "fileTooBig": "File is too large. Please upload a smaller file.",
+      "invalidType": "Invalid file type. Please upload a supported file type."
     }
   },
   "common": {
     "done": "Done",
     "tryAgain": "Try Again",
     "cancel": "Cancel"
+  },
+  "aiAssistant": {
+    "inputPlaceholder": "Type your question...",
+    "emptyState": "How can I help you today?"
   },
   "validation": {
     "email": "Must be an email address. ",
@@ -63,5 +70,10 @@
   "no": "no",
   "updated": "updated",
   "welcome": "Welcome",
-  "yes": "yes"
+  "yes": "yes",
+  "pages": {
+    "chat": {
+      "title": "AI Assistant"
+    }
+  }
 }

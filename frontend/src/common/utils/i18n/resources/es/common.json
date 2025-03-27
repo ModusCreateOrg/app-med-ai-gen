@@ -22,7 +22,8 @@
     "home": "Inicio",
     "menu": "Menú",
     "signout": "Desconecta",
-    "users": "Usuarios"
+    "users": "Usuarios",
+    "chat": "Asistente IA"
   },
   "reports": {
     "uploadDate": "Fecha de carga"
@@ -43,13 +44,19 @@
     "error": {
       "noFile": "Ningún archivo seleccionado",
       "permissionDenied": "Permiso denegado",
-      "unknown": "Se produjo un error desconocido"
+      "unknown": "Se produjo un error desconocido",
+      "fileTooBig": "El archivo es demasiado grande. Por favor, sube un archivo más pequeño.",
+      "invalidType": "Tipo de archivo no válido. Por favor, sube un tipo de archivo compatible."
     }
   },
   "common": {
     "done": "Hecho",
-    "tryAgain": "Intentar otra vez",
+    "tryAgain": "Intentar de nuevo",
     "cancel": "Cancelar"
+  },
+  "aiAssistant": {
+    "inputPlaceholder": "Escribe tu pregunta...",
+    "emptyState": "¿Cómo puedo ayudarte hoy?"
   },
   "validation": {
     "email": "Debe ser una dirección de correo electrónico. ",
@@ -63,5 +70,10 @@
   "no": "no",
   "updated": "actualizado",
   "welcome": "Bienvenido",
-  "yes": "sí"
+  "yes": "sí",
+  "pages": {
+    "chat": {
+      "title": "Asistente IA"
+    }
+  }
 }
