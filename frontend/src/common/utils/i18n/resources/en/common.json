@@ -44,7 +44,9 @@
     "error": {
       "noFile": "No file selected",
       "permissionDenied": "Permission denied",
-      "unknown": "An unknown error occurred"
+      "unknown": "An unknown error occurred",
+      "fileTooBig": "File is too large. Please upload a smaller file.",
+      "invalidType": "Invalid file type. Please upload a supported file type."
     }
   },
   "common": {

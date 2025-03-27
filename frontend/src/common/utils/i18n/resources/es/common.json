@@ -44,7 +44,9 @@
     "error": {
       "noFile": "Ningún archivo seleccionado",
       "permissionDenied": "Permiso denegado",
-      "unknown": "Se produjo un error desconocido"
+      "unknown": "Se produjo un error desconocido",
+      "fileTooBig": "El archivo es demasiado grande. Por favor, sube un archivo más pequeño.",
+      "invalidType": "Tipo de archivo no válido. Por favor, sube un tipo de archivo compatible."
     }
   },
   "common": {

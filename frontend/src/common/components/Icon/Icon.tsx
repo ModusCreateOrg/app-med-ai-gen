@@ -7,6 +7,7 @@ import {
   faBuilding,
   faCalendar,
   faCircleInfo,
+  faCircleXmark,
   faEnvelope,
   faHouse,
   faLink,
@@ -53,6 +54,7 @@ export type IconName =
   | 'building'
   | 'calendar'
   | 'circleInfo'
+  | 'circleXmark'
   | 'comment'
   | 'envelope'
   | 'fileLines'
@@ -98,6 +100,7 @@ const solidIcons: Record<IconName, IconProp> = {
   building: faBuilding,
   calendar: faCalendar,
   circleInfo: faCircleInfo,
+  circleXmark: faCircleXmark,
   comment: faComment,
   envelope: faEnvelope,
   fileLines: faSolidFileLines,
@@ -130,7 +133,8 @@ const regularIcons: Partial<Record<IconName, IconProp>> = {
   comment: faRegularComment,
   fileLines: faRegularFileLines,
   user: faRegularUser,
-  bookmark: faRegularBookmark
+  bookmark: faRegularBookmark,
+  circleXmark: faCircleXmark,
 };
 
 /**

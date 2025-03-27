@@ -1,5 +1,5 @@
 .upload-modal {
-  --height: 60vh;
+  --height: 65vh;
   --width: 100%;
   --border-radius: 1rem;
   --background: var(--ion-color-primary);
@@ -11,10 +11,26 @@
     border-radius: 1rem;
     overflow: hidden;
   }
+
+  &__error-message {
+    border: 1px solid var(--ion-color-danger);
+    border-radius: 0.5rem;
+    --background: rgba(var(--ion-color-danger-rgb), 0.2);
+    color: white;
+    width: 100%;
+
+    ion-label {
+      font-size: 0.875rem;
+    }
+  }
+
+  &__error-icon {
+    color: var(--ion-color-danger);
+  }
   
   @media (min-width: 768px) {
     --width: 28.125rem; // 450px
-    --height: 60vh; // Use viewport height instead of fixed pixels
+    --height: 65vh; // Use viewport height instead of fixed pixels
     --border-radius: 1rem; // Matching the image example
   }
   
@@ -55,7 +71,7 @@
     justify-content: center;
     flex: 1;
     text-align: center;
-    margin: 1rem;
+    margin: 0 1rem;
   }
   
   &__drop-area {
@@ -242,23 +258,7 @@
     text-align: center;
     margin: 1rem 0;
   }
-  
-  &__error-icon {
-    font-size: 4rem;
-    color: var(--ion-color-danger);
-  }
-  
-  &__error-message {
-    background-color: rgba(var(--ion-color-danger-rgb), 0.2);
-    padding: 0.75rem;
-    border-radius: 0.5rem;
-    color: white !important;
-    font-size: 0.875rem;
-    width: 100%;
-    max-width: 20rem;
-    margin: 0 auto 2rem !important;
-  }
-  
+
   &__close-btn, &__retry-btn {
     margin-top: 1rem;
     width: 100%;

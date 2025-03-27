@@ -23,8 +23,8 @@ class BedrockService {
   constructor() {
     // Check if we're in a test environment (Node.js environment with no window)
     this.isTestEnvironment = typeof window === 'undefined' || 
-                            process.env.NODE_ENV === 'test' || 
-                            !!process.env.VITEST;
+                            import.meta.env.MODE === 'test' || 
+                            import.meta.env.VITEST === 'true';
     
     // Only initialize the client in non-test environments or if explicitly required
     if (!this.isTestEnvironment) {

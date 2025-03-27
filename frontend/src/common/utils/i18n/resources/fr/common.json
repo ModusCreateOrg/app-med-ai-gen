@@ -44,7 +44,9 @@
     "error": {
       "noFile": "Aucun fichier sélectionné",
       "permissionDenied": "Permission refusée",
-      "unknown": "Une erreur inconnue s'est produite"
+      "unknown": "Une erreur inconnue s'est produite",
+      "fileTooBig": "Le fichier est trop volumineux. Veuillez télécharger un fichier plus petit.",
+      "invalidType": "Type de fichier non valide. Veuillez télécharger un type de fichier pris en charge."
     }
   },
   "common": {
