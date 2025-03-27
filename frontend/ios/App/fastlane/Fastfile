@@ -1,0 +1,64 @@
+platform :ios do
+  desc "Build .app for iOS Simulator(Debug) without code signing"
+  lane :build_for_simulator do
+    setup_ci(force: true)
+    build_app(
+      scheme: "App",
+      configuration: "Debug",
+      skip_package_ipa: true,
+      build_path: "./build",
+      destination: "generic/platform=iOS Simulator",
+      archive_path: "./build/simulator/App.xcarchive",
+      sdk: "iphonesimulator",
+      skip_codesigning: true,
+      clean: true
+    )
+  end
+
+  desc "build and send development build to testflight"
+  lane :build_and_send_to_testflight do
+    setup_ci(force: true)
+    sync_code_signing(
+      type: "development",
+      readonly: true,
+      api_key_path: "/tmp/api-key.json",
+      git_url: "git@github.com:moduslabs/ios-signing-certificates.git",
+      git_branch: "master"
+    )
+
+    sync_code_signing(
+      type: "appstore",
+      readonly: true,
+      api_key_path: "/tmp/api-key.json",
+      git_url: "git@github.com:moduslabs/ios-signing-certificates.git",
+      git_branch: "master"
+    )
+
+    # latest_build_number = app_store_build_number(
+    #   app_identifier: "com.moduscreate.appmedaigen",
+    #   api_key_path: "/tmp/api-key.json",
+    #   live: false
+    # )
+
+    # increment_build_number(build_number: latest_build_number + 1)
+    
+    build_app(
+      workspace: "App.xcworkspace",
+      scheme: "App",
+      sdk: "iphoneos",
+      configuration: "Release",
+      export_method: "app-store",
+      clean: true,
+      output_directory: "./build/device",
+      output_name: "App.ipa",
+      xcargs: "CODE_SIGN_STYLE=Manual DEVELOPMENT_TEAM=287TS9B2H2 PROVISIONING_PROFILE_SPECIFIER='match Development com.moduscreate.appmedaigen'"
+    )
+
+    upload_to_testflight(
+      api_key_path: "/tmp/api-key.json",
+      skip_submission: false,
+      skip_waiting_for_build_processing: true,
+      submit_beta_review: false, #Change it to true, once it's beta ready for external testers.
+    )
+  end
+end

@@ -1,0 +1,115 @@
+name: iOS Build and upload to testflight
+
+on:
+  push:
+    branches:
+      - ios-fastlane-setup
+      - main
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: macos-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version-file: "frontend/package.json"
+
+      - name: Setup Xcode
+        uses: maxim-lobanov/setup-xcode@v1
+        with:
+          xcode-version: '16.2'
+
+      - name: Install Bundler
+        run: gem install bundler
+
+      - name: Create .env file
+        working-directory: frontend
+        run: |
+            echo "VITE_BUILD_DATE=1970-01-01
+            VITE_BUILD_TIME=00:00:00
+            VITE_BUILD_TS=1970-01-01T00:00:00+0000
+            VITE_BUILD_COMMIT_SHA=test
+            VITE_BUILD_ENV_CODE=test
+            VITE_BUILD_WORKFLOW_RUNNER=test
+            VITE_BUILD_WORKFLOW_NAME=test
+            VITE_BUILD_WORKFLOW_RUN_NUMBER=1
+            VITE_BUILD_WORKFLOW_RUN_ATTEMPT=1
+            VITE_BASE_URL_API=https://jsonplaceholder.typicode.com
+            VITE_TOAST_AUTO_DISMISS_MILLIS=1500" > .env
+
+      - name: Install dependencies
+        working-directory: frontend
+        run: npm ci
+
+      - name: Build Ionic
+        working-directory: frontend
+        run: npm run build
+
+      - name: Prepare Capacitor for iOS
+        working-directory: frontend
+        run: |
+          npx cap sync ios
+          npx cap copy ios
+
+      - name: Install CocoaPods
+        working-directory: frontend/ios/App
+        run: pod install --verbose
+
+      - name: Install Fastlane
+        working-directory: frontend/ios/App
+        run: gem install fastlane
+
+      - name: Setup SSH for Fastlane Match Repo Access
+        run: |
+          mkdir -p ~/.ssh
+          echo "${{ secrets.IOS_SIGNING_SSH_PRIVATE_KEY }}" > ~/.ssh/id_rsa
+          chmod 600 ~/.ssh/id_rsa
+          ssh-keyscan github.com >> ~/.ssh/known_hosts
+
+      - name: Decode App Store API Key
+        working-directory: frontend/ios/App
+        env:
+          IOS_API_KEY_JSON: ${{ secrets.IOS_API_KEY_JSON }}
+        run: echo "$IOS_API_KEY_JSON" > /tmp/api-key.json
+
+      - name: Set up Fastlane Match Password
+        run: echo "MATCH_PASSWORD=${{ secrets.FASTLANE_MATCH_PASSWORD }}" >> $GITHUB_ENV
+
+      - name: Build iOS App for Simulator
+        working-directory: frontend/ios/App
+        env:
+          NSUnbufferedIO: "YES"
+          FASTLANE_VERBOSE: "1"
+        run: |
+          bundle install
+          bundle exec fastlane ios build_for_simulator --verbose
+
+      - name: Upload App.app (iOS Simulator File)
+        uses: actions/upload-artifact@v4
+        with:
+          name: build_for_simulator
+          path: frontend/ios/App/build/simulator/App.xcarchive/Products/Applications/
+          retention-days: 7
+
+      - name: Build iOS App for testflight.
+        working-directory: frontend/ios/App
+        env:
+          NSUnbufferedIO: "YES"
+          FASTLANE_VERBOSE: "1"
+          FASTLANE_MATCH_PASSWORD: ${{ secrets.FASTLANE_MATCH_PASSWORD }}
+        run: |
+          bundle install
+          bundle exec fastlane ios build_and_send_to_testflight --verbose
+
+      - name: Upload App.ipa (iOS device installation)
+        uses: actions/upload-artifact@v4
+        with:
+          name: build_for_device
+          path: frontend/ios/App/build/device/App.ipa
+          retention-days: 7
