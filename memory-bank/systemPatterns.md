@@ -32,6 +32,24 @@ graph TD
    - Navigation history
    - Route guards
 
+4. Internationalization (i18n)
+   - Always use i18n for user-facing text
+   - Namespace organization (auth, common, errors, validation)
+   - Hierarchical key structure (e.g., 'label.email')
+   - No hardcoded text in components
+
+   ```tsx
+   // ❌ AVOID hardcoded text
+   <label>Email</label>
+   <span>Don't have an account?</span>
+   <button>Log in</button>
+
+   // ✅ PREFERRED - Use t() function from react-i18next
+   <label>{t('label.email', { ns: 'auth' })}</label>
+   <span>{t('no-account', { ns: 'auth' })}</span>
+   <button>{t('signin', { ns: 'auth' })}</button>
+   ```
+
 ## Backend Architecture
 1. API Design
    - RESTful endpoints

@@ -1,13 +1,8 @@
 import {
   IonButton,
-  IonContent,
   IonInputPasswordToggle,
-  IonPopover,
   useIonRouter,
   useIonViewDidEnter,
-  IonText,
-  IonRow,
-  IonCol,
 } from '@ionic/react';
 import { useRef, useState, useEffect } from 'react';
 import classNames from 'classnames';
@@ -23,8 +18,6 @@ import { StorageKey } from 'common/utils/constants';
 import { useSignIn, useCurrentUser } from 'common/hooks/useAuth';
 import { useProgress } from 'common/hooks/useProgress';
 import Input from 'common/components/Input/Input';
-import Icon from 'common/components/Icon/Icon';
-import HeaderRow from 'common/components/Text/HeaderRow';
 import CheckboxInput from 'common/components/Input/CheckboxInput';
 import { formatAuthError } from 'common/utils/auth-errors';
 import AuthErrorDisplay from 'common/components/Auth/AuthErrorDisplay';
@@ -162,42 +155,55 @@ const SignInForm = ({ className, testid = 'form-signin' }: SignInFormProps): JSX
       >
         {({ dirty, isSubmitting }) => (
           <Form data-testid={`${testid}-form`}>
-            <HeaderRow border>
-              <div>{t('signin', { ns: 'auth' })}</div>
-              <Icon id="signinInfo" icon="circleInfo" color="secondary" />
-            </HeaderRow>
+            <div className="ls-signin-form__field">
+              <label className="ls-signin-form__label">{t('label.email', { ns: 'auth' })}</label>
+              <Input
+                name="email"
+                maxlength={50}
+                autocomplete="email"
+                className="ls-signin-form__input"
+                ref={focusInput}
+                data-testid={`${testid}-field-email`}
+                type="email"
+                placeholder=""
+              />
+            </div>
+            
+            <div className="ls-signin-form__field">
+              <label className="ls-signin-form__label">{t('label.password', { ns: 'auth' })}</label>
+              <Input
+                type="password"
+                name="password"
+                maxlength={30}
+                autocomplete="current-password"
+                className="ls-signin-form__input"
+                data-testid={`${testid}-field-password`}
+                placeholder=""
+              >
+                <IonInputPasswordToggle slot="end" />
+              </Input>
+            </div>
 
-            <Input
-              name="email"
-              label={t('label.email', { ns: 'auth' })}
-              labelPlacement="stacked"
-              maxlength={50}
-              autocomplete="email"
-              className="ls-signin-form__input"
-              ref={focusInput}
-              data-testid={`${testid}-field-email`}
-              type="email"
-            />
-            <Input
-              type="password"
-              name="password"
-              label={t('label.password', { ns: 'auth' })}
-              labelPlacement="stacked"
-              maxlength={30}
-              autocomplete="current-password"
-              className="ls-signin-form__input"
-              data-testid={`${testid}-field-password`}
-            >
-              <IonInputPasswordToggle slot="end" />
-            </Input>
+            <div className="ls-signin-form__remember-forgot">
+              <div className="ls-signin-form__remember">
+                <CheckboxInput
+                  name="rememberMe"
+                  className="ls-signin-form__input-checkbox"
+                  testid={`${testid}-field-rememberme`}
+                  labelPlacement='end'
+                >
+                  {t('label.remember-me', { ns: 'auth' })}
+                </CheckboxInput>
+              </div>
 
-            <CheckboxInput
-              name="rememberMe"
-              className="ls-signin-form__input ls-signin-form__input-checkbox"
-              testid={`${testid}-field-rememberme`}
-            >
-              {t('label.remember-me', { ns: 'auth' })}
-            </CheckboxInput>
+              <a 
+                href="/auth/forgot-password" 
+                className="ls-signin-form__forgot-link"
+                data-testid={`${testid}-link-forgot-password`}
+              >
+                {t('forgot-password', { ns: 'auth' })}
+              </a>
+            </div>
 
             <IonButton
               type="submit"
@@ -210,40 +216,10 @@ const SignInForm = ({ className, testid = 'form-signin' }: SignInFormProps): JSX
               {t('signin', { ns: 'auth' })}
             </IonButton>
 
-            <IonRow className="ion-text-center ion-padding-top">
-              <IonCol>
-                <IonText color="medium">
-                  <a href="/auth/forgot-password" data-testid={`${testid}-link-forgot-password`}>
-                    {t('forgot-password', { ns: 'auth' })}
-                  </a>
-                </IonText>
-              </IonCol>
-            </IonRow>
-
-            <IonRow className="ion-text-center ion-padding-top">
-              <IonCol>
-                <IonText color="medium">
-                  {t('no-account', { ns: 'auth' })}{' '}
-                  <a href="/auth/signup">{t('signup', { ns: 'auth' })}</a>
-                </IonText>
-              </IonCol>
-            </IonRow>
-
-            <IonPopover
-              trigger="signinInfo"
-              triggerAction="hover"
-              className="ls-signin-form-popover"
-              data-testid={`${testid}-popover`}
-            >
-              <IonContent className="ion-padding">
-                <p>
-                  {t('info-email.part1', { ns: 'auth' })}
-                </p>
-                <p>
-                  {t('info-email.part2', { ns: 'auth' })}
-                </p>
-              </IonContent>
-            </IonPopover>
+            <div className="ls-signin-form__signup">
+              <span>{t('no-account', { ns: 'auth' })} </span>
+              <a href="/auth/signup">{t('signup', { ns: 'auth' })}</a>
+            </div>
           </Form>
         )}
       </Formik>

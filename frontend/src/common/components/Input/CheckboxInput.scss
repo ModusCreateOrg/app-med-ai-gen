@@ -1,3 +1,9 @@
 ion-checkbox.ls-checkbox-input {
   width: 100%;
+  --checkbox-label-justify-content: flex-start;
+  --checkbox-label-padding-start: 0.5rem;
+  
+  &::part(container) {
+    order: -1;
+  }
 }

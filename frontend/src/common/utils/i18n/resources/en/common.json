@@ -1,4 +1,7 @@
 {
+  "app": {
+    "name": "MEDReport AI"
+  },
   "confirm-prompt": "Are you sure?",
   "created": "created",
   "deleted": "deleted",
