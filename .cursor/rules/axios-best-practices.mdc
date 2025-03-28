@@ -1,0 +1,9 @@
+---
+description: 
+globs: *.ts,*.tsx
+alwaysApply: false
+---
+- Use interceptors for global request/response handling
+- Implement proper error handling and status code checks
+- Utilize Axios' cancel token for aborting requests
+- Set up default configurations for common headers and base URL
