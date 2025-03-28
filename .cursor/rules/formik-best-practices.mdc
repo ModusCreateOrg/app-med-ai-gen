@@ -1,0 +1,9 @@
+---
+description: 
+globs: *.ts,*.tsx
+alwaysApply: false
+---
+- Use Formik's built-in validation for form handling
+- Implement custom validation with Yup for complex schemas
+- Utilize the useFormik hook for more control over form state
+- Leverage Formik's error handling for user feedback

@@ -1,0 +1,9 @@
+---
+description: 
+globs: *.ts,*.tsx
+alwaysApply: false
+---
+- Use Amplify CLI for easy setup and configuration
+- Implement proper authentication flows with Amplify Auth
+- Utilize Amplify DataStore for offline capabilities
+- Optimize API calls with Amplify's GraphQL client

@@ -75,5 +75,8 @@
     "chat": {
       "title": "Assistant IA"
     }
+  },
+  "app": {
+    "name": "MEDReport AI"
   }
 }

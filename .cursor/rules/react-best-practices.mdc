@@ -1,0 +1,9 @@
+---
+description: 
+globs: *.ts,*.tsx
+alwaysApply: false
+---
+- Use functional components with hooks instead of class components
+- Implement proper state management (e.g., Context API, Redux)
+- Utilize memoization techniques (useMemo, useCallback) for performance
+- Follow React's one-way data flow principle

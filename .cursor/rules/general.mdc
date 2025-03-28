@@ -1,9 +1,8 @@
 ---
-description: Follow this rules for every request
+description: 
 globs: 
-alwaysApply: false
+alwaysApply: true
 ---
-
 - Project Proposal Overview: This project proposes an AI-powered medical report translator that simplifies complex medical documents for patients and caregivers. By leveraging AI-driven text extraction and natural language processing (NLP), the system translates medical jargon into plain language, helping users understand their health conditions, diagnoses, and test results without relying on unreliable online searches.
 
 - Why are we doing this? Patients often receive medical reports full of complex terminology, abbreviations, and technical language that they don’t understand, causing confusion, stress, and potential misinterpretation of their health conditions. Many resort to Google searches or unreliable forums to decipher their reports, leading to misinformation and anxiety. By automating medical report simplification, we help patients take control of their healthcare, make informed decisions, and reduce the dependency on doctors for basic explanations.

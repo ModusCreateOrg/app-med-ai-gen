@@ -1,0 +1,30 @@
+# Cursor Rules
+
+## Always Use i18n for Text in React Files
+
+Always use the internationalization (i18n) system for any text displayed to users in React components.
+
+```typescript
+// ❌ AVOID hardcoded text
+<label>Email</label>
+<span>Don't have an account?</span>
+<button>Log in</button>
+
+// ✅ PREFERRED - Use t() function from react-i18next
+<label>{t('label.email', { ns: 'auth' })}</label>
+<span>{t('no-account', { ns: 'auth' })}</span>
+<button>{t('signin', { ns: 'auth' })}</button>
+```
+
+### Translation Key Guidelines:
+- Use namespaces to organize translations (e.g., { ns: 'auth' })
+- Use hierarchical keys with dots for organization (e.g., 'label.email')
+- Ensure all keys are defined in the appropriate translation files
+
+### Common Namespaces:
+- 'common' - app-wide common labels and messages
+- 'auth' - authentication related texts
+- 'errors' - error messages
+- 'validation' - form validation messages
+
+This rule ensures our application supports multiple languages and facilitates future translations. 
