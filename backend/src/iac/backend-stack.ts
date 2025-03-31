@@ -332,24 +332,6 @@ export class BackendStack extends cdk.Stack {
       },
     });
 
-    // Add health check endpoint without authorization
-    const healthResource = api.root.addResource('health');
-    healthResource.addMethod(
-      'GET',
-      new apigateway.Integration({
-        type: apigateway.IntegrationType.HTTP_PROXY,
-        integrationHttpMethod: 'GET',
-        options: {
-          connectionType: apigateway.ConnectionType.VPC_LINK,
-          vpcLink: vpcLink,
-        },
-        uri: `${serviceUrl}/api/health`,
-      }),
-      {
-        authorizationType: apigateway.AuthorizationType.NONE,
-      },
-    );
-
     // Add execution role policy to allow API Gateway to access VPC resources
     new iam.Role(this, `${appName}APIGatewayVPCRole-${props.environment}`, {
       assumedBy: new iam.ServicePrincipal('apigateway.amazonaws.com'),
@@ -365,18 +347,6 @@ export class BackendStack extends cdk.Stack {
 
     const apiResourcePolicy = new iam.PolicyDocument({
       statements: [
-        // Allow all users to access the health endpoint in all stages
-        // Security note: This is intentionally public as it's a non-sensitive health check endpoint
-        // that doesn't expose any protected data or functionality
-        new iam.PolicyStatement({
-          effect: iam.Effect.ALLOW,
-          principals: [new iam.AnyPrincipal()],
-          actions: ['execute-api:Invoke'],
-          resources: [
-            `arn:aws:execute-api:${this.region}:${this.account}:${api.restApiId}/*/GET/health`,
-          ],
-        }),
-
         // Allow only authenticated Cognito users to access all other endpoints
         new iam.PolicyStatement({
           effect: iam.Effect.ALLOW,
