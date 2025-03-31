@@ -247,6 +247,9 @@ export class BackendStack extends cdk.Stack {
     });
 
     // Add a listener to the NLB
+    // Security note: This NLB is internal-only within a private subnet and not internet-facing.
+    // External traffic is secured via API Gateway's HTTPS endpoints, so unencrypted internal
+    // communication within the VPC's private network boundary is acceptable here.
     const listener = nlb.addListener(`${appName}Listener-${props.environment}`, {
       port: 80,
       protocol: elbv2.Protocol.TCP,
@@ -344,7 +347,7 @@ export class BackendStack extends cdk.Stack {
       }),
       {
         authorizationType: apigateway.AuthorizationType.NONE,
-      }
+      },
     );
 
     // Add execution role policy to allow API Gateway to access VPC resources
