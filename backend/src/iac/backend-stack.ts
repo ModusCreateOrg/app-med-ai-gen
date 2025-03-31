@@ -342,6 +342,9 @@ export class BackendStack extends cdk.Stack {
         },
         uri: `${serviceUrl}/api/health`,
       }),
+      {
+        authorizationType: apigateway.AuthorizationType.NONE,
+      }
     );
 
     // Add execution role policy to allow API Gateway to access VPC resources
@@ -360,6 +363,8 @@ export class BackendStack extends cdk.Stack {
     const apiResourcePolicy = new iam.PolicyDocument({
       statements: [
         // Allow all users to access the health endpoint in all stages
+        // Security note: This is intentionally public as it's a non-sensitive health check endpoint
+        // that doesn't expose any protected data or functionality
         new iam.PolicyStatement({
           effect: iam.Effect.ALLOW,
           principals: [new iam.AnyPrincipal()],
@@ -372,6 +377,8 @@ export class BackendStack extends cdk.Stack {
         // Allow only authenticated Cognito users to access all other endpoints
         new iam.PolicyStatement({
           effect: iam.Effect.ALLOW,
+          // Using AnyPrincipal here but access is restricted by the Cognito condition below
+          // This is not truly public access as only authenticated users can meet the condition
           principals: [new iam.AnyPrincipal()],
           actions: ['execute-api:Invoke'],
           resources: [`arn:aws:execute-api:${this.region}:${this.account}:${api.restApiId}/*/*`],
