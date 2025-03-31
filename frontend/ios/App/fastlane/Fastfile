@@ -51,7 +51,6 @@ platform :ios do
       clean: true,
       output_directory: "./build/device",
       output_name: "App.ipa",
-      xcargs: "CODE_SIGN_STYLE=Manual DEVELOPMENT_TEAM=287TS9B2H2 PROVISIONING_PROFILE_SPECIFIER='match Development com.moduscreate.appmedaigen'"
     )
 
     upload_to_testflight(
