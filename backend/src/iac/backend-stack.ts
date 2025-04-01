@@ -277,8 +277,9 @@ export class BackendStack extends cdk.Stack {
       description: `VPC Link for ${appName} ${props.environment}`,
     });
 
-    // Create API Gateway
-    const api = new apigateway.RestApi(this, `${appName}Api-${props.environment}`, {
+    // Create API Gateway first without any resources or methods
+    const apiLogicalId = `${appName}-api-${props.environment}`;
+    const api = new apigateway.RestApi(this, apiLogicalId, {
       restApiName: `${appName}-${props.environment}`,
       description: `API for ${appName} ${props.environment}`,
       deployOptions: {
@@ -286,11 +287,7 @@ export class BackendStack extends cdk.Stack {
         loggingLevel: apigateway.MethodLoggingLevel.INFO,
         dataTraceEnabled: true,
       },
-      defaultCorsPreflightOptions: {
-        allowOrigins: apigateway.Cors.ALL_ORIGINS,
-        allowMethods: apigateway.Cors.ALL_METHODS,
-        allowHeaders: ['Content-Type', 'Authorization', 'X-Amz-Date', 'X-Api-Key'],
-      },
+      // Important: Do NOT use defaultCorsPreflightOptions here
     });
 
     // Create Cognito Authorizer
@@ -301,86 +298,146 @@ export class BackendStack extends cdk.Stack {
         cognitoUserPools: [userPool],
         authorizerName: `${appName}Authorizer-${props.environment}`,
         identitySource: 'method.request.header.Authorization',
-      },
+      }
     );
 
-    // Use the NLB DNS name for the service URL
+    // Define the service URL using the NLB DNS
     const serviceUrl = `http://${nlb.loadBalancerDnsName}`;
 
-    // Create proxy resource with Cognito authorization
-    const proxyResource = api.root.addResource('{proxy+}');
+    // Create the 'api' resource
+    const apiResource = api.root.addResource('api');
 
-    // Integration with Fargate service via VPC Link
-    const integration = new apigateway.Integration({
+    // Create the 'reports' resource under 'api'
+    const reportsResource = apiResource.addResource('reports');
+
+    // Create the 'latest' resource under 'reports'
+    const latestResource = reportsResource.addResource('latest');
+
+    // Create the ':id' resource under 'reports' with a path parameter
+    const reportIdResource = reportsResource.addResource('{id}');
+
+    // Create the 'status' resource under ':id'
+    const reportStatusResource = reportIdResource.addResource('status');
+
+    // Define integration options once for reuse
+    const integrationOptions = {
+      connectionType: apigateway.ConnectionType.VPC_LINK,
+      vpcLink: vpcLink,
+    };
+
+    // Create integrations for each endpoint
+    const getReportsIntegration = new apigateway.Integration({
       type: apigateway.IntegrationType.HTTP_PROXY,
-      integrationHttpMethod: 'ANY',
+      integrationHttpMethod: 'GET',
+      uri: `${serviceUrl}/api/reports`,
+      options: integrationOptions,
+    });
+
+    const getLatestReportIntegration = new apigateway.Integration({
+      type: apigateway.IntegrationType.HTTP_PROXY,
+      integrationHttpMethod: 'GET',
+      uri: `${serviceUrl}/api/reports/latest`,
+      options: integrationOptions,
+    });
+
+    const getReportByIdIntegration = new apigateway.Integration({
+      type: apigateway.IntegrationType.HTTP_PROXY,
+      integrationHttpMethod: 'GET',
+      uri: `${serviceUrl}/api/reports/{id}`,
       options: {
-        connectionType: apigateway.ConnectionType.VPC_LINK,
-        vpcLink: vpcLink,
+        ...integrationOptions,
         requestParameters: {
-          'integration.request.path.proxy': 'method.request.path.proxy',
+          'integration.request.path.id': 'method.request.path.id',
         },
       },
-      uri: `${serviceUrl}/{proxy}`,
     });
 
-    proxyResource.addMethod('ANY', integration, {
-      authorizer: authorizer,
-      authorizationType: apigateway.AuthorizationType.COGNITO,
-      requestParameters: {
-        'method.request.path.proxy': true,
+    const patchReportStatusIntegration = new apigateway.Integration({
+      type: apigateway.IntegrationType.HTTP_PROXY,
+      integrationHttpMethod: 'PATCH',
+      uri: `${serviceUrl}/api/reports/{id}/status`,
+      options: {
+        ...integrationOptions,
+        requestParameters: {
+          'integration.request.path.id': 'method.request.path.id',
+        },
       },
     });
 
-    // Add execution role policy to allow API Gateway to access VPC resources
-    new iam.Role(this, `${appName}APIGatewayVPCRole-${props.environment}`, {
+    // Define method options with authorization
+    const methodOptions = {
+      authorizer: authorizer,
+      authorizationType: apigateway.AuthorizationType.COGNITO,
+    };
+
+    // Add methods to the resources
+    reportsResource.addMethod('GET', getReportsIntegration, methodOptions);
+    latestResource.addMethod('GET', getLatestReportIntegration, methodOptions);
+
+    // For path parameter methods, add the request parameter configuration
+    reportIdResource.addMethod('GET', getReportByIdIntegration, {
+      ...methodOptions,
+      requestParameters: {
+        'method.request.path.id': true,
+      },
+    });
+
+    reportStatusResource.addMethod('PATCH', patchReportStatusIntegration, {
+      ...methodOptions,
+      requestParameters: {
+        'method.request.path.id': true,
+      },
+    });
+
+    // Add CORS to each resource separately - after methods have been created
+    const corsOptions = {
+      allowOrigins: ['*'],
+      allowMethods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
+      allowHeaders: ['Content-Type', 'Authorization', 'X-Amz-Date', 'X-Api-Key'],
+      maxAge: cdk.Duration.seconds(300),
+    };
+
+    // Add CORS to all resources
+    api.root.addCorsPreflight(corsOptions);
+    apiResource.addCorsPreflight(corsOptions);
+    reportsResource.addCorsPreflight(corsOptions);
+    latestResource.addCorsPreflight(corsOptions);
+    reportIdResource.addCorsPreflight(corsOptions);
+    reportStatusResource.addCorsPreflight(corsOptions);
+
+    // Apply resource policy separately after resources and methods are created
+    // const apiResourcePolicy = new iam.PolicyDocument({
+    //   statements: [
+    //     // Allow authenticated Cognito users
+    //     new iam.PolicyStatement({
+    //       effect: iam.Effect.ALLOW,
+    //       principals: [new iam.AnyPrincipal()],
+    //       actions: ['execute-api:Invoke'],
+    //       resources: [`arn:aws:execute-api:${this.region}:${this.account}:${api.restApiId}/*/*`],
+    //     }),
+    //     // Deny non-HTTPS requests
+    //     new iam.PolicyStatement({
+    //       effect: iam.Effect.DENY,
+    //       principals: [new iam.AnyPrincipal()],
+    //      actions: ['execute-api:Invoke'],
+    //      resources: [`arn:aws:execute-api:${this.region}:${this.account}:${api.restApiId}/*/*`],
+    //      conditions: {
+    //        Bool: {
+    //          'aws:SecureTransport': 'false',
+    //        },
+    //      },
+    //      }),
+    //    ],
+    //  });
+
+    // Create API Gateway execution role with required permissions
+    new iam.Role(this, `${appName}APIGatewayRole-${props.environment}`, {
       assumedBy: new iam.ServicePrincipal('apigateway.amazonaws.com'),
       managedPolicies: [
-        iam.ManagedPolicy.fromAwsManagedPolicyName(
-          'service-role/AmazonAPIGatewayPushToCloudWatchLogs',
-        ),
-        iam.ManagedPolicy.fromAwsManagedPolicyName(
-          'AmazonVPCCrossAccountNetworkInterfaceOperations',
-        ),
+        iam.ManagedPolicy.fromAwsManagedPolicyName('service-role/AmazonAPIGatewayPushToCloudWatchLogs'),
+        iam.ManagedPolicy.fromAwsManagedPolicyName('AmazonVPCCrossAccountNetworkInterfaceOperations'),
       ],
     });
-
-    const apiResourcePolicy = new iam.PolicyDocument({
-      statements: [
-        // Allow only authenticated Cognito users to access all other endpoints
-        new iam.PolicyStatement({
-          effect: iam.Effect.ALLOW,
-          // Using AnyPrincipal here but access is restricted by the Cognito condition below
-          // This is not truly public access as only authenticated users can meet the condition
-          principals: [new iam.AnyPrincipal()],
-          actions: ['execute-api:Invoke'],
-          resources: [`arn:aws:execute-api:${this.region}:${this.account}:${api.restApiId}/*/*`],
-          conditions: {
-            StringEquals: {
-              'aws:PrincipalTag/cognito-identity.amazonaws.com:sub':
-                '${cognito-identity.amazonaws.com:sub}',
-            },
-          },
-        }),
-
-        // Deny all non-HTTPS requests
-        new iam.PolicyStatement({
-          effect: iam.Effect.DENY,
-          principals: [new iam.AnyPrincipal()],
-          actions: ['execute-api:Invoke'],
-          resources: [`arn:aws:execute-api:${this.region}:${this.account}:${api.restApiId}/*/*`],
-          conditions: {
-            Bool: {
-              'aws:SecureTransport': 'false',
-            },
-          },
-        }),
-      ],
-    });
-
-    // Apply the policy to the API Gateway using CfnRestApi
-    const cfnApi = api.node.defaultChild as apigateway.CfnRestApi;
-    cfnApi.policy = apiResourcePolicy.toJSON();
 
     // Outputs
     new cdk.CfnOutput(this, 'ReportsTableName', {
