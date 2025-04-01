@@ -126,13 +126,20 @@ export class BackendStack extends cdk.Stack {
     );
 
     // Create Task Execution Role - this is used during task startup
-    const taskExecutionRole = new iam.Role(this, `${appName}TaskExecutionRole-${props.environment}`, {
-      assumedBy: new iam.ServicePrincipal('ecs-tasks.amazonaws.com'),
-      description: 'Role that the ECS service uses to pull container images and publish logs to CloudWatch',
-      managedPolicies: [
-        iam.ManagedPolicy.fromAwsManagedPolicyName('service-role/AmazonECSTaskExecutionRolePolicy')
-      ]
-    });
+    const taskExecutionRole = new iam.Role(
+      this,
+      `${appName}TaskExecutionRole-${props.environment}`,
+      {
+        assumedBy: new iam.ServicePrincipal('ecs-tasks.amazonaws.com'),
+        description:
+          'Role that the ECS service uses to pull container images and publish logs to CloudWatch',
+        managedPolicies: [
+          iam.ManagedPolicy.fromAwsManagedPolicyName(
+            'service-role/AmazonECSTaskExecutionRolePolicy',
+          ),
+        ],
+      },
+    );
 
     // Create Task Role - this is used by the container during runtime
     const taskRole = new iam.Role(this, `${appName}TaskRole-${props.environment}`, {
@@ -145,16 +152,15 @@ export class BackendStack extends cdk.Stack {
     reportsTable.grantReadWriteData(taskRole);
 
     // Add permission to read Perplexity API key from Secrets Manager
-    taskRole.addToPolicy(new iam.PolicyStatement({
-      effect: iam.Effect.ALLOW,
-      actions: [
-        'secretsmanager:GetSecretValue',
-        'secretsmanager:DescribeSecret'
-      ],
-      resources: [
-        `arn:aws:secretsmanager:${this.region}:${this.account}:secret:medical-reports-explainer/${props.environment}/perplexity-api-key-*`
-      ]
-    }));
+    taskRole.addToPolicy(
+      new iam.PolicyStatement({
+        effect: iam.Effect.ALLOW,
+        actions: ['secretsmanager:GetSecretValue', 'secretsmanager:DescribeSecret'],
+        resources: [
+          `arn:aws:secretsmanager:${this.region}:${this.account}:secret:medical-reports-explainer/${props.environment}/perplexity-api-key-*`,
+        ],
+      }),
+    );
 
     // Task Definition with explicit roles
     const taskDefinition = new ecs.FargateTaskDefinition(
@@ -163,8 +169,8 @@ export class BackendStack extends cdk.Stack {
       {
         memoryLimitMiB: isProd ? 1024 : 512,
         cpu: isProd ? 512 : 256,
-        taskRole: taskRole,                // Role that the application uses to call AWS services
-        executionRole: taskExecutionRole   // Role that ECS uses to pull images and write logs
+        taskRole: taskRole, // Role that the application uses to call AWS services
+        executionRole: taskExecutionRole, // Role that ECS uses to pull images and write logs
       },
     );
 
