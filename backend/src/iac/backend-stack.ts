@@ -343,6 +343,9 @@ export class BackendStack extends cdk.Stack {
     // Create the 'api' resource
     const apiResource = api.root.addResource('api');
 
+    // Create the 'docs' resource under 'api'
+    const docsResource = apiResource.addResource('docs');
+
     // Create the 'reports' resource under 'api'
     const reportsResource = apiResource.addResource('reports');
 
@@ -360,6 +363,13 @@ export class BackendStack extends cdk.Stack {
       connectionType: apigateway.ConnectionType.VPC_LINK,
       vpcLink: vpcLink,
     };
+
+    const getDocsIntegration = new apigateway.Integration({
+      type: apigateway.IntegrationType.HTTP_PROXY,
+      integrationHttpMethod: 'GET',
+      uri: `${serviceUrl}/api/docs`,
+      options: integrationOptions,
+    });
 
     // Create integrations for each endpoint
     const getReportsIntegration = new apigateway.Integration({
@@ -409,7 +419,7 @@ export class BackendStack extends cdk.Stack {
     // Add methods to the resources
     reportsResource.addMethod('GET', getReportsIntegration, methodOptions);
     latestResource.addMethod('GET', getLatestReportIntegration, methodOptions);
-
+    docsResource.addMethod('GET', getDocsIntegration, methodOptions);
     // For path parameter methods, add the request parameter configuration
     reportIdResource.addMethod('GET', getReportByIdIntegration, {
       ...methodOptions,
@@ -440,31 +450,7 @@ export class BackendStack extends cdk.Stack {
     latestResource.addCorsPreflight(corsOptions);
     reportIdResource.addCorsPreflight(corsOptions);
     reportStatusResource.addCorsPreflight(corsOptions);
-
-    // Apply resource policy separately after resources and methods are created
-    // const apiResourcePolicy = new iam.PolicyDocument({
-    //   statements: [
-    //     // Allow authenticated Cognito users
-    //     new iam.PolicyStatement({
-    //       effect: iam.Effect.ALLOW,
-    //       principals: [new iam.AnyPrincipal()],
-    //       actions: ['execute-api:Invoke'],
-    //       resources: [`arn:aws:execute-api:${this.region}:${this.account}:${api.restApiId}/*/*`],
-    //     }),
-    //     // Deny non-HTTPS requests
-    //     new iam.PolicyStatement({
-    //       effect: iam.Effect.DENY,
-    //       principals: [new iam.AnyPrincipal()],
-    //      actions: ['execute-api:Invoke'],
-    //      resources: [`arn:aws:execute-api:${this.region}:${this.account}:${api.restApiId}/*/*`],
-    //      conditions: {
-    //        Bool: {
-    //          'aws:SecureTransport': 'false',
-    //        },
-    //      },
-    //      }),
-    //    ],
-    //  });
+    docsResource.addCorsPreflight(corsOptions);
 
     // Create API Gateway execution role with required permissions
     new iam.Role(this, `${appName}APIGatewayRole-${props.environment}`, {
