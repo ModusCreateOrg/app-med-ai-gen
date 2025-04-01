@@ -1,6 +1,6 @@
 import axios, { AxiosProgressEvent, AxiosRequestConfig } from 'axios';
 import { MedicalReport, ReportStatus, ReportCategory } from '../models/medicalReport';
-
+import { fetchAuthSession } from '@aws-amplify/auth';
 // Get the API URL from environment variables
 const API_URL = import.meta.env.VITE_BASE_URL_API || '';
 
@@ -14,6 +14,18 @@ const mockReports: MedicalReport[] = [
     documentUrl: 'https://example.com/reports/1/heart_scan.pdf'
   }
 ];
+
+/**
+ * Creates an authenticated request config with bearer token
+ */
+const getAuthConfig = async (): Promise<AxiosRequestConfig> => {
+  const session = await fetchAuthSession();
+  return {
+    headers: {
+      Authorization: session.tokens?.idToken ? `Bearer ${session.tokens.idToken.toString()}` : ''
+    }
+  };
+};
 
 /**
  * Error thrown when report operations fail.
@@ -58,32 +70,32 @@ export const uploadReport = async (
     // Create form data for file upload
     const formData = new FormData();
     formData.append('file', file);
-    
+
     // Optional metadata about the file
     formData.append('fileName', file.name);
     formData.append('fileType', file.type);
     formData.append('fileSize', file.size.toString());
-    
+
     // Setup request config with progress tracking if callback provided
     const config: AxiosRequestConfig = {
       headers: {
         'Content-Type': 'multipart/form-data'
       }
     };
-    
+
     if (onProgress) {
       config.onUploadProgress = (progressEvent: AxiosProgressEvent) => {
-        const percentCompleted = progressEvent.total 
+        const percentCompleted = progressEvent.total
           ? Math.round((progressEvent.loaded * 100) / progressEvent.total) / 100
           : 0;
         onProgress(percentCompleted);
       };
     }
-    
+
     // In a real app, this would be an actual API call
     // const response = await axios.post('/api/reports/upload', formData, config);
     // return response.data;
-    
+
     // For demonstration purposes, simulate upload delay and return mock data
     await new Promise<void>(resolve => {
       // Simulate progress updates
@@ -97,7 +109,7 @@ export const uploadReport = async (
           }
           onProgress(progress);
         }, 200);
-        
+
         // Resolve after simulated upload time
         setTimeout(() => {
           clearInterval(interval);
@@ -109,7 +121,7 @@ export const uploadReport = async (
         setTimeout(resolve, 2000);
       }
     });
-    
+
     // Create a new report based on the uploaded file
     const newReport: MedicalReport = {
       id: String(mockReports.length + 1),
@@ -119,10 +131,10 @@ export const uploadReport = async (
       status: ReportStatus.UNREAD,
       documentUrl: `https://example.com/reports/${mockReports.length + 1}/${file.name}` // Mock URL
     };
-    
+
     // Add to mock data
     mockReports.unshift(newReport);
-    
+
     return newReport;
   } catch (error) {
     if (axios.isAxiosError(error)) {
@@ -139,8 +151,8 @@ export const uploadReport = async (
  */
 const determineCategory = (filename: string): ReportCategory => {
   const lowerFilename = filename.toLowerCase();
-  
-  const matchedCategory = Object.entries(CATEGORY_KEYWORDS).find(([_, keywords]) => 
+
+  const matchedCategory = Object.entries(CATEGORY_KEYWORDS).find(([_, keywords]) =>
     keywords.some(keyword => lowerFilename.includes(keyword))
   );
 
@@ -154,7 +166,7 @@ const determineCategory = (filename: string): ReportCategory => {
  */
 export const fetchLatestReports = async (limit = 3): Promise<MedicalReport[]> => {
   try {
-    const response = await axios.get(`${API_URL}/api/reports/latest?limit=${limit}`);
+    const response = await axios.get(`${API_URL}/api/reports/latest?limit=${limit}`, await getAuthConfig());
     console.log('response', response.data);
     console.log('API_URL', API_URL);
     return response.data;
@@ -172,7 +184,7 @@ export const fetchLatestReports = async (limit = 3): Promise<MedicalReport[]> =>
  */
 export const fetchAllReports = async (): Promise<MedicalReport[]> => {
   try {
-    const response = await axios.get(`${API_URL}/api/reports`);
+    const response = await axios.get(`${API_URL}/api/reports`, await getAuthConfig() );
     return response.data;
   } catch (error) {
     if (axios.isAxiosError(error)) {
