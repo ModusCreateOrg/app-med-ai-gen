@@ -125,18 +125,48 @@ export class BackendStack extends cdk.Stack {
       'Allow inbound HTTPS traffic from within VPC',
     );
 
-    // Task Definition
+    // Create Task Execution Role - this is used during task startup
+    const taskExecutionRole = new iam.Role(this, `${appName}TaskExecutionRole-${props.environment}`, {
+      assumedBy: new iam.ServicePrincipal('ecs-tasks.amazonaws.com'),
+      description: 'Role that the ECS service uses to pull container images and publish logs to CloudWatch',
+      managedPolicies: [
+        iam.ManagedPolicy.fromAwsManagedPolicyName('service-role/AmazonECSTaskExecutionRolePolicy')
+      ]
+    });
+
+    // Create Task Role - this is used by the container during runtime
+    const taskRole = new iam.Role(this, `${appName}TaskRole-${props.environment}`, {
+      assumedBy: new iam.ServicePrincipal('ecs-tasks.amazonaws.com'),
+      description: 'Role that the containers in the task assume',
+    });
+
+    // Grant permissions to the task role
+    // DynamoDB permissions
+    reportsTable.grantReadWriteData(taskRole);
+
+    // Add permission to read Perplexity API key from Secrets Manager
+    taskRole.addToPolicy(new iam.PolicyStatement({
+      effect: iam.Effect.ALLOW,
+      actions: [
+        'secretsmanager:GetSecretValue',
+        'secretsmanager:DescribeSecret'
+      ],
+      resources: [
+        `arn:aws:secretsmanager:${this.region}:${this.account}:secret:medical-reports-explainer/${props.environment}/perplexity-api-key-*`
+      ]
+    }));
+
+    // Task Definition with explicit roles
     const taskDefinition = new ecs.FargateTaskDefinition(
       this,
       `${appName}TaskDef-${props.environment}`,
       {
         memoryLimitMiB: isProd ? 1024 : 512,
         cpu: isProd ? 512 : 256,
+        taskRole: taskRole,                // Role that the application uses to call AWS services
+        executionRole: taskExecutionRole   // Role that ECS uses to pull images and write logs
       },
     );
-
-    // Grant DynamoDB permissions to task
-    reportsTable.grantReadWriteData(taskDefinition.taskRole);
 
     // Create a secrets manager for the SSL certificate and key
     const certificateSecret = new cdk.aws_secretsmanager.Secret(
@@ -194,7 +224,7 @@ export class BackendStack extends cdk.Stack {
     });
 
     // Grant the task role access to read the SSL certificate secret
-    certificateSecret.grantRead(taskDefinition.taskRole);
+    certificateSecret.grantRead(taskRole);
 
     container.addPortMappings({
       containerPort: 3000,
