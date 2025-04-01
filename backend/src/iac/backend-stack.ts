@@ -298,7 +298,7 @@ export class BackendStack extends cdk.Stack {
         cognitoUserPools: [userPool],
         authorizerName: `${appName}Authorizer-${props.environment}`,
         identitySource: 'method.request.header.Authorization',
-      }
+      },
     );
 
     // Define the service URL using the NLB DNS
@@ -434,8 +434,12 @@ export class BackendStack extends cdk.Stack {
     new iam.Role(this, `${appName}APIGatewayRole-${props.environment}`, {
       assumedBy: new iam.ServicePrincipal('apigateway.amazonaws.com'),
       managedPolicies: [
-        iam.ManagedPolicy.fromAwsManagedPolicyName('service-role/AmazonAPIGatewayPushToCloudWatchLogs'),
-        iam.ManagedPolicy.fromAwsManagedPolicyName('AmazonVPCCrossAccountNetworkInterfaceOperations'),
+        iam.ManagedPolicy.fromAwsManagedPolicyName(
+          'service-role/AmazonAPIGatewayPushToCloudWatchLogs',
+        ),
+        iam.ManagedPolicy.fromAwsManagedPolicyName(
+          'AmazonVPCCrossAccountNetworkInterfaceOperations',
+        ),
       ],
     });
 
