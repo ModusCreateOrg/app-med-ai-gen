@@ -38,7 +38,7 @@
     "@nestjs/platform-express": "^10.0.0",
     "@nestjs/swagger": "^7.1.13",
     "@types/jest": "^29.5.12",
-    "aws-cdk-lib": "^2.185.0",
+    "aws-cdk-lib": "^2.187.0",
     "aws-sdk": "^2.1692.0",
     "axios": "^1.8.1",
     "class-transformer": "^0.5.1",
@@ -74,7 +74,7 @@
     "@typescript-eslint/parser": "^7.9.0",
     "@vitest/coverage-c8": "^0.33.0",
     "aws-cdk": "2.139.0",
-    "aws-cdk-lib": "^2.185.0",
+    "aws-cdk-lib": "^2.187.0",
     "dotenv-cli": "^8.0.0",
     "eslint": "^8.57.0",
     "eslint-config-prettier": "^9.0.0",
@@ -92,6 +92,6 @@
     "vitest": "^0.33.0"
   },
   "peerDependencies": {
-    "aws-cdk-lib": "^2.185.0"
+    "aws-cdk-lib": "^2.187.0"
   }
 }
