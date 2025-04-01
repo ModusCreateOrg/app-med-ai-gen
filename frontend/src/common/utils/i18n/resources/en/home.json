@@ -25,8 +25,8 @@
     "error": "Failed to load reports",
     "uploadDate": "Upload Date",
     "noReports": {
-      "title": "No Reports Yet",
-      "message": "Upload your medical reports or connect with your healthcare provider to get started.",
+      "title": "No Reports",
+      "message": "Upload a report or try again later",
       "uploadButton": "Upload Report",
       "connectButton": "Connect Provider"
     },

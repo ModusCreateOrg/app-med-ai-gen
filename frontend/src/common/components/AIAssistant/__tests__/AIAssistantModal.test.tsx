@@ -28,7 +28,8 @@ vi.mock('../../../services/ChatService', () => {
         sender: 'assistant',
         timestamp: new Date()
       })),
-      sendMessage: vi.fn(async () => 'Mock response')
+      sendMessage: vi.fn(async () => 'Mock response'),
+      resetSession: vi.fn(async () => Promise.resolve())
     }
   };
 });

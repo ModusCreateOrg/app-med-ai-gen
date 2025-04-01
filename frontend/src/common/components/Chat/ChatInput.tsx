@@ -25,7 +25,7 @@ const ChatInput: React.FC<ChatInputProps> = ({
   const [inputValue, setInputValue] = useState<string>('');
   const inputRef = useRef<HTMLIonInputElement>(null);
   
-  const defaultPlaceholder = t('common.aiAssistant.inputPlaceholder', 'Type your question...');
+  const defaultPlaceholder = t('aiAssistant.inputPlaceholder', 'Type your question...');
   const inputPlaceholder = placeholder || defaultPlaceholder;
 
   const handleSendMessage = () => {

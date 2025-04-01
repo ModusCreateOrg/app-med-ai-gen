@@ -1,0 +1,9 @@
+---
+description: 
+globs: *.ts,*.tsx
+alwaysApply: false
+---
+- Use Capacitor plugins for native functionality
+- Implement proper lifecycle management for mobile apps
+- Optimize app size by selectively including plugins
+- Use Capacitor's storage API for local data persistence

@@ -1,0 +1,10 @@
+---
+description: 
+globs: *.ts,*.tsx,*.scss
+alwaysApply: false
+---
+- Use Ionic components for a consistent UI across platforms
+- Leverage Ionic's navigation system for routing
+- Optimize performance with lazy loading of pages
+- Use Ionic's theming system for easy customization
+

@@ -10,13 +10,13 @@ import {
 } from '@ionic/react';
 import { useState, useRef, useEffect } from 'react';
 import { closeOutline, expandOutline, contractOutline } from 'ionicons/icons';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faRobot } from '@fortawesome/free-solid-svg-icons';
 import ChatContainer from '../Chat/ChatContainer';
 import ChatInput from '../Chat/ChatInput';
 import { chatService } from '../../services/ChatService';
 import { ChatMessageData } from '../Chat/ChatMessage';
 import './AIAssistantModal.scss';
+import aiIcon from '../../../assets/img/ai-icon.svg';
 
 interface AIAssistantModalProps {
   isOpen: boolean;
@@ -40,12 +40,22 @@ const AIAssistantModal: React.FC<AIAssistantModalProps> = ({
     }
   }, [isOpen]);
 
-  const handleClose = () => {
+  const handleClose = async () => {
     setIsOpen(false);
+    
+    // Reset the chat session and clear messages when modal is closed
+    await chatService.resetSession();
+    setMessages([]);
   };
 
   const handleExpand = () => {
     setIsExpanded(!isExpanded);
+  };
+
+  // Also handle reset when modal is dismissed directly
+  const handleDismiss = async () => {
+    await chatService.resetSession();
+    setMessages([]);
   };
 
   const handleSendMessage = async (text: string) => {
@@ -71,7 +81,10 @@ const AIAssistantModal: React.FC<AIAssistantModalProps> = ({
   return (
     <IonModal 
       isOpen={isOpen}
-      onDidDismiss={() => setIsOpen(false)}
+      onDidDismiss={() => {
+        setIsOpen(false);
+        handleDismiss();
+      }}
       ref={modalRef}
       className={`ai-assistant-modal ${isExpanded ? 'expanded' : ''}`}
       data-testid={testid}
@@ -80,7 +93,7 @@ const AIAssistantModal: React.FC<AIAssistantModalProps> = ({
       <IonHeader className="ai-assistant-header">
         <IonToolbar className="ai-assistant-toolbar">
           <div className="ai-assistant-title-container">
-            <FontAwesomeIcon icon={faRobot} className="ai-assistant-title-icon" />
+          <img src={aiIcon} alt="AI Assistant Icon" className="ai-assistant-title-icon" />
             <span className="ai-assistant-title-text">AI Assistant</span>
           </div>
           <IonButtons slot="end">

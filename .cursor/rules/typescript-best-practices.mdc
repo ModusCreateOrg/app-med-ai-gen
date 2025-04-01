@@ -1,0 +1,10 @@
+---
+description: 
+globs: *.ts,*.tsx
+alwaysApply: false
+---
+- Use strict null checks
+- Prefer interface over type when possible
+- Utilize type guards and assertions for runtime type checking
+- Implement proper type inference to reduce explicit type annotations
+- Prefer using nullish coalescing operator (`??`) instead of a logical or (`||`), as it is a safer operator.

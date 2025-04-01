@@ -1,4 +1,7 @@
 {
+  "app": {
+    "name": "MEDReport AI"
+  },
   "confirm-prompt": "Are you sure?",
   "created": "created",
   "deleted": "deleted",
@@ -15,17 +18,48 @@
     "dismiss": "Dismiss",
     "edit": "Edit",
     "save": "Save",
-    "try-again": "Try Again"
+    "tryAgain": "Try Again"
   },
   "navigation": {
     "account": "Account",
     "home": "Home",
     "menu": "Menu",
     "signout": "Sign Out",
-    "users": "Users"
+    "users": "Users",
+    "chat": "AI Assistant"
   },
   "reports": {
     "uploadDate": "Upload Date"
+  },
+  "upload": {
+    "addNewFile": "Add new file",
+    "dropFilesHere": "Upload your file here",
+    "supportedFileTypes": "Supported file types:",
+    "maxFileSize": "Max file Size:",
+    "imageSizeLimit": "Images 5MB",
+    "pdfSizeLimit": "PDF 10MB",
+    "selectFile": "Upload",
+    "upload": "Upload",
+    "uploading": "Uploading",
+    "uploadSuccessful": "Upload Successful",
+    "fileReadyForProcessing": "Your file is ready for processing",
+    "uploadFailed": "Upload Failed",
+    "error": {
+      "noFile": "No file selected",
+      "permissionDenied": "Permission denied",
+      "unknown": "An unknown error occurred",
+      "fileTooBig": "File is too large. Please upload a smaller file.",
+      "invalidType": "Invalid file type. Please upload a supported file type."
+    }
+  },
+  "common": {
+    "done": "Done",
+    "tryAgain": "Try Again",
+    "cancel": "Cancel"
+  },
+  "aiAssistant": {
+    "inputPlaceholder": "Type your question...",
+    "emptyState": "How can I help you today?"
   },
   "validation": {
     "email": "Must be an email address. ",
@@ -39,5 +73,10 @@
   "no": "no",
   "updated": "updated",
   "welcome": "Welcome",
-  "yes": "yes"
+  "yes": "yes",
+  "pages": {
+    "chat": {
+      "title": "AI Assistant"
+    }
+  }
 }

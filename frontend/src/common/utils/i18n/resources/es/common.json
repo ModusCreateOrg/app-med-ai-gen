@@ -15,17 +15,48 @@
     "dismiss": "Despedir",
     "edit": "Editar",
     "save": "Guardar",
-    "try-again": "Intentar otra vez"
+    "tryAgain": "Intentar otra vez"
   },
   "navigation": {
     "account": "Cuenta",
     "home": "Inicio",
     "menu": "Menú",
     "signout": "Desconecta",
-    "users": "Usuarios"
+    "users": "Usuarios",
+    "chat": "Asistente IA"
   },
   "reports": {
     "uploadDate": "Fecha de carga"
+  },
+  "upload": {
+    "addNewFile": "Agregar nuevo archivo",
+    "dropFilesHere": "Sube tu archivo aquí",
+    "supportedFileTypes": "Tipos de archivos compatibles:",
+    "maxFileSize": "Tamaño máximo de archivo:",
+    "imageSizeLimit": "Imágenes 5MB",
+    "pdfSizeLimit": "PDF 10MB",
+    "selectFile": "Subir",
+    "upload": "Subir",
+    "uploading": "Subiendo",
+    "uploadSuccessful": "Carga exitosa",
+    "fileReadyForProcessing": "Tu archivo está listo para ser procesado",
+    "uploadFailed": "Error de carga",
+    "error": {
+      "noFile": "Ningún archivo seleccionado",
+      "permissionDenied": "Permiso denegado",
+      "unknown": "Se produjo un error desconocido",
+      "fileTooBig": "El archivo es demasiado grande. Por favor, sube un archivo más pequeño.",
+      "invalidType": "Tipo de archivo no válido. Por favor, sube un tipo de archivo compatible."
+    }
+  },
+  "common": {
+    "done": "Hecho",
+    "tryAgain": "Intentar de nuevo",
+    "cancel": "Cancelar"
+  },
+  "aiAssistant": {
+    "inputPlaceholder": "Escribe tu pregunta...",
+    "emptyState": "¿Cómo puedo ayudarte hoy?"
   },
   "validation": {
     "email": "Debe ser una dirección de correo electrónico. ",
@@ -39,5 +70,13 @@
   "no": "no",
   "updated": "actualizado",
   "welcome": "Bienvenido",
-  "yes": "sí"
+  "yes": "sí",
+  "pages": {
+    "chat": {
+      "title": "Asistente IA"
+    }
+  },
+  "app": {
+    "name": "MEDReport AI"
+  }
 }

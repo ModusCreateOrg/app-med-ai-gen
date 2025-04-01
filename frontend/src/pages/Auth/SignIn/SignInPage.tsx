@@ -1,12 +1,11 @@
-import { IonContent, IonPage } from '@ionic/react';
+import { IonContent, IonPage, IonImg } from '@ionic/react';
 import { useTranslation } from 'react-i18next';
 
 import './SignInPage.scss';
 import { PropsWithTestId } from 'common/components/types';
 import ProgressProvider from 'common/providers/ProgressProvider';
-import Header from 'common/components/Header/Header';
 import SignInForm from './components/SignInForm';
-import Container from 'common/components/Content/Container';
+import logo from 'assets/logo_ls.png';
 
 /**
  * Properties for the `SignInPage` component.
@@ -24,12 +23,22 @@ const SignInPage = ({ testid = 'page-signin' }: SignInPageProps): JSX.Element =>
   return (
     <IonPage className="ls-signin-page" data-testid={testid}>
       <ProgressProvider>
-        <Header title={t('ionic-playground')} />
-
         <IonContent fullscreen className="ion-padding">
-          <Container className="ls-signin-page__container" fixed>
-            <SignInForm className="ls-signin-page__form" />
-          </Container>
+          <div className="ls-signin-page__background">
+            <div className="ls-signin-page__logo-container">
+              <IonImg src={logo} alt="Logo" className="ls-signin-page__logo" />
+              <span className="ls-signin-page__logo-text">{t('app.name', { ns: 'common' })}</span>
+            </div>
+            
+            <div className="ls-signin-page__card">
+              <div className="ls-signin-page__header">
+                <h1>{t('signin.title', { ns: 'auth' })}</h1>
+                <p>{t('signin.subtitle', { ns: 'auth' })}</p>
+              </div>
+              
+              <SignInForm className="ls-signin-page__form" />
+            </div>
+          </div>
         </IonContent>
       </ProgressProvider>
     </IonPage>

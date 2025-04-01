@@ -15,17 +15,48 @@
     "dismiss": "Rejeter",
     "edit": "Modifier",
     "save": "Sauvegarder",
-    "try-again": "Essayer à nouveau"
+    "tryAgain": "Essayer à nouveau"
   },
   "navigation": {
     "account": "Compte",
     "home": "Maison",
     "menu": "Menu",
     "signout": "Déconnecter",
-    "users": "Utilisateurs"
+    "users": "Utilisateurs",
+    "chat": "Assistant IA"
   },
   "reports": {
     "uploadDate": "Date de téléchargement"
+  },
+  "upload": {
+    "addNewFile": "Ajouter un nouveau fichier",
+    "dropFilesHere": "Téléchargez votre fichier ici",
+    "supportedFileTypes": "Types de fichiers pris en charge:",
+    "maxFileSize": "Taille maximale du fichier:",
+    "imageSizeLimit": "Images 5MB",
+    "pdfSizeLimit": "PDF 10MB",
+    "selectFile": "Télécharger",
+    "upload": "Télécharger",
+    "uploading": "Téléchargement",
+    "uploadSuccessful": "Téléchargement réussi",
+    "fileReadyForProcessing": "Votre fichier est prêt à être traité",
+    "uploadFailed": "Échec du téléchargement",
+    "error": {
+      "noFile": "Aucun fichier sélectionné",
+      "permissionDenied": "Permission refusée",
+      "unknown": "Une erreur inconnue s'est produite",
+      "fileTooBig": "Le fichier est trop volumineux. Veuillez télécharger un fichier plus petit.",
+      "invalidType": "Type de fichier non valide. Veuillez télécharger un type de fichier pris en charge."
+    }
+  },
+  "common": {
+    "done": "Terminé",
+    "tryAgain": "Réessayer",
+    "cancel": "Annuler"
+  },
+  "aiAssistant": {
+    "inputPlaceholder": "Tapez votre question...",
+    "emptyState": "Comment puis-je vous aider aujourd'hui ?"
   },
   "validation": {
     "email": "Doit être une adresse e-mail. ",
@@ -39,5 +70,13 @@
   "no": "non",
   "updated": "mis à jour",
   "welcome": "Bienvenu",
-  "yes": "oui"
+  "yes": "oui",
+  "pages": {
+    "chat": {
+      "title": "Assistant IA"
+    }
+  },
+  "app": {
+    "name": "MEDReport AI"
+  }
 }

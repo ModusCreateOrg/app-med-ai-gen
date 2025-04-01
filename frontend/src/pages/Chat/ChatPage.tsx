@@ -1,6 +1,6 @@
 import { IonContent, IonHeader, IonPage, IonTitle, IonToolbar } from '@ionic/react';
 import { useTranslation } from 'react-i18next';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import ChatContainer from '../../common/components/Chat/ChatContainer';
 import ChatInput from '../../common/components/Chat/ChatInput';
 import { chatService } from '../../common/services/ChatService';
@@ -16,6 +16,18 @@ import './ChatPage.scss';
 const ChatPage = (): JSX.Element => {
   const { t } = useTranslation();
   const [messages, setMessages] = useState<ChatMessageData[]>([]);
+
+  // Reset chat session when component unmounts
+  useEffect(() => {
+    // Create a new session when the component mounts
+    chatService.resetSession();
+    
+    // Reset the chat session when the component unmounts
+    return () => {
+      chatService.resetSession();
+      // We don't need to clear messages array since the component is unmounting
+    };
+  }, []);
 
   const handleSendMessage = async (text: string) => {
     const userMessage = chatService.createUserMessage(text);
