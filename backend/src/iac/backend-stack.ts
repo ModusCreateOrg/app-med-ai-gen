@@ -447,27 +447,27 @@ export class BackendStack extends cdk.Stack {
     api.root.addCorsPreflight(corsOptions);
     apiResource.addCorsPreflight({
       ...corsOptions,
-      allowCredentials: false // This is crucial - make sure OPTIONS requests don't require credentials
+      allowCredentials: false, // This is crucial - make sure OPTIONS requests don't require credentials
     });
     reportsResource.addCorsPreflight({
       ...corsOptions,
-      allowCredentials: false
+      allowCredentials: false,
     });
     latestResource.addCorsPreflight({
       ...corsOptions,
-      allowCredentials: false
+      allowCredentials: false,
     });
     reportIdResource.addCorsPreflight({
       ...corsOptions,
-      allowCredentials: false
+      allowCredentials: false,
     });
     reportStatusResource.addCorsPreflight({
       ...corsOptions,
-      allowCredentials: false
+      allowCredentials: false,
     });
     docsResource.addCorsPreflight({
       ...corsOptions,
-      allowCredentials: false
+      allowCredentials: false,
     });
 
     // Configure Gateway Responses to add CORS headers to error responses
