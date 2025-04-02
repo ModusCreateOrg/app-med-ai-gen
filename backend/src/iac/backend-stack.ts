@@ -125,18 +125,54 @@ export class BackendStack extends cdk.Stack {
       'Allow inbound HTTPS traffic from within VPC',
     );
 
-    // Task Definition
+    // Create Task Execution Role - this is used during task startup
+    const taskExecutionRole = new iam.Role(
+      this,
+      `${appName}TaskExecutionRole-${props.environment}`,
+      {
+        assumedBy: new iam.ServicePrincipal('ecs-tasks.amazonaws.com'),
+        description:
+          'Role that the ECS service uses to pull container images and publish logs to CloudWatch',
+        managedPolicies: [
+          iam.ManagedPolicy.fromAwsManagedPolicyName(
+            'service-role/AmazonECSTaskExecutionRolePolicy',
+          ),
+        ],
+      },
+    );
+
+    // Create Task Role - this is used by the container during runtime
+    const taskRole = new iam.Role(this, `${appName}TaskRole-${props.environment}`, {
+      assumedBy: new iam.ServicePrincipal('ecs-tasks.amazonaws.com'),
+      description: 'Role that the containers in the task assume',
+    });
+
+    // Grant permissions to the task role
+    // DynamoDB permissions
+    reportsTable.grantReadWriteData(taskRole);
+
+    // Add permission to read Perplexity API key from Secrets Manager
+    taskRole.addToPolicy(
+      new iam.PolicyStatement({
+        effect: iam.Effect.ALLOW,
+        actions: ['secretsmanager:GetSecretValue', 'secretsmanager:DescribeSecret'],
+        resources: [
+          `arn:aws:secretsmanager:${this.region}:${this.account}:secret:medical-reports-explainer/${props.environment}/perplexity-api-key-*`,
+        ],
+      }),
+    );
+
+    // Task Definition with explicit roles
     const taskDefinition = new ecs.FargateTaskDefinition(
       this,
       `${appName}TaskDef-${props.environment}`,
       {
         memoryLimitMiB: isProd ? 1024 : 512,
         cpu: isProd ? 512 : 256,
+        taskRole: taskRole, // Role that the application uses to call AWS services
+        executionRole: taskExecutionRole, // Role that ECS uses to pull images and write logs
       },
     );
-
-    // Grant DynamoDB permissions to task
-    reportsTable.grantReadWriteData(taskDefinition.taskRole);
 
     // Create a secrets manager for the SSL certificate and key
     const certificateSecret = new cdk.aws_secretsmanager.Secret(
@@ -194,7 +230,7 @@ export class BackendStack extends cdk.Stack {
     });
 
     // Grant the task role access to read the SSL certificate secret
-    certificateSecret.grantRead(taskDefinition.taskRole);
+    certificateSecret.grantRead(taskRole);
 
     container.addPortMappings({
       containerPort: 3000,
@@ -307,6 +343,9 @@ export class BackendStack extends cdk.Stack {
     // Create the 'api' resource
     const apiResource = api.root.addResource('api');
 
+    // Create the 'docs' resource under 'api'
+    const docsResource = apiResource.addResource('docs');
+
     // Create the 'reports' resource under 'api'
     const reportsResource = apiResource.addResource('reports');
 
@@ -324,6 +363,13 @@ export class BackendStack extends cdk.Stack {
       connectionType: apigateway.ConnectionType.VPC_LINK,
       vpcLink: vpcLink,
     };
+
+    const getDocsIntegration = new apigateway.Integration({
+      type: apigateway.IntegrationType.HTTP_PROXY,
+      integrationHttpMethod: 'GET',
+      uri: `${serviceUrl}/api/docs`,
+      options: integrationOptions,
+    });
 
     // Create integrations for each endpoint
     const getReportsIntegration = new apigateway.Integration({
@@ -373,7 +419,7 @@ export class BackendStack extends cdk.Stack {
     // Add methods to the resources
     reportsResource.addMethod('GET', getReportsIntegration, methodOptions);
     latestResource.addMethod('GET', getLatestReportIntegration, methodOptions);
-
+    docsResource.addMethod('GET', getDocsIntegration, methodOptions);
     // For path parameter methods, add the request parameter configuration
     reportIdResource.addMethod('GET', getReportByIdIntegration, {
       ...methodOptions,
@@ -404,31 +450,7 @@ export class BackendStack extends cdk.Stack {
     latestResource.addCorsPreflight(corsOptions);
     reportIdResource.addCorsPreflight(corsOptions);
     reportStatusResource.addCorsPreflight(corsOptions);
-
-    // Apply resource policy separately after resources and methods are created
-    // const apiResourcePolicy = new iam.PolicyDocument({
-    //   statements: [
-    //     // Allow authenticated Cognito users
-    //     new iam.PolicyStatement({
-    //       effect: iam.Effect.ALLOW,
-    //       principals: [new iam.AnyPrincipal()],
-    //       actions: ['execute-api:Invoke'],
-    //       resources: [`arn:aws:execute-api:${this.region}:${this.account}:${api.restApiId}/*/*`],
-    //     }),
-    //     // Deny non-HTTPS requests
-    //     new iam.PolicyStatement({
-    //       effect: iam.Effect.DENY,
-    //       principals: [new iam.AnyPrincipal()],
-    //      actions: ['execute-api:Invoke'],
-    //      resources: [`arn:aws:execute-api:${this.region}:${this.account}:${api.restApiId}/*/*`],
-    //      conditions: {
-    //        Bool: {
-    //          'aws:SecureTransport': 'false',
-    //        },
-    //      },
-    //      }),
-    //    ],
-    //  });
+    docsResource.addCorsPreflight(corsOptions);
 
     // Create API Gateway execution role with required permissions
     new iam.Role(this, `${appName}APIGatewayRole-${props.environment}`, {
