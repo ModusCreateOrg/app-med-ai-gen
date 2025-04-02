@@ -466,13 +466,13 @@ export class BackendStack extends cdk.Stack {
       apigateway.ResponseType.INTEGRATION_TIMEOUT,
     ];
 
-    gatewayResponseTypes.forEach(responseType => {
+    gatewayResponseTypes.forEach((responseType) => {
       new apigateway.CfnGatewayResponse(
         this,
-        `${appName}GatewayResponse${responseType}-${props.environment}`,
+        `${appName}GatewayResponse-${responseType.responseType.toString()}-${props.environment}`,
         {
           restApiId: api.restApiId,
-          responseType: responseType.toString(),
+          responseType: responseType.responseType.toString(),
           responseParameters: {
             'gatewayresponse.header.Access-Control-Allow-Origin': "'*'",
             'gatewayresponse.header.Access-Control-Allow-Headers':
