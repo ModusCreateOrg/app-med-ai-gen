@@ -452,6 +452,32 @@ export class BackendStack extends cdk.Stack {
     reportStatusResource.addCorsPreflight(corsOptions);
     docsResource.addCorsPreflight(corsOptions);
 
+    // Configure Gateway Responses to add CORS headers to error responses
+    const gatewayResponseTypes = [
+      apigateway.ResponseType.UNAUTHORIZED,
+      apigateway.ResponseType.ACCESS_DENIED,
+      apigateway.ResponseType.DEFAULT_4XX,
+      apigateway.ResponseType.DEFAULT_5XX,
+      apigateway.ResponseType.RESOURCE_NOT_FOUND,
+      apigateway.ResponseType.MISSING_AUTHENTICATION_TOKEN,
+      apigateway.ResponseType.INVALID_API_KEY,
+      apigateway.ResponseType.THROTTLED,
+      apigateway.ResponseType.INTEGRATION_FAILURE,
+      apigateway.ResponseType.INTEGRATION_TIMEOUT,
+    ];
+
+    gatewayResponseTypes.forEach((responseType) => {
+      new apigateway.CfnGatewayResponse(this, `${appName}GatewayResponse${responseType}-${props.environment}`, {
+        restApiId: api.restApiId,
+        responseType: responseType.toString(),
+        responseParameters: {
+          'gatewayresponse.header.Access-Control-Allow-Origin': "'*'",
+          'gatewayresponse.header.Access-Control-Allow-Headers': "'Content-Type,Authorization,X-Amz-Date,X-Api-Key'",
+          'gatewayresponse.header.Access-Control-Allow-Methods': "'GET,POST,PUT,PATCH,DELETE,OPTIONS'"
+        },
+      });
+    });
+
     // Create API Gateway execution role with required permissions
     new iam.Role(this, `${appName}APIGatewayRole-${props.environment}`, {
       assumedBy: new iam.ServicePrincipal('apigateway.amazonaws.com'),

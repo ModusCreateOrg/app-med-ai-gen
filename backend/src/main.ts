@@ -13,10 +13,7 @@ async function bootstrap() {
   // Enable CORS
   app.enableCors({
     origin: [
-      'http://localhost:5173', // Vite default dev server
-      'http://localhost:3000',
-      'http://localhost:4173', // Vite preview
-      ...(process.env.FRONTEND_URL ? [process.env.FRONTEND_URL] : []),
+      '*', // Vite default dev server
     ],
     methods: 'GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS',
     credentials: true,
