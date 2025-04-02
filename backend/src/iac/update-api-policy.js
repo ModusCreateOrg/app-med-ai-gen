@@ -62,29 +62,36 @@ async function main() {
     const policy = {
       Version: '2012-10-17',
       Statement: [
-        // Allow authenticated Cognito users
         {
-          Effect: 'Allow',
-          Principal: '*',
-          Action: 'execute-api:Invoke',
-          Resource: `arn:aws:execute-api:${REGION}:*:${api.id}/*/*`,
-          Condition: {
-            StringEquals: {
-              'cognito-identity.amazonaws.com:aud': cognitoUserPoolId
+          "Version": "2012-10-17",
+          "Statement": [
+            // Allow OPTIONS requests
+            {
+              "Effect": "Allow",
+              "Principal": "*",
+              "Action": "execute-api:Invoke",
+              "Resource": "arn:aws:execute-api:us-east-1:*:xhvwo6wp66/*/OPTIONS/*"
+            },
+            {
+              // Allow all other requests - authentication will be handled by Cognito
+              "Effect": "Allow",
+              "Principal": "*",
+              "Action": "execute-api:Invoke",
+              "Resource": "arn:aws:execute-api:us-east-1:*:xhvwo6wp66/*/*"
+            },
+            {
+              // Deny non-HTTPS requests
+              "Effect": "Deny",
+              "Principal": "*",
+              "Action": "execute-api:Invoke",
+              "Resource": "arn:aws:execute-api:us-east-1:*:xhvwo6wp66/*/*",
+              "Condition": {
+                "Bool": {
+                  "aws:SecureTransport": "false"
+                }
+              }
             }
-          }
-        },
-        // Deny non-HTTPS requests
-        {
-          Effect: 'Deny',
-          Principal: '*',
-          Action: 'execute-api:Invoke',
-          Resource: `arn:aws:execute-api:${REGION}:*:${api.id}/*/*`,
-          Condition: {
-            Bool: {
-              'aws:SecureTransport': 'false'
-            }
-          }
+          ]
         }
       ]
     };
