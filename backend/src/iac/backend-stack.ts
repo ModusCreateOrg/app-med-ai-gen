@@ -466,16 +466,22 @@ export class BackendStack extends cdk.Stack {
       apigateway.ResponseType.INTEGRATION_TIMEOUT,
     ];
 
-    gatewayResponseTypes.forEach((responseType) => {
-      new apigateway.CfnGatewayResponse(this, `${appName}GatewayResponse${responseType}-${props.environment}`, {
-        restApiId: api.restApiId,
-        responseType: responseType.toString(),
-        responseParameters: {
-          'gatewayresponse.header.Access-Control-Allow-Origin': "'*'",
-          'gatewayresponse.header.Access-Control-Allow-Headers': "'Content-Type,Authorization,X-Amz-Date,X-Api-Key'",
-          'gatewayresponse.header.Access-Control-Allow-Methods': "'GET,POST,PUT,PATCH,DELETE,OPTIONS'"
+    gatewayResponseTypes.forEach(responseType => {
+      new apigateway.CfnGatewayResponse(
+        this,
+        `${appName}GatewayResponse${responseType}-${props.environment}`,
+        {
+          restApiId: api.restApiId,
+          responseType: responseType.toString(),
+          responseParameters: {
+            'gatewayresponse.header.Access-Control-Allow-Origin': "'*'",
+            'gatewayresponse.header.Access-Control-Allow-Headers':
+              "'Content-Type,Authorization,X-Amz-Date,X-Api-Key'",
+            'gatewayresponse.header.Access-Control-Allow-Methods':
+              "'GET,POST,PUT,PATCH,DELETE,OPTIONS'",
+          },
         },
-      });
+      );
     });
 
     // Create API Gateway execution role with required permissions
