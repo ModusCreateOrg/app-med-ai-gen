@@ -13,8 +13,12 @@ async function bootstrap() {
   // Enable CORS
   app.enableCors({
     origin: [
-      '*', // Vite default dev server
-    ],
+        'http://localhost:5173',
+        'http://localhost:3000',
+        'http://localhost:4173',
+        'https://localhost', // Add this for Capacitor
+        ...(process.env.FRONTEND_URL ? [process.env.FRONTEND_URL] : []),
+      ],
     methods: 'GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS',
     credentials: true,
   });

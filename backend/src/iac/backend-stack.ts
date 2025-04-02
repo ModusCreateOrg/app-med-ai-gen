@@ -445,12 +445,30 @@ export class BackendStack extends cdk.Stack {
 
     // Add CORS to all resources
     api.root.addCorsPreflight(corsOptions);
-    apiResource.addCorsPreflight(corsOptions);
-    reportsResource.addCorsPreflight(corsOptions);
-    latestResource.addCorsPreflight(corsOptions);
-    reportIdResource.addCorsPreflight(corsOptions);
-    reportStatusResource.addCorsPreflight(corsOptions);
-    docsResource.addCorsPreflight(corsOptions);
+    apiResource.addCorsPreflight({
+      ...corsOptions,
+      allowCredentials: false // This is crucial - make sure OPTIONS requests don't require credentials
+    });
+    reportsResource.addCorsPreflight({
+      ...corsOptions,
+      allowCredentials: false
+    });
+    latestResource.addCorsPreflight({
+      ...corsOptions,
+      allowCredentials: false
+    });
+    reportIdResource.addCorsPreflight({
+      ...corsOptions,
+      allowCredentials: false
+    });
+    reportStatusResource.addCorsPreflight({
+      ...corsOptions,
+      allowCredentials: false
+    });
+    docsResource.addCorsPreflight({
+      ...corsOptions,
+      allowCredentials: false
+    });
 
     // Configure Gateway Responses to add CORS headers to error responses
     const gatewayResponseTypes = [
@@ -466,7 +484,7 @@ export class BackendStack extends cdk.Stack {
       apigateway.ResponseType.INTEGRATION_TIMEOUT,
     ];
 
-    gatewayResponseTypes.forEach((responseType) => {
+    gatewayResponseTypes.forEach(responseType => {
       new apigateway.CfnGatewayResponse(
         this,
         `${appName}GatewayResponse-${responseType.responseType.toString()}-${props.environment}`,
