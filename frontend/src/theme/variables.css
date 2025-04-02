@@ -9,6 +9,8 @@ http://ionicframework.com/docs/theming/ */
   --ls-breakpoint-lg: 992px;
   --ls-breakpoint-xl: 1200px;
 
+  --ion-color-background: #0c0f22;
+
   --ion-color-primary: #0054e9;
   --ion-color-primary-rgb: 0, 84, 233;
   --ion-color-primary-contrast: #ffffff;

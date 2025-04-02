@@ -3,14 +3,14 @@ import {
   useIonRouter,
   useIonViewDidEnter,
   IonText,
-  IonRow,
-  IonCol,
+  IonIcon,
 } from '@ionic/react';
 import { useRef, useState } from 'react';
 import classNames from 'classnames';
 import { Form, Formik } from 'formik';
 import { object, string } from 'yup';
 import { useTranslation } from 'react-i18next';
+import { lockClosed } from 'ionicons/icons';
 
 import './ForgotPasswordForm.scss';
 import { BaseComponentProps } from 'common/components/types';
@@ -18,7 +18,6 @@ import { AuthError } from 'common/models/auth';
 import { useAuth } from 'common/hooks/useAuth';
 import { useProgress } from 'common/hooks/useProgress';
 import Input from 'common/components/Input/Input';
-import HeaderRow from 'common/components/Text/HeaderRow';
 import { formatAuthError } from 'common/utils/auth-errors';
 import AuthErrorDisplay from 'common/components/Auth/AuthErrorDisplay';
 import AuthLoadingIndicator from 'common/components/Auth/AuthLoadingIndicator';
@@ -63,14 +62,44 @@ const ForgotPasswordForm = ({ className, testid = 'form-forgot-password' }: Forg
     focusInput.current?.setFocus();
   });
 
+  const handleBackToLogin = () => {
+    router.push('/auth/signin', 'back');
+  };
+
+  const renderErrorContent = () => {
+    if (!error) return null;
+
+    // Check if it's a specific error like account not found
+    if (error.code === 'UserNotFoundException') {
+      return (
+        <div className="ls-forgot-password-form__error-content">
+          <div className="ls-forgot-password-form__error-title">
+            {t('account-not-found.title', { ns: 'auth' })}
+          </div>
+          <div className="ls-forgot-password-form__error-message">
+            {t('account-not-found.message', { ns: 'auth' })}
+          </div>
+        </div>
+      );
+    }
+
+    return null;
+  };
+
   return (
     <div className={classNames('ls-forgot-password-form', className)} data-testid={testid}>
-      <AuthErrorDisplay 
-        error={error} 
-        showDetails={true}
-        className="ion-margin-bottom"
-        testid={`${testid}-error`}
-      />
+      {error && (
+        <div className="ls-forgot-password-form__custom-error" data-testid={`${testid}-custom-error`}>
+          {renderErrorContent() || (
+            <AuthErrorDisplay 
+              error={error} 
+              showDetails={true}
+              className="ls-forgot-password-form__error"
+              testid={`${testid}-error`}
+            />
+          )}
+        </div>
+      )}
 
       <AuthLoadingIndicator 
         isLoading={isLoading} 
@@ -88,6 +117,9 @@ const ForgotPasswordForm = ({ className, testid = 'form-forgot-password' }: Forg
         initialValues={{
           email: '',
         }}
+        validationSchema={validationSchema}
+        validateOnChange={true}
+        validateOnBlur={true}
         onSubmit={async (values, { setSubmitting }) => {
           try {
             setError(null);
@@ -115,13 +147,18 @@ const ForgotPasswordForm = ({ className, testid = 'form-forgot-password' }: Forg
             setIsLoading(false);
           }
         }}
-        validationSchema={validationSchema}
       >
-        {({ dirty, isSubmitting }) => (
+        {({ dirty, isSubmitting, isValid }) => (
           <Form data-testid={`${testid}-form`}>
-            <HeaderRow border>
-              <div>{t('password-recovery.title', { ns: 'auth' })}</div>
-            </HeaderRow>
+            <div className="ls-forgot-password-form__icon-container">
+              <div className="ls-forgot-password-form__icon-circle">
+                <IonIcon icon={lockClosed} className="ls-forgot-password-form__icon" />
+              </div>
+            </div>
+
+            <h2 className="ls-forgot-password-form__title">
+              {t('password-recovery.title', { ns: 'auth' })}
+            </h2>
 
             <div className="ls-forgot-password-form__message">
               <IonText>
@@ -129,36 +166,34 @@ const ForgotPasswordForm = ({ className, testid = 'form-forgot-password' }: Forg
               </IonText>
             </div>
 
-            <Input
-              name="email"
-              label={t('label.email', { ns: 'auth' })}
-              labelPlacement="stacked"
-              maxlength={50}
-              autocomplete="email"
-              className="ls-forgot-password-form__input"
-              ref={focusInput}
-              data-testid={`${testid}-field-email`}
-              type="email"
-            />
+            <div className="ls-forgot-password-form__field">
+              <label className="ls-forgot-password-form__label">{t('label.email_address', { ns: 'auth' })}</label>
+              <Input
+                name="email"
+                maxlength={50}
+                autocomplete="email"
+                className="ls-forgot-password-form__input"
+                ref={focusInput}
+                data-testid={`${testid}-field-email`}
+                type="email"
+                placeholder=""
+              />
+            </div>
 
             <IonButton
               type="submit"
-              color="primary"
               className="ls-forgot-password-form__button"
+              color="secondary"
               expand="block"
-              disabled={isSubmitting || !dirty || isLoading}
+              disabled={isSubmitting || !dirty || !isValid || isLoading}
               data-testid={`${testid}-button-submit`}
             >
               {t('submit', { ns: 'auth' })}
             </IonButton>
             
-            <IonRow className="ion-text-center ion-padding-top">
-              <IonCol>
-                <IonText color="medium">
-                  <a href="/auth/signin">{t('signin', { ns: 'auth' })}</a>
-                </IonText>
-              </IonCol>
-            </IonRow>
+            <div className="ls-forgot-password-form__back-link" onClick={handleBackToLogin}>
+              <IonText color="medium">← Back to <span className="login-text">Log in</span></IonText>
+            </div>
           </Form>
         )}
       </Formik>

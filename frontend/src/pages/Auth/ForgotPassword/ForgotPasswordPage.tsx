@@ -1,12 +1,12 @@
-import { IonContent, IonPage } from '@ionic/react';
+import { IonContent, IonPage, IonImg } from '@ionic/react';
 import { useTranslation } from 'react-i18next';
 
 import './ForgotPasswordPage.scss';
 import { PropsWithTestId } from 'common/components/types';
 import ProgressProvider from 'common/providers/ProgressProvider';
-import Header from 'common/components/Header/Header';
 import ForgotPasswordForm from './components/ForgotPasswordForm';
 import Container from 'common/components/Content/Container';
+import logo from 'assets/logo_ls.png';
 
 /**
  * Properties for the `ForgotPasswordPage` component.
@@ -24,12 +24,19 @@ const ForgotPasswordPage = ({ testid = 'page-forgot-password' }: ForgotPasswordP
   return (
     <IonPage className="ls-forgot-password-page" data-testid={testid}>
       <ProgressProvider>
-        <Header title={t('password-recovery.title', { ns: 'auth' })} />
-
-        <IonContent fullscreen className="ion-padding">
-          <Container className="ls-forgot-password-page__container" fixed>
-            <ForgotPasswordForm className="ls-forgot-password-page__form" />
-          </Container>
+        <IonContent fullscreen className="ls-forgot-password-page__content">
+          <div className="ls-forgot-password-page__background">
+            <div className="ls-forgot-password-page__logo-container">
+              <IonImg src={logo} alt="Logo" className="ls-forgot-password-page__logo" />
+              <span className="ls-forgot-password-page__logo-text">{t('app.name', { ns: 'common' })}</span>
+            </div>
+            
+            <Container className="ls-forgot-password-page__container" fixed>
+              <div className="ls-forgot-password-page__card">
+                <ForgotPasswordForm className="ls-forgot-password-page__form" />
+              </div>
+            </Container>
+          </div>
         </IonContent>
       </ProgressProvider>
     </IonPage>

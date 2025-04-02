@@ -165,9 +165,15 @@ const determineCategory = (filename: string): ReportCategory => {
  * @returns Promise with the latest reports
  */
 export const fetchLatestReports = async (limit = 3): Promise<MedicalReport[]> => {
+
+  const headers = await getAuthConfig();
+  console.log('headers', JSON.stringify(headers));
+  console.log('API_URL', `${API_URL}/api/reports/latest?limit=${limit}`);
+
   try {
-    const response = await axios.get(`${API_URL}/api/reports/latest?limit=${limit}`, await getAuthConfig());
+    const response = await axios.get(`${API_URL}/api/reports/latest?limit=${limit}`, headers);
     console.log('response', response.data);
+    console.log('response headers', response.headers);
     console.log('API_URL', API_URL);
     return response.data;
   } catch (error) {

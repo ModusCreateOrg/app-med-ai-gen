@@ -4,14 +4,14 @@ import {
   useIonRouter,
   useIonViewDidEnter,
   IonText,
-  IonRow,
-  IonCol,
+  IonIcon,
 } from '@ionic/react';
 import { useRef, useState, useEffect } from 'react';
 import classNames from 'classnames';
 import { Form, Formik } from 'formik';
 import { object, string, ref } from 'yup';
 import { useTranslation } from 'react-i18next';
+import { lockClosed } from 'ionicons/icons';
 
 import './ResetPasswordForm.scss';
 import { BaseComponentProps } from 'common/components/types';
@@ -19,7 +19,6 @@ import { AuthError } from 'common/models/auth';
 import { useAuth } from 'common/hooks/useAuth';
 import { useProgress } from 'common/hooks/useProgress';
 import Input from 'common/components/Input/Input';
-import HeaderRow from 'common/components/Text/HeaderRow';
 import { formatAuthError } from 'common/utils/auth-errors';
 import AuthErrorDisplay from 'common/components/Auth/AuthErrorDisplay';
 import AuthLoadingIndicator from 'common/components/Auth/AuthLoadingIndicator';
@@ -152,13 +151,17 @@ const ResetPasswordForm = ({ className, testid = 'form-reset-password' }: ResetP
       >
         {({ dirty, isSubmitting }) => (
           <Form data-testid={`${testid}-form`}>
-            <HeaderRow border>
-              <div>{t('password-reset.title', { ns: 'auth' })}</div>
-            </HeaderRow>
+            <div className="ls-reset-password-form__icon">
+              <IonIcon icon={lockClosed} />
+            </div>
+            
+            <div className="ls-reset-password-form__title">
+              {t('password-reset.title', { ns: 'auth' })}
+            </div>
 
             <div className="ls-reset-password-form__message">
               <IonText>
-                {t('password-recovery.enter-code', { ns: 'auth' })}
+                {t('password-reset.message', { ns: 'auth' })}
               </IonText>
               {email && (
                 <IonText className="ls-reset-password-form__email">
@@ -221,7 +224,6 @@ const ResetPasswordForm = ({ className, testid = 'form-reset-password' }: ResetP
 
             <IonButton
               type="submit"
-              color="primary"
               className="ls-reset-password-form__button"
               expand="block"
               disabled={isSubmitting || !dirty || isLoading}
@@ -230,13 +232,11 @@ const ResetPasswordForm = ({ className, testid = 'form-reset-password' }: ResetP
               {t('password-reset.button', { ns: 'auth' })}
             </IonButton>
             
-            <IonRow className="ion-text-center ion-padding-top">
-              <IonCol>
-                <IonText color="medium">
-                  <a href="/auth/signin">{t('signin', { ns: 'auth' })}</a>
-                </IonText>
-              </IonCol>
-            </IonRow>
+            <div className="ls-reset-password-form__back-link">
+              <a href="/auth/signin">
+                {t('back.to.signin', { ns: 'auth' })}
+              </a>
+            </div>
           </Form>
         )}
       </Formik>

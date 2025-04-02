@@ -1,17 +1,15 @@
-import { IonContent, IonPage } from '@ionic/react';
-import { useTranslation } from 'react-i18next';
+import { IonPage, IonContent } from '@ionic/react';
 
 import './ResetPasswordPage.scss';
-import { PropsWithTestId } from 'common/components/types';
-import ProgressProvider from 'common/providers/ProgressProvider';
-import Header from 'common/components/Header/Header';
-import ResetPasswordForm from './components/ResetPasswordForm';
+import { BaseComponentProps } from 'common/components/types';
 import Container from 'common/components/Content/Container';
+import ProgressProvider from 'common/providers/ProgressProvider';
+import ResetPasswordForm from './components/ResetPasswordForm';
 
 /**
  * Properties for the `ResetPasswordPage` component.
  */
-interface ResetPasswordPageProps extends PropsWithTestId {}
+interface ResetPasswordPageProps extends BaseComponentProps {}
 
 /**
  * The `ResetPasswordPage` renders the layout for resetting a password.
@@ -19,14 +17,11 @@ interface ResetPasswordPageProps extends PropsWithTestId {}
  * @returns {JSX.Element} JSX
  */
 const ResetPasswordPage = ({ testid = 'page-reset-password' }: ResetPasswordPageProps): JSX.Element => {
-  const { t } = useTranslation();
-
+  
   return (
     <IonPage className="ls-reset-password-page" data-testid={testid}>
       <ProgressProvider>
-        <Header title={t('password-reset.title', { ns: 'auth' })} />
-
-        <IonContent fullscreen className="ion-padding">
+        <IonContent fullscreen>
           <Container className="ls-reset-password-page__container" fixed>
             <ResetPasswordForm className="ls-reset-password-page__form" />
           </Container>
