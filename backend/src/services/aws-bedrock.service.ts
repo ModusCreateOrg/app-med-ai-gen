@@ -62,13 +62,15 @@ export class AwsBedrockService {
     });
 
     // Set default values based on environment
-    this.defaultModel = process.env.NODE_ENV === 'test'
-      ? 'anthropic.claude-v2'
-      : this.configService.get<string>('bedrock.model') ?? 'anthropic.claude-v2';
+    this.defaultModel =
+      process.env.NODE_ENV === 'test'
+        ? 'anthropic.claude-v2'
+        : (this.configService.get<string>('bedrock.model') ?? 'anthropic.claude-v2');
 
-    this.defaultMaxTokens = process.env.NODE_ENV === 'test'
-      ? 1000
-      : this.configService.get<number>('bedrock.maxTokens') ?? 2048;
+    this.defaultMaxTokens =
+      process.env.NODE_ENV === 'test'
+        ? 1000
+        : (this.configService.get<number>('bedrock.maxTokens') ?? 2048);
 
     // Initialize rate limiter (10 requests per minute per IP)
     this.rateLimiter = new RateLimiter(60000, 10);
@@ -102,7 +104,9 @@ export class AwsBedrockService {
 
       // 6. Validate medical report status
       if (!extractedInfo.metadata.isMedicalReport) {
-        throw new BadRequestException('The provided document does not appear to be a medical report.');
+        throw new BadRequestException(
+          'The provided document does not appear to be a medical report.',
+        );
       }
 
       // 7. Check confidence level
@@ -203,8 +207,6 @@ Ensure all medical terms are explained in plain language. Mark lab values as abn
   }
 
   private hashIdentifier(identifier: string): string {
-    return createHash('sha256')
-      .update(identifier)
-      .digest('hex');
+    return createHash('sha256').update(identifier).digest('hex');
   }
 }
