@@ -3,6 +3,7 @@ import {
   NotFoundException,
   InternalServerErrorException,
   Logger,
+  ForbiddenException,
 } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import {
@@ -46,16 +47,26 @@ export class ReportsService {
     this.tableName = this.configService.get<string>('DYNAMODB_REPORTS_TABLE', 'reports');
   }
 
-  async findAll(): Promise<Report[]> {
-    const command = new ScanCommand({
-      TableName: this.tableName,
-    });
+  async findAll(userId: string): Promise<Report[]> {
+    if (!userId) {
+      throw new ForbiddenException('User ID is required');
+    }
 
     try {
+      // If the table has a GSI for userId, use QueryCommand instead
+      const command = new ScanCommand({
+        TableName: this.tableName,
+        FilterExpression: 'userId = :userId',
+        ExpressionAttributeValues: marshall({
+          ':userId': userId,
+        }),
+      });
+
       const response = await this.dynamoClient.send(command);
       return (response.Items || []).map(item => unmarshall(item) as Report);
     } catch (error: unknown) {
-      this.logger.error(`Error fetching all reports: ${this.formatError(error)}`);
+      this.logger.error(`Error fetching reports for user ${userId}:`);
+      this.logger.error(error);
 
       if (error instanceof DynamoDBServiceException) {
         if (error.name === 'UnrecognizedClientException') {
@@ -73,19 +84,30 @@ export class ReportsService {
     }
   }
 
-  async findLatest(queryDto: GetReportsQueryDto): Promise<Report[]> {
-    this.logger.log(`Running findLatest with params: ${JSON.stringify(queryDto)}`);
+  async findLatest(queryDto: GetReportsQueryDto, userId: string): Promise<Report[]> {
+    this.logger.log(
+      `Running findLatest with params: ${JSON.stringify(queryDto)} for user ${userId}`,
+    );
+
+    if (!userId) {
+      throw new ForbiddenException('User ID is required');
+    }
 
     // Convert limit to a number to avoid serialization errors
     const limit =
       typeof queryDto.limit === 'string' ? parseInt(queryDto.limit, 10) : queryDto.limit || 10;
 
-    const command = new ScanCommand({
-      TableName: this.tableName,
-      Limit: limit,
-    });
-
     try {
+      // If the table has a GSI for userId, use QueryCommand instead
+      const command = new ScanCommand({
+        TableName: this.tableName,
+        FilterExpression: 'userId = :userId',
+        ExpressionAttributeValues: marshall({
+          ':userId': userId,
+        }),
+        Limit: limit * 5, // Fetch more items since we'll filter by userId
+      });
+
       const response = await this.dynamoClient.send(command);
       const reports = (response.Items || []).map(item => unmarshall(item) as Report);
 
@@ -94,7 +116,8 @@ export class ReportsService {
         .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
         .slice(0, limit);
     } catch (error: unknown) {
-      this.logger.error(`Error fetching latest reports: ${this.formatError(error)}`);
+      this.logger.error(`Error fetching latest reports for user ${userId}:`);
+      this.logger.error(error);
 
       if (error instanceof DynamoDBServiceException) {
         if (error.name === 'ResourceNotFoundException') {
@@ -108,9 +131,13 @@ export class ReportsService {
     }
   }
 
-  async findOne(id: string): Promise<Report> {
+  async findOne(id: string, userId: string): Promise<Report> {
     if (!id) {
       throw new NotFoundException('Report ID is required');
+    }
+
+    if (!userId) {
+      throw new ForbiddenException('User ID is required');
     }
 
     const command = new GetItemCommand({
@@ -125,13 +152,21 @@ export class ReportsService {
         throw new NotFoundException(`Report with ID ${id} not found`);
       }
 
-      return unmarshall(response.Item) as Report;
+      const report = unmarshall(response.Item) as Report;
+
+      // Verify the report belongs to the user
+      if (report.userId !== userId) {
+        throw new ForbiddenException('You do not have permission to access this report');
+      }
+
+      return report;
     } catch (error: unknown) {
       if (error instanceof NotFoundException) {
         throw error;
       }
 
-      this.logger.error(`Error fetching report with ID ${id}: ${this.formatError(error)}`);
+      this.logger.error(`Error fetching report with ID ${id}:`);
+      this.logger.error(error);
 
       if (error instanceof DynamoDBServiceException) {
         if (error.name === 'ResourceNotFoundException') {
@@ -145,7 +180,11 @@ export class ReportsService {
     }
   }
 
-  async updateStatus(id: string, updateDto: UpdateReportStatusDto): Promise<Report> {
+  async updateStatus(
+    id: string,
+    updateDto: UpdateReportStatusDto,
+    userId: string,
+  ): Promise<Report> {
     if (!id) {
       throw new NotFoundException('Report ID is required');
     }
@@ -154,20 +193,26 @@ export class ReportsService {
       throw new InternalServerErrorException('Status is required for update');
     }
 
+    if (!userId) {
+      throw new ForbiddenException('User ID is required');
+    }
+
     try {
-      // First check if the report exists
-      const existingReport = await this.findOne(id);
+      // First check if the report exists and belongs to the user
+      const existingReport = await this.findOne(id, userId);
 
       const command = new UpdateItemCommand({
         TableName: this.tableName,
         Key: marshall({ id }),
         UpdateExpression: 'SET #status = :status, updatedAt = :updatedAt',
+        ConditionExpression: 'userId = :userId', // Ensure the report belongs to the user
         ExpressionAttributeNames: {
           '#status': 'status',
         },
         ExpressionAttributeValues: marshall({
           ':status': updateDto.status,
           ':updatedAt': new Date().toISOString(),
+          ':userId': userId,
         }),
         ReturnValues: 'ALL_NEW',
       });
@@ -189,11 +234,12 @@ export class ReportsService {
         throw error;
       }
 
-      this.logger.error(`Error updating report status for ID ${id}: ${this.formatError(error)}`);
+      this.logger.error(`Error updating report status for ID ${id}:`);
+      this.logger.error(error);
 
       if (error instanceof DynamoDBServiceException) {
         if (error.name === 'ConditionalCheckFailedException') {
-          throw new NotFoundException(`Report with ID ${id} not found`);
+          throw new ForbiddenException('You do not have permission to update this report');
         } else if (error.name === 'ResourceNotFoundException') {
           throw new InternalServerErrorException(
             `Table "${this.tableName}" not found. Please check your database configuration.`,
@@ -201,14 +247,7 @@ export class ReportsService {
         }
       }
 
-      throw new InternalServerErrorException(`Failed to update status for report with ID ${id}`);
+      throw new InternalServerErrorException(`Failed to update report status for ID ${id}`);
     }
-  }
-
-  private formatError(error: unknown): string {
-    if (error instanceof Error) {
-      return `${error.name}: ${error.message}`;
-    }
-    return JSON.stringify(error, null, 2);
   }
 }

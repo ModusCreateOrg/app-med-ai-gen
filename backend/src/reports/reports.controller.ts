@@ -1,4 +1,4 @@
-import { Controller, Get, Patch, Param, Body, Query, ValidationPipe } from '@nestjs/common';
+import { Controller, Get, Patch, Param, Body, Query, ValidationPipe, Req } from '@nestjs/common';
 import {
   ApiTags,
   ApiOperation,
@@ -11,6 +11,7 @@ import { ReportsService } from './reports.service';
 import { Report } from './models/report.model';
 import { GetReportsQueryDto } from './dto/get-reports.dto';
 import { UpdateReportStatusDto } from './dto/update-report-status.dto';
+import { Request } from 'express';
 
 @ApiTags('reports')
 @Controller('reports')
@@ -25,8 +26,9 @@ export class ReportsController {
     type: [Report],
   })
   @Get()
-  async findAll(): Promise<Report[]> {
-    return this.reportsService.findAll();
+  async findAll(@Req() request: Request): Promise<Report[]> {
+    const userId = this.extractUserId(request);
+    return this.reportsService.findAll(userId);
   }
 
   @ApiOperation({ summary: 'Get latest reports' })
@@ -41,14 +43,18 @@ export class ReportsController {
     description: 'Maximum number of reports to return',
   })
   @Get('latest')
-  async findLatest(@Query(ValidationPipe) queryDto: GetReportsQueryDto): Promise<Report[]> {
-    return this.reportsService.findLatest(queryDto);
+  async findLatest(
+    @Query(ValidationPipe) queryDto: GetReportsQueryDto,
+    @Req() request: Request,
+  ): Promise<Report[]> {
+    const userId = this.extractUserId(request);
+    return this.reportsService.findLatest(queryDto, userId);
   }
 
   @ApiOperation({ summary: 'GET report' })
   @ApiResponse({
     status: 200,
-    description: 'Report status updated successfully',
+    description: 'Report details',
     type: Report,
   })
   @ApiResponse({
@@ -60,8 +66,9 @@ export class ReportsController {
     description: 'Report ID',
   })
   @Get(':id')
-  async getReport(@Param('id') id: string): Promise<Report> {
-    return this.reportsService.findOne(id);
+  async getReport(@Param('id') id: string, @Req() request: Request): Promise<Report> {
+    const userId = this.extractUserId(request);
+    return this.reportsService.findOne(id, userId);
   }
 
   @ApiOperation({ summary: 'Update report status' })
@@ -82,7 +89,21 @@ export class ReportsController {
   async updateStatus(
     @Param('id') id: string,
     @Body(ValidationPipe) updateDto: UpdateReportStatusDto,
+    @Req() request: Request,
   ): Promise<Report> {
-    return this.reportsService.updateStatus(id, updateDto);
+    const userId = this.extractUserId(request);
+    return this.reportsService.updateStatus(id, updateDto, userId);
+  }
+
+  private extractUserId(request: Request): string {
+    console.log(request);
+    // The user object is attached to the request by the AuthGuard
+    const user = request.user as any;
+
+    if (!user || !user.sub) {
+      throw new Error('User ID not found in token');
+    }
+
+    return user.sub;
   }
 }
