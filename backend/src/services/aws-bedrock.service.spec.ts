@@ -173,13 +173,13 @@ describe('AwsBedrockService', () => {
         $metadata: {},
       });
 
-      await expect(service.extractMedicalInfo(mockFileBuffer, mockFileType))
-        .rejects
-        .toThrow(BadRequestException);
+      await expect(service.extractMedicalInfo(mockFileBuffer, mockFileType)).rejects.toThrow(
+        BadRequestException,
+      );
 
-      await expect(service.extractMedicalInfo(mockFileBuffer, mockFileType))
-        .rejects
-        .toThrow('The provided document does not appear to be a medical report.');
+      await expect(service.extractMedicalInfo(mockFileBuffer, mockFileType)).rejects.toThrow(
+        'The provided document does not appear to be a medical report.',
+      );
     });
 
     it('should handle low confidence medical reports', async () => {
@@ -201,13 +201,13 @@ describe('AwsBedrockService', () => {
         $metadata: {},
       });
 
-      await expect(service.extractMedicalInfo(mockFileBuffer, mockFileType))
-        .rejects
-        .toThrow(BadRequestException);
+      await expect(service.extractMedicalInfo(mockFileBuffer, mockFileType)).rejects.toThrow(
+        BadRequestException,
+      );
 
-      await expect(service.extractMedicalInfo(mockFileBuffer, mockFileType))
-        .rejects
-        .toThrow('Low confidence in medical report analysis');
+      await expect(service.extractMedicalInfo(mockFileBuffer, mockFileType)).rejects.toThrow(
+        'Low confidence in medical report analysis',
+      );
     });
 
     it('should handle missing information in medical reports', async () => {
@@ -240,9 +240,9 @@ describe('AwsBedrockService', () => {
       const error = new Error('Processing failed');
       mockBedrockClient.send.mockRejectedValue(error);
 
-      await expect(service.extractMedicalInfo(mockFileBuffer, mockFileType))
-        .rejects
-        .toThrow('Failed to extract medical information: Processing failed');
+      await expect(service.extractMedicalInfo(mockFileBuffer, mockFileType)).rejects.toThrow(
+        'Failed to extract medical information: Processing failed',
+      );
     });
 
     it('should handle invalid response format', async () => {
@@ -252,9 +252,9 @@ describe('AwsBedrockService', () => {
       };
       mockBedrockClient.send.mockResolvedValue(invalidResponse);
 
-      await expect(service.extractMedicalInfo(mockFileBuffer, mockFileType))
-        .rejects
-        .toThrow('Failed to extract JSON from response');
+      await expect(service.extractMedicalInfo(mockFileBuffer, mockFileType)).rejects.toThrow(
+        'Failed to extract JSON from response',
+      );
     });
 
     it('should handle different file types', async () => {
