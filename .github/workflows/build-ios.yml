@@ -3,7 +3,6 @@ name: iOS Build and upload to testflight
 on:
   push:
     branches:
-      - ios-fastlane-setup
       - main
   workflow_dispatch:
 
