@@ -81,20 +81,17 @@ export class AwsBedrockService {
 
   /**
    * Extracts structured medical information from a file (PDF or image)
-   * 
+   *
    * @param fileBuffer The file buffer containing the medical report
    * @param fileType The MIME type of the file (e.g., 'application/pdf', 'image/jpeg')
    * @returns Structured medical information extracted from the file
    * @throws BadRequestException if the file is not a medical report or lacks sufficient information
    */
-  async extractMedicalInfo(
-    fileBuffer: Buffer,
-    fileType: string,
-  ): Promise<ExtractedMedicalInfo> {
+  async extractMedicalInfo(fileBuffer: Buffer, fileType: string): Promise<ExtractedMedicalInfo> {
     try {
       // Convert file to base64
       const base64File = fileBuffer.toString('base64');
-      
+
       // Create the prompt with the file
       const systemPrompt = `You are a medical expert AI assistant. Analyze the provided document and determine if it's a medical report.
 If it is a medical report, extract key information and assess the completeness of the information.
@@ -172,12 +169,13 @@ Ensure all medical terms are explained in plain language. Mark lab values as abn
       // Parse the response
       const responseBody = new TextDecoder().decode(response.body);
       const parsedResponse = JSON.parse(responseBody);
-      
+
       // Extract the JSON from the response text
       // The model might wrap the JSON in markdown code blocks or add additional text
-      const jsonMatch = parsedResponse.content.match(/```json\n([\s\S]*?)\n```/) || 
-                       parsedResponse.content.match(/{[\s\S]*}/);
-                       
+      const jsonMatch =
+        parsedResponse.content.match(/```json\n([\s\S]*?)\n```/) ||
+        parsedResponse.content.match(/{[\s\S]*}/);
+
       if (!jsonMatch) {
         throw new Error('Failed to extract JSON from response');
       }
@@ -186,7 +184,9 @@ Ensure all medical terms are explained in plain language. Mark lab values as abn
 
       // Validate the response
       if (!extractedInfo.metadata.isMedicalReport) {
-        throw new BadRequestException('The provided document does not appear to be a medical report.');
+        throw new BadRequestException(
+          'The provided document does not appear to be a medical report.',
+        );
       }
 
       if (extractedInfo.metadata.confidence < 0.7) {
@@ -196,7 +196,9 @@ Ensure all medical terms are explained in plain language. Mark lab values as abn
       }
 
       if (extractedInfo.metadata.missingInformation?.length) {
-        this.logger.warn(`Missing information in medical report: ${extractedInfo.metadata.missingInformation.join(', ')}`);
+        this.logger.warn(
+          `Missing information in medical report: ${extractedInfo.metadata.missingInformation.join(', ')}`,
+        );
       }
 
       return extractedInfo;
@@ -204,7 +206,7 @@ Ensure all medical terms are explained in plain language. Mark lab values as abn
       if (error instanceof BadRequestException) {
         throw error;
       }
-      
+
       const errorMessage = error instanceof Error ? error.message : 'Unknown error';
       this.logger.error(`Failed to extract medical information: ${errorMessage}`);
       throw new Error(`Failed to extract medical information: ${errorMessage}`);
