@@ -18,13 +18,13 @@ platform :ios do
   desc "build and send development build to testflight"
   lane :build_and_send_to_testflight do
     setup_ci(force: true)
-    # sync_code_signing(
-    #   type: "development",
-    #   readonly: true,
-    #   api_key_path: "/tmp/api-key.json",
-    #   git_url: "git@github.com:moduslabs/ios-signing-certificates.git",
-    #   git_branch: "master"
-    # )
+    sync_code_signing(
+      type: "development",
+      readonly: true,
+      api_key_path: "/tmp/api-key.json",
+      git_url: "git@github.com:moduslabs/ios-signing-certificates.git",
+      git_branch: "master"
+    )
 
     sync_code_signing(
       type: "appstore",
@@ -51,6 +51,7 @@ platform :ios do
       clean: true,
       output_directory: "./build/device",
       output_name: "App.ipa",
+      xcargs: "CODE_SIGN_STYLE=Manual DEVELOPMENT_TEAM=287TS9B2H2 PROVISIONING_PROFILE_SPECIFIER='match Development com.moduscreate.appmedaigen'"
     )
 
     upload_to_testflight(
