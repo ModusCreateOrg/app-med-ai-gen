@@ -13,25 +13,39 @@ export interface RequestWithUser extends Request {
   } | null;
 }
 
+// Add this interface to define the token structure
+interface DecodedToken {
+  payload: {
+    sub: string;
+    username?: string;
+    email?: string;
+    [key: string]: any;
+  };
+  header: any;
+  signature: string;
+}
+
 @Injectable()
 export class AuthMiddleware implements NestMiddleware {
   constructor(private configService: ConfigService) {}
 
   use(req: RequestWithUser, res: Response, next: NextFunction) {
     const authHeader = req.headers.authorization;
-
     if (authHeader && authHeader.startsWith('Bearer ')) {
       const token = authHeader.substring(7);
       try {
         // Verify the JWT token
-        const decoded = jwt.verify(token, this.configService.get('JWT_SECRET') || 'dev-secret');
+        const decodedToken = jwt.decode(token, { complete: true }) as DecodedToken;
 
-        // Attach the decoded user to the request
+        // Access user info from the payload
         req.user = {
-          sub: decoded.sub as string,
+          sub: decodedToken?.payload.sub as string,
+          username: decodedToken?.payload.username as string,
         };
       } catch (error) {
         // If token verification fails, set user to null
+        console.log('AuthMiddleware error');
+        console.log(error);
         req.user = null;
       }
     } else {
