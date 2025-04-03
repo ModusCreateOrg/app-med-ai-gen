@@ -2,7 +2,7 @@ import { BadRequestException } from '@nestjs/common';
 
 // Common malicious file signatures (magic numbers)
 const MALICIOUS_FILE_SIGNATURES = new Set([
-  '4D5A',     // MZ - Windows executable
+  '4D5A', // MZ - Windows executable
   '7F454C46', // ELF - Linux executable
   '504B0304', // ZIP - Could contain malicious files
   'CAFEBABE', // Java class file
@@ -32,7 +32,7 @@ const hasExecutableSignature = (buffer: Buffer): boolean => {
  */
 const validateFileType = (buffer: Buffer, mimeType: string): boolean => {
   const signature = buffer.slice(0, 4).toString('hex').toUpperCase();
-  
+
   switch (mimeType) {
     case 'application/pdf':
       return signature.startsWith('25504446'); // %PDF
@@ -51,21 +51,21 @@ const validateFileType = (buffer: Buffer, mimeType: string): boolean => {
  */
 const calculateEntropy = (buffer: Buffer): number => {
   const frequencies = new Map<number, number>();
-  
+
   // Count byte frequencies
   for (const byte of buffer) {
     frequencies.set(byte, (frequencies.get(byte) || 0) + 1);
   }
-  
+
   // Calculate entropy
   let entropy = 0;
   const bufferLength = buffer.length;
-  
+
   for (const count of frequencies.values()) {
     const probability = count / bufferLength;
     entropy -= probability * Math.log2(probability);
   }
-  
+
   return entropy;
 };
 
@@ -81,7 +81,9 @@ export const validateFileSecurely = (buffer: Buffer, mimeType: string): void => 
   // 2. Check file size
   const maxSize = MAX_FILE_SIZES[mimeType as keyof typeof MAX_FILE_SIZES];
   if (buffer.length > maxSize) {
-    throw new BadRequestException(`File size exceeds maximum limit of ${maxSize / (1024 * 1024)}MB`);
+    throw new BadRequestException(
+      `File size exceeds maximum limit of ${maxSize / (1024 * 1024)}MB`,
+    );
   }
 
   // 3. Validate actual file content matches claimed type
@@ -96,10 +98,11 @@ export const validateFileSecurely = (buffer: Buffer, mimeType: string): void => 
 
   // 5. Check for suspicious entropy (possible encrypted/compressed malware)
   const entropy = calculateEntropy(buffer);
-  if (entropy > 7.5) { // Typical threshold for encrypted/compressed content
+  if (entropy > 7.5) {
+    // Typical threshold for encrypted/compressed content
     throw new BadRequestException('File content appears to be encrypted or compressed');
   }
-  
+
   // 6. Basic structure validation based on file type
   try {
     switch (mimeType) {
@@ -115,7 +118,7 @@ export const validateFileSecurely = (buffer: Buffer, mimeType: string): void => 
     const errorMessage = error instanceof Error ? error.message : 'Unknown error';
     throw new BadRequestException(`Invalid file structure: ${errorMessage}`);
   }
-}
+};
 
 /**
  * Validates basic PDF structure
@@ -144,16 +147,16 @@ const validateImageStructure = (buffer: Buffer): void => {
   }
 
   // For JPEG
-  if (buffer[0] === 0xFF && buffer[1] === 0xD8) {
+  if (buffer[0] === 0xff && buffer[1] === 0xd8) {
     // Check for JPEG end marker
-    if (!(buffer[buffer.length - 2] === 0xFF && buffer[buffer.length - 1] === 0xD9)) {
+    if (!(buffer[buffer.length - 2] === 0xff && buffer[buffer.length - 1] === 0xd9)) {
       throw new Error('Invalid JPEG structure');
     }
   }
   // For PNG
   else if (buffer.slice(0, 8).toString('hex').toUpperCase() === '89504E470D0A1A0A') {
     // Check for IEND chunk
-    const iendBuffer = Buffer.from([0x49, 0x45, 0x4E, 0x44, 0xAE, 0x42, 0x60, 0x82]);
+    const iendBuffer = Buffer.from([0x49, 0x45, 0x4e, 0x44, 0xae, 0x42, 0x60, 0x82]);
     if (!buffer.slice(-8).equals(iendBuffer)) {
       throw new Error('Invalid PNG structure');
     }
@@ -212,7 +215,7 @@ export class RateLimiter {
 
     // Get or initialize request timestamps for this identifier
     let timestamps = this.requests.get(identifier) || [];
-    
+
     // Remove old timestamps
     timestamps = timestamps.filter(time => time > windowStart);
 
@@ -227,4 +230,4 @@ export class RateLimiter {
 
     return true;
   }
-} 
+}
