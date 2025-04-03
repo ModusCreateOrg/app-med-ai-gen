@@ -92,9 +92,7 @@ describe('AwsBedrockService', () => {
     const mockFileType = 'application/pdf';
     const mockResponseData = {
       content: JSON.stringify({
-        keyMedicalTerms: [
-          { term: 'Hypertension', definition: 'High blood pressure' },
-        ],
+        keyMedicalTerms: [{ term: 'Hypertension', definition: 'High blood pressure' }],
         labValues: [
           {
             name: 'Blood Pressure',
@@ -152,9 +150,9 @@ describe('AwsBedrockService', () => {
       const error = new Error('Processing failed');
       mockBedrockClient.send.mockRejectedValue(error);
 
-      await expect(service.extractMedicalInfo(mockFileBuffer, mockFileType))
-        .rejects
-        .toThrow('Failed to extract medical information: Processing failed');
+      await expect(service.extractMedicalInfo(mockFileBuffer, mockFileType)).rejects.toThrow(
+        'Failed to extract medical information: Processing failed',
+      );
     });
 
     it('should handle invalid response format', async () => {
@@ -165,9 +163,9 @@ describe('AwsBedrockService', () => {
       };
       mockBedrockClient.send.mockResolvedValue(invalidResponse);
 
-      await expect(service.extractMedicalInfo(mockFileBuffer, mockFileType))
-        .rejects
-        .toThrow('Failed to extract JSON from response');
+      await expect(service.extractMedicalInfo(mockFileBuffer, mockFileType)).rejects.toThrow(
+        'Failed to extract JSON from response',
+      );
     });
 
     it('should handle different file types', async () => {
@@ -182,4 +180,4 @@ describe('AwsBedrockService', () => {
       );
     });
   });
-}); 
+});

@@ -76,19 +76,16 @@ export class AwsBedrockService {
 
   /**
    * Extracts structured medical information from a file (PDF or image)
-   * 
+   *
    * @param fileBuffer The file buffer containing the medical report
    * @param fileType The MIME type of the file (e.g., 'application/pdf', 'image/jpeg')
    * @returns Structured medical information extracted from the file
    */
-  async extractMedicalInfo(
-    fileBuffer: Buffer,
-    fileType: string,
-  ): Promise<ExtractedMedicalInfo> {
+  async extractMedicalInfo(fileBuffer: Buffer, fileType: string): Promise<ExtractedMedicalInfo> {
     try {
       // Convert file to base64
       const base64File = fileBuffer.toString('base64');
-      
+
       // Create the prompt with the file
       const systemPrompt = `You are a medical expert AI assistant. Analyze the provided medical report and extract key information.
 Format the response as a JSON object with the following structure:
@@ -156,12 +153,13 @@ Ensure all medical terms are explained in plain language. Mark lab values as abn
       // Parse the response
       const responseBody = new TextDecoder().decode(response.body);
       const parsedResponse = JSON.parse(responseBody);
-      
+
       // Extract the JSON from the response text
       // The model might wrap the JSON in markdown code blocks or add additional text
-      const jsonMatch = parsedResponse.content.match(/```json\n([\s\S]*?)\n```/) || 
-                       parsedResponse.content.match(/{[\s\S]*}/);
-                       
+      const jsonMatch =
+        parsedResponse.content.match(/```json\n([\s\S]*?)\n```/) ||
+        parsedResponse.content.match(/{[\s\S]*}/);
+
       if (!jsonMatch) {
         throw new Error('Failed to extract JSON from response');
       }
