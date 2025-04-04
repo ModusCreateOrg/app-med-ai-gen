@@ -64,8 +64,8 @@ export class AwsBedrockService {
     // Set default values based on environment
     this.defaultModel =
       process.env.NODE_ENV === 'test'
-        ? 'anthropic.claude-v2'
-        : (this.configService.get<string>('bedrock.model') ?? 'anthropic.claude-v2');
+        ? 'anthropic.claude-3-7-sonnet-20250219-v1:0'
+        : (this.configService.get<string>('bedrock.model') ?? 'anthropic.claude-3-7-sonnet-20250219-v1:0');
 
     this.defaultMaxTokens =
       process.env.NODE_ENV === 'test'
