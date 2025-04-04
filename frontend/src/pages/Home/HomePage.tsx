@@ -85,7 +85,10 @@ const HomePage: React.FC = () => {
     if (!reports || reports.length === 0) {
       return (
         <div className="home-page__empty-state">
-          <NoReportsMessage onUpload={handleUpload} />
+          <NoReportsMessage 
+            onUpload={handleUpload} 
+            onRetry={handleRetry} 
+          />
         </div>
       );
     }
