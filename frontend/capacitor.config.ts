@@ -1,8 +1,8 @@
 import type { CapacitorConfig } from '@capacitor/cli';
 
 const config: CapacitorConfig = {
-  appId: 'com.moduscreate.medreportai',
-  appName: 'MedReportAI',
+  appId: 'com.moduscreate.appmedaigen',
+  appName: 'MedReport AI GEN',
   webDir: 'dist',
   plugins: {
     StatusBar: {

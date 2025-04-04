@@ -17,7 +17,6 @@ node_modules
 *.ntvs*
 *.njsproj
 *.sln
-*.sw*
 
 # Use either yarn.lock or package-lock.json
 # Uncomment one of them to maintain a single lockfile
