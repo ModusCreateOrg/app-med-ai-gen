@@ -8,9 +8,8 @@ const MALICIOUS_FILE_SIGNATURES = new Set([
   'CAFEBABE', // Java class file
 ]);
 
-// Maximum file size (10MB for images, 20MB for PDFs)
+// Maximum file size (10MB for images)
 export const MAX_FILE_SIZES = {
-  'application/pdf': 20 * 1024 * 1024,
   'image/jpeg': 10 * 1024 * 1024,
   'image/png': 10 * 1024 * 1024,
 } as const;
@@ -34,8 +33,6 @@ const validateFileType = (buffer: Buffer, mimeType: string): boolean => {
   const signature = buffer.slice(0, 4).toString('hex').toUpperCase();
 
   switch (mimeType) {
-    case 'application/pdf':
-      return signature.startsWith('25504446'); // %PDF
     case 'image/jpeg':
       return signature.startsWith('FFD8FF'); // JPEG SOI marker
     case 'image/png':
@@ -75,20 +72,20 @@ const calculateEntropy = (buffer: Buffer): number => {
 export const validateFileSecurely = (buffer: Buffer, mimeType: string): void => {
   // 1. Check if file type is allowed
   if (!ALLOWED_MIME_TYPES.has(mimeType)) {
-    throw new BadRequestException('File type not allowed');
+    throw new BadRequestException('Only JPEG and PNG images are allowed');
   }
 
   // 2. Check file size
   const maxSize = MAX_FILE_SIZES[mimeType as keyof typeof MAX_FILE_SIZES];
   if (buffer.length > maxSize) {
     throw new BadRequestException(
-      `File size exceeds maximum limit of ${maxSize / (1024 * 1024)}MB`,
+      `Image size exceeds maximum limit of ${maxSize / (1024 * 1024)}MB`,
     );
   }
 
   // 3. Validate actual file content matches claimed type
   if (!validateFileType(buffer, mimeType)) {
-    throw new BadRequestException('File content does not match claimed type');
+    throw new BadRequestException('File content does not match claimed image type');
   }
 
   // 4. Check for executable signatures
@@ -99,41 +96,15 @@ export const validateFileSecurely = (buffer: Buffer, mimeType: string): void => 
   // 5. Check for suspicious entropy (possible encrypted/compressed malware)
   const entropy = calculateEntropy(buffer);
   if (entropy > 7.5) {
-    // Typical threshold for encrypted/compressed content
     throw new BadRequestException('File content appears to be encrypted or compressed');
   }
 
-  // 6. Basic structure validation based on file type
+  // 6. Basic structure validation for images
   try {
-    switch (mimeType) {
-      case 'application/pdf':
-        validatePdfStructure(buffer);
-        break;
-      case 'image/jpeg':
-      case 'image/png':
-        validateImageStructure(buffer);
-        break;
-    }
+    validateImageStructure(buffer);
   } catch (error: unknown) {
     const errorMessage = error instanceof Error ? error.message : 'Unknown error';
-    throw new BadRequestException(`Invalid file structure: ${errorMessage}`);
-  }
-};
-
-/**
- * Validates basic PDF structure
- * Checks for PDF header and EOF marker
- */
-const validatePdfStructure = (buffer: Buffer): void => {
-  // Check PDF header
-  if (!buffer.slice(0, 5).toString().startsWith('%PDF-')) {
-    throw new Error('Invalid PDF header');
-  }
-
-  // Check for EOF marker
-  const tail = buffer.slice(-6).toString();
-  if (!tail.includes('%%EOF')) {
-    throw new Error('Missing PDF EOF marker');
+    throw new BadRequestException(`Invalid image structure: ${errorMessage}`);
   }
 };
 
