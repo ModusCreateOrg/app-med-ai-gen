@@ -34,8 +34,8 @@ vi.mock('@aws-sdk/client-bedrock-runtime', () => {
 vi.mock('../utils/security.utils', () => {
   return {
     validateFileSecurely: vi.fn().mockImplementation((buffer: Buffer, fileType: string) => {
-      if (!['image/jpeg', 'image/png'].includes(fileType)) {
-        throw new BadRequestException('Only JPEG and PNG images are allowed');
+      if (!['image/jpeg', 'image/png', 'image/heic', 'image/heif'].includes(fileType)) {
+        throw new BadRequestException('Only JPEG, PNG, and HEIC/HEIF images are allowed');
       }
     }),
     sanitizeMedicalData: vi.fn(data => data),
@@ -110,7 +110,7 @@ describe('AwsBedrockService', () => {
 
   describe('extractMedicalInfo', () => {
     const mockImageBuffer = Buffer.from('test image content');
-    const mockImageTypes = ['image/jpeg', 'image/png'];
+    const mockImageTypes = ['image/jpeg', 'image/png', 'image/heic', 'image/heif'];
     const mockMedicalInfo = {
       keyMedicalTerms: [
         { term: 'Hemoglobin', definition: 'Protein in red blood cells that carries oxygen' },
@@ -282,8 +282,24 @@ ${JSON.stringify(partialInfo, null, 2)}
 
     it('should reject unsupported file types', async () => {
       await expect(service.extractMedicalInfo(mockImageBuffer, 'application/pdf')).rejects.toThrow(
-        'Only JPEG and PNG images are allowed',
+        'Only JPEG, PNG, and HEIC/HEIF images are allowed',
       );
+    });
+
+    // Add test for mobile phone JPEG with EXIF data
+    it('should accept JPEG images with EXIF data from mobile phones', async () => {
+      // Create a mock JPEG buffer with EXIF signature
+      const mockJpegWithExif = Buffer.from('FFD8FFE1', 'hex');
+      const result = await service.extractMedicalInfo(mockJpegWithExif, 'image/jpeg');
+      expect(result).toBeDefined();
+    });
+
+    // Add test for HEIC/HEIF format
+    it('should accept HEIC/HEIF images from mobile phones', async () => {
+      // Create a mock HEIC buffer with signature
+      const mockHeicBuffer = Buffer.from('00000020667479706865696300', 'hex');
+      const result = await service.extractMedicalInfo(mockHeicBuffer, 'image/heic');
+      expect(result).toBeDefined();
     });
 
     it('should handle errors when image processing fails', async () => {
