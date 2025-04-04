@@ -65,7 +65,8 @@ export class AwsBedrockService {
     this.defaultModel =
       process.env.NODE_ENV === 'test'
         ? 'anthropic.claude-3-7-sonnet-20250219-v1:0'
-        : (this.configService.get<string>('bedrock.model') ?? 'anthropic.claude-3-7-sonnet-20250219-v1:0');
+        : (this.configService.get<string>('bedrock.model') ??
+          'anthropic.claude-3-7-sonnet-20250219-v1:0');
 
     this.defaultMaxTokens =
       process.env.NODE_ENV === 'test'
