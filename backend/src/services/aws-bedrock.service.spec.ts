@@ -33,7 +33,11 @@ vi.mock('@aws-sdk/client-bedrock-runtime', () => {
 // Mock validateFileSecurely to bypass file validation in tests
 vi.mock('../utils/security.utils', () => {
   return {
-    validateFileSecurely: vi.fn(),
+    validateFileSecurely: vi.fn().mockImplementation((buffer: Buffer, fileType: string) => {
+      if (!['image/jpeg', 'image/png'].includes(fileType)) {
+        throw new BadRequestException('Only JPEG and PNG images are allowed');
+      }
+    }),
     sanitizeMedicalData: vi.fn(data => data),
     RateLimiter: vi.fn().mockImplementation(() => ({
       tryRequest: vi.fn().mockReturnValue(true),
@@ -63,7 +67,7 @@ describe('AwsBedrockService', () => {
       'aws.region': 'us-east-1',
       'aws.aws.accessKeyId': 'test-access-key',
       'aws.aws.secretAccessKey': 'test-secret-key',
-      'bedrock.model': 'anthropic.claude-v2',
+      'bedrock.model': 'anthropic.claude-3-7-sonnet-20250219-v1:0',
       'bedrock.maxTokens': 2048,
     };
 
@@ -99,30 +103,32 @@ describe('AwsBedrockService', () => {
     });
 
     it('should initialize with test environment values', () => {
-      expect(service['defaultModel']).toBe('anthropic.claude-v2');
+      expect(service['defaultModel']).toBe('anthropic.claude-3-7-sonnet-20250219-v1:0');
       expect(service['defaultMaxTokens']).toBe(1000);
     });
   });
 
   describe('extractMedicalInfo', () => {
-    const mockFileBuffer = Buffer.from('test file content');
-    const mockFileType = 'application/pdf';
+    const mockImageBuffer = Buffer.from('test image content');
+    const mockImageTypes = ['image/jpeg', 'image/png'];
     const mockMedicalInfo = {
-      keyMedicalTerms: [{ term: 'Hypertension', definition: 'High blood pressure' }],
+      keyMedicalTerms: [
+        { term: 'Hemoglobin', definition: 'Protein in red blood cells that carries oxygen' },
+      ],
       labValues: [
         {
-          name: 'Blood Pressure',
-          value: '140/90',
-          unit: 'mmHg',
-          normalRange: '120/80',
-          isAbnormal: true,
+          name: 'Hemoglobin',
+          value: '14.5',
+          unit: 'g/dL',
+          normalRange: '12.0-15.5',
+          isAbnormal: false,
         },
       ],
       diagnoses: [
         {
-          condition: 'Hypertension',
-          details: 'Elevated blood pressure',
-          recommendations: 'Lifestyle changes and monitoring',
+          condition: 'Normal Blood Count',
+          details: 'All values within normal range',
+          recommendations: 'Continue routine monitoring',
         },
       ],
       metadata: {
@@ -145,37 +151,37 @@ ${JSON.stringify(mockMedicalInfo, null, 2)}
     };
 
     beforeEach(() => {
-      // Mock the Bedrock client response
       mockBedrockClient.send.mockResolvedValue(mockResponse);
     });
 
-    it('should successfully extract medical information from a file', async () => {
-      const result = await service.extractMedicalInfo(mockFileBuffer, mockFileType);
+    it.each(mockImageTypes)(
+      'should successfully extract medical information from %s',
+      async imageType => {
+        const result = await service.extractMedicalInfo(mockImageBuffer, imageType);
 
-      // Verify the result structure
-      expect(result).toHaveProperty('keyMedicalTerms');
-      expect(result).toHaveProperty('labValues');
-      expect(result).toHaveProperty('diagnoses');
-      expect(result).toHaveProperty('metadata');
+        expect(result).toHaveProperty('keyMedicalTerms');
+        expect(result).toHaveProperty('labValues');
+        expect(result).toHaveProperty('diagnoses');
+        expect(result).toHaveProperty('metadata');
 
-      // Verify the command was called with correct parameters
-      expect(InvokeModelCommand).toHaveBeenCalledWith(
-        expect.objectContaining({
-          modelId: 'anthropic.claude-v2',
-          contentType: 'application/json',
-          accept: 'application/json',
-        }),
-      );
+        expect(InvokeModelCommand).toHaveBeenCalledWith(
+          expect.objectContaining({
+            modelId: expect.any(String),
+            contentType: 'application/json',
+            accept: 'application/json',
+            body: expect.stringContaining(imageType),
+          }),
+        );
 
-      // Verify the content of the extracted information
-      expect(result.keyMedicalTerms[0].term).toBe('Hypertension');
-      expect(result.labValues[0].name).toBe('Blood Pressure');
-      expect(result.diagnoses[0].condition).toBe('Hypertension');
-      expect(result.metadata.isMedicalReport).toBe(true);
-      expect(result.metadata.confidence).toBe(0.95);
-    });
+        expect(result.keyMedicalTerms[0].term).toBe('Hemoglobin');
+        expect(result.labValues[0].name).toBe('Hemoglobin');
+        expect(result.diagnoses[0].condition).toBe('Normal Blood Count');
+        expect(result.metadata.isMedicalReport).toBe(true);
+        expect(result.metadata.confidence).toBe(0.95);
+      },
+    );
 
-    it('should reject non-medical reports', async () => {
+    it('should reject non-medical images', async () => {
       const nonMedicalInfo = {
         keyMedicalTerms: [],
         labValues: [],
@@ -183,7 +189,7 @@ ${JSON.stringify(mockMedicalInfo, null, 2)}
         metadata: {
           isMedicalReport: false,
           confidence: 0.1,
-          missingInformation: ['Not a medical document'],
+          missingInformation: ['Not a medical image'],
         },
       };
 
@@ -199,85 +205,93 @@ ${JSON.stringify(nonMedicalInfo, null, 2)}
         body: Buffer.from(JSON.stringify(nonMedicalResponse)) as any,
       });
 
-      await expect(service.extractMedicalInfo(mockFileBuffer, mockFileType)).rejects.toThrow(
+      await expect(service.extractMedicalInfo(mockImageBuffer, 'image/jpeg')).rejects.toThrow(
         BadRequestException,
       );
 
-      await expect(service.extractMedicalInfo(mockFileBuffer, mockFileType)).rejects.toThrow(
-        'The provided document does not appear to be a medical report.',
+      await expect(service.extractMedicalInfo(mockImageBuffer, 'image/jpeg')).rejects.toThrow(
+        'The provided image does not appear to be a medical document.',
       );
     });
 
-    it('should handle low confidence medical reports', async () => {
-      const lowConfidenceInfo = {
+    it('should handle low quality or unclear images', async () => {
+      const lowQualityInfo = {
         keyMedicalTerms: [],
         labValues: [],
         diagnoses: [],
         metadata: {
           isMedicalReport: true,
           confidence: 0.5,
-          missingInformation: ['Unclear handwriting', 'Missing sections'],
+          missingInformation: ['Image too blurry', 'Text not readable'],
         },
       };
 
-      const lowConfidenceResponse = {
+      const lowQualityResponse = {
         content: `Analysis results:
 \`\`\`json
-${JSON.stringify(lowConfidenceInfo, null, 2)}
+${JSON.stringify(lowQualityInfo, null, 2)}
 \`\`\``,
       };
 
       mockBedrockClient.send.mockResolvedValue({
         $metadata: {},
-        body: Buffer.from(JSON.stringify(lowConfidenceResponse)) as any,
+        body: Buffer.from(JSON.stringify(lowQualityResponse)) as any,
       });
 
-      await expect(service.extractMedicalInfo(mockFileBuffer, mockFileType)).rejects.toThrow(
+      await expect(service.extractMedicalInfo(mockImageBuffer, 'image/jpeg')).rejects.toThrow(
         BadRequestException,
       );
 
-      await expect(service.extractMedicalInfo(mockFileBuffer, mockFileType)).rejects.toThrow(
-        'Low confidence in medical report analysis',
+      await expect(service.extractMedicalInfo(mockImageBuffer, 'image/jpeg')).rejects.toThrow(
+        'Low confidence in medical image analysis',
       );
     });
 
-    it('should handle missing information in medical reports', async () => {
-      const missingInfoData = {
-        keyMedicalTerms: [{ term: 'Hypertension', definition: 'High blood pressure' }],
+    it('should handle partially visible information in images', async () => {
+      const partialInfo = {
+        keyMedicalTerms: [
+          { term: 'Hemoglobin', definition: 'Protein in red blood cells that carries oxygen' },
+        ],
         labValues: [],
         diagnoses: [],
         metadata: {
           isMedicalReport: true,
           confidence: 0.8,
-          missingInformation: ['Lab values', 'Recommendations'],
+          missingInformation: ['Bottom portion of image cut off', 'Some values not visible'],
         },
       };
 
-      const missingInfoResponse = {
+      const partialResponse = {
         content: `Here's what I found:
 \`\`\`json
-${JSON.stringify(missingInfoData, null, 2)}
+${JSON.stringify(partialInfo, null, 2)}
 \`\`\``,
       };
 
       mockBedrockClient.send.mockResolvedValue({
         $metadata: {},
-        body: Buffer.from(JSON.stringify(missingInfoResponse)) as any,
+        body: Buffer.from(JSON.stringify(partialResponse)) as any,
       });
 
-      const result = await service.extractMedicalInfo(mockFileBuffer, mockFileType);
+      const result = await service.extractMedicalInfo(mockImageBuffer, 'image/jpeg');
 
-      expect(result.metadata.missingInformation).toContain('Lab values');
-      expect(result.metadata.missingInformation).toContain('Recommendations');
+      expect(result.metadata.missingInformation).toContain('Bottom portion of image cut off');
+      expect(result.metadata.missingInformation).toContain('Some values not visible');
       expect(result.metadata.confidence).toBe(0.8);
     });
 
-    it('should handle errors when file processing fails', async () => {
-      const error = new Error('Processing failed');
+    it('should reject unsupported file types', async () => {
+      await expect(service.extractMedicalInfo(mockImageBuffer, 'application/pdf')).rejects.toThrow(
+        'Only JPEG and PNG images are allowed',
+      );
+    });
+
+    it('should handle errors when image processing fails', async () => {
+      const error = new Error('Image processing failed');
       mockBedrockClient.send.mockRejectedValue(error);
 
-      await expect(service.extractMedicalInfo(mockFileBuffer, mockFileType)).rejects.toThrow(
-        'Failed to extract medical information: Processing failed',
+      await expect(service.extractMedicalInfo(mockImageBuffer, 'image/jpeg')).rejects.toThrow(
+        'Failed to extract medical information from image: Image processing failed',
       );
     });
 
@@ -288,20 +302,8 @@ ${JSON.stringify(missingInfoData, null, 2)}
       };
       mockBedrockClient.send.mockResolvedValue(invalidResponse);
 
-      await expect(service.extractMedicalInfo(mockFileBuffer, mockFileType)).rejects.toThrow(
+      await expect(service.extractMedicalInfo(mockImageBuffer, 'image/jpeg')).rejects.toThrow(
         'Failed to extract JSON from response',
-      );
-    });
-
-    it('should handle different file types', async () => {
-      const imageFileType = 'image/jpeg';
-      await service.extractMedicalInfo(mockFileBuffer, imageFileType);
-
-      // Verify the command was called with the correct file type
-      expect(InvokeModelCommand).toHaveBeenCalledWith(
-        expect.objectContaining({
-          body: expect.stringContaining(imageFileType),
-        }),
       );
     });
   });
