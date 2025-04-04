@@ -12,10 +12,37 @@ const MALICIOUS_FILE_SIGNATURES = new Set([
 export const MAX_FILE_SIZES = {
   'image/jpeg': 10 * 1024 * 1024,
   'image/png': 10 * 1024 * 1024,
+  'image/heic': 10 * 1024 * 1024,
+  'image/heif': 10 * 1024 * 1024,
 } as const;
 
 // Allowed MIME types
 export const ALLOWED_MIME_TYPES = new Set(Object.keys(MAX_FILE_SIZES));
+
+// Common JPEG signatures from different devices
+const JPEG_SIGNATURES = new Set([
+  'FFD8FF', // Standard JPEG SOI marker
+  'FFD8FFE0', // JPEG/JFIF
+  'FFD8FFE1', // JPEG/Exif (common in mobile phones)
+  'FFD8FFE2', // JPEG/SPIFF
+  'FFD8FFE3', // JPEG/JPEG-LS
+  'FFD8FFE8', // JPEG/SPIFF
+  'FFD8FFED', // JPEG/IPTC
+  'FFD8FFEE', // JPEG/JPEG-LS
+]);
+
+// Common PNG signatures
+const PNG_SIGNATURES = new Set([
+  '89504E47', // Standard PNG
+  '89504E470D0A1A0A', // Full PNG header
+]);
+
+// HEIC/HEIF signatures
+const HEIC_SIGNATURES = new Set([
+  '00000020667479706865696300', // HEIC
+  '0000001C667479706D696631', // HEIF
+  '00000018667479706D696631', // HEIF variation
+]);
 
 /**
  * Checks if a buffer starts with any of the malicious file signatures
@@ -30,13 +57,17 @@ const hasExecutableSignature = (buffer: Buffer): boolean => {
  * Validates the actual content type of a file using its magic numbers
  */
 const validateFileType = (buffer: Buffer, mimeType: string): boolean => {
-  const signature = buffer.slice(0, 4).toString('hex').toUpperCase();
+  // Get first 12 bytes to check for various signatures
+  const signature = buffer.slice(0, 12).toString('hex').toUpperCase();
 
   switch (mimeType) {
     case 'image/jpeg':
-      return signature.startsWith('FFD8FF'); // JPEG SOI marker
+      return Array.from(JPEG_SIGNATURES).some(sig => signature.startsWith(sig));
     case 'image/png':
-      return signature === '89504E47'; // PNG signature
+      return Array.from(PNG_SIGNATURES).some(sig => signature.startsWith(sig));
+    case 'image/heic':
+    case 'image/heif':
+      return Array.from(HEIC_SIGNATURES).some(sig => signature.startsWith(sig));
     default:
       return false;
   }
@@ -72,7 +103,7 @@ const calculateEntropy = (buffer: Buffer): number => {
 export const validateFileSecurely = (buffer: Buffer, mimeType: string): void => {
   // 1. Check if file type is allowed
   if (!ALLOWED_MIME_TYPES.has(mimeType)) {
-    throw new BadRequestException('Only JPEG and PNG images are allowed');
+    throw new BadRequestException('Only JPEG, PNG, and HEIC/HEIF images are allowed');
   }
 
   // 2. Check file size
@@ -117,20 +148,32 @@ const validateImageStructure = (buffer: Buffer): void => {
     throw new Error('File too small to be a valid image');
   }
 
+  const signature = buffer.slice(0, 12).toString('hex').toUpperCase();
+
   // For JPEG
-  if (buffer[0] === 0xff && buffer[1] === 0xd8) {
+  if (Array.from(JPEG_SIGNATURES).some(sig => signature.startsWith(sig))) {
     // Check for JPEG end marker
     if (!(buffer[buffer.length - 2] === 0xff && buffer[buffer.length - 1] === 0xd9)) {
       throw new Error('Invalid JPEG structure');
     }
   }
   // For PNG
-  else if (buffer.slice(0, 8).toString('hex').toUpperCase() === '89504E470D0A1A0A') {
+  else if (signature.startsWith('89504E47')) {
     // Check for IEND chunk
     const iendBuffer = Buffer.from([0x49, 0x45, 0x4e, 0x44, 0xae, 0x42, 0x60, 0x82]);
     if (!buffer.slice(-8).equals(iendBuffer)) {
       throw new Error('Invalid PNG structure');
     }
+  }
+  // For HEIC/HEIF
+  else if (Array.from(HEIC_SIGNATURES).some(sig => signature.startsWith(sig))) {
+    // HEIC/HEIF validation is more complex, we'll do basic size validation
+    if (buffer.length < 512) {
+      // HEIC files are typically larger
+      throw new Error('Invalid HEIC/HEIF structure');
+    }
+  } else {
+    throw new Error('Unsupported image format');
   }
 };
 
