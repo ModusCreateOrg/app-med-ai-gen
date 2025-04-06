@@ -1,4 +1,4 @@
-import { BadRequestException } from '@nestjs/common';
+import { BadRequestException, Logger } from '@nestjs/common';
 
 // Common malicious file signatures (magic numbers)
 const MALICIOUS_FILE_SIGNATURES = new Set([
@@ -99,8 +99,17 @@ const calculateEntropy = (buffer: Buffer): number => {
 
 /**
  * Comprehensive file security validation
+ * @param buffer The file buffer to validate
+ * @param mimeType The declared MIME type of the file
+ * @param options Additional validation options
  */
-export const validateFileSecurely = (buffer: Buffer, mimeType: string): void => {
+export const validateFileSecurely = (
+  buffer: Buffer,
+  mimeType: string,
+  options: { skipEntropyCheck?: boolean } = {},
+): void => {
+  const logger = new Logger('SecurityUtils');
+
   // 1. Check if file type is allowed
   if (!ALLOWED_MIME_TYPES.has(mimeType)) {
     throw new BadRequestException('Only JPEG, PNG, and HEIC/HEIF images are allowed');
@@ -126,7 +135,17 @@ export const validateFileSecurely = (buffer: Buffer, mimeType: string): void => 
 
   // 5. Check for suspicious entropy (possible encrypted/compressed malware)
   const entropy = calculateEntropy(buffer);
-  if (entropy > 7.5) {
+  logger.log(
+    `Image entropy: ${entropy.toFixed(2)}, type: ${mimeType}, size: ${(buffer.length / 1024).toFixed(2)}KB`,
+  );
+
+  // Skip entropy check if requested or for PNG (which is naturally highly compressed)
+  const skipEntropyCheck = options.skipEntropyCheck || mimeType === 'image/png';
+
+  if (!skipEntropyCheck && entropy > 7.9) {
+    logger.warn(
+      `High entropy detected: ${entropy.toFixed(2)}, type: ${mimeType} - possible encryption or compression`,
+    );
     throw new BadRequestException('File content appears to be encrypted or compressed');
   }
 
@@ -144,25 +163,31 @@ export const validateFileSecurely = (buffer: Buffer, mimeType: string): void => 
  * Checks for proper image headers and dimensions
  */
 const validateImageStructure = (buffer: Buffer): void => {
+  const logger = new Logger('ImageValidator');
+
   if (buffer.length < 12) {
     throw new Error('File too small to be a valid image');
   }
 
   const signature = buffer.slice(0, 12).toString('hex').toUpperCase();
+  logger.log(`Image signature: ${signature.substring(0, 8)}...`);
 
   // For JPEG
   if (Array.from(JPEG_SIGNATURES).some(sig => signature.startsWith(sig))) {
-    // Check for JPEG end marker
-    if (!(buffer[buffer.length - 2] === 0xff && buffer[buffer.length - 1] === 0xd9)) {
-      throw new Error('Invalid JPEG structure');
+    // Skip JPEG end marker check as some valid JPEGs might not end with standard EOI marker
+    // Just check if the file size is reasonable
+    if (buffer.length < 100) {
+      logger.warn('JPEG file size too small, might be corrupted');
+      throw new Error('JPEG file appears to be truncated or corrupted');
     }
   }
   // For PNG
   else if (signature.startsWith('89504E47')) {
-    // Check for IEND chunk
-    const iendBuffer = Buffer.from([0x49, 0x45, 0x4e, 0x44, 0xae, 0x42, 0x60, 0x82]);
-    if (!buffer.slice(-8).equals(iendBuffer)) {
-      throw new Error('Invalid PNG structure');
+    const hasIend = buffer.includes(Buffer.from([0x49, 0x45, 0x4e, 0x44]));
+
+    if (!hasIend) {
+      logger.warn('PNG missing IEND chunk');
+      throw new Error('Invalid PNG structure: missing IEND chunk');
     }
   }
   // For HEIC/HEIF

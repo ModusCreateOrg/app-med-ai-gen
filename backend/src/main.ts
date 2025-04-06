@@ -4,11 +4,15 @@ import { ConfigService } from '@nestjs/config';
 import { setupSwagger } from './swagger.config';
 import { ValidationPipe } from '@nestjs/common';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
+import { json } from 'express';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
   const configService = app.get(ConfigService);
   const port = configService.get<number>('port') ?? 3000;
+
+  // Configure JSON body parser with increased limits
+  app.use(json({ limit: '3mb' })); // Increased from default 100kb to 3mb
 
   // Enable CORS
   app.enableCors({

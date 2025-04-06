@@ -1,4 +1,4 @@
-import { Module, NestModule, MiddlewareConsumer } from '@nestjs/common';
+import { Module, NestModule, MiddlewareConsumer, RequestMethod } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import configuration from './config/configuration';
 import { AppController } from './app.controller';
@@ -11,6 +11,8 @@ import { UserController } from './user/user.controller';
 import { ReportsModule } from './reports/reports.module';
 import { HealthController } from './health/health.controller';
 import { AuthMiddleware } from './auth/auth.middleware';
+import { BedrockTestModule } from './controllers/bedrock/bedrock.module';
+import { BedrockTestController } from './controllers/bedrock/bedrock-test.controller';
 
 @Module({
   imports: [
@@ -19,12 +21,27 @@ import { AuthMiddleware } from './auth/auth.middleware';
       load: [configuration],
     }),
     ReportsModule,
+    BedrockTestModule,
   ],
-  controllers: [AppController, HealthController, PerplexityController, UserController],
+  controllers: [
+    AppController,
+    BedrockTestController,
+    HealthController,
+    PerplexityController,
+    UserController,
+  ],
   providers: [AppService, AwsSecretsService, AwsBedrockService, PerplexityService],
 })
 export class AppModule implements NestModule {
   configure(consumer: MiddlewareConsumer) {
-    consumer.apply(AuthMiddleware).forRoutes('*'); // Apply to all routes
+    consumer
+      .apply(AuthMiddleware)
+      .exclude(
+        { path: 'test-bedrock', method: RequestMethod.GET },
+        { path: 'test-bedrock/health', method: RequestMethod.GET },
+        { path: 'test-bedrock/extract-medical-info', method: RequestMethod.POST },
+        { path: 'health', method: RequestMethod.GET },
+      )
+      .forRoutes('*');
   }
 }

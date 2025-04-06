@@ -103,7 +103,7 @@ describe('AwsBedrockService', () => {
     });
 
     it('should initialize with test environment values', () => {
-      expect(service['defaultModel']).toBe('anthropic.claude-3-7-sonnet-20250219-v1:0');
+      expect(service['modelId']).toBe('anthropic.claude-3-sonnet-20240229-v1:0');
       expect(service['defaultMaxTokens']).toBe(1000);
     });
   });

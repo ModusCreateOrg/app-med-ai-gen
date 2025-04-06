@@ -27,6 +27,7 @@
     "cdk:synth": "dotenv -- npx cdk synth"
   },
   "dependencies": {
+    "@aws-sdk/client-bedrock": "^3.782.0",
     "@aws-sdk/client-bedrock-runtime": "^3.782.0",
     "@aws-sdk/client-dynamodb": "^3.758.0",
     "@aws-sdk/client-secrets-manager": "^3.758.0",
