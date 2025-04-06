@@ -66,11 +66,13 @@ describe('AwsBedrockService', () => {
 
     // Create service instance
     service = new AwsBedrockService(mockConfigService);
-    
+
     // Mock private methods directly
-    vi.spyOn(service as any, 'invokeBedrock').mockImplementation(() => Promise.resolve({
-      body: Buffer.from('{"mock": "response"}'),
-    }));
+    vi.spyOn(service as any, 'invokeBedrock').mockImplementation(() =>
+      Promise.resolve({
+        body: Buffer.from('{"mock": "response"}'),
+      }),
+    );
   });
 
   describe('initialization', () => {
@@ -93,10 +95,20 @@ describe('AwsBedrockService', () => {
           { term: 'Hemoglobin', definition: 'Protein in red blood cells that carries oxygen' },
         ],
         labValues: [
-          { name: 'Hemoglobin', value: '14.5', unit: 'g/dL', normalRange: '12.0-15.5', isAbnormal: false },
+          {
+            name: 'Hemoglobin',
+            value: '14.5',
+            unit: 'g/dL',
+            normalRange: '12.0-15.5',
+            isAbnormal: false,
+          },
         ],
         diagnoses: [
-          { condition: 'Normal Blood Count', details: 'All values within normal range', recommendations: 'Continue monitoring' },
+          {
+            condition: 'Normal Blood Count',
+            details: 'All values within normal range',
+            recommendations: 'Continue monitoring',
+          },
         ],
         metadata: {
           isMedicalReport: true,
@@ -117,14 +129,16 @@ describe('AwsBedrockService', () => {
 
     it('should successfully extract medical information from image/png', async () => {
       const mockMedicalInfo = {
-        keyMedicalTerms: [
-          { term: 'Glucose', definition: 'Blood sugar level' },
-        ],
+        keyMedicalTerms: [{ term: 'Glucose', definition: 'Blood sugar level' }],
         labValues: [
           { name: 'Glucose', value: '90', unit: 'mg/dL', normalRange: '70-100', isAbnormal: false },
         ],
         diagnoses: [
-          { condition: 'Normal Glucose', details: 'Normal blood sugar', recommendations: 'Continue healthy diet' },
+          {
+            condition: 'Normal Glucose',
+            details: 'Normal blood sugar',
+            recommendations: 'Continue healthy diet',
+          },
         ],
         metadata: {
           isMedicalReport: true,
@@ -149,14 +163,24 @@ describe('AwsBedrockService', () => {
           { term: 'Cholesterol', definition: 'Lipid molecule found in cell membranes' },
         ],
         labValues: [
-          { name: 'Cholesterol', value: '180', unit: 'mg/dL', normalRange: '< 200', isAbnormal: false },
+          {
+            name: 'Cholesterol',
+            value: '180',
+            unit: 'mg/dL',
+            normalRange: '< 200',
+            isAbnormal: false,
+          },
         ],
         diagnoses: [
-          { condition: 'Normal Cholesterol', details: 'Within healthy range', recommendations: 'Continue heart-healthy diet' },
+          {
+            condition: 'Normal Cholesterol',
+            details: 'Within healthy range',
+            recommendations: 'Continue heart-healthy diet',
+          },
         ],
         metadata: {
           isMedicalReport: true,
-          confidence: 0.90,
+          confidence: 0.9,
           missingInformation: [],
         },
       };
@@ -173,14 +197,22 @@ describe('AwsBedrockService', () => {
 
     it('should successfully extract medical information from image/heif', async () => {
       const mockMedicalInfo = {
-        keyMedicalTerms: [
-          { term: 'Triglycerides', definition: 'Type of fat found in blood' },
-        ],
+        keyMedicalTerms: [{ term: 'Triglycerides', definition: 'Type of fat found in blood' }],
         labValues: [
-          { name: 'Triglycerides', value: '120', unit: 'mg/dL', normalRange: '< 150', isAbnormal: false },
+          {
+            name: 'Triglycerides',
+            value: '120',
+            unit: 'mg/dL',
+            normalRange: '< 150',
+            isAbnormal: false,
+          },
         ],
         diagnoses: [
-          { condition: 'Normal Triglycerides', details: 'Within healthy range', recommendations: 'Continue heart-healthy diet' },
+          {
+            condition: 'Normal Triglycerides',
+            details: 'Within healthy range',
+            recommendations: 'Continue heart-healthy diet',
+          },
         ],
         metadata: {
           isMedicalReport: true,
@@ -216,7 +248,9 @@ describe('AwsBedrockService', () => {
 
       const result = await service.extractMedicalInfo(mockImageBuffer, 'image/jpeg');
       expect(result.metadata.isMedicalReport).toBe(false);
-      expect(result.metadata.missingInformation).toContain('The image was not clearly identified as a medical document. Results may be limited.');
+      expect(result.metadata.missingInformation).toContain(
+        'The image was not clearly identified as a medical document. Results may be limited.',
+      );
     });
 
     it('should handle low quality or unclear images', async () => {
@@ -236,7 +270,9 @@ describe('AwsBedrockService', () => {
 
       const result = await service.extractMedicalInfo(mockImageBuffer, 'image/jpeg');
       expect(result.metadata.confidence).toBeLessThan(0.5);
-      expect(result.metadata.missingInformation).toContain('Low confidence in the analysis. Please verify results or try a clearer image.');
+      expect(result.metadata.missingInformation).toContain(
+        'Low confidence in the analysis. Please verify results or try a clearer image.',
+      );
     });
 
     it('should handle partially visible information in images', async () => {
@@ -255,14 +291,14 @@ describe('AwsBedrockService', () => {
       vi.spyOn(service as any, 'parseBedrockResponse').mockReturnValueOnce(partialInfo);
 
       const result = await service.extractMedicalInfo(mockImageBuffer, 'image/jpeg');
-      
+
       expect(result.metadata.missingInformation).toContain('Partial document visible');
       expect(result.keyMedicalTerms[0].term).toBe('Partial term');
     });
 
     it('should reject unsupported file types', async () => {
       await expect(service.extractMedicalInfo(mockImageBuffer, 'image/gif')).rejects.toThrow(
-        'Only JPEG, PNG, and HEIC/HEIF images are allowed'
+        'Only JPEG, PNG, and HEIC/HEIF images are allowed',
       );
     });
 
@@ -275,7 +311,11 @@ describe('AwsBedrockService', () => {
           { name: 'BUN', value: '15', unit: 'mg/dL', normalRange: '7-20', isAbnormal: false },
         ],
         diagnoses: [
-          { condition: 'Normal Kidney Function', details: 'BUN within normal limits', recommendations: 'Routine follow-up' },
+          {
+            condition: 'Normal Kidney Function',
+            details: 'BUN within normal limits',
+            recommendations: 'Routine follow-up',
+          },
         ],
         metadata: {
           isMedicalReport: true,
@@ -296,14 +336,22 @@ describe('AwsBedrockService', () => {
 
     it('should accept HEIC/HEIF images from mobile phones', async () => {
       const mockMedicalInfo = {
-        keyMedicalTerms: [
-          { term: 'Creatinine', definition: 'Waste product filtered by kidneys' },
-        ],
+        keyMedicalTerms: [{ term: 'Creatinine', definition: 'Waste product filtered by kidneys' }],
         labValues: [
-          { name: 'Creatinine', value: '0.9', unit: 'mg/dL', normalRange: '0.7-1.3', isAbnormal: false },
+          {
+            name: 'Creatinine',
+            value: '0.9',
+            unit: 'mg/dL',
+            normalRange: '0.7-1.3',
+            isAbnormal: false,
+          },
         ],
         diagnoses: [
-          { condition: 'Normal Kidney Function', details: 'Creatinine within normal limits', recommendations: 'Routine follow-up' },
+          {
+            condition: 'Normal Kidney Function',
+            details: 'Creatinine within normal limits',
+            recommendations: 'Routine follow-up',
+          },
         ],
         metadata: {
           isMedicalReport: true,
@@ -327,7 +375,7 @@ describe('AwsBedrockService', () => {
       vi.spyOn(service as any, 'invokeBedrock').mockRejectedValueOnce(error);
 
       await expect(service.extractMedicalInfo(mockImageBuffer, 'image/jpeg')).rejects.toThrow(
-        /Failed to extract medical information from image: Image processing failed/
+        /Failed to extract medical information from image: Image processing failed/,
       );
     });
 
@@ -337,7 +385,7 @@ describe('AwsBedrockService', () => {
       });
 
       await expect(service.extractMedicalInfo(mockImageBuffer, 'image/jpeg')).rejects.toThrow(
-        /Failed to extract medical information from image: Invalid response format/
+        /Failed to extract medical information from image: Invalid response format/,
       );
     });
   });
