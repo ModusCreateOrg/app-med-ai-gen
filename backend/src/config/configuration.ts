@@ -26,7 +26,7 @@ export default () => ({
     },
     textract: {
       maxBatchSize: parseInt(process.env.AWS_TEXTRACT_MAX_BATCH_SIZE || '10', 10),
-      documentRequestsPerMinute: parseInt(process.env.AWS_TEXTRACT_DOCS_PER_MINUTE || '10', 10),
+      documentRequestsPerMinute: parseInt(process.env.AWS_TEXTRACT_DOCS_PER_MINUTE || '20', 20),
     },
   },
   perplexity: {

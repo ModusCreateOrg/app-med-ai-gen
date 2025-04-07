@@ -1,7 +1,7 @@
 import { Injectable, Logger, BadRequestException } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { TextractClient, AnalyzeDocumentCommand, Block } from '@aws-sdk/client-textract';
-import { validateFileSecurely } from '../utils/security.utils';
+import { validateFileSecurely, RateLimiter } from '../utils/security.utils';
 import { createHash } from 'crypto';
 
 export interface ExtractedTextResult {
@@ -542,41 +542,5 @@ export class AwsTextractService {
     }
 
     return results;
-  }
-}
-
-/**
- * Rate limiting implementation using a rolling window
- */
-class RateLimiter {
-  private requests: Map<string, number[]> = new Map();
-  private readonly windowMs: number;
-  private readonly maxRequests: number;
-
-  constructor(windowMs = 60000, maxRequests = 20) {
-    this.windowMs = windowMs;
-    this.maxRequests = maxRequests;
-  }
-
-  public tryRequest(identifier: string): boolean {
-    const now = Date.now();
-    const windowStart = now - this.windowMs;
-
-    // Get or initialize request timestamps for this identifier
-    let timestamps = this.requests.get(identifier) || [];
-
-    // Remove old timestamps
-    timestamps = timestamps.filter(time => time > windowStart);
-
-    // Check if limit is reached
-    if (timestamps.length >= this.maxRequests) {
-      return false;
-    }
-
-    // Add new request timestamp
-    timestamps.push(now);
-    this.requests.set(identifier, timestamps);
-
-    return true;
   }
 }
