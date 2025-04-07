@@ -22,21 +22,14 @@ import { TextractModule } from './modules/textract.module';
     ReportsModule,
     TextractModule,
   ],
-  controllers: [
-    AppController,
-    HealthController,
-    PerplexityController,
-    UserController,
-  ],
+  controllers: [AppController, HealthController, PerplexityController, UserController],
   providers: [AppService, AwsSecretsService, AwsBedrockService, PerplexityService],
 })
 export class AppModule implements NestModule {
   configure(consumer: MiddlewareConsumer) {
     consumer
       .apply(AuthMiddleware)
-      .exclude(
-        { path: 'health', method: RequestMethod.GET },
-      )
+      .exclude({ path: 'health', method: RequestMethod.GET })
       .forRoutes('*');
   }
 }
