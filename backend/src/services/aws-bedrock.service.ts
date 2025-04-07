@@ -83,9 +83,7 @@ export class AwsBedrockService {
    * Configure the model ID from configuration with fallback
    */
   private configureModelId(): string {
-    const modelId =
-      this.configService.get<string>('aws.bedrock.model') ??
-      'us.anthropic.claude-3-7-sonnet-20250219-v1:0';
+    const modelId = this.configService.get<string>('aws.bedrock.model')!;
 
     this.logger.log(
       `Using AWS Bedrock model: ${modelId}${this.inferenceProfileArn ? ' with inference profile' : ''}`,
@@ -98,9 +96,7 @@ export class AwsBedrockService {
    * Configure the inference profile ARN from configuration
    */
   private configureInferenceProfileArn(): string | undefined {
-    const inferenceProfileArn =
-      this.configService.get<string>('aws.bedrock.inferenceProfileArn') ??
-      'arn:aws:bedrock:us-east-1:841162674562:inference-profile/us.anthropic.claude-3-7-sonnet-20250219-v1:0';
+    const inferenceProfileArn = this.configService.get<string>('aws.bedrock.inferenceProfileArn');
 
     this.logger.log(
       `Using AWS Bedrock model: ${this.modelId}${inferenceProfileArn ? ' with inference profile' : ''}`,
