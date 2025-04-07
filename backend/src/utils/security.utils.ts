@@ -8,12 +8,13 @@ const MALICIOUS_FILE_SIGNATURES = new Set([
   'CAFEBABE', // Java class file
 ]);
 
-// Maximum file size (10MB for images)
+// Maximum file size (10MB for images, 20MB for PDFs)
 export const MAX_FILE_SIZES = {
   'image/jpeg': 10 * 1024 * 1024,
   'image/png': 10 * 1024 * 1024,
   'image/heic': 10 * 1024 * 1024,
   'image/heif': 10 * 1024 * 1024,
+  'application/pdf': 20 * 1024 * 1024,
 } as const;
 
 // Allowed MIME types
@@ -44,6 +45,11 @@ const HEIC_SIGNATURES = new Set([
   '00000018667479706D696631', // HEIF variation
 ]);
 
+// Common PDF signatures
+const PDF_SIGNATURES = new Set([
+  '25504446', // %PDF
+]);
+
 /**
  * Checks if a buffer starts with any of the malicious file signatures
  */
@@ -68,6 +74,8 @@ const validateFileType = (buffer: Buffer, mimeType: string): boolean => {
     case 'image/heic':
     case 'image/heif':
       return Array.from(HEIC_SIGNATURES).some(sig => signature.startsWith(sig));
+    case 'application/pdf':
+      return Array.from(PDF_SIGNATURES).some(sig => signature.startsWith(sig));
     default:
       return false;
   }
@@ -172,33 +180,99 @@ const validateImageStructure = (buffer: Buffer): void => {
   const signature = buffer.slice(0, 12).toString('hex').toUpperCase();
   logger.log(`Image signature: ${signature.substring(0, 8)}...`);
 
-  // For JPEG
-  if (Array.from(JPEG_SIGNATURES).some(sig => signature.startsWith(sig))) {
-    // Skip JPEG end marker check as some valid JPEGs might not end with standard EOI marker
-    // Just check if the file size is reasonable
-    if (buffer.length < 100) {
-      logger.warn('JPEG file size too small, might be corrupted');
-      throw new Error('JPEG file appears to be truncated or corrupted');
-    }
-  }
-  // For PNG
-  else if (signature.startsWith('89504E47')) {
-    const hasIend = buffer.includes(Buffer.from([0x49, 0x45, 0x4e, 0x44]));
-
-    if (!hasIend) {
-      logger.warn('PNG missing IEND chunk');
-      throw new Error('Invalid PNG structure: missing IEND chunk');
-    }
-  }
-  // For HEIC/HEIF
-  else if (Array.from(HEIC_SIGNATURES).some(sig => signature.startsWith(sig))) {
-    // HEIC/HEIF validation is more complex, we'll do basic size validation
-    if (buffer.length < 512) {
-      // HEIC files are typically larger
-      throw new Error('Invalid HEIC/HEIF structure');
-    }
+  // Check different image types
+  if (isJpegSignature(signature)) {
+    validateJpeg(buffer, logger);
+  } else if (isPngSignature(signature)) {
+    validatePng(buffer, logger);
+  } else if (isHeicSignature(signature)) {
+    validateHeic(buffer);
+  } else if (isPdfSignature(signature)) {
+    validatePdf(buffer, logger);
   } else {
     throw new Error('Unsupported image format');
+  }
+};
+
+/**
+ * Checks if signature matches JPEG format
+ */
+const isJpegSignature = (signature: string): boolean => {
+  return Array.from(JPEG_SIGNATURES).some(sig => signature.startsWith(sig));
+};
+
+/**
+ * Validates JPEG structure
+ */
+const validateJpeg = (buffer: Buffer, logger: Logger): void => {
+  // Skip JPEG end marker check as some valid JPEGs might not end with standard EOI marker
+  // Just check if the file size is reasonable
+  if (buffer.length < 100) {
+    logger.warn('JPEG file size too small, might be corrupted');
+    throw new Error('JPEG file appears to be truncated or corrupted');
+  }
+};
+
+/**
+ * Checks if signature matches PNG format
+ */
+const isPngSignature = (signature: string): boolean => {
+  return signature.startsWith('89504E47');
+};
+
+/**
+ * Validates PNG structure
+ */
+const validatePng = (buffer: Buffer, logger: Logger): void => {
+  const hasIend = buffer.includes(Buffer.from([0x49, 0x45, 0x4e, 0x44]));
+
+  if (!hasIend) {
+    logger.warn('PNG missing IEND chunk');
+    throw new Error('Invalid PNG structure: missing IEND chunk');
+  }
+};
+
+/**
+ * Checks if signature matches HEIC/HEIF format
+ */
+const isHeicSignature = (signature: string): boolean => {
+  return Array.from(HEIC_SIGNATURES).some(sig => signature.startsWith(sig));
+};
+
+/**
+ * Validates HEIC/HEIF structure
+ */
+const validateHeic = (buffer: Buffer): void => {
+  // HEIC/HEIF validation is more complex, we'll do basic size validation
+  if (buffer.length < 512) {
+    // HEIC files are typically larger
+    throw new Error('Invalid HEIC/HEIF structure');
+  }
+};
+
+/**
+ * Checks if signature matches PDF format
+ */
+const isPdfSignature = (signature: string): boolean => {
+  return signature.startsWith('25504446');
+};
+
+/**
+ * Validates PDF structure
+ */
+const validatePdf = (buffer: Buffer, logger: Logger): void => {
+  // Basic PDF validation
+  if (buffer.length < 512) {
+    // PDFs are typically larger
+    throw new Error('Invalid PDF structure: file too small');
+  }
+
+  // Check for EOF marker (%%EOF)
+  const hasEof = buffer.includes(Buffer.from([0x25, 0x25, 0x45, 0x4f, 0x46]));
+
+  if (!hasEof) {
+    logger.warn('PDF missing EOF marker');
+    // We'll still accept it, but log a warning
   }
 };
 
@@ -243,7 +317,7 @@ export class RateLimiter {
   private readonly windowMs: number;
   private readonly maxRequests: number;
 
-  constructor(windowMs = 60000, maxRequests = 10) {
+  constructor(windowMs = 60000, maxRequests = 20) {
     this.windowMs = windowMs;
     this.maxRequests = maxRequests;
   }

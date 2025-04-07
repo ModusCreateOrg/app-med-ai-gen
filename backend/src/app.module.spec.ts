@@ -8,6 +8,7 @@ import configuration from './config/configuration';
 import { AwsBedrockService } from './services/aws-bedrock.service';
 import { PerplexityService } from './services/perplexity.service';
 import { AwsSecretsService } from './services/aws-secrets.service';
+import { AwsTextractService } from './services/aws-textract.service';
 
 describe('AppModule', () => {
   it('should compile the module', async () => {
@@ -42,6 +43,11 @@ describe('AppModule', () => {
       .overrideProvider(AwsSecretsService)
       .useValue({
         getPerplexityApiKey: vi.fn().mockResolvedValue('test-api-key'),
+      })
+      .overrideProvider(AwsTextractService)
+      .useValue({
+        extractText: vi.fn().mockResolvedValue({}),
+        processBatch: vi.fn().mockResolvedValue([]),
       })
       .compile();
 

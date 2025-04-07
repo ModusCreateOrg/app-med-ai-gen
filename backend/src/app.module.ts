@@ -13,6 +13,7 @@ import { HealthController } from './health/health.controller';
 import { AuthMiddleware } from './auth/auth.middleware';
 import { BedrockTestModule } from './controllers/bedrock/bedrock.module';
 import { BedrockTestController } from './controllers/bedrock/bedrock-test.controller';
+import { TextractModule } from './modules/textract.module';
 
 @Module({
   imports: [
@@ -22,6 +23,7 @@ import { BedrockTestController } from './controllers/bedrock/bedrock-test.contro
     }),
     ReportsModule,
     BedrockTestModule,
+    TextractModule,
   ],
   controllers: [
     AppController,

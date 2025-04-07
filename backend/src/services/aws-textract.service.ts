@@ -1,0 +1,582 @@
+import { Injectable, Logger, BadRequestException } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
+import { TextractClient, AnalyzeDocumentCommand, Block } from '@aws-sdk/client-textract';
+import { validateFileSecurely } from '../utils/security.utils';
+import { createHash } from 'crypto';
+
+export interface ExtractedTextResult {
+  rawText: string;
+  lines: string[];
+  tables: Array<{
+    rows: string[][];
+  }>;
+  keyValuePairs: Array<{
+    key: string;
+    value: string;
+  }>;
+  metadata: {
+    documentType: string;
+    pageCount: number;
+    isLabReport: boolean;
+    confidence: number;
+    processingTimeMs: number;
+  };
+}
+
+/**
+ * Service for extracting text from medical lab reports using AWS Textract
+ */
+@Injectable()
+export class AwsTextractService {
+  private readonly logger = new Logger(AwsTextractService.name);
+  private readonly client: TextractClient;
+  private readonly rateLimiter: RateLimiter;
+
+  constructor(private readonly configService: ConfigService) {
+    try {
+      const region = this.configService.get<string>('aws.region') || 'us-east-1';
+      const accessKeyId = this.configService.get<string>('aws.aws.accessKeyId');
+      const secretAccessKey = this.configService.get<string>('aws.aws.secretAccessKey');
+      const sessionToken = this.configService.get<string>('aws.aws.sessionToken');
+
+      // Create client config with required region
+      const clientConfig: any = { region };
+
+      // Only add credentials if explicitly provided
+      if (accessKeyId && secretAccessKey) {
+        clientConfig.credentials = {
+          accessKeyId,
+          secretAccessKey,
+          ...(sessionToken && { sessionToken }),
+        };
+      }
+
+      // Initialize AWS Textract client with more robust config
+      this.client = new TextractClient(clientConfig);
+
+      // Log credential configuration for debugging (without exposing actual credentials)
+      this.logger.log(
+        `AWS Textract client initialized with region ${region} and credentials ${accessKeyId ? '(provided)' : '(missing)'}, session token ${sessionToken ? '(provided)' : '(not provided)'}`,
+      );
+
+      // Initialize rate limiter (10 requests per minute per IP by default)
+      const requestsPerMinute =
+        this.configService.get<number>('aws.textract.documentRequestsPerMinute') || 10;
+      this.rateLimiter = new RateLimiter(60000, requestsPerMinute);
+    } catch (error) {
+      // Handle initialization errors without crashing
+      this.logger.error('Failed to initialize AWS Textract client', {
+        error: error instanceof Error ? error.message : 'Unknown error',
+      });
+
+      // Create a stub client for testing
+      this.client = {} as TextractClient;
+      this.rateLimiter = new RateLimiter(60000, 10);
+    }
+  }
+
+  /**
+   * Extract text from a medical lab report image or PDF
+   * @param fileBuffer The file buffer containing the image or PDF
+   * @param fileType The MIME type of the file (e.g., 'image/jpeg', 'application/pdf')
+   * @param clientIp Optional client IP for rate limiting
+   * @returns Extracted text result with structured information
+   */
+  async extractText(
+    fileBuffer: Buffer,
+    fileType: string,
+    clientIp?: string,
+  ): Promise<ExtractedTextResult> {
+    try {
+      const startTime = Date.now();
+
+      // 1. Rate limiting check
+      if (clientIp && !this.rateLimiter.tryRequest(clientIp)) {
+        throw new BadRequestException('Too many requests. Please try again later.');
+      }
+
+      // 2. Validate file securely
+      validateFileSecurely(fileBuffer, fileType);
+
+      // Add diagnostic information about the document being processed
+      this.logger.debug('Processing document', {
+        fileType,
+        fileSize: `${(fileBuffer.length / 1024).toFixed(2)} KB`,
+        contentHashPrefix: createHash('sha256').update(fileBuffer).digest('hex').substring(0, 10),
+      });
+
+      // 3. Determine if we're processing a PDF or image
+      const isPdf = fileType === 'application/pdf';
+
+      // 4. Extract text differently based on file type
+      let result: ExtractedTextResult;
+
+      if (isPdf) {
+        result = await this.processPdf(fileBuffer);
+      } else {
+        result = await this.processImage(fileBuffer);
+      }
+
+      // 5. Calculate processing time
+      const processingTime = Date.now() - startTime;
+      result.metadata.processingTimeMs = processingTime;
+
+      this.logger.log(`Document processed in ${processingTime}ms`, {
+        documentType: result.metadata.documentType,
+        pageCount: result.metadata.pageCount,
+        isLabReport: result.metadata.isLabReport,
+        lineCount: result.lines.length,
+        tableCount: result.tables.length,
+        keyValuePairCount: result.keyValuePairs.length,
+      });
+
+      return result;
+    } catch (error: unknown) {
+      // Log error securely without exposing sensitive details
+      this.logger.error('Error processing document', {
+        error: error instanceof Error ? error.message : 'Unknown error',
+        fileType,
+        timestamp: new Date().toISOString(),
+        clientIp: clientIp ? this.hashIdentifier(clientIp) : undefined,
+      });
+
+      if (error instanceof BadRequestException) {
+        throw error;
+      }
+
+      throw new BadRequestException(
+        `Failed to extract text from document: ${error instanceof Error ? error.message : 'Unknown error'}`,
+      );
+    }
+  }
+
+  /**
+   * Process a single image file
+   */
+  private async processImage(imageBuffer: Buffer): Promise<ExtractedTextResult> {
+    this.logger.log('Processing single image with Textract');
+
+    // Use Analyze Document API for more comprehensive analysis
+    const command = new AnalyzeDocumentCommand({
+      Document: {
+        Bytes: imageBuffer,
+      },
+      FeatureTypes: ['TABLES', 'FORMS'],
+    });
+
+    const response = await this.client.send(command);
+
+    return this.parseTextractResponse(response, 1);
+  }
+
+  /**
+   * Process a multi-page PDF document
+   */
+  private async processPdf(pdfBuffer: Buffer): Promise<ExtractedTextResult> {
+    this.logger.log('Processing PDF document with Textract');
+
+    // For PDF, first start an async job with StartDocumentTextDetection
+    // But for simplicity in this implementation, we'll process just the first page
+    // For a complete solution, you'd use the async APIs with S3
+
+    // Use Analyze Document API with first page only as a simplified approach
+    const command = new AnalyzeDocumentCommand({
+      Document: {
+        Bytes: pdfBuffer,
+      },
+      FeatureTypes: ['TABLES', 'FORMS'],
+    });
+
+    const response = await this.client.send(command);
+
+    // A real implementation would count pages in the PDF
+    // This example processes just one page for simplicity
+    const estimatedPageCount = 1;
+
+    return this.parseTextractResponse(response, estimatedPageCount);
+  }
+
+  /**
+   * Parse the response from AWS Textract into a structured result
+   */
+  private parseTextractResponse(response: any, pageCount: number): ExtractedTextResult {
+    if (!response || !response.Blocks || response.Blocks.length === 0) {
+      throw new Error('Empty response from Textract');
+    }
+
+    // Initialize result structure
+    const result: ExtractedTextResult = {
+      rawText: '',
+      lines: [],
+      tables: [],
+      keyValuePairs: [],
+      metadata: {
+        documentType: this.determineDocumentType(response.Blocks),
+        pageCount: pageCount,
+        isLabReport: false, // Will be set later based on content analysis
+        confidence: this.calculateOverallConfidence(response.Blocks),
+        processingTimeMs: 0, // Will be set later
+      },
+    };
+
+    // Extract lines of text
+    const lineBlocks = response.Blocks.filter((block: Block) => block.BlockType === 'LINE');
+    result.lines = lineBlocks.map((block: Block) => block.Text || '');
+
+    // Combine all line text to create raw text
+    result.rawText = result.lines.join('\n');
+
+    // Extract tables
+    result.tables = this.extractTables(response.Blocks);
+
+    // Extract key-value pairs from FORM analysis
+    result.keyValuePairs = this.extractKeyValuePairs(response.Blocks);
+
+    // Determine if it's a lab report based on content
+    result.metadata.isLabReport = this.isLabReport(result);
+
+    return result;
+  }
+
+  /**
+   * Extract tables from Textract response
+   */
+  private extractTables(blocks: Block[]): Array<{ rows: string[][] }> {
+    const tables: Array<{ rows: string[][] }> = [];
+
+    // Find table blocks
+    const tableBlocks = blocks.filter((block: Block) => block.BlockType === 'TABLE');
+
+    for (const tableBlock of tableBlocks) {
+      const tableId = tableBlock.Id;
+      const cellBlocks = blocks.filter(
+        (block: Block) =>
+          block.BlockType === 'CELL' &&
+          block.Relationships?.some(
+            rel => rel.Type === 'CHILD' && rel.Ids?.includes(tableId || ''),
+          ),
+      );
+
+      // Group cells by row
+      const rows: { [key: string]: { [key: string]: string } } = {};
+
+      for (const cell of cellBlocks) {
+        if (cell.RowIndex === undefined || cell.ColumnIndex === undefined) continue;
+
+        const rowIndex = cell.RowIndex;
+        const columnIndex = cell.ColumnIndex;
+
+        if (!rows[rowIndex]) {
+          rows[rowIndex] = {};
+        }
+
+        // Get text from this cell
+        const cellText = this.getCellText(cell, blocks);
+        rows[rowIndex][columnIndex] = cellText;
+      }
+
+      // Convert to array of arrays
+      const tableRows: string[][] = [];
+      const rowIndices = Object.keys(rows).sort((a, b) => parseInt(a) - parseInt(b));
+
+      for (const rowIndex of rowIndices) {
+        const row = rows[rowIndex];
+        const columnIndices = Object.keys(row).sort((a, b) => parseInt(a) - parseInt(b));
+        const tableRow: string[] = columnIndices.map(colIndex => row[colIndex]);
+        tableRows.push(tableRow);
+      }
+
+      tables.push({ rows: tableRows });
+    }
+
+    return tables;
+  }
+
+  /**
+   * Extract text from a table cell
+   */
+  private getCellText(cellBlock: Block, blocks: Block[]): string {
+    if (!cellBlock.Relationships) {
+      return '';
+    }
+
+    const textBlockIds = cellBlock.Relationships.filter(rel => rel.Type === 'CHILD').flatMap(
+      rel => rel.Ids || [],
+    );
+
+    const textBlocks = blocks.filter(
+      block =>
+        textBlockIds.includes(block.Id || '') &&
+        (block.BlockType === 'WORD' || block.BlockType === 'LINE'),
+    );
+
+    return textBlocks.map(block => block.Text || '').join(' ');
+  }
+
+  /**
+   * Extract key-value pairs from FORM analysis
+   */
+  private extractKeyValuePairs(blocks: Block[]): Array<{ key: string; value: string }> {
+    const keyValuePairs: Array<{ key: string; value: string }> = [];
+
+    // Find key-value set blocks
+    const kvBlocks = blocks.filter((block: Block) => block.BlockType === 'KEY_VALUE_SET');
+
+    // Process each key-value set
+    for (const kvBlock of kvBlocks) {
+      // Only process if this is a KEY type
+      if (kvBlock.EntityTypes?.includes('KEY')) {
+        const keyText = this.getEntityText(kvBlock, blocks);
+        const valueBlock = this.findRelatedValueBlock(kvBlock, blocks);
+
+        if (valueBlock) {
+          const valueText = this.getEntityText(valueBlock, blocks);
+          keyValuePairs.push({
+            key: keyText,
+            value: valueText,
+          });
+        }
+      }
+    }
+
+    return keyValuePairs;
+  }
+
+  /**
+   * Find the value block related to a key block
+   */
+  private findRelatedValueBlock(keyBlock: Block, blocks: Block[]): Block | null {
+    if (!keyBlock.Relationships) {
+      return null;
+    }
+
+    const valueRelationship = keyBlock.Relationships.find(rel => rel.Type === 'VALUE');
+    if (!valueRelationship || !valueRelationship.Ids || valueRelationship.Ids.length === 0) {
+      return null;
+    }
+
+    const valueId = valueRelationship.Ids[0];
+    return blocks.find(block => block.Id === valueId) || null;
+  }
+
+  /**
+   * Get text for an entity (key or value)
+   */
+  private getEntityText(entityBlock: Block, blocks: Block[]): string {
+    if (!entityBlock.Relationships) {
+      return '';
+    }
+
+    const wordRelationship = entityBlock.Relationships.find(rel => rel.Type === 'CHILD');
+    if (!wordRelationship || !wordRelationship.Ids) {
+      return '';
+    }
+
+    const wordBlocks = blocks.filter(
+      block => wordRelationship.Ids?.includes(block.Id || '') && block.BlockType === 'WORD',
+    );
+
+    return wordBlocks.map(block => block.Text || '').join(' ');
+  }
+
+  /**
+   * Calculate overall confidence score from blocks
+   */
+  private calculateOverallConfidence(blocks: Block[]): number {
+    if (!blocks || blocks.length === 0) {
+      return 0;
+    }
+
+    const confidenceValues = blocks
+      .filter(block => block.Confidence !== undefined)
+      .map(block => block.Confidence || 0);
+
+    if (confidenceValues.length === 0) {
+      return 0;
+    }
+
+    const avgConfidence =
+      confidenceValues.reduce((sum, val) => sum + val, 0) / confidenceValues.length;
+    return Number((avgConfidence / 100).toFixed(2)); // Convert to 0-1 scale and limit decimal places
+  }
+
+  /**
+   * Determine the type of document based on content
+   */
+  private determineDocumentType(blocks: Block[]): string {
+    // Extract all text
+    const allText = blocks
+      .filter(block => block.BlockType === 'LINE')
+      .map(block => block.Text || '')
+      .join(' ')
+      .toLowerCase();
+
+    // Check for lab report keywords
+    if (
+      allText.includes('lab') ||
+      allText.includes('laboratory') ||
+      allText.includes('test results') ||
+      allText.includes('blood') ||
+      allText.includes('specimen')
+    ) {
+      return 'lab_report';
+    }
+
+    // Check for medical report keywords
+    if (
+      allText.includes('diagnosis') ||
+      allText.includes('patient') ||
+      allText.includes('medical') ||
+      allText.includes('doctor') ||
+      allText.includes('hospital')
+    ) {
+      return 'medical_report';
+    }
+
+    // Default
+    return 'general_document';
+  }
+
+  /**
+   * Check if document is likely a lab report based on content
+   */
+  private isLabReport(result: ExtractedTextResult): boolean {
+    // Check document type
+    if (result.metadata.documentType === 'lab_report') {
+      return true;
+    }
+
+    // Check for common lab report terms
+    const labReportTerms = [
+      'cbc',
+      'complete blood count',
+      'hemoglobin',
+      'wbc',
+      'rbc',
+      'platelet',
+      'glucose',
+      'cholesterol',
+      'hdl',
+      'ldl',
+      'triglycerides',
+      'creatinine',
+      'bun',
+      'alt',
+      'ast',
+      'reference range',
+      'normal range',
+      'lab',
+      'test results',
+    ];
+
+    const lowerText = result.rawText.toLowerCase();
+
+    // Count how many lab terms appear in the text
+    const termMatches = labReportTerms.filter(term => lowerText.includes(term)).length;
+
+    // If we have tables and at least 2 lab terms, it's likely a lab report
+    if (result.tables.length > 0 && termMatches >= 2) {
+      return true;
+    }
+
+    // If we have more than 3 lab terms, it's likely a lab report even without tables
+    if (termMatches >= 3) {
+      return true;
+    }
+
+    return false;
+  }
+
+  /**
+   * Hash a string identifier for logging purposes
+   */
+  private hashIdentifier(identifier: string): string {
+    return createHash('sha256').update(identifier).digest('hex');
+  }
+
+  /**
+   * Process multiple documents in batch
+   * @param documents Array of document buffers with their types
+   * @param clientIp Optional client IP for rate limiting
+   * @returns Array of extracted text results
+   */
+  async processBatch(
+    documents: Array<{ buffer: Buffer; type: string }>,
+    clientIp?: string,
+  ): Promise<ExtractedTextResult[]> {
+    // Validate batch size
+    if (documents.length > 10) {
+      throw new BadRequestException('Batch size exceeds maximum limit of 10 documents');
+    }
+
+    // Process each document sequentially
+    // In a production system, this could be parallelized with proper rate limiting
+    const results: ExtractedTextResult[] = [];
+
+    for (const doc of documents) {
+      try {
+        const result = await this.extractText(doc.buffer, doc.type, clientIp);
+        results.push(result);
+      } catch (error) {
+        this.logger.error('Error processing document in batch', {
+          error: error instanceof Error ? error.message : 'Unknown error',
+          fileType: doc.type,
+          fileSize: doc.buffer.length,
+        });
+
+        // Add a placeholder for failed documents
+        results.push({
+          rawText: '',
+          lines: [],
+          tables: [],
+          keyValuePairs: [],
+          metadata: {
+            documentType: 'unknown',
+            pageCount: 0,
+            isLabReport: false,
+            confidence: 0,
+            processingTimeMs: 0,
+          },
+        });
+      }
+    }
+
+    return results;
+  }
+}
+
+/**
+ * Rate limiting implementation using a rolling window
+ */
+class RateLimiter {
+  private requests: Map<string, number[]> = new Map();
+  private readonly windowMs: number;
+  private readonly maxRequests: number;
+
+  constructor(windowMs = 60000, maxRequests = 20) {
+    this.windowMs = windowMs;
+    this.maxRequests = maxRequests;
+  }
+
+  public tryRequest(identifier: string): boolean {
+    const now = Date.now();
+    const windowStart = now - this.windowMs;
+
+    // Get or initialize request timestamps for this identifier
+    let timestamps = this.requests.get(identifier) || [];
+
+    // Remove old timestamps
+    timestamps = timestamps.filter(time => time > windowStart);
+
+    // Check if limit is reached
+    if (timestamps.length >= this.maxRequests) {
+      return false;
+    }
+
+    // Add new request timestamp
+    timestamps.push(now);
+    this.requests.set(identifier, timestamps);
+
+    return true;
+  }
+}
