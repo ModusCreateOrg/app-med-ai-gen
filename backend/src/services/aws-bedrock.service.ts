@@ -21,6 +21,17 @@ export class AwsBedrockService {
   private readonly inferenceProfileArn?: string;
 
   constructor(private readonly configService: ConfigService) {
+    this.client = this.initializeBedrockClient();
+    this.modelId = this.configureModelId();
+    this.inferenceProfileArn = this.configureInferenceProfileArn();
+    this.defaultMaxTokens = this.configureMaxTokens();
+    this.rateLimiter = this.initializeRateLimiter();
+  }
+
+  /**
+   * Initialize the AWS Bedrock client with credentials
+   */
+  private initializeBedrockClient(): BedrockRuntimeClient {
     const region = this.configService.get<string>('aws.region');
     const accessKeyId = this.configService.get<string>('aws.aws.accessKeyId');
     const secretAccessKey = this.configService.get<string>('aws.aws.secretAccessKey');
@@ -30,43 +41,89 @@ export class AwsBedrockService {
       throw new Error('Missing required AWS configuration');
     }
 
-    // Initialize AWS Bedrock client with credentials including session token if available
-    this.client = new BedrockRuntimeClient({
+    const credentials = this.createCredentialsObject(accessKeyId, secretAccessKey, sessionToken);
+
+    const client = new BedrockRuntimeClient({
       region,
-      credentials: {
-        accessKeyId,
-        secretAccessKey,
-        ...(sessionToken && { sessionToken }), // Include session token if it exists
-      },
+      credentials,
     });
 
-    // Log credential configuration for debugging (without exposing actual credentials)
     this.logger.log(
       `AWS client initialized with region ${region} and credentials ${accessKeyId ? '(provided)' : '(missing)'}, session token ${sessionToken ? '(provided)' : '(not provided)'}`,
     );
 
-    // Set model ID from configuration with fallback to Claude 3.7
-    this.modelId =
+    return client;
+  }
+
+  /**
+   * Create AWS credentials object with proper typing
+   */
+  private createCredentialsObject(
+    accessKeyId: string,
+    secretAccessKey: string,
+    sessionToken?: string,
+  ): {
+    accessKeyId: string;
+    secretAccessKey: string;
+    sessionToken?: string;
+  } {
+    const credentials = {
+      accessKeyId,
+      secretAccessKey,
+    };
+
+    if (sessionToken) {
+      return { ...credentials, sessionToken };
+    }
+
+    return credentials;
+  }
+
+  /**
+   * Configure the model ID from configuration with fallback
+   */
+  private configureModelId(): string {
+    const modelId =
       this.configService.get<string>('aws.bedrock.model') ??
       'us.anthropic.claude-3-7-sonnet-20250219-v1:0';
 
-    // Set inference profile ARN from configuration
-    this.inferenceProfileArn =
+    this.logger.log(
+      `Using AWS Bedrock model: ${modelId}${this.inferenceProfileArn ? ' with inference profile' : ''}`,
+    );
+
+    return modelId;
+  }
+
+  /**
+   * Configure the inference profile ARN from configuration
+   */
+  private configureInferenceProfileArn(): string | undefined {
+    const inferenceProfileArn =
       this.configService.get<string>('aws.bedrock.inferenceProfileArn') ??
       'arn:aws:bedrock:us-east-1:841162674562:inference-profile/us.anthropic.claude-3-7-sonnet-20250219-v1:0';
 
     this.logger.log(
-      `Using AWS Bedrock model: ${this.modelId}${this.inferenceProfileArn ? ' with inference profile' : ''}`,
+      `Using AWS Bedrock model: ${this.modelId}${inferenceProfileArn ? ' with inference profile' : ''}`,
     );
 
-    // Set default values based on environment
-    this.defaultMaxTokens =
-      process.env.NODE_ENV === 'test'
-        ? 1000
-        : (this.configService.get<number>('aws.bedrock.maxTokens') ?? 2048);
+    return inferenceProfileArn;
+  }
 
-    // Initialize rate limiter (10 requests per minute per IP)
-    this.rateLimiter = new RateLimiter(60000, 10);
+  /**
+   * Configure max tokens based on environment
+   */
+  private configureMaxTokens(): number {
+    return process.env.NODE_ENV === 'test'
+      ? 1000
+      : (this.configService.get<number>('aws.bedrock.maxTokens') ?? 2048);
+  }
+
+  /**
+   * Initialize rate limiter for API requests
+   */
+  private initializeRateLimiter(): RateLimiter {
+    const requestsPerMinute = this.configService.get<number>('aws.bedrock.requestsPerMinute') ?? 20;
+    return new RateLimiter(60000, requestsPerMinute);
   }
 
   /**
@@ -80,52 +137,79 @@ export class AwsBedrockService {
       // Format request body based on the selected model
       const body = this.formatRequestBody(prompt);
 
+      // Create command parameters
+      const commandParams = this.createCommandParams(modelId, body);
+
       // Create the command
-      const command = new InvokeModelCommand({
-        modelId,
-        body,
-        ...(this.inferenceProfileArn && {
-          inferenceProfileArn: this.inferenceProfileArn,
-        }),
-      });
+      const command = new InvokeModelCommand(commandParams);
 
       // Send request to AWS Bedrock
       const response = await this.client.send(command);
 
       return response;
     } catch (error: unknown) {
-      // Handle specific errors
-      if (error instanceof Error) {
-        this.logger.error(`Bedrock model invocation failed: ${error.message}`, {
-          modelId,
-          errorName: error.name,
-          stack: error.stack,
-        });
-
-        // Provide more helpful error messages based on error type
-        if (error.name === 'AccessDeniedException') {
-          throw new BadRequestException(
-            'Access denied to AWS Bedrock. Check your credentials and permissions.',
-          );
-        } else if (error.name === 'ThrottlingException') {
-          throw new BadRequestException(
-            'Request throttled by AWS Bedrock. Please try again in a few moments.',
-          );
-        } else if (error.name === 'ValidationException') {
-          throw new BadRequestException(
-            `AWS Bedrock validation error: ${error.message}. Check your request parameters.`,
-          );
-        } else if (error.name === 'ServiceQuotaExceededException') {
-          throw new BadRequestException(
-            'AWS Bedrock service quota exceeded. Try again later or request a quota increase.',
-          );
-        }
-      }
-
-      throw new BadRequestException(
-        `Failed to invoke AWS Bedrock: ${error instanceof Error ? error.message : 'Unknown error'}`,
-      );
+      this.handleBedrockError(error, modelId);
     }
+  }
+
+  /**
+   * Create command parameters for Bedrock invocation
+   */
+  private createCommandParams(
+    modelId: string,
+    body: any,
+  ): {
+    modelId: string;
+    body: any;
+    inferenceProfileArn?: string;
+  } {
+    const commandParams = {
+      modelId,
+      body,
+    };
+
+    // Add inference profile if available
+    if (this.inferenceProfileArn) {
+      return { ...commandParams, inferenceProfileArn: this.inferenceProfileArn };
+    }
+
+    return commandParams;
+  }
+
+  /**
+   * Handle errors from Bedrock invocation
+   */
+  private handleBedrockError(error: unknown, modelId: string): never {
+    if (error instanceof Error) {
+      this.logger.error(`Bedrock model invocation failed: ${error.message}`, {
+        modelId,
+        errorName: error.name,
+        stack: error.stack,
+      });
+
+      // Provide more helpful error messages based on error type
+      if (error.name === 'AccessDeniedException') {
+        throw new BadRequestException(
+          'Access denied to AWS Bedrock. Check your credentials and permissions.',
+        );
+      } else if (error.name === 'ThrottlingException') {
+        throw new BadRequestException(
+          'Request throttled by AWS Bedrock. Please try again in a few moments.',
+        );
+      } else if (error.name === 'ValidationException') {
+        throw new BadRequestException(
+          `AWS Bedrock validation error: ${error.message}. Check your request parameters.`,
+        );
+      } else if (error.name === 'ServiceQuotaExceededException') {
+        throw new BadRequestException(
+          'AWS Bedrock service quota exceeded. Try again later or request a quota increase.',
+        );
+      }
+    }
+
+    throw new BadRequestException(
+      `Failed to invoke AWS Bedrock: ${error instanceof Error ? error.message : 'Unknown error'}`,
+    );
   }
 
   /**
@@ -155,5 +239,27 @@ export class AwsBedrockService {
    */
   private hashIdentifier(identifier: string): string {
     return createHash('sha256').update(identifier).digest('hex');
+  }
+
+  /**
+   * Generates a response using AWS Bedrock
+   */
+  async generateResponse(prompt: string): Promise<string> {
+    // Check rate limiting
+    if (!this.rateLimiter.tryRequest('global')) {
+      throw new BadRequestException('Rate limit exceeded. Please try again later.');
+    }
+
+    const response = await this.invokeBedrock(prompt);
+
+    // Parse the response
+    const responseBody = JSON.parse(Buffer.from(response.body).toString('utf-8'));
+
+    // Extract the generated content
+    if (responseBody.content && responseBody.content.length > 0) {
+      return responseBody.content[0].text;
+    }
+
+    throw new BadRequestException('Failed to generate a response from AWS Bedrock');
   }
 }

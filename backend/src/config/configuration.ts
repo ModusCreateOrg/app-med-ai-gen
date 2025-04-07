@@ -23,6 +23,7 @@ export default () => ({
       inferenceProfileArn:
         process.env.AWS_BEDROCK_INFERENCE_PROFILE_ARN ||
         'arn:aws:bedrock:us-east-1:841162674562:inference-profile/us.anthropic.claude-3-7-sonnet-20250219-v1:0',
+      requestsPerMinute: parseInt(process.env.AWS_BEDROCK_REQUESTS_PER_MINUTE || '20', 20),
     },
     textract: {
       maxBatchSize: parseInt(process.env.AWS_TEXTRACT_MAX_BATCH_SIZE || '10', 10),
