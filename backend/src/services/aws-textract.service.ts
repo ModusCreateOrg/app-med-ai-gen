@@ -27,30 +27,7 @@ export class AwsTextractService {
 
   constructor(private readonly configService: ConfigService) {
     try {
-      const region = this.configService.get<string>('aws.region') || 'us-east-1';
-      const accessKeyId = this.configService.get<string>('aws.aws.accessKeyId');
-      const secretAccessKey = this.configService.get<string>('aws.aws.secretAccessKey');
-      const sessionToken = this.configService.get<string>('aws.aws.sessionToken');
-
-      // Create client config with required region
-      const clientConfig: any = { region };
-
-      // Only add credentials if explicitly provided
-      if (accessKeyId && secretAccessKey) {
-        clientConfig.credentials = {
-          accessKeyId,
-          secretAccessKey,
-          ...(sessionToken && { sessionToken }),
-        };
-      }
-
-      // Initialize AWS Textract client with more robust config
-      this.client = new TextractClient(clientConfig);
-
-      // Log credential configuration for debugging (without exposing actual credentials)
-      this.logger.log(
-        `AWS Textract client initialized with region ${region} and credentials ${accessKeyId ? '(provided)' : '(missing)'}, session token ${sessionToken ? '(provided)' : '(not provided)'}`,
-      );
+      this.client = this.createTextractClient();
 
       // Initialize rate limiter (10 requests per minute per IP by default)
       const requestsPerMinute =
@@ -66,6 +43,39 @@ export class AwsTextractService {
       this.client = {} as TextractClient;
       this.rateLimiter = new RateLimiter(60000, 10);
     }
+  }
+
+  /**
+   * Creates and configures the AWS Textract client
+   * @returns Configured TextractClient instance
+   */
+  private createTextractClient(): TextractClient {
+    const region = this.configService.get<string>('aws.region') || 'us-east-1';
+    const accessKeyId = this.configService.get<string>('aws.aws.accessKeyId');
+    const secretAccessKey = this.configService.get<string>('aws.aws.secretAccessKey');
+    const sessionToken = this.configService.get<string>('aws.aws.sessionToken');
+
+    // Create client config with required region
+    const clientConfig: any = { region };
+
+    // Only add credentials if explicitly provided
+    if (accessKeyId && secretAccessKey) {
+      clientConfig.credentials = {
+        accessKeyId,
+        secretAccessKey,
+        ...(sessionToken && { sessionToken }),
+      };
+    }
+
+    // Initialize AWS Textract client with more robust config
+    const client = new TextractClient(clientConfig);
+
+    // Log credential configuration for debugging (without exposing actual credentials)
+    this.logger.log(
+      `AWS Textract client initialized with region ${region} and credentials ${accessKeyId ? '(provided)' : '(missing)'}, session token ${sessionToken ? '(provided)' : '(not provided)'}`,
+    );
+
+    return client;
   }
 
   /**
