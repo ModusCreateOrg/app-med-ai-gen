@@ -14,13 +14,6 @@ export interface ExtractedTextResult {
     key: string;
     value: string;
   }>;
-  metadata: {
-    documentType: string;
-    pageCount: number;
-    isLabReport: boolean;
-    confidence: number;
-    processingTimeMs: number;
-  };
 }
 
 /**
@@ -119,12 +112,8 @@ export class AwsTextractService {
 
       // 5. Calculate processing time
       const processingTime = Date.now() - startTime;
-      result.metadata.processingTimeMs = processingTime;
 
       this.logger.log(`Document processed in ${processingTime}ms`, {
-        documentType: result.metadata.documentType,
-        pageCount: result.metadata.pageCount,
-        isLabReport: result.metadata.isLabReport,
         lineCount: result.lines.length,
         tableCount: result.tables.length,
         keyValuePairCount: result.keyValuePairs.length,
@@ -166,7 +155,7 @@ export class AwsTextractService {
 
     const response = await this.client.send(command);
 
-    return this.parseTextractResponse(response, 1);
+    return this.parseTextractResponse(response);
   }
 
   /**
@@ -189,17 +178,13 @@ export class AwsTextractService {
 
     const response = await this.client.send(command);
 
-    // A real implementation would count pages in the PDF
-    // This example processes just one page for simplicity
-    const estimatedPageCount = 1;
-
-    return this.parseTextractResponse(response, estimatedPageCount);
+    return this.parseTextractResponse(response);
   }
 
   /**
    * Parse the response from AWS Textract into a structured result
    */
-  private parseTextractResponse(response: any, pageCount: number): ExtractedTextResult {
+  private parseTextractResponse(response: any): ExtractedTextResult {
     if (!response || !response.Blocks || response.Blocks.length === 0) {
       throw new Error('Empty response from Textract');
     }
@@ -210,13 +195,6 @@ export class AwsTextractService {
       lines: [],
       tables: [],
       keyValuePairs: [],
-      metadata: {
-        documentType: this.determineDocumentType(response.Blocks),
-        pageCount: pageCount,
-        isLabReport: false, // Will be set later based on content analysis
-        confidence: this.calculateOverallConfidence(response.Blocks),
-        processingTimeMs: 0, // Will be set later
-      },
     };
 
     // Extract lines of text
@@ -231,9 +209,6 @@ export class AwsTextractService {
 
     // Extract key-value pairs from FORM analysis
     result.keyValuePairs = this.extractKeyValuePairs(response.Blocks);
-
-    // Determine if it's a lab report based on content
-    result.metadata.isLabReport = this.isLabReport(result);
 
     return result;
   }
@@ -380,114 +355,6 @@ export class AwsTextractService {
   }
 
   /**
-   * Calculate overall confidence score from blocks
-   */
-  private calculateOverallConfidence(blocks: Block[]): number {
-    if (!blocks || blocks.length === 0) {
-      return 0;
-    }
-
-    const confidenceValues = blocks
-      .filter(block => block.Confidence !== undefined)
-      .map(block => block.Confidence || 0);
-
-    if (confidenceValues.length === 0) {
-      return 0;
-    }
-
-    const avgConfidence =
-      confidenceValues.reduce((sum, val) => sum + val, 0) / confidenceValues.length;
-    return Number((avgConfidence / 100).toFixed(2)); // Convert to 0-1 scale and limit decimal places
-  }
-
-  /**
-   * Determine the type of document based on content
-   */
-  private determineDocumentType(blocks: Block[]): string {
-    // Extract all text
-    const allText = blocks
-      .filter(block => block.BlockType === 'LINE')
-      .map(block => block.Text || '')
-      .join(' ')
-      .toLowerCase();
-
-    // Check for lab report keywords
-    if (
-      allText.includes('lab') ||
-      allText.includes('laboratory') ||
-      allText.includes('test results') ||
-      allText.includes('blood') ||
-      allText.includes('specimen')
-    ) {
-      return 'lab_report';
-    }
-
-    // Check for medical report keywords
-    if (
-      allText.includes('diagnosis') ||
-      allText.includes('patient') ||
-      allText.includes('medical') ||
-      allText.includes('doctor') ||
-      allText.includes('hospital')
-    ) {
-      return 'medical_report';
-    }
-
-    // Default
-    return 'general_document';
-  }
-
-  /**
-   * Check if document is likely a lab report based on content
-   */
-  private isLabReport(result: ExtractedTextResult): boolean {
-    // Check document type
-    if (result.metadata.documentType === 'lab_report') {
-      return true;
-    }
-
-    // Check for common lab report terms
-    const labReportTerms = [
-      'cbc',
-      'complete blood count',
-      'hemoglobin',
-      'wbc',
-      'rbc',
-      'platelet',
-      'glucose',
-      'cholesterol',
-      'hdl',
-      'ldl',
-      'triglycerides',
-      'creatinine',
-      'bun',
-      'alt',
-      'ast',
-      'reference range',
-      'normal range',
-      'lab',
-      'test results',
-    ];
-
-    const lowerText = result.rawText.toLowerCase();
-
-    // Count how many lab terms appear in the text
-    const termMatches = labReportTerms.filter(term => lowerText.includes(term)).length;
-
-    // If we have tables and at least 2 lab terms, it's likely a lab report
-    if (result.tables.length > 0 && termMatches >= 2) {
-      return true;
-    }
-
-    // If we have more than 3 lab terms, it's likely a lab report even without tables
-    if (termMatches >= 3) {
-      return true;
-    }
-
-    return false;
-  }
-
-  /**
    * Hash a string identifier for logging purposes
    */
   private hashIdentifier(identifier: string): string {
@@ -530,13 +397,6 @@ export class AwsTextractService {
           lines: [],
           tables: [],
           keyValuePairs: [],
-          metadata: {
-            documentType: 'unknown',
-            pageCount: 0,
-            isLabReport: false,
-            confidence: 0,
-            processingTimeMs: 0,
-          },
         });
       }
     }

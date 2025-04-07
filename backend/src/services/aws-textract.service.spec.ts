@@ -197,8 +197,6 @@ describe('AwsTextractService', () => {
       expect(result.lines.length).toBeGreaterThan(0);
       expect(result.tables.length).toBeGreaterThan(0);
       expect(result.keyValuePairs.length).toBeGreaterThan(0);
-      expect(result.metadata.documentType).toBe('lab_report');
-      expect(result.metadata.isLabReport).toBe(true);
       expect(mockTextractSend).toHaveBeenCalled();
     });
 
@@ -212,7 +210,6 @@ describe('AwsTextractService', () => {
       expect(result).toBeDefined();
       expect(result.rawText).toContain('This is a test medical report');
       expect(result.lines.length).toBeGreaterThan(0);
-      expect(result.metadata.pageCount).toBe(1);
       expect(mockTextractSend).toHaveBeenCalled();
     });
   });
