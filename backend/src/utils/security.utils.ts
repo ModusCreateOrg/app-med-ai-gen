@@ -14,7 +14,7 @@ export const MAX_FILE_SIZES = {
   'image/png': 10 * 1024 * 1024,
   'image/heic': 10 * 1024 * 1024,
   'image/heif': 10 * 1024 * 1024,
-  'application/pdf': 20 * 1024 * 1024,
+  'application/pdf': 50 * 1024 * 1024,
 } as const;
 
 // Allowed MIME types
@@ -82,40 +82,11 @@ const validateFileType = (buffer: Buffer, mimeType: string): boolean => {
 };
 
 /**
- * Calculates entropy of data to detect potential encrypted/compressed malware
- * High entropy could indicate encrypted/compressed content
- */
-const calculateEntropy = (buffer: Buffer): number => {
-  const frequencies = new Map<number, number>();
-
-  // Count byte frequencies
-  for (const byte of buffer) {
-    frequencies.set(byte, (frequencies.get(byte) || 0) + 1);
-  }
-
-  // Calculate entropy
-  let entropy = 0;
-  const bufferLength = buffer.length;
-
-  for (const count of frequencies.values()) {
-    const probability = count / bufferLength;
-    entropy -= probability * Math.log2(probability);
-  }
-
-  return entropy;
-};
-
-/**
  * Comprehensive file security validation
  * @param buffer The file buffer to validate
  * @param mimeType The declared MIME type of the file
- * @param options Additional validation options
  */
-export const validateFileSecurely = (
-  buffer: Buffer,
-  mimeType: string,
-  options: { skipEntropyCheck?: boolean } = {},
-): void => {
+export const validateFileSecurely = (buffer: Buffer, mimeType: string): void => {
   const logger = new Logger('SecurityUtils');
 
   // 1. Check if file type is allowed
@@ -141,25 +112,11 @@ export const validateFileSecurely = (
     throw new BadRequestException('File contains executable content');
   }
 
-  // 5. Check for suspicious entropy (possible encrypted/compressed malware)
-  const entropy = calculateEntropy(buffer);
-  logger.log(
-    `Image entropy: ${entropy.toFixed(2)}, type: ${mimeType}, size: ${(buffer.length / 1024).toFixed(2)}KB`,
-  );
+  logger.log(`File validation: type: ${mimeType}, size: ${(buffer.length / 1024).toFixed(2)}KB`);
 
-  // Skip entropy check if requested or for PNG (which is naturally highly compressed)
-  const skipEntropyCheck = options.skipEntropyCheck || mimeType === 'image/png';
-
-  if (!skipEntropyCheck && entropy > 7.9) {
-    logger.warn(
-      `High entropy detected: ${entropy.toFixed(2)}, type: ${mimeType} - possible encryption or compression`,
-    );
-    throw new BadRequestException('File content appears to be encrypted or compressed');
-  }
-
-  // 6. Basic structure validation for images
+  // 5. Basic structure validation for files
   try {
-    validateImageStructure(buffer);
+    validateFileStructure(buffer);
   } catch (error: unknown) {
     const errorMessage = error instanceof Error ? error.message : 'Unknown error';
     throw new BadRequestException(`Invalid image structure: ${errorMessage}`);
@@ -170,7 +127,7 @@ export const validateFileSecurely = (
  * Validates basic image structure
  * Checks for proper image headers and dimensions
  */
-const validateImageStructure = (buffer: Buffer): void => {
+const validateFileStructure = (buffer: Buffer): void => {
   const logger = new Logger('ImageValidator');
 
   if (buffer.length < 12) {

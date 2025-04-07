@@ -34,7 +34,10 @@ describe('AppModule', () => {
       })
       .overrideProvider(AwsBedrockService)
       .useValue({
-        extractMedicalInfo: vi.fn().mockResolvedValue({}),
+        listAvailableModels: vi.fn().mockResolvedValue({
+          models: [],
+          currentModelId: 'test-model-id',
+        }),
       })
       .overrideProvider(PerplexityService)
       .useValue({
