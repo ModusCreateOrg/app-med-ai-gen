@@ -1,4 +1,3 @@
-import { Test, TestingModule } from '@nestjs/testing';
 import { ConfigService } from '@nestjs/config';
 import { AwsTextractService } from './aws-textract.service';
 import { BadRequestException } from '@nestjs/common';
@@ -14,7 +13,7 @@ vi.mock('../utils/security.utils', () => ({
 
 describe('AwsTextractService', () => {
   let service: AwsTextractService;
-  let configService: ConfigService;
+  let mockConfigService: ConfigService;
 
   // Create mocks
   const mockTextractSend = vi.fn();
@@ -138,43 +137,31 @@ describe('AwsTextractService', () => {
   };
 
   // Setup mock dependencies
-  beforeEach(async () => {
+  beforeEach(() => {
     vi.clearAllMocks();
 
     // Set up mock response
     mockTextractSend.mockResolvedValue(mockTextractResponse);
 
-    // Create mock config with a type that allows any string key
-    const mockConfig: Record<string, any> = {
-      'aws.region': 'us-east-1',
-      'aws.aws.accessKeyId': 'test-access-key',
-      'aws.aws.secretAccessKey': 'test-secret-key',
-      'aws.aws.sessionToken': 'test-session-token',
-      'aws.textract.maxBatchSize': 10,
-      'aws.textract.documentRequestsPerMinute': 10,
-    };
-
     // Create mock ConfigService
-    configService = {
-      get: vi.fn((key: string) => mockConfig[key]),
+    mockConfigService = {
+      get: vi.fn().mockImplementation((key: string) => {
+        const config: Record<string, any> = {
+          'aws.region': 'us-east-1',
+          'aws.aws.accessKeyId': 'test-access-key',
+          'aws.aws.secretAccessKey': 'test-secret-key',
+          'aws.aws.sessionToken': 'test-session-token',
+          'aws.textract.maxBatchSize': 10,
+          'aws.textract.documentRequestsPerMinute': 10,
+        };
+        return config[key];
+      }),
     } as unknown as ConfigService;
 
-    // Create mock module with mocked dependencies
-    const module: TestingModule = await Test.createTestingModule({
-      providers: [
-        {
-          provide: ConfigService,
-          useValue: configService,
-        },
-        AwsTextractService,
-      ],
-    }).compile();
-
-    // Get service instance
-    service = module.get<AwsTextractService>(AwsTextractService);
+    // Create service instance
+    service = new AwsTextractService(mockConfigService);
 
     // Replace dependencies with mocks
-    // This is a hacky but effective way to inject mocks
     (service as any).client = {
       send: mockTextractSend,
     };
