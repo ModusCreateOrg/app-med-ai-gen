@@ -11,8 +11,6 @@ import { UserController } from './user/user.controller';
 import { ReportsModule } from './reports/reports.module';
 import { HealthController } from './health/health.controller';
 import { AuthMiddleware } from './auth/auth.middleware';
-import { BedrockTestModule } from './controllers/bedrock/bedrock.module';
-import { BedrockTestController } from './controllers/bedrock/bedrock-test.controller';
 import { TextractModule } from './modules/textract.module';
 
 @Module({
@@ -22,12 +20,10 @@ import { TextractModule } from './modules/textract.module';
       load: [configuration],
     }),
     ReportsModule,
-    BedrockTestModule,
     TextractModule,
   ],
   controllers: [
     AppController,
-    BedrockTestController,
     HealthController,
     PerplexityController,
     UserController,
@@ -39,9 +35,6 @@ export class AppModule implements NestModule {
     consumer
       .apply(AuthMiddleware)
       .exclude(
-        { path: 'test-bedrock', method: RequestMethod.GET },
-        { path: 'test-bedrock/health', method: RequestMethod.GET },
-        { path: 'test-bedrock/extract-medical-info', method: RequestMethod.POST },
         { path: 'health', method: RequestMethod.GET },
       )
       .forRoutes('*');
