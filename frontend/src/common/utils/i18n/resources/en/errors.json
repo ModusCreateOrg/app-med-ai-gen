@@ -1,0 +1,8 @@
+{
+  "chat": {
+    "general": "Sorry, something went wrong. Please try again."
+  },
+  "ai": {
+    "content_filtered": "I couldn't find an answer. Please try rephrasing your question or consult your healthcare provider."
+  }
+} 
