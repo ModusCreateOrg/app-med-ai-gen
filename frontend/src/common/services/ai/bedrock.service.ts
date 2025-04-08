@@ -2,6 +2,8 @@ import { BedrockRuntimeClient, InvokeModelCommand } from '@aws-sdk/client-bedroc
 import { fetchAuthSession } from '@aws-amplify/auth';
 import { REGION } from '../../config/aws-config';
 
+export const CONTENT_FILTERED_MESSAGE = "I couldn't find an answer. Please try rephrasing your question or consult your healthcare provider.";
+
 export interface ChatMessage {
   role: 'user' | 'assistant' | 'system';
   content: string;
@@ -14,11 +16,24 @@ export interface ChatSession {
   updatedAt: Date;
 }
 
+// Interfaces for Bedrock API responses
+interface BedrockResult {
+  tokenCount: number;
+  outputText: string;
+  completionReason: 'CONTENT_FILTERED' | 'COMPLETE' | 'LENGTH' | 'STOP_SEQUENCE' | string;
+}
+
+interface BedrockResponse {
+  inputTextTokenCount: number;
+  results: BedrockResult[];
+}
+
 class BedrockService {
   private client: BedrockRuntimeClient | null = null;
   private readonly MODEL_ID = 'amazon.titan-text-lite-v1';
   private sessions: Map<string, ChatSession> = new Map();
   private isTestEnvironment: boolean;
+  private contentFilteredCount: number = 0; // Track number of filtered responses
 
   constructor() {
     // Check if we're in a test environment (Node.js environment with no window)
@@ -67,6 +82,37 @@ class BedrockService {
     }
   }
 
+  private handleBedrockResponse(parsedResponse: BedrockResponse, userPrompt?: string): string {
+    // Check if we have results
+    if (!parsedResponse.results || !parsedResponse.results.length) {
+      throw new Error('Invalid response structure: missing results');
+    }
+    
+    const result = parsedResponse.results[0];
+    
+    // Check for content filtering
+    if (result.completionReason === "CONTENT_FILTERED") {
+      // Increment counter for analytics
+      this.contentFilteredCount++;
+      
+      // Log for debugging if we have the original prompt
+      if (userPrompt) {
+        console.warn(`Content filtered response #${this.contentFilteredCount} for prompt: "${userPrompt.substring(0, 100)}..."`);
+      } else {
+        console.warn(`Content filtered response #${this.contentFilteredCount}`);
+      }
+      
+      return CONTENT_FILTERED_MESSAGE;
+    }
+    
+    // Check for other potential failure reasons
+    if (result.completionReason && result.completionReason !== "COMPLETE") {
+      console.warn(`Incomplete response with reason: ${result.completionReason}`);
+    }
+    
+    return result.outputText;
+  }
+
   private async invokeModel(prompt: string): Promise<string> {
     // In test environment, return a mock response
     if (this.isTestEnvironment || !this.client) {
@@ -92,8 +138,9 @@ class BedrockService {
       const command = new InvokeModelCommand(input);
       const response = await this.client.send(command);
       const responseBody = new TextDecoder().decode(response.body);
-      const parsedResponse = JSON.parse(responseBody);
-      return parsedResponse.results[0].outputText;
+      const parsedResponse = JSON.parse(responseBody) as BedrockResponse;
+      
+      return this.handleBedrockResponse(parsedResponse, prompt);
     } catch (error) {
       console.error('Error invoking Bedrock model:', error);
       throw error;
@@ -161,6 +208,11 @@ class BedrockService {
 
   public getAllSessions(): ChatSession[] {
     return Array.from(this.sessions.values());
+  }
+
+  // Add a method to get stats
+  public getContentFilteredStats(): { count: number } {
+    return { count: this.contentFilteredCount };
   }
 }
 

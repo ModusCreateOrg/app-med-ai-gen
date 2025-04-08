@@ -73,7 +73,12 @@ const ChatPage = (): JSX.Element => {
       setMessages(prevMessages => [...prevMessages, assistantMessage]);
     } catch (error) {
       console.error('Error getting AI response:', error);
-      // You could add error handling here, like showing an error message
+      
+      // Create an error message to display to the user
+      const errorMessage = "Sorry, something went wrong. Please try again.";
+      
+      const assistantErrorMessage = chatService.createAssistantMessage(errorMessage);
+      setMessages(prevMessages => [...prevMessages, assistantErrorMessage]);
     }
   };
 
