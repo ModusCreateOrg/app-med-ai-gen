@@ -134,7 +134,7 @@ class BedrockService {
       const responseBody = new TextDecoder().decode(response.body);
       const parsedResponse = JSON.parse(responseBody) as BedrockResponse;
       
-      return this.handleBedrockResponse(parsedResponse, prompt);
+      return this.handleBedrockResponse(parsedResponse);
     } catch (error) {
       console.error('Error invoking Bedrock model:', error);
       throw error;
