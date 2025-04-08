@@ -268,11 +268,13 @@ export const sanitizeMedicalData = <T extends Record<string, any>>(data: T): T =
 
 /**
  * Rate limiting implementation using a rolling window
+ * Uses authenticated user IDs to track request frequency
  */
 export class RateLimiter {
   private requests: Map<string, number[]> = new Map();
   private readonly windowMs: number;
   private readonly maxRequests: number;
+  private readonly cleanupThreshold: number = 10000;
 
   constructor(windowMs = 60000, maxRequests = 20) {
     this.windowMs = windowMs;
@@ -303,6 +305,40 @@ export class RateLimiter {
     timestamps.push(now);
     this.requests.set(userId, timestamps);
 
+    // Clean up old entries if the map has grown too large
+    this.cleanupOldEntries(now);
+
     return true;
+  }
+
+  /**
+   * Cleans up old entries from the requests map when total size exceeds threshold
+   * @param currentTime The current timestamp to calculate window
+   */
+  private cleanupOldEntries(currentTime: number): void {
+    if (this.requests.size >= this.cleanupThreshold) {
+      const windowStart = currentTime - this.windowMs;
+
+      // Identify users with no recent requests
+      const usersToRemove: string[] = [];
+
+      this.requests.forEach((timestamps, userId) => {
+        // Filter to only keep timestamps within the window
+        const activeTimestamps = timestamps.filter(time => time > windowStart);
+
+        if (activeTimestamps.length === 0) {
+          // If no active timestamps remain, mark this user for removal
+          usersToRemove.push(userId);
+        } else if (activeTimestamps.length !== timestamps.length) {
+          // If we filtered some timestamps, update the array
+          this.requests.set(userId, activeTimestamps);
+        }
+      });
+
+      // Remove entries for users with no recent activity
+      usersToRemove.forEach(userId => {
+        this.requests.delete(userId);
+      });
+    }
   }
 }
