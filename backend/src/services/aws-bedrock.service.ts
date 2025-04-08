@@ -349,10 +349,13 @@ Document text:
 
   /**
    * Generates a response using AWS Bedrock
+   * @param prompt The prompt to send to the model
+   * @param userId The authenticated user's ID for rate limiting
+   * @returns The generated response text
    */
-  async generateResponse(prompt: string): Promise<string> {
-    // Check rate limiting
-    if (!this.rateLimiter.tryRequest('global')) {
+  async generateResponse(prompt: string, userId: string): Promise<string> {
+    // Check rate limiting using user ID
+    if (!this.rateLimiter.tryRequest(userId)) {
       throw new BadRequestException('Rate limit exceeded. Please try again later.');
     }
 
@@ -372,11 +375,15 @@ Document text:
   /**
    * Analyzes a medical document using Claude model and returns structured data
    * @param documentText The text content of the medical document to analyze
+   * @param userId The authenticated user's ID for rate limiting
    * @returns Structured analysis of the medical document
    */
-  async analyzeMedicalDocument(documentText: string): Promise<MedicalDocumentAnalysis> {
-    // Check rate limiting
-    if (!this.rateLimiter.tryRequest('medical-analysis')) {
+  async analyzeMedicalDocument(
+    documentText: string,
+    userId: string,
+  ): Promise<MedicalDocumentAnalysis> {
+    // Check rate limiting using user ID
+    if (!this.rateLimiter.tryRequest(userId)) {
       throw new BadRequestException('Rate limit exceeded. Please try again later.');
     }
 

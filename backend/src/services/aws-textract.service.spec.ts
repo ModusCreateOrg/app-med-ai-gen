@@ -176,7 +176,7 @@ describe('AwsTextractService', () => {
       const result = await service.extractText(
         Buffer.from('test image content'),
         'image/jpeg',
-        '127.0.0.1',
+        'user-123',
       );
 
       expect(result).toBeDefined();
@@ -191,13 +191,29 @@ describe('AwsTextractService', () => {
       const result = await service.extractText(
         Buffer.from('test pdf content'),
         'application/pdf',
-        '127.0.0.1',
+        'user-123',
       );
 
       expect(result).toBeDefined();
       expect(result.rawText).toContain('This is a test medical report');
       expect(result.lines.length).toBeGreaterThan(0);
       expect(mockTextractSend).toHaveBeenCalled();
+    });
+
+    it('should handle rate limiting by user ID', async () => {
+      // Mock rate limiter to reject the request
+      (service['rateLimiter'].tryRequest as jest.Mock).mockReturnValueOnce(false);
+
+      // Use a test user ID
+      const userId = 'rate-limited-user';
+
+      // Should throw rate limit exception
+      await expect(
+        service.extractText(Buffer.from('test content'), 'image/jpeg', userId),
+      ).rejects.toThrow('Too many requests');
+
+      // The textract API should not be called
+      expect(mockTextractSend).not.toHaveBeenCalled();
     });
   });
 
@@ -214,7 +230,7 @@ describe('AwsTextractService', () => {
         },
       ];
 
-      const results = await service.processBatch(documents, '127.0.0.1');
+      const results = await service.processBatch(documents, 'user-123');
 
       expect(results).toBeDefined();
       expect(results.length).toBe(2);
@@ -229,7 +245,7 @@ describe('AwsTextractService', () => {
         type: 'image/jpeg',
       });
 
-      await expect(service.processBatch(documents, '127.0.0.1')).rejects.toThrow(
+      await expect(service.processBatch(documents, 'user-123')).rejects.toThrow(
         BadRequestException,
       );
       expect(mockTextractSend).not.toHaveBeenCalled();

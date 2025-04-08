@@ -82,19 +82,19 @@ export class AwsTextractService {
    * Extract text from a medical lab report image or PDF
    * @param fileBuffer The file buffer containing the image or PDF
    * @param fileType The MIME type of the file (e.g., 'image/jpeg', 'application/pdf')
-   * @param clientIp Optional client IP for rate limiting
+   * @param userId The authenticated user's ID for rate limiting
    * @returns Extracted text result with structured information
    */
   async extractText(
     fileBuffer: Buffer,
     fileType: string,
-    clientIp?: string,
+    userId: string,
   ): Promise<ExtractedTextResult> {
     try {
       const startTime = Date.now();
 
       // 1. Rate limiting check
-      if (clientIp && !this.rateLimiter.tryRequest(clientIp)) {
+      if (!this.rateLimiter.tryRequest(userId)) {
         throw new BadRequestException('Too many requests. Please try again later.');
       }
 
@@ -136,7 +136,7 @@ export class AwsTextractService {
         error: error instanceof Error ? error.message : 'Unknown error',
         fileType,
         timestamp: new Date().toISOString(),
-        clientIp: clientIp ? this.hashIdentifier(clientIp) : undefined,
+        userId: this.hashIdentifier(userId),
       });
 
       if (error instanceof BadRequestException) {
@@ -374,12 +374,12 @@ export class AwsTextractService {
   /**
    * Process multiple documents in batch
    * @param documents Array of document buffers with their types
-   * @param clientIp Optional client IP for rate limiting
+   * @param userId The authenticated user's ID for rate limiting
    * @returns Array of extracted text results
    */
   async processBatch(
     documents: Array<{ buffer: Buffer; type: string }>,
-    clientIp?: string,
+    userId: string,
   ): Promise<ExtractedTextResult[]> {
     // Validate batch size
     if (documents.length > 10) {
@@ -392,7 +392,7 @@ export class AwsTextractService {
 
     for (const doc of documents) {
       try {
-        const result = await this.extractText(doc.buffer, doc.type, clientIp);
+        const result = await this.extractText(doc.buffer, doc.type, userId);
         results.push(result);
       } catch (error) {
         this.logger.error('Error processing document in batch', {

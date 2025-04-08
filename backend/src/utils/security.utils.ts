@@ -279,14 +279,19 @@ export class RateLimiter {
     this.maxRequests = maxRequests;
   }
 
-  public tryRequest(identifier: string): boolean {
+  /**
+   * Attempts to register a new request for the given user ID
+   * @param userId The authenticated user's unique identifier
+   * @returns boolean True if the request is allowed, false if rate limit exceeded
+   */
+  public tryRequest(userId: string): boolean {
     const now = Date.now();
     const windowStart = now - this.windowMs;
 
-    // Get or initialize request timestamps for this identifier
-    let timestamps = this.requests.get(identifier) || [];
+    // Get or initialize request timestamps for this user
+    let timestamps = this.requests.get(userId) || [];
 
-    // Remove old timestamps
+    // Remove old timestamps outside the current window
     timestamps = timestamps.filter(time => time > windowStart);
 
     // Check if limit is reached
@@ -296,7 +301,7 @@ export class RateLimiter {
 
     // Add new request timestamp
     timestamps.push(now);
-    this.requests.set(identifier, timestamps);
+    this.requests.set(userId, timestamps);
 
     return true;
   }
