@@ -12,6 +12,7 @@ import { ReportsModule } from './reports/reports.module';
 import { HealthController } from './health/health.controller';
 import { AuthMiddleware } from './auth/auth.middleware';
 import { TextractModule } from './modules/textract.module';
+import { DocumentProcessorModule } from './modules/document-processor.module';
 
 @Module({
   imports: [
@@ -21,6 +22,7 @@ import { TextractModule } from './modules/textract.module';
     }),
     ReportsModule,
     TextractModule,
+    DocumentProcessorModule,
   ],
   controllers: [AppController, HealthController, PerplexityController, UserController],
   providers: [AppService, AwsSecretsService, AwsBedrockService, PerplexityService],

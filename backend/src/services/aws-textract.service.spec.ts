@@ -202,7 +202,7 @@ describe('AwsTextractService', () => {
 
     it('should handle rate limiting by user ID', async () => {
       // Mock rate limiter to reject the request
-      (service['rateLimiter'].tryRequest as jest.Mock).mockReturnValueOnce(false);
+      (service['rateLimiter'].tryRequest as any).mockReturnValueOnce(false);
 
       // Use a test user ID
       const userId = 'rate-limited-user';

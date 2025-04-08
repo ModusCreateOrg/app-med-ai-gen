@@ -215,7 +215,7 @@ describe('AwsBedrockService', () => {
 
       // Verify the invokeBedrock was called with the correct prompt
       expect(service['invokeBedrock']).toHaveBeenCalled();
-      const prompt = (service['invokeBedrock'] as jest.Mock).mock.calls[0][0];
+      const prompt = (service['invokeBedrock'] as any).mock.calls[0][0];
       expect(prompt).toContain('Please analyze this medical document carefully');
     });
 
@@ -238,7 +238,7 @@ describe('AwsBedrockService', () => {
 
       // Verify the invokeBedrock was called with the correct prompt
       expect(service['invokeBedrock']).toHaveBeenCalled();
-      const prompt = (service['invokeBedrock'] as jest.Mock).mock.calls[0][0];
+      const prompt = (service['invokeBedrock'] as any).mock.calls[0][0];
       expect(prompt).toContain('Please analyze this medical document carefully');
     });
 
