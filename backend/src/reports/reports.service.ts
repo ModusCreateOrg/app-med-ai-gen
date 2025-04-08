@@ -4,6 +4,7 @@ import {
   InternalServerErrorException,
   Logger,
   ForbiddenException,
+  BadRequestException,
 } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import {
@@ -11,12 +12,15 @@ import {
   ScanCommand,
   GetItemCommand,
   UpdateItemCommand,
+  PutItemCommand,
   DynamoDBServiceException,
 } from '@aws-sdk/client-dynamodb';
 import { marshall, unmarshall } from '@aws-sdk/util-dynamodb';
 import { Report } from './models/report.model';
 import { GetReportsQueryDto } from './dto/get-reports.dto';
 import { UpdateReportStatusDto } from './dto/update-report-status.dto';
+import { S3Service } from '../common/services/s3.service';
+import { v4 as uuidv4 } from 'uuid';
 
 @Injectable()
 export class ReportsService {
@@ -24,7 +28,10 @@ export class ReportsService {
   private readonly tableName: string;
   private readonly logger = new Logger(ReportsService.name);
 
-  constructor(private configService: ConfigService) {
+  constructor(
+    private configService: ConfigService,
+    private s3Service: S3Service,
+  ) {
     const region = this.configService.get<string>('AWS_REGION', 'us-east-1');
     const accessKeyId = this.configService.get<string>('AWS_ACCESS_KEY_ID');
     const secretAccessKey = this.configService.get<string>('AWS_SECRET_ACCESS_KEY');
@@ -248,6 +255,64 @@ export class ReportsService {
       }
 
       throw new InternalServerErrorException(`Failed to update report status for ID ${id}`);
+    }
+  }
+
+  /**
+   * Upload a medical report file and create a new report entry
+   */
+  async uploadReport(
+    file: Express.Multer.File,
+    userId: string,
+    description?: string,
+  ): Promise<Report> {
+    if (!file) {
+      throw new BadRequestException('No file provided');
+    }
+
+    if (!userId) {
+      throw new ForbiddenException('User ID is required');
+    }
+
+    try {
+      // Upload file to S3
+      const uploadResult = await this.s3Service.uploadFile(file, userId);
+
+      // Create a new report record
+      const reportId = uuidv4();
+      const now = new Date().toISOString();
+
+      const newReport: Report = {
+        id: reportId,
+        userId,
+        fileName: uploadResult.fileName,
+        filePath: uploadResult.filePath,
+        fileUrl: uploadResult.fileUrl,
+        mimeType: uploadResult.mimeType,
+        size: uploadResult.size,
+        description: description || '',
+        status: 'PENDING', // Initial status
+        createdAt: now,
+        updatedAt: now,
+      };
+
+      // Save to DynamoDB
+      const command = new PutItemCommand({
+        TableName: this.tableName,
+        Item: marshall(newReport),
+      });
+
+      await this.dynamoClient.send(command);
+      return newReport;
+    } catch (error: unknown) {
+      this.logger.error(`Error uploading report for user ${userId}:`);
+      this.logger.error(error);
+
+      if (error instanceof BadRequestException || error instanceof ForbiddenException) {
+        throw error;
+      }
+
+      throw new InternalServerErrorException('Failed to upload and process report');
     }
   }
 }

@@ -8,6 +8,13 @@ import {
   ValidationPipe,
   Req,
   UnauthorizedException,
+  Post,
+  UseGuards,
+  UseInterceptors,
+  UploadedFile,
+  ParseFilePipe,
+  MaxFileSizeValidator,
+  FileTypeValidator,
 } from '@nestjs/common';
 import {
   ApiTags,
@@ -16,16 +23,23 @@ import {
   ApiBearerAuth,
   ApiParam,
   ApiQuery,
+  ApiConsumes,
+  ApiBody,
 } from '@nestjs/swagger';
 import { ReportsService } from './reports.service';
 import { Report } from './models/report.model';
 import { GetReportsQueryDto } from './dto/get-reports.dto';
 import { UpdateReportStatusDto } from './dto/update-report-status.dto';
 import { RequestWithUser } from '../auth/auth.middleware';
+import { FileInterceptor } from '@nestjs/platform-express';
+import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
+import { User } from '../common/decorators/user.decorator';
+import { FileUploadDto, FileUploadResponseDto } from './dto/file-upload.dto';
 
 @ApiTags('reports')
 @Controller('reports')
 @ApiBearerAuth()
+@UseGuards(JwtAuthGuard)
 export class ReportsController {
   constructor(private readonly reportsService: ReportsService) {}
 
@@ -103,6 +117,35 @@ export class ReportsController {
   ): Promise<Report> {
     const userId = this.extractUserId(request);
     return this.reportsService.updateStatus(id, updateDto, userId);
+  }
+
+  @Post('upload')
+  @ApiOperation({ summary: 'Upload a medical report file' })
+  @ApiConsumes('multipart/form-data')
+  @ApiBody({ type: FileUploadDto })
+  @ApiResponse({
+    status: 201,
+    description: 'File uploaded successfully',
+    type: FileUploadResponseDto,
+  })
+  @ApiResponse({ status: 400, description: 'Invalid file format or size' })
+  @ApiResponse({ status: 401, description: 'Unauthorized' })
+  @UseInterceptors(FileInterceptor('file'))
+  async uploadFile(
+    @UploadedFile(
+      new ParseFilePipe({
+        validators: [
+          // These validators are in addition to our middleware
+          new FileTypeValidator({ fileType: '.(pdf|jpeg|jpg|png)' }),
+          new MaxFileSizeValidator({ maxSize: 10 * 1024 * 1024 }), // 10MB max as a fallback
+        ],
+      }),
+    )
+    file: Express.Multer.File,
+    @User('sub') userId: string,
+    @Body('description') description?: string,
+  ): Promise<Report> {
+    return this.reportsService.uploadReport(file, userId, description);
   }
 
   private extractUserId(request: RequestWithUser): string {

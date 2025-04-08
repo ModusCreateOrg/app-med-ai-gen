@@ -7,6 +7,7 @@ import * as apigateway from 'aws-cdk-lib/aws-apigateway';
 import * as servicediscovery from 'aws-cdk-lib/aws-servicediscovery';
 import * as iam from 'aws-cdk-lib/aws-iam';
 import * as elbv2 from 'aws-cdk-lib/aws-elasticloadbalancingv2';
+import { Bucket, BucketEncryption } from 'aws-cdk-lib/aws-s3';
 
 import { Construct } from 'constructs';
 import { AttributeType, BillingMode, Table } from 'aws-cdk-lib/aws-dynamodb';
@@ -535,5 +536,22 @@ export class BackendStack extends cdk.Stack {
       value: nlb.loadBalancerDnsName,
       description: 'Network Load Balancer DNS Name',
     });
+
+    // Add S3 bucket for medical reports
+    const reportsBucket = new Bucket(this, 'MedicalReportsBucket', {
+      bucketName: `${appName}-medical-reports-${props.environment}`,
+      encryption: BucketEncryption.S3_MANAGED, // Server-side encryption
+      enforceSSL: true, // Enforce TLS for data in transit
+      versioned: true, // Enable versioning for file history
+      blockPublicAccess: {
+        blockPublicAcls: true,
+        blockPublicPolicy: true,
+        ignorePublicAcls: true,
+        restrictPublicBuckets: true,
+      },
+    });
+
+    // Add S3 bucket name to environment variables
+    container.addEnvironment('S3_BUCKET_NAME', reportsBucket.bucketName);
   }
 }
