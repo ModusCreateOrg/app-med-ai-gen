@@ -1,7 +1,7 @@
 import { Injectable, Logger, BadRequestException } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { TextractClient, AnalyzeDocumentCommand, Block } from '@aws-sdk/client-textract';
-import { validateFileSecurely, RateLimiter } from '../utils/security.utils';
+import { validateFileSecurely, RateLimiter } from '../../utils/security.utils';
 import { createHash } from 'crypto';
 
 export interface ExtractedTextResult {

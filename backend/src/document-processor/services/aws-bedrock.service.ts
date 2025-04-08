@@ -5,7 +5,7 @@ import {
   InvokeModelCommand,
   InvokeModelCommandOutput,
 } from '@aws-sdk/client-bedrock-runtime';
-import { RateLimiter } from '../utils/security.utils';
+import { RateLimiter } from '../../utils/security.utils';
 import { createHash } from 'crypto';
 
 /**

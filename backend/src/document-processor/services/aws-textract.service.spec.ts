@@ -4,7 +4,7 @@ import { BadRequestException } from '@nestjs/common';
 import { vi, describe, it, expect, beforeEach } from 'vitest';
 
 // Mock the security.utils module
-vi.mock('../utils/security.utils', () => ({
+vi.mock('../../utils/security.utils', () => ({
   validateFileSecurely: vi.fn(),
   RateLimiter: vi.fn().mockImplementation(() => ({
     tryRequest: vi.fn().mockReturnValue(true),

@@ -5,10 +5,10 @@ import { JwtModule } from '@nestjs/jwt';
 import { ReportsService } from './reports/reports.service';
 import { vi, describe, it, expect } from 'vitest';
 import configuration from './config/configuration';
-import { AwsBedrockService } from './services/aws-bedrock.service';
+import { AwsBedrockService } from './document-processor/services/aws-bedrock.service';
 import { PerplexityService } from './services/perplexity.service';
 import { AwsSecretsService } from './services/aws-secrets.service';
-import { AwsTextractService } from './services/aws-textract.service';
+import { AwsTextractService } from './document-processor/services/aws-textract.service';
 
 describe('AppModule', () => {
   it('should compile the module', async () => {

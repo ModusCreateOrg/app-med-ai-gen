@@ -10,7 +10,7 @@ import { UserController } from './user/user.controller';
 import { ReportsModule } from './reports/reports.module';
 import { HealthController } from './health/health.controller';
 import { AuthMiddleware } from './auth/auth.middleware';
-import { DocumentProcessorModule } from './modules/document-processor.module';
+import { DocumentProcessorModule } from './document-processor/document-processor.module';
 
 @Module({
   imports: [
