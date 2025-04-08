@@ -2,6 +2,7 @@ import { Injectable, Logger, BadRequestException } from '@nestjs/common';
 import { createHash } from 'crypto';
 import { AwsTextractService, ExtractedTextResult } from './aws-textract.service';
 import { AwsBedrockService, MedicalDocumentAnalysis } from './aws-bedrock.service';
+import { PerplexityService } from '../../services/perplexity.service';
 
 /**
  * Result interface for processed medical documents
@@ -9,6 +10,7 @@ import { AwsBedrockService, MedicalDocumentAnalysis } from './aws-bedrock.servic
 export interface ProcessedDocumentResult {
   extractedText: ExtractedTextResult;
   analysis: MedicalDocumentAnalysis;
+  simplifiedExplanation?: string;
   processingMetadata: {
     processingTimeMs: number;
     fileType: string;
@@ -27,6 +29,7 @@ export class DocumentProcessorService {
   constructor(
     private readonly textractService: AwsTextractService,
     private readonly bedrockService: AwsBedrockService,
+    private readonly perplexityService: PerplexityService,
   ) {}
 
   /**
@@ -34,7 +37,7 @@ export class DocumentProcessorService {
    * @param fileBuffer The file buffer containing the image or PDF
    * @param fileType The MIME type of the file (e.g., 'image/jpeg', 'application/pdf')
    * @param userId The authenticated user's ID for rate limiting
-   * @returns Processed document result with extracted text and analysis
+   * @returns Processed document result with extracted text, analysis, and simplified explanation
    */
   async processDocument(
     fileBuffer: Buffer,
@@ -64,6 +67,25 @@ export class DocumentProcessorService {
         userId,
       );
 
+      // Step 3: Generate simplified explanation using Perplexity
+      let simplifiedExplanation: string | undefined;
+
+      try {
+        if (analysis.metadata.isMedicalReport && extractedText.rawText) {
+          this.logger.log('Generating simplified explanation');
+          simplifiedExplanation = await this.perplexityService.explainMedicalText(
+            extractedText.rawText,
+          );
+          this.logger.log('Simplified explanation generated successfully');
+        }
+      } catch (explanationError) {
+        this.logger.error('Error generating simplified explanation', {
+          error: explanationError instanceof Error ? explanationError.message : 'Unknown error',
+        });
+        // We don't want to fail the entire process if explanation fails
+        simplifiedExplanation = undefined;
+      }
+
       const processingTime = Date.now() - startTime;
 
       this.logger.log(`Document processing completed in ${processingTime}ms`, {
@@ -71,12 +93,14 @@ export class DocumentProcessorService {
         confidence: analysis.metadata.confidence,
         keyTermCount: analysis.keyMedicalTerms.length,
         labValueCount: analysis.labValues.length,
+        hasExplanation: !!simplifiedExplanation,
       });
 
       // Return combined result
       return {
         extractedText,
         analysis,
+        simplifiedExplanation,
         processingMetadata: {
           processingTimeMs: processingTime,
           fileType,
@@ -149,6 +173,7 @@ export class DocumentProcessorService {
               missingInformation: ['Document processing failed'],
             },
           },
+          simplifiedExplanation: undefined,
           processingMetadata: {
             processingTimeMs: 0,
             fileType: doc.type,

@@ -2,6 +2,7 @@ import { BadRequestException } from '@nestjs/common';
 import { DocumentProcessorService } from './document-processor.service';
 import { AwsTextractService } from './aws-textract.service';
 import { AwsBedrockService } from './aws-bedrock.service';
+import { PerplexityService } from '../../services/perplexity.service';
 import { describe, it, expect, vi } from 'vitest';
 
 // Mock the crypto module
@@ -44,18 +45,23 @@ describe('DocumentProcessorService', () => {
         },
       };
 
+      const simplifiedExplanation = 'This is a simple explanation of the medical document.';
+
       // Create a new test-specific instance with proper mocking
       const testTextractService = { extractText: vi.fn() };
       const testBedrockService = { analyzeMedicalDocument: vi.fn() };
+      const testPerplexityService = { explainMedicalText: vi.fn() };
 
       // Set up mocks
       testTextractService.extractText.mockResolvedValue(extractedTextResult);
       testBedrockService.analyzeMedicalDocument.mockResolvedValue(medicalAnalysis);
+      testPerplexityService.explainMedicalText.mockResolvedValue(simplifiedExplanation);
 
       // Create a fresh service instance with our mocks
       const testService = new DocumentProcessorService(
         testTextractService as unknown as AwsTextractService,
         testBedrockService as unknown as AwsBedrockService,
+        testPerplexityService as unknown as PerplexityService,
       );
 
       // Act
@@ -67,9 +73,13 @@ describe('DocumentProcessorService', () => {
         extractedTextResult.rawText,
         userId,
       );
+      expect(testPerplexityService.explainMedicalText).toHaveBeenCalledWith(
+        extractedTextResult.rawText,
+      );
       expect(result).toEqual({
         extractedText: extractedTextResult,
         analysis: medicalAnalysis,
+        simplifiedExplanation,
         processingMetadata: expect.objectContaining({
           fileType,
           fileSize: fileBuffer.length,
@@ -86,6 +96,7 @@ describe('DocumentProcessorService', () => {
       // Create test-specific service with proper mocking
       const testTextractService = { extractText: vi.fn() };
       const testBedrockService = { analyzeMedicalDocument: vi.fn() };
+      const testPerplexityService = { explainMedicalText: vi.fn() };
 
       // Make the mock reject with an error
       testTextractService.extractText.mockRejectedValue(new Error('Failed to extract text'));
@@ -94,6 +105,7 @@ describe('DocumentProcessorService', () => {
       const testService = new DocumentProcessorService(
         testTextractService as unknown as AwsTextractService,
         testBedrockService as unknown as AwsBedrockService,
+        testPerplexityService as unknown as PerplexityService,
       );
 
       // Act & Assert
@@ -115,11 +127,13 @@ describe('DocumentProcessorService', () => {
       // Create test-specific service with proper mocking
       const testTextractService = { extractText: vi.fn() };
       const testBedrockService = { analyzeMedicalDocument: vi.fn() };
+      const testPerplexityService = { explainMedicalText: vi.fn() };
 
       // Create a fresh service instance with our mocks
       const testService = new DocumentProcessorService(
         testTextractService as unknown as AwsTextractService,
         testBedrockService as unknown as AwsBedrockService,
+        testPerplexityService as unknown as PerplexityService,
       );
 
       // Mock the processDocument method on our test service
@@ -142,6 +156,7 @@ describe('DocumentProcessorService', () => {
             missingInformation: [],
           },
         },
+        simplifiedExplanation: 'Simple explanation for document 1',
         processingMetadata: {
           processingTimeMs: 100,
           fileType: 'application/pdf',
@@ -166,6 +181,7 @@ describe('DocumentProcessorService', () => {
             missingInformation: [],
           },
         },
+        simplifiedExplanation: 'Simple explanation for document 2',
         processingMetadata: {
           processingTimeMs: 100,
           fileType: 'image/jpeg',
@@ -207,6 +223,7 @@ describe('DocumentProcessorService', () => {
       const testService = new DocumentProcessorService(
         {} as AwsTextractService,
         {} as AwsBedrockService,
+        {} as PerplexityService,
       );
 
       // Create a test implementation that checks for empty array

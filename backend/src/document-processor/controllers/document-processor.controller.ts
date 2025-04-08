@@ -81,11 +81,12 @@ export class DocumentProcessorController {
             timestamp: new Date().toISOString(),
             rawExtractedText: result.extractedText,
             rawAnalysis: result.analysis,
+            rawSimplifiedExplanation: result.simplifiedExplanation,
           },
         };
       }
 
-      return result.analysis;
+      return { analysis: result.analysis, simplifiedExplanation: result.simplifiedExplanation };
     } catch (error: unknown) {
       this.logger.error(
         `Error processing document: ${error instanceof Error ? error.message : 'Unknown error'}`,
