@@ -1,4 +1,4 @@
-import { Module, NestModule } from '@nestjs/common';
+import { Module, NestModule, MiddlewareConsumer } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import configuration from './config/configuration';
 import { AppController } from './app.controller';
@@ -9,6 +9,8 @@ import { PerplexityController } from './controllers/perplexity/perplexity.contro
 import { UserController } from './user/user.controller';
 import { ReportsModule } from './reports/reports.module';
 import { HealthController } from './health/health.controller';
+import { AuthMiddleware } from './auth/auth.middleware';
+
 @Module({
   imports: [
     ConfigModule.forRoot({
@@ -21,8 +23,7 @@ import { HealthController } from './health/health.controller';
   providers: [AppService, AwsSecretsService, PerplexityService],
 })
 export class AppModule implements NestModule {
-  configure() {
-    // Add your middleware configuration here if needed
-    // If you don't need middleware, you can leave this empty
+  configure(consumer: MiddlewareConsumer) {
+    consumer.apply(AuthMiddleware).forRoutes('*'); // Apply to all routes
   }
 }

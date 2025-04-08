@@ -445,12 +445,62 @@ export class BackendStack extends cdk.Stack {
 
     // Add CORS to all resources
     api.root.addCorsPreflight(corsOptions);
-    apiResource.addCorsPreflight(corsOptions);
-    reportsResource.addCorsPreflight(corsOptions);
-    latestResource.addCorsPreflight(corsOptions);
-    reportIdResource.addCorsPreflight(corsOptions);
-    reportStatusResource.addCorsPreflight(corsOptions);
-    docsResource.addCorsPreflight(corsOptions);
+    apiResource.addCorsPreflight({
+      ...corsOptions,
+      allowCredentials: false, // This is crucial - make sure OPTIONS requests don't require credentials
+    });
+    reportsResource.addCorsPreflight({
+      ...corsOptions,
+      allowCredentials: false,
+    });
+    latestResource.addCorsPreflight({
+      ...corsOptions,
+      allowCredentials: false,
+    });
+    reportIdResource.addCorsPreflight({
+      ...corsOptions,
+      allowCredentials: false,
+    });
+    reportStatusResource.addCorsPreflight({
+      ...corsOptions,
+      allowCredentials: false,
+    });
+    docsResource.addCorsPreflight({
+      ...corsOptions,
+      allowCredentials: false,
+    });
+
+    // Configure Gateway Responses to add CORS headers to error responses
+    const gatewayResponseTypes = [
+      apigateway.ResponseType.UNAUTHORIZED,
+      apigateway.ResponseType.ACCESS_DENIED,
+      apigateway.ResponseType.DEFAULT_4XX,
+      apigateway.ResponseType.DEFAULT_5XX,
+      apigateway.ResponseType.RESOURCE_NOT_FOUND,
+      apigateway.ResponseType.MISSING_AUTHENTICATION_TOKEN,
+      apigateway.ResponseType.INVALID_API_KEY,
+      apigateway.ResponseType.THROTTLED,
+      apigateway.ResponseType.INTEGRATION_FAILURE,
+      apigateway.ResponseType.INTEGRATION_TIMEOUT,
+    ];
+
+    gatewayResponseTypes.forEach(responseType => {
+      new apigateway.CfnGatewayResponse(
+        this,
+        `${appName}GatewayResponse-${responseType.responseType.toString()}-${props.environment}`,
+        {
+          restApiId: api.restApiId,
+          responseType: responseType.responseType.toString(),
+          responseParameters: {
+            'gatewayresponse.header.Access-Control-Allow-Origin': "'*'",
+            'gatewayresponse.header.Access-Control-Allow-Headers':
+              "'Content-Type,Authorization,X-Amz-Date,X-Api-Key'",
+            'gatewayresponse.header.Access-Control-Allow-Methods':
+              "'GET,POST,PUT,PATCH,DELETE,OPTIONS'",
+          },
+        },
+      );
+    });
 
     // Create API Gateway execution role with required permissions
     new iam.Role(this, `${appName}APIGatewayRole-${props.environment}`, {

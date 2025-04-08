@@ -1,6 +1,7 @@
 import { IonContent, IonHeader, IonPage, IonTitle, IonToolbar } from '@ionic/react';
 import { useTranslation } from 'react-i18next';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
+import { useLocation } from 'react-router-dom';
 import ChatContainer from '../../common/components/Chat/ChatContainer';
 import ChatInput from '../../common/components/Chat/ChatInput';
 import { chatService } from '../../common/services/ChatService';
@@ -14,20 +15,52 @@ import './ChatPage.scss';
  * @returns JSX
  */
 const ChatPage = (): JSX.Element => {
-  const { t } = useTranslation();
+  const { t } = useTranslation(['common', 'errors']);
   const [messages, setMessages] = useState<ChatMessageData[]>([]);
+  const location = useLocation();
+  const prevPathRef = useRef(location.pathname);
 
-  // Reset chat session when component unmounts
+  const resetChatState = () => {
+    setMessages([]);
+  };
+
+  // Handle initial setup and cleanup
   useEffect(() => {
-    // Create a new session when the component mounts
-    chatService.resetSession();
+    // Create a new session when the component mounts using an IIFE
+    (async () => {
+      await chatService.resetSession();
+      resetChatState();
+    })();
     
     // Reset the chat session when the component unmounts
     return () => {
+      // We need to call this synchronously in the cleanup function
+      // but we can at least trigger the reset process
       chatService.resetSession();
-      // We don't need to clear messages array since the component is unmounting
+      resetChatState();
     };
   }, []);
+
+  // Listen for route changes to reset chat when navigating away
+  useEffect(() => {
+    // If we came back to this page from another route, reset the chat
+    if (prevPathRef.current !== location.pathname && location.pathname === '/tabs/chat') {
+      // We're returning to the chat page
+      (async () => {
+        await chatService.resetSession();
+        resetChatState();
+      })();
+    }
+    
+    // If we're navigating away, reset chat state
+    if (prevPathRef.current === '/tabs/chat' && location.pathname !== '/tabs/chat') {
+      chatService.resetSession();
+      resetChatState();
+    }
+    
+    // Update ref for next comparison
+    prevPathRef.current = location.pathname;
+  }, [location.pathname]);
 
   const handleSendMessage = async (text: string) => {
     const userMessage = chatService.createUserMessage(text);
@@ -40,7 +73,12 @@ const ChatPage = (): JSX.Element => {
       setMessages(prevMessages => [...prevMessages, assistantMessage]);
     } catch (error) {
       console.error('Error getting AI response:', error);
-      // You could add error handling here, like showing an error message
+      
+      // Use i18n directly with the full namespace and key
+      const errorMessage = t('chat.general', { ns: 'errors' });
+      
+      const assistantErrorMessage = chatService.createAssistantMessage(errorMessage);
+      setMessages(prevMessages => [...prevMessages, assistantErrorMessage]);
     }
   };
 

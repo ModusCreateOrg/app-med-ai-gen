@@ -26,7 +26,7 @@
     "uploadDate": "Upload Date",
     "noReports": {
       "title": "No Reports",
-      "message": "Upload a report or try again later",
+      "message": "Upload a report or try again",
       "uploadButton": "Upload Report",
       "connectButton": "Connect Provider"
     },
