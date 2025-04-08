@@ -8,7 +8,6 @@ import { chatService } from '../../common/services/ChatService';
 import { ChatMessageData } from '../../common/components/Chat/ChatMessage';
 import aiIcon from '../../assets/img/ai-icon.svg';
 import { faRobot } from '@fortawesome/free-solid-svg-icons';
-import i18n from '../../common/utils/i18n';
 import './ChatPage.scss';
 
 /**
@@ -76,7 +75,7 @@ const ChatPage = (): JSX.Element => {
       console.error('Error getting AI response:', error);
       
       // Use i18n directly with the full namespace and key
-      const errorMessage = i18n.t('chat.general', { ns: 'errors' });
+      const errorMessage = t('chat.general', { ns: 'errors' });
       
       const assistantErrorMessage = chatService.createAssistantMessage(errorMessage);
       setMessages(prevMessages => [...prevMessages, assistantErrorMessage]);
