@@ -8,6 +8,7 @@ import { chatService } from '../../common/services/ChatService';
 import { ChatMessageData } from '../../common/components/Chat/ChatMessage';
 import aiIcon from '../../assets/img/ai-icon.svg';
 import { faRobot } from '@fortawesome/free-solid-svg-icons';
+import i18n from '../../common/utils/i18n';
 import './ChatPage.scss';
 
 /**
@@ -15,7 +16,7 @@ import './ChatPage.scss';
  * @returns JSX
  */
 const ChatPage = (): JSX.Element => {
-  const { t } = useTranslation();
+  const { t } = useTranslation(['common', 'errors']);
   const [messages, setMessages] = useState<ChatMessageData[]>([]);
   const location = useLocation();
   const prevPathRef = useRef(location.pathname);
@@ -74,8 +75,8 @@ const ChatPage = (): JSX.Element => {
     } catch (error) {
       console.error('Error getting AI response:', error);
       
-      // Create an error message to display to the user
-      const errorMessage = "Sorry, something went wrong. Please try again.";
+      // Use i18n directly with the full namespace and key
+      const errorMessage = i18n.t('chat.general', { ns: 'errors' });
       
       const assistantErrorMessage = chatService.createAssistantMessage(errorMessage);
       setMessages(prevMessages => [...prevMessages, assistantErrorMessage]);

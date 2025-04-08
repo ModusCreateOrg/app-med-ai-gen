@@ -1,0 +1,8 @@
+{
+  "chat": {
+    "general": "Lo siento, algo salió mal. Por favor, inténtalo de nuevo."
+  },
+  "ai": {
+    "content_filtered": "No pude encontrar una respuesta. Intenta reformular tu pregunta o consulta a tu proveedor de salud."
+  }
+}

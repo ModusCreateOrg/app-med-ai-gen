@@ -1,8 +1,12 @@
 import { BedrockRuntimeClient, InvokeModelCommand } from '@aws-sdk/client-bedrock-runtime';
 import { fetchAuthSession } from '@aws-amplify/auth';
 import { REGION } from '../../config/aws-config';
+import i18n from '../../utils/i18n';
 
-export const CONTENT_FILTERED_MESSAGE = "I couldn't find an answer. Please try rephrasing your question or consult your healthcare provider.";
+// This function gets the translated message from i18n
+const getContentFilteredMessage = (): string => {
+  return i18n.t('ai.content_filtered', { ns: 'errors' });
+};
 
 export interface ChatMessage {
   role: 'user' | 'assistant' | 'system';
@@ -82,7 +86,7 @@ class BedrockService {
     }
   }
 
-  private handleBedrockResponse(parsedResponse: BedrockResponse, userPrompt?: string): string {
+  private handleBedrockResponse(parsedResponse: BedrockResponse): string {
     // Check if we have results
     if (!parsedResponse.results || !parsedResponse.results.length) {
       throw new Error('Invalid response structure: missing results');
@@ -95,20 +99,10 @@ class BedrockService {
       // Increment counter for analytics
       this.contentFilteredCount++;
       
-      // Log for debugging if we have the original prompt
-      if (userPrompt) {
-        console.warn(`Content filtered response #${this.contentFilteredCount} for prompt: "${userPrompt.substring(0, 100)}..."`);
-      } else {
-        console.warn(`Content filtered response #${this.contentFilteredCount}`);
-      }
-      
-      return CONTENT_FILTERED_MESSAGE;
+      // Return the translated message
+      return getContentFilteredMessage();
     }
-    
-    // Check for other potential failure reasons
-    if (result.completionReason && result.completionReason !== "COMPLETE") {
-      console.warn(`Incomplete response with reason: ${result.completionReason}`);
-    }
+
     
     return result.outputText;
   }
