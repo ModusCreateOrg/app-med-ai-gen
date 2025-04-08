@@ -108,19 +108,10 @@ export class AwsTextractService {
         contentHashPrefix: createHash('sha256').update(fileBuffer).digest('hex').substring(0, 10),
       });
 
-      // 3. Determine if we're processing a PDF or image
-      const isPdf = fileType === 'application/pdf';
+      // 3. Process document
+      const result = await this.processDocument(fileBuffer, fileType);
 
-      // 4. Extract text differently based on file type
-      let result: ExtractedTextResult;
-
-      if (isPdf) {
-        result = await this.processPdf(fileBuffer);
-      } else {
-        result = await this.processImage(fileBuffer);
-      }
-
-      // 5. Calculate processing time
+      // 4. Calculate processing time
       const processingTime = Date.now() - startTime;
 
       this.logger.log(`Document processed in ${processingTime}ms`, {
@@ -150,38 +141,20 @@ export class AwsTextractService {
   }
 
   /**
-   * Process a single image file
+   * Process a document (image or PDF)
    */
-  private async processImage(imageBuffer: Buffer): Promise<ExtractedTextResult> {
-    this.logger.log('Processing single image with Textract');
+  private async processDocument(
+    documentBuffer: Buffer,
+    documentType: string,
+  ): Promise<ExtractedTextResult> {
+    this.logger.log(
+      `Processing ${documentType === 'application/pdf' ? 'PDF document' : 'single image'} with Textract`,
+    );
 
     // Use Analyze Document API for more comprehensive analysis
     const command = new AnalyzeDocumentCommand({
       Document: {
-        Bytes: imageBuffer,
-      },
-      FeatureTypes: ['TABLES', 'FORMS'],
-    });
-
-    const response = await this.client.send(command);
-
-    return this.parseTextractResponse(response);
-  }
-
-  /**
-   * Process a multi-page PDF document
-   */
-  private async processPdf(pdfBuffer: Buffer): Promise<ExtractedTextResult> {
-    this.logger.log('Processing PDF document with Textract');
-
-    // For PDF, first start an async job with StartDocumentTextDetection
-    // But for simplicity in this implementation, we'll process just the first page
-    // For a complete solution, you'd use the async APIs with S3
-
-    // Use Analyze Document API with first page only as a simplified approach
-    const command = new AnalyzeDocumentCommand({
-      Document: {
-        Bytes: pdfBuffer,
+        Bytes: documentBuffer,
       },
       FeatureTypes: ['TABLES', 'FORMS'],
     });
