@@ -4,14 +4,12 @@ import configuration from './config/configuration';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { AwsSecretsService } from './services/aws-secrets.service';
-import { AwsBedrockService } from './services/aws-bedrock.service';
 import { PerplexityService } from './services/perplexity.service';
 import { PerplexityController } from './controllers/perplexity/perplexity.controller';
 import { UserController } from './user/user.controller';
 import { ReportsModule } from './reports/reports.module';
 import { HealthController } from './health/health.controller';
 import { AuthMiddleware } from './auth/auth.middleware';
-import { TextractModule } from './modules/textract.module';
 import { DocumentProcessorModule } from './modules/document-processor.module';
 
 @Module({
@@ -21,11 +19,10 @@ import { DocumentProcessorModule } from './modules/document-processor.module';
       load: [configuration],
     }),
     ReportsModule,
-    TextractModule,
     DocumentProcessorModule,
   ],
   controllers: [AppController, HealthController, PerplexityController, UserController],
-  providers: [AppService, AwsSecretsService, AwsBedrockService, PerplexityService],
+  providers: [AppService, AwsSecretsService, PerplexityService],
 })
 export class AppModule implements NestModule {
   configure(consumer: MiddlewareConsumer) {

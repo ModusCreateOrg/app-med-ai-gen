@@ -9,6 +9,6 @@ import { DocumentProcessorController } from '../controllers/document-processor.c
   imports: [ConfigModule],
   controllers: [DocumentProcessorController],
   providers: [DocumentProcessorService, AwsTextractService, AwsBedrockService],
-  exports: [DocumentProcessorService],
+  exports: [DocumentProcessorService, AwsTextractService, AwsBedrockService],
 })
 export class DocumentProcessorModule {}
