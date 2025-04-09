@@ -8,6 +8,7 @@ import {
   ValidationPipe,
   Req,
   UnauthorizedException,
+  Post,
 } from '@nestjs/common';
 import {
   ApiTags,
@@ -16,6 +17,7 @@ import {
   ApiBearerAuth,
   ApiParam,
   ApiQuery,
+  ApiBody,
 } from '@nestjs/swagger';
 import { ReportsService } from './reports.service';
 import { Report } from './models/report.model';
@@ -103,6 +105,34 @@ export class ReportsController {
   ): Promise<Report> {
     const userId = this.extractUserId(request);
     return this.reportsService.updateStatus(id, updateDto, userId);
+  }
+
+  @ApiOperation({ summary: 'Create a new report from S3 file' })
+  @ApiResponse({
+    status: 201,
+    description: 'Report created successfully',
+    type: Report,
+  })
+  @ApiBody({
+    schema: {
+      type: 'object',
+      properties: {
+        fileUrl: {
+          type: 'string',
+          description: 'S3 file URL for the report',
+        },
+      },
+      required: ['fileUrl'],
+    },
+    description: 'S3 file URL for the report',
+  })
+  @Post()
+  async createReport(
+    @Body('fileUrl') fileUrl: string,
+    @Req() request: RequestWithUser,
+  ): Promise<Report> {
+    const userId = this.extractUserId(request);
+    return this.reportsService.saveReport(fileUrl, userId);
   }
 
   private extractUserId(request: RequestWithUser): string {
