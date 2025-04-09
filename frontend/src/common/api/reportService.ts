@@ -51,7 +51,7 @@ export const uploadReport = async (
     formData.append('description', description);
   }
 
-  const response = await axios.post<MedicalReport>(`${API_URL}/reports/upload`, formData, {
+  const response = await axios.post<MedicalReport>(`${API_URL}/api/reports/upload`, formData, {
     headers: {
       'Content-Type': 'multipart/form-data',
     },
