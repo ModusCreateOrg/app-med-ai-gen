@@ -10,6 +10,7 @@ import { UserController } from './user/user.controller';
 import { ReportsModule } from './reports/reports.module';
 import { HealthController } from './health/health.controller';
 import { AuthMiddleware } from './auth/auth.middleware';
+import { DocumentProcessorModule } from './document-processor/document-processor.module';
 
 @Module({
   imports: [
@@ -18,6 +19,7 @@ import { AuthMiddleware } from './auth/auth.middleware';
       load: [configuration],
     }),
     ReportsModule,
+    DocumentProcessorModule,
   ],
   controllers: [AppController, HealthController, PerplexityController, UserController],
   providers: [AppService, AwsSecretsService, PerplexityService],
