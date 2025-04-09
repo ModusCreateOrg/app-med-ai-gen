@@ -15,10 +15,11 @@ if [ -n "$FRONTEND_CHANGES" ]; then
 
   # Navigate to frontend directory
   cd frontend || exit 1
+  
+  # Remove dependency on husky.sh
+  # . "$(dirname -- "$0")/_/husky.sh"
 
-  . "$(dirname -- "$0")/_/husky.sh"
-
-  cd frontend && npm run lint && npm run test:ci
+  npm run lint && npm run test:ci
 
   # Capture the exit code
   TEST_EXIT_CODE=$?
@@ -43,7 +44,9 @@ BACKEND_CHANGES=$(git diff --name-only $RANGE | grep "^backend/" || true)
 if [ -n "$BACKEND_CHANGES" ]; then
     echo "Backend changes detected. Running backend lint..."
 
-    . "$(dirname -- "$0")/_/husky.sh"
+    # Remove dependency on husky.sh
+    # . "$(dirname -- "$0")/_/husky.sh"
+    
     cd backend && npm run lint
 else
   echo "No backend changes detected. Skipping backend tests."
