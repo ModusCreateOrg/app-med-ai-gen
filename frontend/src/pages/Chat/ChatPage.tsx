@@ -15,7 +15,7 @@ import './ChatPage.scss';
  * @returns JSX
  */
 const ChatPage = (): JSX.Element => {
-  const { t } = useTranslation();
+  const { t } = useTranslation(['common', 'errors']);
   const [messages, setMessages] = useState<ChatMessageData[]>([]);
   const location = useLocation();
   const prevPathRef = useRef(location.pathname);
@@ -73,7 +73,12 @@ const ChatPage = (): JSX.Element => {
       setMessages(prevMessages => [...prevMessages, assistantMessage]);
     } catch (error) {
       console.error('Error getting AI response:', error);
-      // You could add error handling here, like showing an error message
+      
+      // Use i18n directly with the full namespace and key
+      const errorMessage = t('chat.general', { ns: 'errors' });
+      
+      const assistantErrorMessage = chatService.createAssistantMessage(errorMessage);
+      setMessages(prevMessages => [...prevMessages, assistantErrorMessage]);
     }
   };
 

@@ -1,0 +1,8 @@
+{
+  "chat": {
+    "general": "Désolé, une erreur s'est produite. Veuillez réessayer."
+  },
+  "ai": {
+    "content_filtered": "Je n'ai pas pu trouver de réponse. Veuillez reformuler votre question ou consulter votre prestataire de soins de santé."
+  }
+} 
