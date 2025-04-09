@@ -98,11 +98,7 @@ export class BackendStack extends cdk.Stack {
     });
 
     // Cognito User Pool
-    const userPool = cognito.UserPool.fromUserPoolId(
-      this,
-      `${appName}UserPool`,
-      userPoolId,
-    );
+    const userPool = cognito.UserPool.fromUserPoolId(this, `${appName}UserPool`, userPoolId);
 
     // Cognito domain
     const userPoolDomain = cognito.UserPoolDomain.fromDomainName(
