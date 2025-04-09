@@ -553,36 +553,34 @@ export class BackendStack extends cdk.Stack {
     const uploadPolicy = new iam.PolicyStatement({
       effect: iam.Effect.ALLOW,
       actions: ['s3:PutObject', 's3:GetObject', 's3:DeleteObject'],
-      resources: [
-        `${uploadBucket.bucketArn}/*`,
-      ],
+      resources: [`${uploadBucket.bucketArn}/*`],
       conditions: {
         // Restrict uploads to PDF and JPG files
-        'StringLike': {
-          's3:x-amz-content-type': [
-            'application/pdf',
-            'image/jpeg',
-            'image/jpg'
-          ]
-        }
-      }
+        StringLike: {
+          's3:x-amz-content-type': ['application/pdf', 'image/jpeg', 'image/jpg'],
+        },
+      },
     });
 
     // Create an IAM role for authenticated users
-    const authenticatedRole = new iam.Role(this, `${appName}AuthenticatedRole-${props.environment}`, {
-      assumedBy: new iam.FederatedPrincipal(
-        'cognito-identity.amazonaws.com',
-        {
-          StringEquals: {
-            'cognito-identity.amazonaws.com:aud': userPool.userPoolId,
+    const authenticatedRole = new iam.Role(
+      this,
+      `${appName}AuthenticatedRole-${props.environment}`,
+      {
+        assumedBy: new iam.FederatedPrincipal(
+          'cognito-identity.amazonaws.com',
+          {
+            StringEquals: {
+              'cognito-identity.amazonaws.com:aud': userPool.userPoolId,
+            },
+            'ForAnyValue:StringLike': {
+              'cognito-identity.amazonaws.com:amr': 'authenticated',
+            },
           },
-          'ForAnyValue:StringLike': {
-            'cognito-identity.amazonaws.com:amr': 'authenticated',
-          },
-        },
-        'sts:AssumeRoleWithWebIdentity'
-      ),
-    });
+          'sts:AssumeRoleWithWebIdentity',
+        ),
+      },
+    );
 
     // Attach the upload policy to the authenticated role
     authenticatedRole.addToPolicy(uploadPolicy);
