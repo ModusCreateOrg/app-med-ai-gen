@@ -84,7 +84,9 @@ export class S3Service {
       };
     } catch (error: unknown) {
       // Properly handle unknown error type
-      this.logger.error(`Failed to upload file to S3: ${error instanceof Error ? error.message : 'Unknown error'}`);
+      this.logger.error(
+        `Failed to upload file to S3: ${error instanceof Error ? error.message : 'Unknown error'}`,
+      );
       throw new InternalServerErrorException('Failed to upload file to storage');
     }
   }
@@ -102,7 +104,9 @@ export class S3Service {
       return await getSignedUrl(this.s3Client, command, { expiresIn });
     } catch (error: unknown) {
       // Properly handle unknown error type
-      this.logger.error(`Failed to generate signed URL: ${error instanceof Error ? error.message : 'Unknown error'}`);
+      this.logger.error(
+        `Failed to generate signed URL: ${error instanceof Error ? error.message : 'Unknown error'}`,
+      );
       throw new InternalServerErrorException('Failed to generate file access URL');
     }
   }
@@ -120,7 +124,9 @@ export class S3Service {
       await this.s3Client.send(command);
     } catch (error: unknown) {
       // Properly handle unknown error type
-      this.logger.error(`Failed to delete file from S3: ${error instanceof Error ? error.message : 'Unknown error'}`);
+      this.logger.error(
+        `Failed to delete file from S3: ${error instanceof Error ? error.message : 'Unknown error'}`,
+      );
       throw new InternalServerErrorException('Failed to delete file from storage');
     }
   }

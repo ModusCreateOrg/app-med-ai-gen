@@ -9,7 +9,6 @@ import {
   Req,
   UnauthorizedException,
   Post,
-  UseGuards,
   UseInterceptors,
   UploadedFile,
   ParseFilePipe,
@@ -32,14 +31,11 @@ import { GetReportsQueryDto } from './dto/get-reports.dto';
 import { UpdateReportStatusDto } from './dto/update-report-status.dto';
 import { RequestWithUser } from '../auth/auth.middleware';
 import { FileInterceptor } from '@nestjs/platform-express';
-import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
-import { User } from '../common/decorators/user.decorator';
 import { FileUploadDto, FileUploadResponseDto } from './dto/file-upload.dto';
 
 @ApiTags('reports')
 @Controller('reports')
 @ApiBearerAuth()
-@UseGuards(JwtAuthGuard)
 export class ReportsController {
   constructor(private readonly reportsService: ReportsService) {}
 
@@ -142,9 +138,10 @@ export class ReportsController {
       }),
     )
     file: Express.Multer.File,
-    @User('sub') userId: string,
+    @Req() request: RequestWithUser,
     @Body('description') description?: string,
   ): Promise<Report> {
+    const userId = this.extractUserId(request);
     return this.reportsService.uploadReport(file, userId, description);
   }
 
