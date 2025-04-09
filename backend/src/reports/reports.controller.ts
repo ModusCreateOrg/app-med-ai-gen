@@ -9,11 +9,6 @@ import {
   Req,
   UnauthorizedException,
   Post,
-  UseInterceptors,
-  UploadedFile,
-  ParseFilePipe,
-  MaxFileSizeValidator,
-  FileTypeValidator,
 } from '@nestjs/common';
 import {
   ApiTags,
@@ -22,7 +17,6 @@ import {
   ApiBearerAuth,
   ApiParam,
   ApiQuery,
-  ApiConsumes,
   ApiBody,
 } from '@nestjs/swagger';
 import { ReportsService } from './reports.service';
@@ -30,8 +24,7 @@ import type { Report } from './models/report.model';
 import { GetReportsQueryDto } from './dto/get-reports.dto';
 import { UpdateReportStatusDto } from './dto/update-report-status.dto';
 import { RequestWithUser } from '../auth/auth.middleware';
-import { FileInterceptor } from '@nestjs/platform-express';
-import { FileUploadDto, FileUploadResponseDto } from './dto/file-upload.dto';
+import { CreateReportDto } from './dto/create-report.dto';
 
 @ApiTags('reports')
 @Controller('reports')
@@ -111,34 +104,21 @@ export class ReportsController {
     return this.reportsService.updateStatus(id, updateDto, userId);
   }
 
-  @Post('upload')
-  @ApiOperation({ summary: 'Upload a medical report file' })
-  @ApiConsumes('multipart/form-data')
-  @ApiBody({ type: FileUploadDto })
+  @Post()
+  @ApiOperation({ summary: 'Create a new report with file URL from S3' })
+  @ApiBody({ type: CreateReportDto })
   @ApiResponse({
     status: 201,
-    description: 'File uploaded successfully',
-    type: FileUploadResponseDto,
+    description: 'Report created successfully',
   })
-  @ApiResponse({ status: 400, description: 'Invalid file format or size' })
+  @ApiResponse({ status: 400, description: 'Invalid input' })
   @ApiResponse({ status: 401, description: 'Unauthorized' })
-  @UseInterceptors(FileInterceptor('file'))
-  async uploadFile(
-    @UploadedFile(
-      new ParseFilePipe({
-        validators: [
-          // These validators are in addition to our middleware
-          new FileTypeValidator({ fileType: '.(pdf|jpeg|jpg|png)' }),
-          new MaxFileSizeValidator({ maxSize: 10 * 1024 * 1024 }), // 10MB max as a fallback
-        ],
-      }),
-    )
-    file: Express.Multer.File,
+  async createReport(
+    @Body(ValidationPipe) createReportDto: CreateReportDto,
     @Req() request: RequestWithUser,
-    @Body('description') description?: string,
   ): Promise<Report> {
     const userId = this.extractUserId(request);
-    return this.reportsService.uploadReport(file, userId, description);
+    return this.reportsService.createReport(createReportDto, userId);
   }
 
   private extractUserId(request: RequestWithUser): string {

@@ -21,6 +21,7 @@ import { GetReportsQueryDto } from './dto/get-reports.dto';
 import { UpdateReportStatusDto } from './dto/update-report-status.dto';
 import { S3Service } from '../common/services/s3.service';
 import { v4 as uuidv4 } from 'uuid';
+import { CreateReportDto } from './dto/create-report.dto';
 
 @Injectable()
 export class ReportsService {
@@ -314,5 +315,29 @@ export class ReportsService {
 
       throw new InternalServerErrorException('Failed to upload and process report');
     }
+  }
+
+  async createReport(createReportDto: CreateReportDto, userId: string): Promise<Report> {
+    const report: Report = {
+      id: uuidv4(),
+      userId,
+      fileUrl: createReportDto.fileUrl,
+      fileName: createReportDto.fileName,
+      mimeType: createReportDto.fileType,
+      size: createReportDto.fileSize,
+      description: createReportDto.description || undefined,
+      status: ReportStatus.PENDING,
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+    };
+
+    // Save to DynamoDB
+    const command = new PutItemCommand({
+      TableName: this.tableName,
+      Item: marshall(report),
+    });
+
+    await this.dynamoClient.send(command);
+    return report;
   }
 }
