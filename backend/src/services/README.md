@@ -169,7 +169,7 @@ async processReport(fileBuffer: Buffer, fileType: string, userId: string) {
 ## Rate Limiting
 
 Both services implement rate limiting based on user ID:
-- AWS Textract: 10 document requests per minute by default (configurable)
+- AWS Textract: 20 document requests per minute by default (configurable)
 - AWS Bedrock: 20 model invocations per minute by default (configurable)
 
 ## Batch Processing
