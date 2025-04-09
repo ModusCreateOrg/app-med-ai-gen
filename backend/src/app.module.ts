@@ -26,9 +26,6 @@ import { DocumentProcessorModule } from './document-processor/document-processor
 })
 export class AppModule implements NestModule {
   configure(consumer: MiddlewareConsumer) {
-    consumer
-      .apply(AuthMiddleware)
-      .exclude('document-processor/(.*)')
-      .forRoutes('*');
+    consumer.apply(AuthMiddleware).exclude('document-processor/(.*)').forRoutes('*');
   }
 }
