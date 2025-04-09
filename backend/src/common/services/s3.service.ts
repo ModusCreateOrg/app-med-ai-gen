@@ -29,12 +29,15 @@ export class S3Service {
     }
 
     this.s3Client = new S3Client(clientConfig);
-    this.bucketName = this.configService.get<string>('S3_BUCKET_NAME');
 
-    if (!this.bucketName) {
+    const bucketName = this.configService.get<string>('S3_BUCKET_NAME');
+
+    if (!bucketName) {
       this.logger.error('S3_BUCKET_NAME environment variable is not set');
       throw new InternalServerErrorException('S3 bucket configuration is missing');
     }
+
+    this.bucketName = bucketName;
   }
 
   /**
@@ -79,8 +82,9 @@ export class S3Service {
         mimeType: file.mimetype,
         size: file.size,
       };
-    } catch (error) {
-      this.logger.error(`Failed to upload file to S3: ${error.message}`);
+    } catch (error: unknown) {
+      // Properly handle unknown error type
+      this.logger.error(`Failed to upload file to S3: ${error instanceof Error ? error.message : 'Unknown error'}`);
       throw new InternalServerErrorException('Failed to upload file to storage');
     }
   }
@@ -96,8 +100,9 @@ export class S3Service {
       });
 
       return await getSignedUrl(this.s3Client, command, { expiresIn });
-    } catch (error) {
-      this.logger.error(`Failed to generate signed URL: ${error.message}`);
+    } catch (error: unknown) {
+      // Properly handle unknown error type
+      this.logger.error(`Failed to generate signed URL: ${error instanceof Error ? error.message : 'Unknown error'}`);
       throw new InternalServerErrorException('Failed to generate file access URL');
     }
   }
@@ -113,8 +118,9 @@ export class S3Service {
       });
 
       await this.s3Client.send(command);
-    } catch (error) {
-      this.logger.error(`Failed to delete file from S3: ${error.message}`);
+    } catch (error: unknown) {
+      // Properly handle unknown error type
+      this.logger.error(`Failed to delete file from S3: ${error instanceof Error ? error.message : 'Unknown error'}`);
       throw new InternalServerErrorException('Failed to delete file from storage');
     }
   }

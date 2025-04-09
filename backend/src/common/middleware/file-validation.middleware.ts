@@ -6,8 +6,8 @@ export class FileValidationMiddleware implements NestMiddleware {
   // Allowed MIME types
   private readonly allowedMimeTypes = ['application/pdf', 'image/jpeg', 'image/png'];
 
-  // Size limits in bytes
-  private readonly sizeLimits = {
+  // Size limits in bytes with proper type definition
+  private readonly sizeLimits: Record<string, number> = {
     'application/pdf': 10 * 1024 * 1024, // 10MB
     'image/jpeg': 5 * 1024 * 1024, // 5MB
     'image/png': 5 * 1024 * 1024, // 5MB
