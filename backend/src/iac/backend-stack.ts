@@ -539,7 +539,7 @@ export class BackendStack extends cdk.Stack {
 
     // Add S3 bucket for medical reports
     const reportsBucket = new Bucket(this, 'MedicalReportsBucket', {
-      bucketName: `${appName}-medical-reports-${props.environment}`,
+      bucketName: `${appName}-reports-bucket-${props.environment}`,
       encryption: BucketEncryption.S3_MANAGED, // Server-side encryption
       enforceSSL: true, // Enforce TLS for data in transit
       versioned: true, // Enable versioning for file history
