@@ -7,6 +7,7 @@ import * as apigateway from 'aws-cdk-lib/aws-apigateway';
 import * as servicediscovery from 'aws-cdk-lib/aws-servicediscovery';
 import * as iam from 'aws-cdk-lib/aws-iam';
 import * as elbv2 from 'aws-cdk-lib/aws-elasticloadbalancingv2';
+import * as s3 from 'aws-cdk-lib/aws-s3';
 
 import { Construct } from 'constructs';
 import { AttributeType, BillingMode, Table } from 'aws-cdk-lib/aws-dynamodb';
@@ -515,6 +516,83 @@ export class BackendStack extends cdk.Stack {
       ],
     });
 
+    // Create S3 bucket for file uploads
+    const uploadBucket = new s3.Bucket(this, `${appName}UploadBucket-${props.environment}`, {
+      bucketName: `${appName.toLowerCase()}-uploads-${props.environment}-${this.account}`,
+      removalPolicy: RemovalPolicy.RETAIN,
+      versioned: true, // Enable versioning in production
+      lifecycleRules: [
+        {
+          noncurrentVersionExpiration: cdk.Duration.days(7),
+          // Move objects to infrequent access after 30 days
+          transitions: [
+            {
+              storageClass: s3.StorageClass.INFREQUENT_ACCESS,
+              transitionAfter: cdk.Duration.days(30),
+            },
+          ],
+        },
+      ],
+      cors: [
+        {
+          allowedMethods: [
+            s3.HttpMethods.GET,
+            s3.HttpMethods.POST,
+            s3.HttpMethods.PUT,
+            s3.HttpMethods.DELETE,
+          ],
+          allowedOrigins: ['*'], // In production, you should restrict this to your domain
+          allowedHeaders: ['*'],
+          maxAge: 3000,
+        },
+      ],
+      blockPublicAccess: s3.BlockPublicAccess.BLOCK_ALL, // Block all public access for security
+    });
+
+    // Create a policy for authenticated users to upload files
+    const uploadPolicy = new iam.PolicyStatement({
+      effect: iam.Effect.ALLOW,
+      actions: ['s3:PutObject', 's3:GetObject', 's3:DeleteObject'],
+      resources: [
+        `${uploadBucket.bucketArn}/*`,
+      ],
+      conditions: {
+        // Restrict uploads to PDF and JPG files
+        'StringLike': {
+          's3:x-amz-content-type': [
+            'application/pdf',
+            'image/jpeg',
+            'image/jpg'
+          ]
+        }
+      }
+    });
+
+    // Create an IAM role for authenticated users
+    const authenticatedRole = new iam.Role(this, `${appName}AuthenticatedRole-${props.environment}`, {
+      assumedBy: new iam.FederatedPrincipal(
+        'cognito-identity.amazonaws.com',
+        {
+          StringEquals: {
+            'cognito-identity.amazonaws.com:aud': userPool.userPoolId,
+          },
+          'ForAnyValue:StringLike': {
+            'cognito-identity.amazonaws.com:amr': 'authenticated',
+          },
+        },
+        'sts:AssumeRoleWithWebIdentity'
+      ),
+    });
+
+    // Attach the upload policy to the authenticated role
+    authenticatedRole.addToPolicy(uploadPolicy);
+
+    // Add environment variable to the container for the S3 bucket name
+    container.addEnvironment('S3_UPLOAD_BUCKET', uploadBucket.bucketName);
+
+    // Grant the task role access to the S3 bucket
+    uploadBucket.grantReadWrite(taskRole);
+
     // Outputs
     new cdk.CfnOutput(this, 'ReportsTableName', {
       value: reportsTable.tableName,
@@ -534,6 +612,12 @@ export class BackendStack extends cdk.Stack {
     new cdk.CfnOutput(this, 'NetworkLoadBalancerDns', {
       value: nlb.loadBalancerDnsName,
       description: 'Network Load Balancer DNS Name',
+    });
+
+    // Add S3 bucket name to outputs
+    new cdk.CfnOutput(this, 'UploadBucketName', {
+      value: uploadBucket.bucketName,
+      description: 'S3 Bucket for file uploads',
     });
   }
 }
