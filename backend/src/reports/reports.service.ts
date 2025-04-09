@@ -16,7 +16,7 @@ import {
   DynamoDBServiceException,
 } from '@aws-sdk/client-dynamodb';
 import { marshall, unmarshall } from '@aws-sdk/util-dynamodb';
-import { Report } from './models/report.model';
+import { Report, ReportStatus } from './models/report.model';
 import { GetReportsQueryDto } from './dto/get-reports.dto';
 import { UpdateReportStatusDto } from './dto/update-report-status.dto';
 import { S3Service } from '../common/services/s3.service';
@@ -291,7 +291,7 @@ export class ReportsService {
         mimeType: uploadResult.mimeType,
         size: uploadResult.size,
         description: description || '',
-        status: 'PENDING', // Initial status
+        status: ReportStatus.PENDING, // Use enum value instead of string
         createdAt: now,
         updatedAt: now,
       };

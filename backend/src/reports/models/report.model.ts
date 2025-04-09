@@ -1,4 +1,8 @@
 export enum ReportStatus {
+  PENDING = 'PENDING',
+  PROCESSING = 'PROCESSING',
+  COMPLETED = 'COMPLETED',
+  REJECTED = 'REJECTED',
   UNREAD = 'UNREAD',
   READ = 'READ',
 }
@@ -12,7 +16,7 @@ export interface Report {
   mimeType?: string;
   size?: number;
   description?: string;
-  status: 'PENDING' | 'PROCESSING' | 'COMPLETED' | 'REJECTED';
+  status: ReportStatus;
   createdAt: string;
   updatedAt: string;
 }

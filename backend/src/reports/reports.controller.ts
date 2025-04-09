@@ -26,7 +26,7 @@ import {
   ApiBody,
 } from '@nestjs/swagger';
 import { ReportsService } from './reports.service';
-import { Report } from './models/report.model';
+import type { Report } from './models/report.model';
 import { GetReportsQueryDto } from './dto/get-reports.dto';
 import { UpdateReportStatusDto } from './dto/update-report-status.dto';
 import { RequestWithUser } from '../auth/auth.middleware';
@@ -43,7 +43,6 @@ export class ReportsController {
   @ApiResponse({
     status: 200,
     description: 'Returns all reports for the authenticated user',
-    type: [Report],
   })
   @Get()
   async findAll(@Req() request: RequestWithUser): Promise<Report[]> {
@@ -55,7 +54,6 @@ export class ReportsController {
   @ApiResponse({
     status: 200,
     description: 'Returns the latest reports for the authenticated user',
-    type: [Report],
   })
   @ApiQuery({
     name: 'limit',
@@ -75,7 +73,6 @@ export class ReportsController {
   @ApiResponse({
     status: 200,
     description: 'Report details',
-    type: Report,
   })
   @ApiResponse({
     status: 404,
@@ -95,7 +92,6 @@ export class ReportsController {
   @ApiResponse({
     status: 200,
     description: 'Report status updated successfully',
-    type: Report,
   })
   @ApiResponse({
     status: 404,
