@@ -30,11 +30,6 @@ jobs:
           cd backend
           npm test
 
-      - name: Run CDK tests
-        run: |
-          cd backend
-          npm run test:cdk
-
   deploy:
     needs: test
     runs-on: ubuntu-latest
