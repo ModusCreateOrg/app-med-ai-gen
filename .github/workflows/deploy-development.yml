@@ -63,7 +63,7 @@ jobs:
       - name: Deploy to AWS
         run: |
           cd backend
-          npm run cdk deploy -- \
+          npm run cdk deploy ai-team-medical-reports-stack-development -- \
             --require-approval never \
             --context environment=development
         env:
