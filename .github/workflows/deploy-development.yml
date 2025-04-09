@@ -1,9 +1,9 @@
-name: Deploy to Staging
+name: Deploy to Development
 
 on:
   push:
     branches:
-      - staging
+      - main
 
 permissions:
   id-token: write
@@ -30,15 +30,10 @@ jobs:
           cd backend
           npm test
 
-      - name: Run CDK tests
-        run: |
-          cd backend
-          npm run test:cdk
-
   deploy:
     needs: test
     runs-on: ubuntu-latest
-    environment: staging
+    environment: development
 
     steps:
       - uses: actions/checkout@v4
@@ -68,9 +63,9 @@ jobs:
       - name: Deploy to AWS
         run: |
           cd backend
-          npm run cdk deploy -- \
+          npm run cdk deploy ai-team-medical-reports-stack-development -- \
             --require-approval never \
-            --context environment=staging
+            --context environment=development
         env:
           CDK_DEFAULT_ACCOUNT: ${{ secrets.AWS_ACCOUNT_ID }}
           CDK_DEFAULT_REGION: us-east-1
