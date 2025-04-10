@@ -270,7 +270,6 @@ export class ReportsService {
         title: 'New Report',
         bookmarked: false,
         category: '',
-        date: '',
         status: ReportStatus.UNREAD,
         createdAt: new Date().toISOString(),
         updatedAt: new Date().toISOString(),

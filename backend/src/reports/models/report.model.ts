@@ -21,9 +21,6 @@ export class Report {
   @ApiProperty({ description: 'Category of the report' })
   category: string;
 
-  @ApiProperty({ description: 'Date of the report' })
-  date: string;
-
   @ApiProperty({
     description: 'Status of the report',
     enum: ReportStatus,
