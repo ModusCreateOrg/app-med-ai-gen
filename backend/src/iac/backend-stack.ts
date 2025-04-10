@@ -29,7 +29,7 @@ export class BackendStack extends cdk.Stack {
       this,
       `${appName}UserPoolIdParam-${props.environment}`,
       {
-        parameterName: `/${appName}/${props.environment}/cognito-user-pool-id`,
+        parameterName: `${appName}UserPoolIdParam-${props.environment}`,
       },
     ).stringValue;
 
@@ -38,7 +38,7 @@ export class BackendStack extends cdk.Stack {
       this,
       `${appName}ClientIdParam-${props.environment}`,
       {
-        parameterName: `/${appName}/${props.environment}/cognito-client-id`,
+        parameterName: `${appName}ClientIdParam-${props.environment}`,
       },
     ).stringValue;
 
