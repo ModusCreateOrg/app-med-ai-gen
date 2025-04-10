@@ -7,6 +7,7 @@ import * as apigateway from 'aws-cdk-lib/aws-apigateway';
 import * as servicediscovery from 'aws-cdk-lib/aws-servicediscovery';
 import * as iam from 'aws-cdk-lib/aws-iam';
 import * as elbv2 from 'aws-cdk-lib/aws-elasticloadbalancingv2';
+import * as ssm from 'aws-cdk-lib/aws-ssm';
 
 import { Construct } from 'constructs';
 import { AttributeType, BillingMode, Table } from 'aws-cdk-lib/aws-dynamodb';
@@ -14,8 +15,6 @@ import { RemovalPolicy } from 'aws-cdk-lib';
 
 interface BackendStackProps extends cdk.StackProps {
   environment: string;
-  cognitoClientId: string;
-  cognitoUserPoolId: string;
 }
 
 export class BackendStack extends cdk.Stack {
@@ -24,6 +23,24 @@ export class BackendStack extends cdk.Stack {
 
     const isProd = props.environment === 'production';
     const appName = 'AIMedicalReport';
+
+    // Get Cognito User Pool ID from SSM Parameter Store
+    const userPoolId = ssm.StringParameter.fromStringParameterAttributes(
+      this,
+      `${appName}UserPoolIdParam-${props.environment}`,
+      {
+        parameterName: `/${appName}/${props.environment}/cognito-user-pool-id`,
+      },
+    ).stringValue;
+
+    // Get Cognito Client ID from SSM Parameter Store
+    const clientId = ssm.StringParameter.fromStringParameterAttributes(
+      this,
+      `${appName}ClientIdParam-${props.environment}`,
+      {
+        parameterName: `/${appName}/${props.environment}/cognito-client-id`,
+      },
+    ).stringValue;
 
     // VPC
     const vpc = new ec2.Vpc(this, `${appName}VPC`, {
@@ -81,11 +98,7 @@ export class BackendStack extends cdk.Stack {
     });
 
     // Cognito User Pool
-    const userPool = cognito.UserPool.fromUserPoolId(
-      this,
-      `${appName}UserPool`,
-      props.cognitoUserPoolId || 'us-east-1_PszlvSmWc',
-    );
+    const userPool = cognito.UserPool.fromUserPoolId(this, `${appName}UserPool`, userPoolId);
 
     // Cognito domain
     const userPoolDomain = cognito.UserPoolDomain.fromDomainName(
@@ -98,7 +111,7 @@ export class BackendStack extends cdk.Stack {
     const userPoolClient = cognito.UserPoolClient.fromUserPoolClientId(
       this,
       `${appName}UserPoolClient-${props.environment}`,
-      props.cognitoClientId,
+      clientId,
     );
 
     // Security Group for Fargate service
