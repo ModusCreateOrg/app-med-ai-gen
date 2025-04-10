@@ -55,6 +55,9 @@ jobs:
           cd backend
           npm ci
 
+      - name: Install latest AWS CDK
+        run: npm install -g aws-cdk
+
       - name: Build application
         run: |
           cd backend
