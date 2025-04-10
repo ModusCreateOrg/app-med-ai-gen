@@ -100,14 +100,27 @@ class BedrockService {
         throw new Error('No credentials available');
       }
       
+      const bedrockCredentials: {
+        accessKeyId: string;
+        secretAccessKey: string;
+        expiration?: Date;
+        sessionToken?: string;
+      } = {
+        accessKeyId: credentials.accessKeyId,
+        secretAccessKey: credentials.secretAccessKey,
+      };
+
+      if (credentials.expiration) {
+        bedrockCredentials.expiration = credentials.expiration;
+      }
+
+      if (credentials.sessionToken) {
+        bedrockCredentials.sessionToken = credentials.sessionToken;
+      }
+
       this.client = new BedrockRuntimeClient({
         region: REGION,
-        credentials: {
-          accessKeyId: credentials.accessKeyId,
-          secretAccessKey: credentials.secretAccessKey,
-          sessionToken: credentials.sessionToken,
-          expiration: credentials.expiration
-        }
+        credentials: bedrockCredentials
       });
     } catch (error) {
       console.error('Error initializing Bedrock client:', error);
