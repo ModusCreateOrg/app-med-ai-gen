@@ -253,8 +253,8 @@ export class ReportsService {
     }
   }
 
-  async saveReport(fileUrl: string, userId: string): Promise<Report> {
-    if (!fileUrl) {
+  async saveReport(filePath: string, userId: string): Promise<Report> {
+    if (!filePath) {
       throw new NotFoundException('File URL is required');
     }
 
@@ -266,13 +266,11 @@ export class ReportsService {
       const newReport: Report = {
         id: uuidv4(),
         userId,
-        fileUrl,
+        filePath,
         title: 'New Report',
-        bookmark: false,
+        bookmarked: false,
         category: '',
         date: '',
-        doctor: '',
-        facility: '',
         status: ReportStatus.UNREAD,
         createdAt: new Date().toISOString(),
         updatedAt: new Date().toISOString(),

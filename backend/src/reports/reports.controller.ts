@@ -117,22 +117,22 @@ export class ReportsController {
     schema: {
       type: 'object',
       properties: {
-        fileUrl: {
+        filePath: {
           type: 'string',
-          description: 'S3 file URL for the report',
+          description: 'S3 file path for the report',
         },
       },
-      required: ['fileUrl'],
+      required: ['filePath'],
     },
-    description: 'S3 file URL for the report',
+    description: 'S3 file path for the report',
   })
   @Post()
   async createReport(
-    @Body('fileUrl') fileUrl: string,
+    @Body('filePath') filePath: string,
     @Req() request: RequestWithUser,
   ): Promise<Report> {
     const userId = this.extractUserId(request);
-    return this.reportsService.saveReport(fileUrl, userId);
+    return this.reportsService.saveReport(filePath, userId);
   }
 
   private extractUserId(request: RequestWithUser): string {

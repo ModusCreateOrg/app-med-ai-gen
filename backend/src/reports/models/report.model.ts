@@ -16,19 +16,13 @@ export class Report {
   title: string;
 
   @ApiProperty({ description: 'Whether the report is bookmarked' })
-  bookmark: boolean;
+  bookmarked: boolean;
 
   @ApiProperty({ description: 'Category of the report' })
   category: string;
 
   @ApiProperty({ description: 'Date of the report' })
   date: string;
-
-  @ApiProperty({ description: 'Doctor associated with the report' })
-  doctor: string;
-
-  @ApiProperty({ description: 'Facility where the report was created' })
-  facility: string;
 
   @ApiProperty({
     description: 'Status of the report',
@@ -37,8 +31,8 @@ export class Report {
   })
   status: ReportStatus;
 
-  @ApiProperty({ description: 'File URL of the report' })
-  fileUrl: string;
+  @ApiProperty({ description: 'File path of the report' })
+  filePath: string;
 
   @ApiProperty({ description: 'Creation timestamp' })
   createdAt: string;
