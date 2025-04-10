@@ -147,46 +147,23 @@ Document text:
     const secretAccessKey = this.configService.get<string>('aws.aws.secretAccessKey');
     const sessionToken = this.configService.get<string>('aws.aws.sessionToken');
 
-    if (!region || !accessKeyId || !secretAccessKey) {
-      throw new Error('Missing required AWS configuration');
+    const clientConfig: any = { region };
+
+    if (accessKeyId && secretAccessKey) {
+      clientConfig.credentials = {
+        accessKeyId,
+        secretAccessKey,
+        ...(sessionToken && { sessionToken }),
+      };
     }
 
-    const credentials = this.createCredentialsObject(accessKeyId, secretAccessKey, sessionToken);
-
-    const client = new BedrockRuntimeClient({
-      region,
-      credentials,
-    });
+    const client = new BedrockRuntimeClient(clientConfig);
 
     this.logger.log(
       `AWS client initialized with region ${region} and credentials ${accessKeyId ? '(provided)' : '(missing)'}, session token ${sessionToken ? '(provided)' : '(not provided)'}`,
     );
 
     return client;
-  }
-
-  /**
-   * Create AWS credentials object with proper typing
-   */
-  private createCredentialsObject(
-    accessKeyId: string,
-    secretAccessKey: string,
-    sessionToken?: string,
-  ): {
-    accessKeyId: string;
-    secretAccessKey: string;
-    sessionToken?: string;
-  } {
-    const credentials = {
-      accessKeyId,
-      secretAccessKey,
-    };
-
-    if (sessionToken) {
-      return { ...credentials, sessionToken };
-    }
-
-    return credentials;
   }
 
   /**
