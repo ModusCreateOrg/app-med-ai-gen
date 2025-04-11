@@ -9,20 +9,17 @@ export class Report {
   @ApiProperty({ description: 'Unique identifier for the report' })
   id: string;
 
-  @ApiProperty({ description: 'Title of the report' })
-  title: string;
-
-  @ApiProperty({ description: 'Content of the report' })
-  content: string;
-
   @ApiProperty({ description: 'User ID of the report owner' })
   userId: string;
 
-  @ApiProperty({ description: 'Creation timestamp' })
-  createdAt: string;
+  @ApiProperty({ description: 'Title of the report' })
+  title: string;
 
-  @ApiProperty({ description: 'Last update timestamp' })
-  updatedAt: string;
+  @ApiProperty({ description: 'Whether the report is bookmarked' })
+  bookmarked: boolean;
+
+  @ApiProperty({ description: 'Category of the report' })
+  category: string;
 
   @ApiProperty({
     description: 'Status of the report',
@@ -30,4 +27,13 @@ export class Report {
     default: ReportStatus.UNREAD,
   })
   status: ReportStatus;
+
+  @ApiProperty({ description: 'File path of the report' })
+  filePath: string;
+
+  @ApiProperty({ description: 'Creation timestamp' })
+  createdAt: string;
+
+  @ApiProperty({ description: 'Last update timestamp' })
+  updatedAt: string;
 }

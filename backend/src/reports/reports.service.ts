@@ -12,11 +12,13 @@ import {
   GetItemCommand,
   UpdateItemCommand,
   DynamoDBServiceException,
+  PutItemCommand,
 } from '@aws-sdk/client-dynamodb';
 import { marshall, unmarshall } from '@aws-sdk/util-dynamodb';
-import { Report } from './models/report.model';
+import { Report, ReportStatus } from './models/report.model';
 import { GetReportsQueryDto } from './dto/get-reports.dto';
 import { UpdateReportStatusDto } from './dto/update-report-status.dto';
+import { v4 as uuidv4 } from 'uuid';
 
 @Injectable()
 export class ReportsService {
@@ -248,6 +250,54 @@ export class ReportsService {
       }
 
       throw new InternalServerErrorException(`Failed to update report status for ID ${id}`);
+    }
+  }
+
+  async saveReport(filePath: string, userId: string): Promise<Report> {
+    if (!filePath) {
+      throw new NotFoundException('File URL is required');
+    }
+
+    if (!userId) {
+      throw new ForbiddenException('User ID is required');
+    }
+
+    try {
+      const newReport: Report = {
+        id: uuidv4(),
+        userId,
+        filePath,
+        title: 'New Report',
+        bookmarked: false,
+        category: '',
+        status: ReportStatus.UNREAD,
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+      };
+
+      // Save to DynamoDB
+      const command = new PutItemCommand({
+        TableName: this.tableName,
+        Item: marshall(newReport),
+      });
+
+      await this.dynamoClient.send(command);
+      this.logger.log(`Successfully saved report with ID ${newReport.id} for user ${userId}`);
+
+      return newReport;
+    } catch (error: unknown) {
+      this.logger.error(`Error saving report for user ${userId}:`);
+      this.logger.error(error);
+
+      if (error instanceof DynamoDBServiceException) {
+        if (error.name === 'ResourceNotFoundException') {
+          throw new InternalServerErrorException(
+            `Table "${this.tableName}" not found. Please check your database configuration.`,
+          );
+        }
+      }
+
+      throw new InternalServerErrorException('Failed to save report to database');
     }
   }
 }
