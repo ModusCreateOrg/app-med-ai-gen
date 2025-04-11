@@ -604,6 +604,25 @@ export class BackendStack extends cdk.Stack {
     // Grant the task role access to the S3 bucket
     uploadBucket.grantReadWrite(taskRole);
 
+    // Add more specific S3 permissions for file processing
+    taskRole.addToPolicy(
+      new iam.PolicyStatement({
+        effect: iam.Effect.ALLOW,
+        actions: [
+          's3:GetObject',
+          's3:PutObject',
+          's3:DeleteObject',
+          's3:ListBucket',
+          's3:GetObjectTagging',
+          's3:PutObjectTagging'
+        ],
+        resources: [
+          uploadBucket.bucketArn,
+          `${uploadBucket.bucketArn}/*`
+        ],
+      })
+    );
+
     // Outputs
     new cdk.CfnOutput(this, 'ReportsTableName', {
       value: reportsTable.tableName,
