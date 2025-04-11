@@ -533,7 +533,6 @@ export class BackendStack extends cdk.Stack {
     const uploadBucket = new s3.Bucket(this, `${appName}UploadBucket-${props.environment}`, {
       bucketName: `${appName.toLowerCase()}-uploads-${props.environment}-${this.account}`,
       removalPolicy: RemovalPolicy.RETAIN,
-      versioned: true, // Enable versioning in production
       lifecycleRules: [
         {
           noncurrentVersionExpiration: cdk.Duration.days(7),
@@ -567,12 +566,6 @@ export class BackendStack extends cdk.Stack {
       effect: iam.Effect.ALLOW,
       actions: ['s3:PutObject', 's3:GetObject', 's3:DeleteObject'],
       resources: [`${uploadBucket.bucketArn}/*`],
-      conditions: {
-        // Restrict uploads to PDF and JPG files
-        StringLike: {
-          's3:x-amz-content-type': ['application/pdf', 'image/jpeg', 'image/jpg'],
-        },
-      },
     });
 
     // Create an IAM role for authenticated users
