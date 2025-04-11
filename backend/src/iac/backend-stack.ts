@@ -533,18 +533,6 @@ export class BackendStack extends cdk.Stack {
     const uploadBucket = new s3.Bucket(this, `${appName}UploadBucket-${props.environment}`, {
       bucketName: `${appName.toLowerCase()}-uploads-${props.environment}-${this.account}`,
       removalPolicy: RemovalPolicy.RETAIN,
-      lifecycleRules: [
-        {
-          noncurrentVersionExpiration: cdk.Duration.days(7),
-          // Move objects to infrequent access after 30 days
-          transitions: [
-            {
-              storageClass: s3.StorageClass.INFREQUENT_ACCESS,
-              transitionAfter: cdk.Duration.days(30),
-            },
-          ],
-        },
-      ],
       cors: [
         {
           allowedMethods: [
