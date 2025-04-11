@@ -14,11 +14,14 @@ export interface UploadProgressCallback {
 /**
  * Creates an authenticated request config with bearer token
  */
-export const getAuthConfig = async (): Promise<{ headers: { Authorization: string }, onUploadProgress?: (progressEvent: AxiosProgressEvent) => void }> => {
+export const getAuthConfig = async (): Promise<{ headers: { Accept: string, 'Content-Type': string, Authorization: string }, onUploadProgress?: (progressEvent: AxiosProgressEvent) => void }> => {
   const session = await fetchAuthSession();
+  const idToken = session.tokens?.idToken?.toString() || '';
   return {
-    headers: {
-      Authorization: session.tokens?.idToken ? `Bearer ${session.tokens.idToken.toString()}` : ''
+      headers: {
+        Accept: 'application/json',
+        'Content-Type': 'application/json',
+        Authorization: idToken ? `Bearer ${idToken}` : ''
     }
   };
 };
@@ -53,33 +56,23 @@ export const uploadReport = async (
       'reports',
       onProgress as (progress: number) => void
     );
-    
-    // Get a signed URL for the uploaded file
-    const documentUrl = await s3StorageService.getSignedUrl(s3Key);
 
     // Then create the report record with the S3 key
     const config = await getAuthConfig();
-    
-    // Create report data
-    const reportData = {
-      title: file.name.split('.')[0], // Use filename without extension as title
-      filePath: s3Key,
-      fileName: file.name,
-      fileType: file.type,
-      fileSize: file.size,
-      documentUrl
-    };
 
     // Send the report metadata to the API
     const response = await axios.post(
       `${API_URL}/api/reports`, 
-      reportData,
+      {
+        filePath: s3Key,
+      },
       config
     );
 
     return response.data;
   } catch (error) {
     if (axios.isAxiosError(error)) {
+      console.error('API Error Details:', error.response?.data, error.response?.headers);
       throw new ReportError(`Failed to upload report: ${error.message}`);
     }
     throw new ReportError('Failed to upload report');
