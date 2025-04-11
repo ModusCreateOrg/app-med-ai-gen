@@ -614,13 +614,10 @@ export class BackendStack extends cdk.Stack {
           's3:DeleteObject',
           's3:ListBucket',
           's3:GetObjectTagging',
-          's3:PutObjectTagging'
+          's3:PutObjectTagging',
         ],
-        resources: [
-          uploadBucket.bucketArn,
-          `${uploadBucket.bucketArn}/*`
-        ],
-      })
+        resources: [uploadBucket.bucketArn, `${uploadBucket.bucketArn}/*`],
+      }),
     );
 
     // Outputs
