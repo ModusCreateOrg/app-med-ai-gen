@@ -39,6 +39,8 @@
     "@aws-amplify/core": "^6.0.15",
     "@aws-amplify/ui-react": "^6.1.1",
     "@aws-sdk/client-bedrock-runtime": "^3.775.0",
+    "@aws-sdk/client-s3": "^3.787.0",
+    "@aws-sdk/s3-request-presigner": "^3.787.0",
     "@capacitor/android": "6.2.0",
     "@capacitor/app": "6.0.2",
     "@capacitor/assets": "3.0.5",
@@ -70,7 +72,7 @@
     "react-i18next": "15.4.0",
     "react-router": "5.3.4",
     "react-router-dom": "5.3.4",
-    "uuid": "11.0.4",
+    "uuid": "^11.0.4",
     "yup": "1.6.1"
   },
   "devDependencies": {
@@ -86,7 +88,7 @@
     "@types/react-dom": "18.3.1",
     "@types/react-router": "5.1.20",
     "@types/react-router-dom": "5.3.3",
-    "@types/uuid": "10.0.0",
+    "@types/uuid": "^10.0.0",
     "@typescript-eslint/eslint-plugin": "8.19.1",
     "@typescript-eslint/parser": "8.19.1",
     "@vitejs/plugin-legacy": "6.0.0",
