@@ -1,13 +1,21 @@
 .report-detail-page {
   --background: var(--ion-color-light);
 
+  ion-toolbar {
+    --background: #fff;
+  }
+
+  ion-back-button {
+    --color: var(--ion-color-primary);
+  }
+
   &__header {
     background-color: #fff;
     border-bottom: 1px solid var(--ion-color-light-shade);
   }
 
   .report-category {
-    color: var(--ion-color-medium);
+    color: var(--ion-color-primary);
     font-size: 1rem;
     margin-bottom: 0.25rem;
   }
@@ -26,6 +34,29 @@
 
   .report-segment {
     padding-top: 0.5rem;
+
+    ion-segment-button {
+      --color: var(--ion-color-medium);
+      --color-checked: var(--ion-color-primary);
+      --indicator-color: var(--ion-color-primary);
+    }
+
+    &--ai-insights {
+      --padding-start: 1rem;
+      --padding-end: 1rem;
+    }
+  }
+
+  .bookmark-button {
+    --color: var(--ion-color-primary);
+
+    &--active {
+      --color: var(--ion-color-primary);
+    }
+
+    &--inactive {
+      --color: var(--ion-color-medium);
+    }
   }
 
   .report-metadata {

@@ -18,6 +18,8 @@
     "wbc": "WBC (White Blood Cells)",
     "vitaminD": "Vitamin D (25-OH)",
     "cholesterol": "Total Cholesterol",
+    "bookmarkAdded": "Report added to bookmarks",
+    "bookmarkRemoved": "Report removed from bookmarks",
     "aiInsightsContent": "Based on the blood test results, our AI has identified several points of interest that may require attention or further discussion with your healthcare provider.",
     "insight1Title": "Hemoglobin Level",
     "insight1Content": "Your hemoglobin level is slightly below the reference range. This could indicate mild anemia, which may cause fatigue and weakness.",

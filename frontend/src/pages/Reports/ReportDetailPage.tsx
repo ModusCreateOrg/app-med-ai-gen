@@ -13,16 +13,17 @@ import {
   IonCardContent,
   IonText,
   IonButton,
-  IonIcon
+  IonIcon,
+  IonToast
 } from '@ionic/react';
 import { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { format } from 'date-fns';
-import { bookmarkOutline } from 'ionicons/icons';
+import { bookmark, bookmarkOutline } from 'ionicons/icons';
 import { MedicalReport } from 'common/models/medicalReport';
-import { useQuery } from '@tanstack/react-query';
-import { fetchAllReports } from 'common/api/reportService';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { fetchAllReports, toggleReportBookmark } from 'common/api/reportService';
 
 import './ReportDetailPage.scss';
 
@@ -51,12 +52,51 @@ const ReportDetailPage: React.FC = () => {
   const { reportId } = useParams<ReportDetailParams>();
   const [selectedSegment, setSelectedSegment] = useState<'aiInsights' | 'testResults'>('aiInsights');
   const [report, setReport] = useState<MedicalReport | null>(null);
+  const [showBookmarkToast, setShowBookmarkToast] = useState(false);
+  const [bookmarkToastMessage, setBookmarkToastMessage] = useState('');
+  const queryClient = useQueryClient();
 
   // Fetch all reports and find the one we need
   const { data: reports = [] } = useQuery({
     queryKey: ['reports'],
     queryFn: fetchAllReports
   });
+
+  // Toggle bookmark mutation
+  const { mutate: toggleBookmark } = useMutation({
+    mutationFn: ({ reportId, isBookmarked }: { reportId: string; isBookmarked: boolean }) => {
+      return toggleReportBookmark(reportId, isBookmarked);
+    },
+    onSuccess: (updatedReport) => {
+      // Update the report state with the updated bookmarked status
+      setReport(updatedReport);
+
+      // Update the reports query cache
+      queryClient.setQueryData(['reports'], (oldData: MedicalReport[] | undefined) => {
+        if (!oldData) return [];
+        return oldData.map(oldReport =>
+          oldReport.id === updatedReport.id ? updatedReport : oldReport
+        );
+      });
+
+      // Show toast notification
+      setBookmarkToastMessage(updatedReport.bookmarked ?
+        t('detail.bookmarkAdded') :
+        t('detail.bookmarkRemoved')
+      );
+      setShowBookmarkToast(true);
+    }
+  });
+
+  // Handle bookmark click
+  const handleBookmarkClick = () => {
+    if (report) {
+      toggleBookmark({
+        reportId: report.id,
+        isBookmarked: !report.bookmarked
+      });
+    }
+  };
 
   // Mock blood test data based on the screenshot
   const bloodTestData: BloodTestData = {
@@ -118,8 +158,11 @@ const ReportDetailPage: React.FC = () => {
           </IonButtons>
           <IonTitle>{t('detail.title')}</IonTitle>
           <IonButtons slot="end">
-            <IonButton>
-              <IonIcon slot="icon-only" icon={bookmarkOutline} />
+            <IonButton
+              className={`bookmark-button ${report.bookmarked ? 'bookmark-button--active' : 'bookmark-button--inactive'}`}
+              onClick={handleBookmarkClick}
+            >
+              <IonIcon slot="icon-only" icon={report.bookmarked ? bookmark : bookmarkOutline} />
             </IonButton>
           </IonButtons>
         </IonToolbar>
@@ -209,6 +252,15 @@ const ReportDetailPage: React.FC = () => {
             </IonText>
           )}
         </div>
+
+        <IonToast
+          isOpen={showBookmarkToast}
+          onDidDismiss={() => setShowBookmarkToast(false)}
+          message={bookmarkToastMessage}
+          duration={2000}
+          position="bottom"
+          color="primary"
+        />
       </IonContent>
     </IonPage>
   );

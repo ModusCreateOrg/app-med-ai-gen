@@ -33,4 +33,5 @@ export interface MedicalReport {
   content?: string;
   doctor?: string;
   facility?: string;
-} 
+  bookmarked?: boolean;
+}
