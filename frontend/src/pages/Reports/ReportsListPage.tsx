@@ -25,7 +25,7 @@ import './ReportsListPage.scss';
  * Page component for displaying a list of all medical reports.
  */
 const ReportsListPage: React.FC = () => {
-  const { t } = useTranslation();
+  const { t } = useTranslation('report');
   const history = useHistory();
   const { data: reports = [], isLoading, isError } = useQuery({
     queryKey: ['reports'],
@@ -103,7 +103,7 @@ const ReportsListPage: React.FC = () => {
           <IonButtons slot="start">
             <IonBackButton defaultHref="/tabs/home" />
           </IonButtons>
-          <IonTitle>{t('report.list.title', { ns: 'report' })}</IonTitle>
+          <IonTitle>{t('list.title')}</IonTitle>
         </IonToolbar>
       </IonHeader>
       <IonContent>

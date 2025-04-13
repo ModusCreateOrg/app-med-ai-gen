@@ -47,7 +47,7 @@ interface BloodTestData {
  * Shows both AI insights and actual test results.
  */
 const ReportDetailPage: React.FC = () => {
-  const { t } = useTranslation();
+  const { t } = useTranslation('report');
   const { reportId } = useParams<ReportDetailParams>();
   const [selectedSegment, setSelectedSegment] = useState<'aiInsights' | 'testResults'>('aiInsights');
   const [report, setReport] = useState<MedicalReport | null>(null);
@@ -61,15 +61,15 @@ const ReportDetailPage: React.FC = () => {
   // Mock blood test data based on the screenshot
   const bloodTestData: BloodTestData = {
     results: [
-      { name: t('report.detail.hemoglobin', { ns: 'report' }), value: '10.1 g/dL', range: '12-15.5 mg/dL', isOutOfRange: true },
-      { name: t('report.detail.ldl', { ns: 'report' }), value: '165 mg/dL', range: '< 130 mg/dL', isOutOfRange: true },
-      { name: t('report.detail.glucose', { ns: 'report' }), value: '110 mg/dL', range: '70 - 99 mg/dL', isOutOfRange: true },
-      { name: t('report.detail.alt', { ns: 'report' }), value: '12.5 g/dL', range: '7-35 U/L' },
-      { name: t('report.detail.wbc', { ns: 'report' }), value: '6,800 /μL', range: '4-10×10⁹/L' },
-      { name: t('report.detail.vitaminD', { ns: 'report' }), value: '35 ng/dL', range: '30-50 mg/dL' },
-      { name: t('report.detail.cholesterol', { ns: 'report' }), value: '210 mg/dL', range: '> 200 mg/dL', isOutOfRange: true }
+      { name: t('detail.hemoglobin'), value: '10.1 g/dL', range: '12-15.5 mg/dL', isOutOfRange: true },
+      { name: t('detail.ldl'), value: '165 mg/dL', range: '< 130 mg/dL', isOutOfRange: true },
+      { name: t('detail.glucose'), value: '110 mg/dL', range: '70 - 99 mg/dL', isOutOfRange: true },
+      { name: t('detail.alt'), value: '12.5 g/dL', range: '7-35 U/L' },
+      { name: t('detail.wbc'), value: '6,800 /μL', range: '4-10×10⁹/L' },
+      { name: t('detail.vitaminD'), value: '35 ng/dL', range: '30-50 mg/dL' },
+      { name: t('detail.cholesterol'), value: '210 mg/dL', range: '> 200 mg/dL', isOutOfRange: true }
     ],
-    comments: t('report.detail.hemoglobinComment', { ns: 'report' })
+    comments: t('detail.hemoglobinComment')
   };
 
   // Find the report from the list
@@ -97,12 +97,12 @@ const ReportDetailPage: React.FC = () => {
             <IonButtons slot="start">
               <IonBackButton defaultHref="/tabs/home" />
             </IonButtons>
-            <IonTitle>{t('report.detail.loading', { ns: 'report' })}</IonTitle>
+            <IonTitle>{t('detail.loading')}</IonTitle>
           </IonToolbar>
         </IonHeader>
         <IonContent>
           <div className="ion-padding">
-            <IonText>{t('report.detail.loading', { ns: 'report' })}</IonText>
+            <IonText>{t('detail.loading')}</IonText>
           </div>
         </IonContent>
       </IonPage>
@@ -116,7 +116,7 @@ const ReportDetailPage: React.FC = () => {
           <IonButtons slot="start">
             <IonBackButton defaultHref="/tabs/home" />
           </IonButtons>
-          <IonTitle>{t('report.detail.title', { ns: 'report' })}</IonTitle>
+          <IonTitle>{t('detail.title')}</IonTitle>
           <IonButtons slot="end">
             <IonButton>
               <IonIcon slot="icon-only" icon={bookmarkOutline} />
@@ -135,10 +135,10 @@ const ReportDetailPage: React.FC = () => {
         <IonCard className="report-content-card">
           <IonSegment value={selectedSegment} onIonChange={handleSegmentChange} className="report-segment">
             <IonSegmentButton value="aiInsights">
-              <IonLabel>{t('report.detail.aiInsights', { ns: 'report' })}</IonLabel>
+              <IonLabel>{t('detail.aiInsights')}</IonLabel>
             </IonSegmentButton>
             <IonSegmentButton value="testResults">
-              <IonLabel>{t('report.detail.testResults', { ns: 'report' })}</IonLabel>
+              <IonLabel>{t('detail.testResults')}</IonLabel>
             </IonSegmentButton>
           </IonSegment>
 
@@ -146,17 +146,17 @@ const ReportDetailPage: React.FC = () => {
             {selectedSegment === 'aiInsights' && (
               <div className="ai-insights">
                 <p>
-                  {t('report.detail.aiInsightsContent', { ns: 'report' })}
+                  {t('detail.aiInsightsContent')}
                 </p>
                 <ul className="insight-list">
                   <li>
-                    <strong>{t('report.detail.insight1Title', { ns: 'report' })}</strong>: {t('report.detail.insight1Content', { ns: 'report' })}
+                    <strong>{t('detail.insight1Title')}</strong>: {t('detail.insight1Content')}
                   </li>
                   <li>
-                    <strong>{t('report.detail.insight2Title', { ns: 'report' })}</strong>: {t('report.detail.insight2Content', { ns: 'report' })}
+                    <strong>{t('detail.insight2Title')}</strong>: {t('detail.insight2Content')}
                   </li>
                   <li>
-                    <strong>{t('report.detail.insight3Title', { ns: 'report' })}</strong>: {t('report.detail.insight3Content', { ns: 'report' })}
+                    <strong>{t('detail.insight3Title')}</strong>: {t('detail.insight3Content')}
                   </li>
                 </ul>
               </div>
@@ -167,9 +167,9 @@ const ReportDetailPage: React.FC = () => {
                 <table className="results-table">
                   <thead>
                     <tr>
-                      <th>{t('report.detail.test', { ns: 'report' })}</th>
-                      <th>{t('report.detail.results', { ns: 'report' })}</th>
-                      <th>{t('report.detail.refRange', { ns: 'report' })}</th>
+                      <th>{t('detail.test')}</th>
+                      <th>{t('detail.results')}</th>
+                      <th>{t('detail.refRange')}</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -185,7 +185,7 @@ const ReportDetailPage: React.FC = () => {
 
                 {bloodTestData.comments && (
                   <div className="medical-comments">
-                    <h3>{t('report.detail.medicalComments', { ns: 'report' })}</h3>
+                    <h3>{t('detail.medicalComments')}</h3>
                     <p>{bloodTestData.comments}</p>
                   </div>
                 )}
@@ -196,16 +196,16 @@ const ReportDetailPage: React.FC = () => {
 
         <div className="ion-padding">
           <IonText color="medium" className="report-metadata">
-            {t('report.detail.reportDate', { ns: 'report' })}: {report.date ? format(new Date(report.date), 'MM/dd/yyyy') : 'N/A'}
+            {t('detail.reportDate')}: {report.date ? format(new Date(report.date), 'MM/dd/yyyy') : 'N/A'}
           </IonText>
           {report.doctor && (
             <IonText color="medium" className="report-metadata">
-              <div>{t('report.detail.doctor', { ns: 'report' })}: {report.doctor}</div>
+              <div>{t('detail.doctor')}: {report.doctor}</div>
             </IonText>
           )}
           {report.facility && (
             <IonText color="medium" className="report-metadata">
-              <div>{t('report.detail.facility', { ns: 'report' })}: {report.facility}</div>
+              <div>{t('detail.facility')}: {report.facility}</div>
             </IonText>
           )}
         </div>
