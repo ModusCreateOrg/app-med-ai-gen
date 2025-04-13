@@ -1,11 +1,7 @@
 import {
   IonBackButton,
-  IonButtons,
   IonContent,
-  IonHeader,
   IonPage,
-  IonTitle,
-  IonToolbar,
   IonSegment,
   IonSegmentButton,
   IonLabel,
@@ -131,17 +127,14 @@ const ReportDetailPage: React.FC = () => {
   if (!report) {
     return (
       <IonPage className="report-detail-page">
-        <IonHeader>
-          <IonToolbar>
-            <IonButtons slot="start">
-              <IonBackButton defaultHref="/tabs/home" />
-            </IonButtons>
-            <IonTitle>{t('detail.loading')}</IonTitle>
-          </IonToolbar>
-        </IonHeader>
         <IonContent>
-          <div className="ion-padding">
-            <IonText>{t('detail.loading')}</IonText>
+          <div className="report-detail-page__header report-detail-page__header--loading">
+            <div className="ion-padding">
+              <div className="report-detail-page__back-button">
+                <IonBackButton defaultHref="/tabs/home" text="" />
+              </div>
+              <IonText>{t('detail.loading')}</IonText>
+            </div>
           </div>
         </IonContent>
       </IonPage>
@@ -150,27 +143,27 @@ const ReportDetailPage: React.FC = () => {
 
   return (
     <IonPage className="report-detail-page">
-      <IonHeader>
-        <IonToolbar>
-          <IonButtons slot="start">
-            <IonBackButton defaultHref="/tabs/home" />
-          </IonButtons>
-          <IonTitle>{t('detail.title')}</IonTitle>
-          <IonButtons slot="end">
-            <IonButton
-              className={`bookmark-button ${report.bookmarked ? 'bookmark-button--active' : 'bookmark-button--inactive'}`}
-              onClick={handleBookmarkClick}
-            >
-              <IonIcon slot="icon-only" icon={report.bookmarked ? bookmark : bookmarkOutline} />
-            </IonButton>
-          </IonButtons>
-        </IonToolbar>
-      </IonHeader>
       <IonContent>
         <div className="report-detail-page__header">
           <div className="ion-padding">
+            <div className="report-detail-page__top">
+              <div className="report-detail-page__back-button">
+                <IonBackButton defaultHref="/tabs/home" text="" />
+              </div>
+            </div>
+
             <div className="report-category">{report.category}</div>
-            <h1 className="report-title">{report.title}</h1>
+
+            <div className="report-detail-page__title-row">
+              <h1 className="report-title">{report.title}</h1>
+              <IonButton
+                fill="clear"
+                className={`bookmark-button ${report.bookmarked ? 'bookmark-button--active' : 'bookmark-button--inactive'}`}
+                onClick={handleBookmarkClick}
+              >
+                <IonIcon slot="icon-only" icon={report.bookmarked ? bookmark : bookmarkOutline} />
+              </IonButton>
+            </div>
           </div>
         </div>
 

@@ -1,17 +1,35 @@
 .report-detail-page {
   --background: var(--ion-color-light);
 
-  ion-toolbar {
-    --background: #fff;
-  }
-
-  ion-back-button {
-    --color: var(--ion-color-primary);
-  }
-
   &__header {
     background-color: #fff;
     border-bottom: 1px solid var(--ion-color-light-shade);
+    padding-bottom: 1rem;
+
+    &--loading {
+      height: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+  }
+
+  &__back-button {
+    margin-bottom: 0.5rem;
+
+    ion-back-button {
+      --color: var(--ion-color-primary);
+      --icon-margin-end: 0;
+      --padding-start: 0;
+      --padding-end: 0;
+      display: inline-block;
+    }
+  }
+
+  &__title-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
   }
 
   .report-category {
@@ -24,6 +42,7 @@
     margin: 0;
     font-size: 1.75rem;
     font-weight: 700;
+    flex: 1;
   }
 
   .report-content-card {
@@ -49,6 +68,10 @@
 
   .bookmark-button {
     --color: var(--ion-color-primary);
+    --padding-start: 0;
+    --padding-end: 0;
+    --background: transparent;
+    margin: 0;
 
     &--active {
       --color: var(--ion-color-primary);
