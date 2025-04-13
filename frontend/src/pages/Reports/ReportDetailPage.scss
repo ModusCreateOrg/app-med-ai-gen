@@ -56,8 +56,8 @@
 
     ion-segment-button {
       --color: var(--ion-color-medium);
-      --color-checked: white;
-      --background-checked: var(--ion-color-primary);
+      --color-checked: var(--ion-color-dark);
+      --background-checked: var(--ion-color-primary-contrast);
       --indicator-color: transparent;
     }
 
