@@ -19,7 +19,7 @@ i18n
     // languages, namespaces, and resources
     supportedLngs: ['en', 'es', 'fr'],
     fallbackLng: 'en',
-    ns: ['account', 'auth', 'common', 'errors', 'home', 'user'],
+    ns: ['account', 'auth', 'common', 'errors', 'home', 'report', 'user'],
     defaultNS: 'common',
     resources: { en, es, fr },
 

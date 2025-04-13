@@ -16,6 +16,8 @@ import ProfilePage from 'pages/Account/components/Profile/ProfilePage';
 import DiagnosticsPage from 'pages/Account/components/Diagnostics/DiagnosticsPage';
 import ChatPage from 'pages/Chat/ChatPage';
 import UploadPage from 'pages/Upload/UploadPage';
+import ReportDetailPage from 'pages/Reports/ReportDetailPage';
+import ReportsListPage from 'pages/Reports/ReportsListPage';
 
 /**
  * The `TabNavigation` component provides a router outlet for all of the
@@ -43,7 +45,7 @@ const TabNavigation = (): JSX.Element => {
   const handleUploadComplete = () => {
     // Close the modal
     setIsUploadModalOpen(false);
-    
+
     // Navigate to home page to see the newly uploaded report
     history.push('/tabs/home');
   };
@@ -82,6 +84,12 @@ const TabNavigation = (): JSX.Element => {
           <Route exact path="/tabs/upload">
             <UploadPage />
           </Route>
+          <Route exact path="/tabs/reports">
+            <ReportsListPage />
+          </Route>
+          <Route exact path="/tabs/reports/:reportId">
+            <ReportDetailPage />
+          </Route>
           <Route exact path="/">
             <Redirect to="/tabs/home" />
           </Route>
@@ -105,9 +113,9 @@ const TabNavigation = (): JSX.Element => {
               fixedWidth
             />
           </IonTabButton>
-          <IonTabButton 
-            className="ls-tab-navigation__bar-button ls-tab-navigation__bar-button--upload" 
-            tab="upload" 
+          <IonTabButton
+            className="ls-tab-navigation__bar-button ls-tab-navigation__bar-button--upload"
+            tab="upload"
             onClick={handleUploadClick}
           >
             <div className="ls-tab-navigation__bar-button-upload-wrapper">
@@ -143,7 +151,7 @@ const TabNavigation = (): JSX.Element => {
         </IonTabBar>
       </IonTabs>
 
-      <UploadModal 
+      <UploadModal
         isOpen={isUploadModalOpen}
         onClose={() => setIsUploadModalOpen(false)}
         onUploadComplete={handleUploadComplete}

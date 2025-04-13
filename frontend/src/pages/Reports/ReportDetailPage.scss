@@ -1,0 +1,118 @@
+.report-detail-page {
+  --background: var(--ion-color-light);
+
+  &__header {
+    background-color: #fff;
+    border-bottom: 1px solid var(--ion-color-light-shade);
+  }
+
+  .report-category {
+    color: var(--ion-color-medium);
+    font-size: 1rem;
+    margin-bottom: 0.25rem;
+  }
+
+  .report-title {
+    margin: 0;
+    font-size: 1.75rem;
+    font-weight: 700;
+  }
+
+  .report-content-card {
+    margin: 1rem;
+    border-radius: 12px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+  }
+
+  .report-segment {
+    padding-top: 0.5rem;
+  }
+
+  .report-metadata {
+    display: block;
+    font-size: 0.875rem;
+    margin-bottom: 0.5rem;
+  }
+
+  // Test Results Tab Styling
+  .results-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 1.5rem;
+
+    th {
+      text-align: left;
+      padding: 0.75rem 0.5rem;
+      color: var(--ion-color-medium);
+      border-bottom: 1px solid var(--ion-color-light-shade);
+      font-weight: 600;
+    }
+
+    td {
+      padding: 0.75rem 0.5rem;
+      border-bottom: 1px solid var(--ion-color-light-shade);
+    }
+
+    .result-value {
+      font-weight: 600;
+    }
+
+    .result-range {
+      color: var(--ion-color-medium);
+      font-size: 0.9em;
+    }
+
+    tr.out-of-range {
+      .result-value {
+        color: var(--ion-color-danger);
+      }
+    }
+  }
+
+  .medical-comments {
+    background-color: var(--ion-color-light);
+    padding: 1rem;
+    border-radius: 8px;
+    margin-top: 1rem;
+
+    h3 {
+      margin-top: 0;
+      font-size: 1rem;
+      margin-bottom: 0.5rem;
+      color: var(--ion-color-dark);
+    }
+
+    p {
+      margin: 0;
+      color: var(--ion-color-medium-shade);
+      font-size: 0.9rem;
+      line-height: 1.4;
+    }
+  }
+
+  // AI Insights Tab Styling
+  .ai-insights {
+    p {
+      line-height: 1.5;
+      margin-bottom: 1rem;
+    }
+
+    .insight-list {
+      padding-left: 1.5rem;
+      margin: 0;
+
+      li {
+        margin-bottom: 1rem;
+        line-height: 1.4;
+
+        &:last-child {
+          margin-bottom: 0;
+        }
+
+        strong {
+          color: var(--ion-color-primary);
+        }
+      }
+    }
+  }
+}
