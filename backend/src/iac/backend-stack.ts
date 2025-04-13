@@ -393,6 +393,13 @@ export class BackendStack extends cdk.Stack {
       options: integrationOptions,
     });
 
+    const createReportIntegration = new apigateway.Integration({
+      type: apigateway.IntegrationType.HTTP_PROXY,
+      integrationHttpMethod: 'POST',
+      uri: `${serviceUrl}/api/reports`,
+      options: integrationOptions,
+    });
+
     const getLatestReportIntegration = new apigateway.Integration({
       type: apigateway.IntegrationType.HTTP_PROXY,
       integrationHttpMethod: 'GET',
@@ -432,6 +439,7 @@ export class BackendStack extends cdk.Stack {
 
     // Add methods to the resources
     reportsResource.addMethod('GET', getReportsIntegration, methodOptions);
+    reportsResource.addMethod('POST', createReportIntegration, methodOptions);
     latestResource.addMethod('GET', getLatestReportIntegration, methodOptions);
     docsResource.addMethod('GET', getDocsIntegration, methodOptions);
     // For path parameter methods, add the request parameter configuration
