@@ -19,7 +19,6 @@ import {
 import { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { format } from 'date-fns';
 import { bookmark, bookmarkOutline } from 'ionicons/icons';
 import { MedicalReport } from 'common/models/medicalReport';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
@@ -236,22 +235,6 @@ const ReportDetailPage: React.FC = () => {
             )}
           </IonCardContent>
         </IonCard>
-
-        <div className="ion-padding">
-          <IonText color="medium" className="report-metadata">
-            {t('detail.reportDate')}: {report.date ? format(new Date(report.date), 'MM/dd/yyyy') : 'N/A'}
-          </IonText>
-          {report.doctor && (
-            <IonText color="medium" className="report-metadata">
-              <div>{t('detail.doctor')}: {report.doctor}</div>
-            </IonText>
-          )}
-          {report.facility && (
-            <IonText color="medium" className="report-metadata">
-              <div>{t('detail.facility')}: {report.facility}</div>
-            </IonText>
-          )}
-        </div>
 
         <IonToast
           isOpen={showBookmarkToast}
