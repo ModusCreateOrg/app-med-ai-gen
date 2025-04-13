@@ -149,12 +149,13 @@
 
   // AI Insights Tab Styling
   .ai-insights {
+    background-color: var(--ion-color-light);
     .warning-alert {
       display: flex;
       align-items: center;
-      background-color: #fff2f2;
-      border: 1px solid #ffdbdb;
-      color: var(--ion-color-danger);
+      background-color:var(--ion-color-light);
+      border: 1px solid var(--ion-color-danger-shade);
+      color: var(--ion-color-danger-shade);
       border-radius: 8px;
       padding: 0.75rem 1rem;
       margin-bottom: 1.5rem;
