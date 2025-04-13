@@ -211,7 +211,9 @@ const ReportDetailPage: React.FC = () => {
                     {bloodTestData.results.map((result, index) => (
                       <tr key={index} className={result.isOutOfRange ? 'out-of-range' : ''}>
                         <td>{result.name}</td>
-                        <td className="result-value">{result.value}</td>
+                        <td className="result-value" style={result.isOutOfRange ? { color: 'var(--ion-color-danger)' } : {}}>
+                          {result.value}
+                        </td>
                         <td className="result-range">{result.range}</td>
                       </tr>
                     ))}

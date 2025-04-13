@@ -56,8 +56,9 @@
 
     ion-segment-button {
       --color: var(--ion-color-medium);
-      --color-checked: var(--ion-color-primary);
-      --indicator-color: var(--ion-color-primary);
+      --color-checked: white;
+      --background-checked: var(--ion-color-primary);
+      --indicator-color: transparent;
     }
 
     &--ai-insights {
@@ -98,6 +99,7 @@
       text-align: left;
       padding: 0.75rem 0.5rem;
       color: var(--ion-color-medium);
+      background-color: var(--ion-color-light);
       border-bottom: 1px solid var(--ion-color-light-shade);
       font-weight: 600;
     }
@@ -111,15 +113,15 @@
       font-weight: 600;
     }
 
-    .result-range {
-      color: var(--ion-color-medium);
-      font-size: 0.9em;
-    }
-
     tr.out-of-range {
       .result-value {
         color: var(--ion-color-danger);
       }
+    }
+
+    .result-range {
+      color: var(--ion-color-medium);
+      font-size: 0.9em;
     }
   }
 
@@ -127,7 +129,8 @@
     background-color: var(--ion-color-light);
     padding: 1rem;
     border-radius: 8px;
-    margin-top: 1rem;
+    margin-top: 1.5rem;
+    margin-bottom: 0.5rem;
 
     h3 {
       margin-top: 0;
