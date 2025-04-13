@@ -10,12 +10,12 @@ import {
   IonText,
   IonButton,
   IonIcon,
-  IonToast
+  IonToast,
 } from '@ionic/react';
 import { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { bookmark, bookmarkOutline } from 'ionicons/icons';
+import { bookmark, bookmarkOutline, warningOutline, chevronDown, chevronUp } from 'ionicons/icons';
 import { MedicalReport } from 'common/models/medicalReport';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { fetchAllReports, toggleReportBookmark } from 'common/api/reportService';
@@ -38,6 +38,16 @@ interface BloodTestData {
   comments?: string;
 }
 
+interface FlaggedValue {
+  id: string;
+  title: string;
+  value: string;
+  units: string;
+  severity: 'High' | 'Low' | 'Normal';
+  conclusion: string;
+  suggestions: string[];
+}
+
 /**
  * Page component for displaying detailed information about a medical report.
  * Shows both AI insights and actual test results.
@@ -49,6 +59,7 @@ const ReportDetailPage: React.FC = () => {
   const [report, setReport] = useState<MedicalReport | null>(null);
   const [showBookmarkToast, setShowBookmarkToast] = useState(false);
   const [bookmarkToastMessage, setBookmarkToastMessage] = useState('');
+  const [flaggedValuesExpanded, setFlaggedValuesExpanded] = useState(true);
   const queryClient = useQueryClient();
 
   // Fetch all reports and find the one we need
@@ -107,6 +118,35 @@ const ReportDetailPage: React.FC = () => {
     comments: t('detail.hemoglobinComment')
   };
 
+  // Mock flagged values data for AI insights
+  const flaggedValues: FlaggedValue[] = [
+    {
+      id: 'ldl',
+      title: t('detail.highLdl'),
+      value: '165',
+      units: 'mg/dL',
+      severity: 'High',
+      conclusion: t('detail.ldlConclusion'),
+      suggestions: [
+        t('detail.ldlSuggestion1'),
+        t('detail.ldlSuggestion2'),
+        t('detail.ldlSuggestion3')
+      ]
+    },
+    {
+      id: 'hemoglobin',
+      title: t('detail.lowHemoglobin'),
+      value: '10.1',
+      units: 'g/dL',
+      severity: 'Low',
+      conclusion: t('detail.hemoglobinConclusion'),
+      suggestions: [
+        t('detail.hemoglobinSuggestion1'),
+        t('detail.hemoglobinSuggestion2')
+      ]
+    }
+  ];
+
   // Find the report from the list
   useEffect(() => {
     if (reports.length > 0 && reportId) {
@@ -122,6 +162,11 @@ const ReportDetailPage: React.FC = () => {
   // Handle segment change
   const handleSegmentChange = (e: CustomEvent) => {
     setSelectedSegment(e.detail.value);
+  };
+
+  // Toggle flagged values section
+  const toggleFlaggedValues = () => {
+    setFlaggedValuesExpanded(!flaggedValuesExpanded);
   };
 
   if (!report) {
@@ -180,20 +225,50 @@ const ReportDetailPage: React.FC = () => {
           <IonCardContent>
             {selectedSegment === 'aiInsights' && (
               <div className="ai-insights">
-                <p>
-                  {t('detail.aiInsightsContent')}
-                </p>
-                <ul className="insight-list">
-                  <li>
-                    <strong>{t('detail.insight1Title')}</strong>: {t('detail.insight1Content')}
-                  </li>
-                  <li>
-                    <strong>{t('detail.insight2Title')}</strong>: {t('detail.insight2Content')}
-                  </li>
-                  <li>
-                    <strong>{t('detail.insight3Title')}</strong>: {t('detail.insight3Content')}
-                  </li>
-                </ul>
+                <div className="warning-alert">
+                  <IonIcon icon={warningOutline} />
+                  <p>{t('detail.emergencyWarning')}</p>
+                </div>
+
+                <div className="flagged-values-section">
+                  <div className="flagged-values-header" onClick={toggleFlaggedValues}>
+                    <div className="flagged-values-title">
+                      <IonIcon icon="flag-outline" />
+                      <h3>{t('detail.flaggedValues')}</h3>
+                    </div>
+                    <IonIcon icon={flaggedValuesExpanded ? chevronUp : chevronDown} />
+                  </div>
+
+                  {flaggedValuesExpanded && (
+                    <div className="flagged-values-content">
+                      {flaggedValues.map((value) => (
+                        <div key={value.id} className="flagged-value-item">
+                          <div className="flagged-value-title">
+                            <span>{value.title}</span>
+                            <div className={`severity-badge severity-${value.severity.toLowerCase()}`}>
+                              {value.severity}
+                            </div>
+                            <span className="value-with-units">{value.value} {value.units}</span>
+                          </div>
+                          <div className="flagged-value-details">
+                            <div className="conclusion">
+                              <h4>{t('detail.conclusion')}</h4>
+                              <p>{value.conclusion}</p>
+                            </div>
+                            <div className="suggestions">
+                              <h4>{t('detail.suggestions')}</h4>
+                              <ul>
+                                {value.suggestions.map((suggestion, index) => (
+                                  <li key={index}>{suggestion}</li>
+                                ))}
+                              </ul>
+                            </div>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
               </div>
             )}
 

@@ -2,6 +2,7 @@
   --background: var(--ion-color-light);
 
   &__header {
+    background-color: #fff;
     border-bottom: 1px solid var(--ion-color-light-shade);
     padding-bottom: 1rem;
 
@@ -55,7 +56,7 @@
 
     ion-segment-button {
       --color: var(--ion-color-medium);
-      --color-checked: var(--ion-color-dark);
+      --color-checked: var(--ion-color-black);
       --background-checked: var(--ion-color-primary-contrast);
       --indicator-color: transparent;
     }
@@ -148,25 +149,153 @@
 
   // AI Insights Tab Styling
   .ai-insights {
-    p {
-      line-height: 1.5;
-      margin-bottom: 1rem;
+    .warning-alert {
+      display: flex;
+      align-items: center;
+      background-color: #fff2f2;
+      border: 1px solid #ffdbdb;
+      color: var(--ion-color-danger);
+      border-radius: 8px;
+      padding: 0.75rem 1rem;
+      margin-bottom: 1.5rem;
+
+      ion-icon {
+        font-size: 1.5rem;
+        margin-right: 0.75rem;
+        min-width: 24px;
+      }
+
+      p {
+        margin: 0;
+        font-weight: 500;
+        line-height: 1.4;
+      }
     }
 
-    .insight-list {
-      padding-left: 1.5rem;
-      margin: 0;
+    .flagged-values-section {
+      background-color: #fff;
+      border-radius: 8px;
+      border: 1px solid var(--ion-color-light-shade);
+      margin-bottom: 1rem;
+      overflow: hidden;
+    }
 
-      li {
-        margin-bottom: 1rem;
-        line-height: 1.4;
+    .flagged-values-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 0.8rem 1rem;
+      cursor: pointer;
+      background-color: var(--ion-color-light);
 
-        &:last-child {
-          margin-bottom: 0;
+      .flagged-values-title {
+        display: flex;
+        align-items: center;
+
+        ion-icon {
+          font-size: 1.2rem;
+          margin-right: 0.5rem;
+          color: var(--ion-color-medium);
         }
 
-        strong {
-          color: var(--ion-color-primary);
+        h3 {
+          margin: 0;
+          font-size: 1rem;
+          font-weight: 600;
+          color: var(--ion-color-dark);
+        }
+      }
+
+      ion-icon {
+        font-size: 1.2rem;
+        color: var(--ion-color-medium);
+      }
+    }
+
+    .flagged-values-content {
+      padding: 0;
+    }
+
+    .flagged-value-item {
+      padding: 1rem;
+      border-bottom: 1px solid var(--ion-color-light-shade);
+
+      &:last-child {
+        border-bottom: none;
+      }
+    }
+
+    .flagged-value-title {
+      display: flex;
+      align-items: center;
+      margin-bottom: 0.75rem;
+      font-weight: 600;
+
+      span {
+        margin-right: 0.5rem;
+      }
+
+      .value-with-units {
+        margin-left: auto;
+        font-weight: 600;
+      }
+    }
+
+    .severity-badge {
+      padding: 0.2rem 0.5rem;
+      border-radius: 4px;
+      font-size: 0.8rem;
+      font-weight: 600;
+      text-transform: uppercase;
+
+      &.severity-high {
+        background-color: #ffdbdb;
+        color: var(--ion-color-danger);
+      }
+
+      &.severity-low {
+        background-color: #fff1db;
+        color: #ff9500;
+      }
+
+      &.severity-normal {
+        background-color: #dbffef;
+        color: #34c759;
+      }
+    }
+
+    .flagged-value-details {
+      .conclusion, .suggestions {
+        margin-bottom: 1rem;
+
+        h4 {
+          font-size: 0.9rem;
+          font-weight: 600;
+          margin: 0 0 0.25rem 0;
+          color: var(--ion-color-medium);
+        }
+
+        p {
+          margin: 0;
+          font-size: 0.9rem;
+          line-height: 1.4;
+          color: var(--ion-color-dark);
+        }
+      }
+
+      ul {
+        margin: 0;
+        padding-left: 1.2rem;
+
+        li {
+          font-size: 0.9rem;
+          line-height: 1.4;
+          margin-bottom: 0.5rem;
+          color: var(--ion-color-dark);
+
+          &:last-child {
+            margin-bottom: 0;
+          }
         }
       }
     }

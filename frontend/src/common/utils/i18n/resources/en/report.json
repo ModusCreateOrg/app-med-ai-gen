@@ -27,7 +27,20 @@
     "insight2Content": "Both your LDL cholesterol and total cholesterol are elevated, which may increase your risk for cardiovascular disease.",
     "insight3Title": "Blood Glucose",
     "insight3Content": "Your fasting blood glucose is elevated, potentially indicating prediabetes. Lifestyle modifications may help improve this value.",
-    "hemoglobinComment": "The patient's hemoglobin level is 12.5 g/dL, which falls within the lower end of the normal reference range for most adults. While this value may still be considered acceptable, it is important to assess it in the context of the patient's age, sex, clinical symptoms, and medical history."
+    "hemoglobinComment": "The patient's hemoglobin level is 12.5 g/dL, which falls within the lower end of the normal reference range for most adults. While this value may still be considered acceptable, it is important to assess it in the context of the patient's age, sex, clinical symptoms, and medical history.",
+    "emergencyWarning": "Please contact your doctor or seek emergency care immediately.",
+    "flaggedValues": "Flagged values",
+    "highLdl": "High LDL Cholesterol",
+    "lowHemoglobin": "Low Hemoglobin (10.1 g/dL)",
+    "conclusion": "Conclusion:",
+    "suggestions": "Suggestions:",
+    "ldlConclusion": "Elevated LDL (bad cholesterol) increases your risk of cardiovascular disease",
+    "ldlSuggestion1": "Consider a heart-healthy diet (e.g., Mediterranean).",
+    "ldlSuggestion2": "Increase physical activity.",
+    "ldlSuggestion3": "Discuss statin therapy with your doctor if not already on one.",
+    "hemoglobinConclusion": "This level suggests anemia, which may cause fatigue and weakness.",
+    "hemoglobinSuggestion1": "Test for iron, B12, and folate deficiency.",
+    "hemoglobinSuggestion2": "Consider iron-rich foods or supplements after medical consultation already on one."
   },
   "list": {
     "title": "Medical Reports",
