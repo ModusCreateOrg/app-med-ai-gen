@@ -186,7 +186,23 @@ export class DocumentProcessorController {
 
       const region = this.configService.get<string>('aws.region') || 'us-east-1';
 
-      const s3Client = new S3Client({ region });
+      // Get optional AWS credentials if they exist
+      const accessKeyId = this.configService.get<string>('aws.aws.accessKeyId');
+      const secretAccessKey = this.configService.get<string>('aws.aws.secretAccessKey');
+      const sessionToken = this.configService.get<string>('aws.aws.sessionToken');
+
+      // Create S3 client with credentials if they exist
+      const s3ClientOptions: any = { region };
+
+      if (accessKeyId && secretAccessKey) {
+        s3ClientOptions.credentials = {
+          accessKeyId,
+          secretAccessKey,
+          ...(sessionToken && { sessionToken }),
+        };
+      }
+
+      const s3Client = new S3Client(s3ClientOptions);
 
       const command = new GetObjectCommand({
         Bucket: bucketName,

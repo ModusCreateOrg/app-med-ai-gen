@@ -27,20 +27,25 @@ export class ReportsService {
   private readonly logger = new Logger(ReportsService.name);
 
   constructor(private configService: ConfigService) {
-    const region = this.configService.get<string>('AWS_REGION', 'us-east-1');
-    const accessKeyId = this.configService.get<string>('AWS_ACCESS_KEY_ID');
-    const secretAccessKey = this.configService.get<string>('AWS_SECRET_ACCESS_KEY');
+    const region = this.configService.get<string>('aws.region') || 'us-east-1';
 
-    // Prepare client configuration
-    const clientConfig: any = { region };
+    // Get optional AWS credentials if they exist
+    const accessKeyId = this.configService.get<string>('aws.aws.accessKeyId');
+    const secretAccessKey = this.configService.get<string>('aws.aws.secretAccessKey');
+    const sessionToken = this.configService.get<string>('aws.aws.sessionToken');
 
-    // Only add credentials if both values are present
+    const clientOptions: any = { region };
+
     if (accessKeyId && secretAccessKey) {
-      clientConfig.credentials = { accessKeyId, secretAccessKey };
+      clientOptions.credentials = {
+        accessKeyId,
+        secretAccessKey,
+        ...(sessionToken && { sessionToken }),
+      };
     }
 
     try {
-      this.dynamoClient = new DynamoDBClient(clientConfig);
+      this.dynamoClient = new DynamoDBClient(clientOptions);
     } catch (error: unknown) {
       this.logger.error('Failed to initialize DynamoDB client:', error);
       throw new InternalServerErrorException('Failed to initialize database connection');
