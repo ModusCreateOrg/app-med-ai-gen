@@ -8,6 +8,10 @@ import {
   Logger,
   Get,
   Res,
+  Req,
+  UnauthorizedException,
+  NotFoundException,
+  InternalServerErrorException,
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
 import {
@@ -16,12 +20,19 @@ import {
 } from '../services/document-processor.service';
 import { Express } from 'express';
 import { Response } from 'express';
+import { ReportsService } from '../../reports/reports.service';
+import { RequestWithUser } from '../../auth/auth.middleware';
+import { Readable } from 'stream';
+import { S3Client, GetObjectCommand } from '@aws-sdk/client-s3';
 
 @Controller('document-processor')
 export class DocumentProcessorController {
   private readonly logger = new Logger(DocumentProcessorController.name);
 
-  constructor(private readonly documentProcessorService: DocumentProcessorService) {}
+  constructor(
+    private readonly documentProcessorService: DocumentProcessorService,
+    private readonly reportsService: ReportsService,
+  ) {}
 
   @Post('upload')
   @UseInterceptors(FileInterceptor('file'))
@@ -92,6 +103,125 @@ export class DocumentProcessorController {
       );
       throw error;
     }
+  }
+
+  @Post('process-file')
+  async processFileFromPath(
+    @Body('filePath') filePath: string,
+    @Req() request: RequestWithUser,
+  ): Promise<ProcessedDocumentResult | any> {
+    if (!filePath) {
+      throw new BadRequestException('No filePath provided');
+    }
+
+    // Extract userId from the request (attached by auth middleware)
+    const userId = request.user?.sub;
+    if (!userId) {
+      throw new UnauthorizedException('User ID not found in request');
+    }
+
+    this.logger.log(`Processing document from file path: ${filePath}`);
+
+    try {
+      // Fetch the associated report record from DynamoDB
+      const report = await this.reportsService.findByFilePath(filePath, userId);
+      if (!report) {
+        throw new NotFoundException(`Report with filePath ${filePath} not found`);
+      }
+
+      // Get the file from S3
+      const fileBuffer = await this.getFileFromS3(filePath);
+
+      // Process the document
+      const result = await this.documentProcessorService.processDocument(fileBuffer, userId);
+
+      // Update the report with analysis results
+      report.title = result.analysis.title || 'Untitled Report';
+      report.category = result.analysis.category || 'general';
+      report.isProcessed = true;
+
+      // Extract lab values
+      report.labValues = result.analysis.labValues.map(
+        lab =>
+          `${lab.name} ${lab.value} ${lab.unit} ${lab.isNormal === 'normal' ? 'NORMAL' : lab.isNormal.toUpperCase()}`,
+      );
+
+      // Create summary from simplified explanation or diagnoses
+      report.summary =
+        result.simplifiedExplanation ||
+        result.analysis.diagnoses.map(d => d.condition).join(', ') ||
+        'No summary available';
+
+      report.updatedAt = new Date().toISOString();
+
+      // Update the report in DynamoDB
+      await this.reportsService.updateReport(report);
+
+      return {
+        success: true,
+        reportId: report.id,
+        analysis: result.analysis,
+      };
+    } catch (error: unknown) {
+      this.logger.error(
+        `Error processing document from path ${filePath}: ${error instanceof Error ? error.message : 'Unknown error'}`,
+      );
+      throw error;
+    }
+  }
+
+  /**
+   * Retrieves a file from S3 storage
+   * @param filePath - The S3 key of the file
+   * @returns Buffer containing the file data
+   */
+  private async getFileFromS3(filePath: string): Promise<Buffer> {
+    try {
+      const bucketName = process.env.S3_UPLOAD_BUCKET || '';
+      if (!bucketName) {
+        throw new InternalServerErrorException('S3 bucket name not configured');
+      }
+
+      const region = process.env.AWS_REGION || 'us-east-1';
+
+      const s3Client = new S3Client({ region });
+
+      const command = new GetObjectCommand({
+        Bucket: bucketName,
+        Key: filePath,
+      });
+
+      const response = await s3Client.send(command);
+
+      // Check if response.Body exists before converting
+      if (!response.Body) {
+        throw new InternalServerErrorException('Empty response from S3');
+      }
+
+      // Convert the readable stream to a buffer
+      return await this.streamToBuffer(response.Body as Readable);
+    } catch (error) {
+      this.logger.error(
+        `Error retrieving file from S3: ${error instanceof Error ? error.message : 'Unknown error'}`,
+      );
+      throw new InternalServerErrorException(
+        `Failed to retrieve file from S3: ${error instanceof Error ? error.message : 'Unknown error'}`,
+      );
+    }
+  }
+
+  /**
+   * Converts a readable stream to a buffer
+   * @param stream - The readable stream from S3
+   * @returns Buffer containing the stream data
+   */
+  private async streamToBuffer(stream: Readable): Promise<Buffer> {
+    return new Promise((resolve, reject) => {
+      const chunks: Buffer[] = [];
+      stream.on('data', chunk => chunks.push(Buffer.isBuffer(chunk) ? chunk : Buffer.from(chunk)));
+      stream.on('end', () => resolve(Buffer.concat(chunks)));
+      stream.on('error', reject);
+    });
   }
 
   @Get('test')
