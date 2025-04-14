@@ -24,6 +24,7 @@ import { ReportsService } from '../../reports/reports.service';
 import { RequestWithUser } from '../../auth/auth.middleware';
 import { Readable } from 'stream';
 import { S3Client, GetObjectCommand } from '@aws-sdk/client-s3';
+import { ConfigService } from '@nestjs/config';
 
 @Controller('document-processor')
 export class DocumentProcessorController {
@@ -32,6 +33,7 @@ export class DocumentProcessorController {
   constructor(
     private readonly documentProcessorService: DocumentProcessorService,
     private readonly reportsService: ReportsService,
+    private readonly configService: ConfigService,
   ) {}
 
   @Post('upload')
@@ -177,12 +179,12 @@ export class DocumentProcessorController {
    */
   private async getFileFromS3(filePath: string): Promise<Buffer> {
     try {
-      const bucketName = process.env.S3_UPLOAD_BUCKET || '';
+      const bucketName = this.configService.get<string>('aws.s3.uploadBucket');
       if (!bucketName) {
         throw new InternalServerErrorException('S3 bucket name not configured');
       }
 
-      const region = process.env.AWS_REGION || 'us-east-1';
+      const region = this.configService.get<string>('aws.region') || 'us-east-1';
 
       const s3Client = new S3Client({ region });
 
