@@ -78,6 +78,9 @@ vi.mock('@aws-sdk/client-bedrock-runtime', () => {
                         unit: 'g/dL',
                         normalRange: '13.5-17.5',
                         isNormal: 'normal',
+                        conclusion:
+                          'Normal hemoglobin levels indicate adequate oxygen-carrying capacity.',
+                        suggestions: 'Continue regular health maintenance.',
                       },
                     ],
                     diagnoses: [],
@@ -141,6 +144,8 @@ describe('AwsBedrockService', () => {
         unit: 'g/dL',
         normalRange: '13.5-17.5',
         isNormal: 'normal',
+        conclusion: 'Normal hemoglobin levels indicate adequate oxygen-carrying capacity.',
+        suggestions: 'Continue regular health maintenance.',
       },
     ],
     diagnoses: [],

@@ -21,6 +21,8 @@ export interface MedicalDocumentAnalysis {
     unit: string;
     normalRange: string;
     isNormal: 'normal' | 'high' | 'low';
+    conclusion: string;
+    suggestions: string;
   }>;
   diagnoses: Array<{ condition: string; details: string; recommendations: string }>;
   metadata: {
@@ -60,7 +62,7 @@ Format the response as a JSON object with the following structure:
   "title": string,
   "category": string,
   "keyMedicalTerms": [{"term": string, "definition": string}],
-  "labValues": [{"name": string, "value": string, "unit": string, "normalRange": string, "isNormal": "normal" | "high" | "low"}],
+  "labValues": [{"name": string, "value": string, "unit": string, "normalRange": string, "isNormal": "normal" | "high" | "low", "conclusion": string, "suggestions": string}],
   "diagnoses": [{"condition": string, "details": string, "recommendations": string}],
   "metadata": {
     "isMedicalReport": boolean,
@@ -85,6 +87,8 @@ When extracting lab values:
 1. Look for tables with numeric values and reference ranges
 2. Include any values even if you're not sure of the meaning
 3. For each lab value, use "isNormal" field with values "normal", "high", or "low" based on whether the value falls within, above, or below the normal range
+4. Include a "conclusion" field that provides a brief interpretation of what this value indicates about the patient's health
+5. Include a "suggestions" field that provides brief recommendations based on this value
 
 EXTREMELY IMPORTANT FORMATTING INSTRUCTIONS:
 1. ABSOLUTELY DO NOT START YOUR RESPONSE WITH ANY TEXT. Begin immediately with the JSON object.
@@ -134,7 +138,17 @@ CORRECT FORMAT (DO THIS):
     {"term": "RBC", "definition": "Red blood cells"},
     {"term": "WBC", "definition": "White blood cells"}
   ],
-  "labValues": [...],
+  "labValues": [
+    {
+      "name": "Hemoglobin", 
+      "value": "14.2", 
+      "unit": "g/dL", 
+      "normalRange": "13.5-17.5", 
+      "isNormal": "normal",
+      "conclusion": "Normal hemoglobin levels indicate adequate oxygen-carrying capacity.",
+      "suggestions": "Continue regular health maintenance."
+    }
+  ],
   "diagnoses": [...],
   "metadata": {...}
 }
