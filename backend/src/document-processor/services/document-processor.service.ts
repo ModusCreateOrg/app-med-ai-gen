@@ -164,6 +164,8 @@ export class DocumentProcessorService {
             keyValuePairs: [],
           },
           analysis: {
+            title: 'Failed Document',
+            category: 'general',
             keyMedicalTerms: [],
             labValues: [],
             diagnoses: [],

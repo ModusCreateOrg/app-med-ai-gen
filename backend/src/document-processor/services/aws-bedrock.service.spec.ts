@@ -65,6 +65,8 @@ vi.mock('@aws-sdk/client-bedrock-runtime', () => {
                 {
                   type: 'text',
                   text: JSON.stringify({
+                    title: 'Blood Test Results',
+                    category: 'general',
                     keyMedicalTerms: [
                       { term: 'RBC', definition: 'Red Blood Cells' },
                       { term: 'WBC', definition: 'White Blood Cells' },
@@ -126,6 +128,8 @@ describe('AwsBedrockService', () => {
   `;
 
   const mockMedicalAnalysis: MedicalDocumentAnalysis = {
+    title: 'Blood Test Results',
+    category: 'general',
     keyMedicalTerms: [
       { term: 'RBC', definition: 'Red Blood Cells' },
       { term: 'WBC', definition: 'White Blood Cells' },
@@ -309,6 +313,8 @@ describe('AwsBedrockService', () => {
 
       // Test a valid response
       const validResponse: MedicalDocumentAnalysis = {
+        title: 'Test Report',
+        category: 'general',
         keyMedicalTerms: [],
         labValues: [],
         diagnoses: [],
