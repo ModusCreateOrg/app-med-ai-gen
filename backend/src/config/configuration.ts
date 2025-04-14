@@ -35,4 +35,5 @@ export default () => ({
     model: process.env.PERPLEXITY_MODEL || 'sonar',
     maxTokens: parseInt(process.env.PERPLEXITY_MAX_TOKENS || '2048', 10),
   },
+  dynamodbReportsTable: process.env.DYNAMODB_REPORTS_TABLE || 'AIMedicalReportReportsTabledevelopment',
 });

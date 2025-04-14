@@ -46,7 +46,7 @@ export class ReportsService {
       throw new InternalServerErrorException('Failed to initialize database connection');
     }
 
-    this.tableName = this.configService.get<string>('DYNAMODB_REPORTS_TABLE', 'reports');
+    this.tableName = this.configService.get<string>('dynamodbReportsTable')!;
   }
 
   async findAll(userId: string): Promise<Report[]> {
