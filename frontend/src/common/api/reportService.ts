@@ -1,28 +1,27 @@
-import axios, { AxiosProgressEvent, AxiosRequestConfig } from 'axios';
-import { MedicalReport, ReportStatus, ReportCategory } from '../models/medicalReport';
+import axios, { AxiosProgressEvent } from 'axios';
+import { MedicalReport } from '../models/medicalReport';
 import { fetchAuthSession } from '@aws-amplify/auth';
 // Get the API URL from environment variables
 const API_URL = import.meta.env.VITE_BASE_URL_API || '';
 
-const mockReports: MedicalReport[] = [
-  {
-    id: '1',
-    title: 'Heart Scan',
-    category: ReportCategory.HEART,
-    date: '2024-01-01',
-    status: ReportStatus.UNREAD,
-    documentUrl: 'https://example.com/reports/1/heart_scan.pdf'
-  }
-];
+/**
+ * Interface for upload progress callback
+ */
+export interface UploadProgressCallback {
+  (progress: number): void;
+}
 
 /**
  * Creates an authenticated request config with bearer token
  */
-const getAuthConfig = async (): Promise<AxiosRequestConfig> => {
+export const getAuthConfig = async (): Promise<{ headers: { Accept: string, 'Content-Type': string, Authorization: string }, onUploadProgress?: (progressEvent: AxiosProgressEvent) => void }> => {
   const session = await fetchAuthSession();
+  const idToken = session.tokens?.idToken?.toString() || '';
   return {
-    headers: {
-      Authorization: session.tokens?.idToken ? `Bearer ${session.tokens.idToken.toString()}` : ''
+      headers: {
+        Accept: 'application/json',
+        'Content-Type': 'application/json',
+        Authorization: idToken ? `Bearer ${idToken}` : ''
     }
   };
 };
@@ -38,25 +37,6 @@ export class ReportError extends Error {
 }
 
 /**
- * Interface for upload progress callback
- */
-export interface UploadProgressCallback {
-  (progress: number): void;
-}
-
-/**
- * Maps categories to their identifying keywords for report classification
- */
-const CATEGORY_KEYWORDS = {
-  [ReportCategory.HEART]: ['heart', 'cardiac', 'stress'],
-  [ReportCategory.NEUROLOGICAL]: ['brain', 'neuro'],
-  [ReportCategory.OFTALMOLOGICAL]: ['eye', 'vision', 'optic'],
-  [ReportCategory.GASTRO]: ['stomach', 'gastro', 'digestive'],
-  [ReportCategory.ORTHOPEDIC]: ['bone', 'joint', 'skeletal'],
-  [ReportCategory.GENERAL]: []
-} as const;
-
-/**
  * Uploads a medical report file
  * @param file - The file to upload
  * @param onProgress - Optional callback for tracking upload progress
@@ -67,96 +47,36 @@ export const uploadReport = async (
   onProgress?: UploadProgressCallback
 ): Promise<MedicalReport> => {
   try {
-    // Create form data for file upload
-    const formData = new FormData();
-    formData.append('file', file);
+    // Import s3StorageService dynamically to avoid circular dependency
+    const { s3StorageService } = await import('../services/storage/s3-storage-service');
 
-    // Optional metadata about the file
-    formData.append('fileName', file.name);
-    formData.append('fileType', file.type);
-    formData.append('fileSize', file.size.toString());
+    // First upload the file to S3
+    const s3Key = await s3StorageService.uploadFile(
+      file,
+      'reports',
+      onProgress as (progress: number) => void
+    );
 
-    // Setup request config with progress tracking if callback provided
-    const config: AxiosRequestConfig = {
-      headers: {
-        'Content-Type': 'multipart/form-data'
-      }
-    };
+    // Then create the report record with the S3 key
+    const config = await getAuthConfig();
 
-    if (onProgress) {
-      config.onUploadProgress = (progressEvent: AxiosProgressEvent) => {
-        const percentCompleted = progressEvent.total
-          ? Math.round((progressEvent.loaded * 100) / progressEvent.total) / 100
-          : 0;
-        onProgress(percentCompleted);
-      };
-    }
+    // Send the report metadata to the API
+    const response = await axios.post(
+      `${API_URL}/api/reports`, 
+      {
+        filePath: s3Key,
+      },
+      config
+    );
 
-    // In a real app, this would be an actual API call
-    // const response = await axios.post('/api/reports/upload', formData, config);
-    // return response.data;
-
-    // For demonstration purposes, simulate upload delay and return mock data
-    await new Promise<void>(resolve => {
-      // Simulate progress updates
-      if (onProgress) {
-        let progress = 0;
-        const interval = setInterval(() => {
-          progress += 0.1;
-          if (progress >= 1) {
-            clearInterval(interval);
-            progress = 1;
-          }
-          onProgress(progress);
-        }, 200);
-
-        // Resolve after simulated upload time
-        setTimeout(() => {
-          clearInterval(interval);
-          onProgress(1);
-          resolve();
-        }, 2000);
-      } else {
-        // If no progress callback, just wait
-        setTimeout(resolve, 2000);
-      }
-    });
-
-    // Create a new report based on the uploaded file
-    const newReport: MedicalReport = {
-      id: String(mockReports.length + 1),
-      title: file.name.split('.')[0], // Use filename without extension as title
-      category: determineCategory(file.name),
-      date: new Date().toISOString().split('T')[0], // Today's date in YYYY-MM-DD format
-      status: ReportStatus.UNREAD,
-      documentUrl: `https://example.com/reports/${mockReports.length + 1}/${file.name}` // Mock URL
-    };
-
-    // Add to mock data
-    mockReports.unshift(newReport);
-
-    return newReport;
+    return response.data;
   } catch (error) {
     if (axios.isAxiosError(error)) {
+      console.error('API Error Details:', error.response?.data, error.response?.headers);
       throw new ReportError(`Failed to upload report: ${error.message}`);
     }
     throw new ReportError('Failed to upload report');
   }
-};
-
-/**
- * Determines a report category based on filename keywords
- * @param filename - Name of the file to categorize
- * @returns The determined report category
- */
-const determineCategory = (filename: string): ReportCategory => {
-  const lowerFilename = filename.toLowerCase();
-
-  const matchedCategory = Object.entries(CATEGORY_KEYWORDS).find(([_, keywords]) =>
-    keywords.some(keyword => lowerFilename.includes(keyword))
-  );
-
-  return matchedCategory ? (matchedCategory[0] as ReportCategory) : ReportCategory.GENERAL;
 };
 
 /**
@@ -202,17 +122,10 @@ export const fetchAllReports = async (): Promise<MedicalReport[]> => {
 export const markReportAsRead = async (reportId: string): Promise<MedicalReport> => {
   try {
     const response = await axios.patch(`${API_URL}/api/reports/${reportId}`, {
-      status: ReportStatus.READ
+      status: 'READ'
     });
 
-    const report = response.data;
-
-    if (!report) {
-      throw new Error(`Report with ID ${reportId} not found`);
-    }
-
-    report.status = ReportStatus.READ;
-    return { ...report };
+    return response.data;
   } catch (error) {
     if (axios.isAxiosError(error)) {
       throw new ReportError(`Failed to mark report as read: ${error.message}`);
