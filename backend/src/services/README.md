@@ -65,7 +65,7 @@ export interface MedicalDocumentAnalysis {
     value: string;
     unit: string;
     normalRange: string;
-    isAbnormal: boolean;
+    isNormal: 'normal' | 'high' | 'low';
   }>;
   diagnoses: Array<{ condition: string; details: string; recommendations: string }>;
   metadata: {
@@ -120,7 +120,7 @@ curl -X POST \
         "value": "14.2",
         "unit": "g/dL",
         "normalRange": "13.5-17.5",
-        "isAbnormal": false
+        "isNormal": "normal"
       }
     ],
     "diagnoses": [],
@@ -153,7 +153,7 @@ async processReport(fileBuffer: Buffer, userId: string) {
     
     // Use the structured medical data
     const labValues = result.analysis.labValues;
-    const abnormalValues = labValues.filter(lab => lab.isAbnormal);
+    const abnormalValues = labValues.filter(lab => lab.isNormal !== 'normal');
     
     return result;
   } catch (error) {
@@ -211,4 +211,4 @@ Planned future enhancements:
 - Support for multi-page PDF processing using async APIs
 - Enhanced lab report detection and categorization
 - Integration with medical terminology databases
-- OCR preprocessing for low-quality images 
+- OCR preprocessing for low-quality images

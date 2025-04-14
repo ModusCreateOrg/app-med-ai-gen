@@ -20,7 +20,7 @@ export interface MedicalDocumentAnalysis {
     value: string;
     unit: string;
     normalRange: string;
-    isAbnormal: boolean;
+    isNormal: 'normal' | 'high' | 'low';
   }>;
   diagnoses: Array<{ condition: string; details: string; recommendations: string }>;
   metadata: {
@@ -49,7 +49,7 @@ Look for and extract the following information:
 1. Document title or main subject based on content
 2. Document category based on organ system focus
 3. Key medical terms visible in the document with their definitions
-4. Lab test values with their normal ranges and whether they are abnormal (particularly important for blood work, metabolic panels, etc.)
+4. Lab test values with their normal ranges and whether they are normal, high, or low (particularly important for blood work, metabolic panels, etc.)
 5. Any diagnoses, findings, or medical observations with details and recommendations
 6. Analyze if this is a medical document (lab report, test result, medical chart, prescription, etc.) and provide confidence level
 
@@ -60,7 +60,7 @@ Format the response as a JSON object with the following structure:
   "title": string,
   "category": string,
   "keyMedicalTerms": [{"term": string, "definition": string}],
-  "labValues": [{"name": string, "value": string, "unit": string, "normalRange": string, "isAbnormal": boolean}],
+  "labValues": [{"name": string, "value": string, "unit": string, "normalRange": string, "isNormal": "normal" | "high" | "low"}],
   "diagnoses": [{"condition": string, "details": string, "recommendations": string}],
   "metadata": {
     "isMedicalReport": boolean,
@@ -84,6 +84,7 @@ This is extremely important: If you see ANY lab values, numbers with units, or m
 When extracting lab values:
 1. Look for tables with numeric values and reference ranges
 2. Include any values even if you're not sure of the meaning
+3. For each lab value, use "isNormal" field with values "normal", "high", or "low" based on whether the value falls within, above, or below the normal range
 
 EXTREMELY IMPORTANT FORMATTING INSTRUCTIONS:
 1. ABSOLUTELY DO NOT START YOUR RESPONSE WITH ANY TEXT. Begin immediately with the JSON object.
