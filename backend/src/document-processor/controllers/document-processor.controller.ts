@@ -143,10 +143,7 @@ export class DocumentProcessorController {
       report.isProcessed = true;
 
       // Extract lab values
-      report.labValues = result.analysis.labValues.map(
-        lab =>
-          `${lab.name} ${lab.value} ${lab.unit} ${lab.isNormal === 'normal' ? 'NORMAL' : lab.isNormal.toUpperCase()}`,
-      );
+      report.labValues = result.analysis.labValues || [];
 
       // Create summary from simplified explanation or diagnoses
       report.summary =

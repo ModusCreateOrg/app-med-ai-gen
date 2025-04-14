@@ -25,7 +25,15 @@ export class Report {
   isProcessed: boolean;
 
   @ApiProperty({ description: 'List of lab values' })
-  labValues: string[];
+  labValues: Array<{
+    name: string;
+    value: string;
+    unit: string;
+    normalRange: string;
+    isNormal: 'normal' | 'high' | 'low';
+    conclusion: string;
+    suggestions: string;
+  }>;
 
   @ApiProperty({ description: 'Summary of the report' })
   summary: string;
