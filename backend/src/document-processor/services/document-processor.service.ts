@@ -13,7 +13,6 @@ export interface ProcessedDocumentResult {
   simplifiedExplanation?: string;
   processingMetadata: {
     processingTimeMs: number;
-    fileType: string;
     fileSize: number;
   };
 }
@@ -35,26 +34,20 @@ export class DocumentProcessorService {
   /**
    * Process a medical document by extracting text and performing analysis
    * @param fileBuffer The file buffer containing the image or PDF
-   * @param fileType The MIME type of the file (e.g., 'image/jpeg', 'application/pdf')
    * @param userId The authenticated user's ID for rate limiting
    * @returns Processed document result with extracted text, analysis, and simplified explanation
    */
-  async processDocument(
-    fileBuffer: Buffer,
-    fileType: string,
-    userId: string,
-  ): Promise<ProcessedDocumentResult> {
+  async processDocument(fileBuffer: Buffer, userId: string): Promise<ProcessedDocumentResult> {
     try {
       const startTime = Date.now();
 
       this.logger.log('Starting document processing', {
-        fileType,
         fileSize: `${(fileBuffer.length / 1024).toFixed(2)} KB`,
         userId: this.hashIdentifier(userId),
       });
 
       // Step 1: Extract text from document using AWS Textract
-      const extractedText = await this.textractService.extractText(fileBuffer, fileType, userId);
+      const extractedText = await this.textractService.extractText(fileBuffer, userId);
 
       this.logger.log('Text extraction completed', {
         lineCount: extractedText.lines.length,
@@ -103,7 +96,6 @@ export class DocumentProcessorService {
         simplifiedExplanation,
         processingMetadata: {
           processingTimeMs: processingTime,
-          fileType,
           fileSize: fileBuffer.length,
         },
       };
@@ -111,7 +103,6 @@ export class DocumentProcessorService {
       // Log error securely without exposing sensitive details
       this.logger.error('Error processing document', {
         error: error instanceof Error ? error.message : 'Unknown error',
-        fileType,
         timestamp: new Date().toISOString(),
         userId: this.hashIdentifier(userId),
       });
@@ -146,12 +137,11 @@ export class DocumentProcessorService {
 
     for (const doc of documents) {
       try {
-        const result = await this.processDocument(doc.buffer, doc.type, userId);
+        const result = await this.processDocument(doc.buffer, userId);
         results.push(result);
       } catch (error) {
         this.logger.error('Error processing document in batch', {
           error: error instanceof Error ? error.message : 'Unknown error',
-          fileType: doc.type,
           fileSize: doc.buffer.length,
         });
 
@@ -178,7 +168,6 @@ export class DocumentProcessorService {
           simplifiedExplanation: undefined,
           processingMetadata: {
             processingTimeMs: 0,
-            fileType: doc.type,
             fileSize: doc.buffer.length,
           },
         });

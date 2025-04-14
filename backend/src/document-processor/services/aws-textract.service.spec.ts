@@ -173,11 +173,7 @@ describe('AwsTextractService', () => {
 
   describe('extractText', () => {
     it('should extract text from an image', async () => {
-      const result = await service.extractText(
-        Buffer.from('test image content'),
-        'image/jpeg',
-        'user-123',
-      );
+      const result = await service.extractText(Buffer.from('test image content'), 'user-123');
 
       expect(result).toBeDefined();
       expect(result.rawText).toContain('This is a test medical report');
@@ -188,11 +184,7 @@ describe('AwsTextractService', () => {
     });
 
     it('should extract text from a PDF', async () => {
-      const result = await service.extractText(
-        Buffer.from('test pdf content'),
-        'application/pdf',
-        'user-123',
-      );
+      const result = await service.extractText(Buffer.from('test pdf content'), 'user-123');
 
       expect(result).toBeDefined();
       expect(result.rawText).toContain('This is a test medical report');
@@ -208,9 +200,9 @@ describe('AwsTextractService', () => {
       const userId = 'rate-limited-user';
 
       // Should throw rate limit exception
-      await expect(
-        service.extractText(Buffer.from('test content'), 'image/jpeg', userId),
-      ).rejects.toThrow('Too many requests');
+      await expect(service.extractText(Buffer.from('test content'), userId)).rejects.toThrow(
+        'Too many requests',
+      );
 
       // The textract API should not be called
       expect(mockTextractSend).not.toHaveBeenCalled();
@@ -222,11 +214,9 @@ describe('AwsTextractService', () => {
       const documents = [
         {
           buffer: Buffer.from('test image 1'),
-          type: 'image/jpeg',
         },
         {
           buffer: Buffer.from('test image 2'),
-          type: 'image/png',
         },
       ];
 
@@ -242,7 +232,6 @@ describe('AwsTextractService', () => {
     it('should throw an error if batch size exceeds maximum', async () => {
       const documents = Array(11).fill({
         buffer: Buffer.from('test image'),
-        type: 'image/jpeg',
       });
 
       await expect(service.processBatch(documents, 'user-123')).rejects.toThrow(

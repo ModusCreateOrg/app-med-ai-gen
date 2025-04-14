@@ -86,8 +86,23 @@ const validateFileType = (buffer: Buffer, mimeType: string): boolean => {
  * @param buffer The file buffer to validate
  * @param mimeType The declared MIME type of the file
  */
-export const validateFileSecurely = (buffer: Buffer, mimeType: string): void => {
+export const validateFileSecurely = (buffer: Buffer): void => {
   const logger = new Logger('SecurityUtils');
+  // get file mime type correctly
+  let mimeType = buffer.toString('hex', 0, 4).toUpperCase();
+  if (mimeType.startsWith('FFD8')) {
+    mimeType = 'image/jpeg';
+  } else if (mimeType.startsWith('89504E47')) {
+    mimeType = 'image/png';
+  } else if (mimeType.startsWith('00000020667479706865696300')) {
+    mimeType = 'image/heic';
+  } else if (mimeType.startsWith('0000001C667479706D696631')) {
+    mimeType = 'image/heif';
+  } else if (mimeType.startsWith('25504446')) {
+    mimeType = 'application/pdf';
+  } else {
+    throw new BadRequestException('Unsupported file type');
+  }
 
   // 1. Check if file type is allowed
   if (!ALLOWED_MIME_TYPES.has(mimeType)) {

@@ -30,7 +30,6 @@ export interface ProcessedDocumentResult {
   analysis: MedicalDocumentAnalysis;
   processingMetadata: {
     processingTimeMs: number;
-    fileType: string;
     fileSize: number;
   };
 }
@@ -133,7 +132,6 @@ curl -X POST \
   },
   "processingMetadata": {
     "processingTimeMs": 2345,
-    "fileType": "application/pdf",
     "fileSize": 12345
   }
 }
@@ -146,11 +144,10 @@ curl -X POST \
 constructor(private readonly documentProcessorService: DocumentProcessorService) {}
 
 // Process a document
-async processReport(fileBuffer: Buffer, fileType: string, userId: string) {
+async processReport(fileBuffer: Buffer, userId: string) {
   try {
     const result = await this.documentProcessorService.processDocument(
       fileBuffer,
-      fileType,
       userId
     );
     
@@ -179,8 +176,8 @@ The service supports batch processing of multiple documents:
 ```typescript
 const results = await documentProcessorService.processBatch(
   [
-    { buffer: fileBuffer1, type: fileType1 },
-    { buffer: fileBuffer2, type: fileType2 }
+    { buffer: fileBuffer1 },
+    { buffer: fileBuffer2 }
   ],
   userId
 );

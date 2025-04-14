@@ -24,7 +24,6 @@ describe('DocumentProcessorService', () => {
     it('should extract text and analyze medical document', async () => {
       // Arrange
       const fileBuffer = Buffer.from('test');
-      const fileType = 'application/pdf';
       const userId = 'test-user';
 
       const extractedTextResult = {
@@ -67,10 +66,10 @@ describe('DocumentProcessorService', () => {
       );
 
       // Act
-      const result = await testService.processDocument(fileBuffer, fileType, userId);
+      const result = await testService.processDocument(fileBuffer, userId);
 
       // Assert
-      expect(testTextractService.extractText).toHaveBeenCalledWith(fileBuffer, fileType, userId);
+      expect(testTextractService.extractText).toHaveBeenCalledWith(fileBuffer, userId);
       expect(testBedrockService.analyzeMedicalDocument).toHaveBeenCalledWith(
         extractedTextResult.rawText,
         userId,
@@ -83,7 +82,6 @@ describe('DocumentProcessorService', () => {
         analysis: medicalAnalysis,
         simplifiedExplanation,
         processingMetadata: expect.objectContaining({
-          fileType,
           fileSize: fileBuffer.length,
         }),
       });
@@ -92,7 +90,6 @@ describe('DocumentProcessorService', () => {
     it('should throw BadRequestException when text extraction fails', async () => {
       // Arrange
       const fileBuffer = Buffer.from('test');
-      const fileType = 'application/pdf';
       const userId = 'test-user';
 
       // Create test-specific service with proper mocking
@@ -111,7 +108,7 @@ describe('DocumentProcessorService', () => {
       );
 
       // Act & Assert
-      await expect(testService.processDocument(fileBuffer, fileType, userId)).rejects.toThrow(
+      await expect(testService.processDocument(fileBuffer, userId)).rejects.toThrow(
         BadRequestException,
       );
     });
@@ -163,7 +160,6 @@ describe('DocumentProcessorService', () => {
         simplifiedExplanation: 'Simple explanation for document 1',
         processingMetadata: {
           processingTimeMs: 100,
-          fileType: 'application/pdf',
           fileSize: 4,
         },
       };
@@ -190,7 +186,6 @@ describe('DocumentProcessorService', () => {
         simplifiedExplanation: 'Simple explanation for document 2',
         processingMetadata: {
           processingTimeMs: 100,
-          fileType: 'image/jpeg',
           fileSize: 4,
         },
       };
@@ -204,18 +199,8 @@ describe('DocumentProcessorService', () => {
 
       // Assert
       expect(processDocumentSpy).toHaveBeenCalledTimes(2);
-      expect(processDocumentSpy).toHaveBeenNthCalledWith(
-        1,
-        documents[0].buffer,
-        documents[0].type,
-        userId,
-      );
-      expect(processDocumentSpy).toHaveBeenNthCalledWith(
-        2,
-        documents[1].buffer,
-        documents[1].type,
-        userId,
-      );
+      expect(processDocumentSpy).toHaveBeenNthCalledWith(1, documents[0].buffer, userId);
+      expect(processDocumentSpy).toHaveBeenNthCalledWith(2, documents[1].buffer, userId);
       expect(result).toHaveLength(2);
       expect(result[0]).toEqual(mockResult1);
       expect(result[1]).toEqual(mockResult2);

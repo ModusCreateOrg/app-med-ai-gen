@@ -63,7 +63,6 @@ export class DocumentProcessorController {
       // Process the document
       const result = await this.documentProcessorService.processDocument(
         file.buffer,
-        file.mimetype,
         effectiveUserId,
       );
 
