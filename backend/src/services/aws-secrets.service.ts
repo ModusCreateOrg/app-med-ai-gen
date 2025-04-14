@@ -76,7 +76,7 @@ export class AwsSecretsService {
           // If it's not an object, just stringify whatever we got
           secretValue = String(secretJson);
         }
-      } catch (e) {
+      } catch {
         // If it's not valid JSON, just use the raw string
         secretValue = response.SecretString;
       }
