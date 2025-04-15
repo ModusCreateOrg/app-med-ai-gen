@@ -64,16 +64,31 @@ export class S3StorageService {
    * @param file - The file to upload
    * @param folder - Optional folder path to store the file in
    * @param onProgress - Optional callback for tracking upload progress
+   * @param signal - Optional abort signal for canceling the request
    * @returns Promise with the S3 key of the uploaded file
    */
   public async uploadFile(
     file: File, 
     folder: string = 'reports', 
-    onProgress?: StorageProgressCallback
+    onProgress?: StorageProgressCallback,
+    signal?: AbortSignal
   ): Promise<string> {
+    // Check if already aborted before starting
+    if (signal?.aborted) {
+      throw new DOMException('The operation was aborted', 'AbortError');
+    }
+    
+    // Set up progress simulation timers that we'll need to clear if aborted
+    const progressTimers: NodeJS.Timeout[] = [];
+    
     try {
       // Get credentials
       const credentials = await this.getCredentials();
+      
+      // Check if aborted after getting credentials
+      if (signal?.aborted) {
+        throw new DOMException('The operation was aborted', 'AbortError');
+      }
       
       // Update client with fresh credentials
       this.s3Client = new S3Client({
@@ -85,8 +100,19 @@ export class S3StorageService {
       const uniqueFilename = `${uuidv4()}-${file.name}`;
       const key = `${folder}/${uniqueFilename}`;
       
+      // Check if aborted before reading file
+      if (signal?.aborted) {
+        throw new DOMException('The operation was aborted', 'AbortError');
+      }
+      
       // Upload file to S3
       const arrayBuffer = await file.arrayBuffer();
+      
+      // Check if aborted after reading file
+      if (signal?.aborted) {
+        throw new DOMException('The operation was aborted', 'AbortError');
+      }
+      
       const fileBuffer = new Uint8Array(arrayBuffer);
       
       // Create the upload command
@@ -100,25 +126,60 @@ export class S3StorageService {
       // For progress tracking, we'd need to use a more advanced approach
       // using the AWS SDK v3's send middleware, but for simplicity, we'll
       // simulate progress here
-      if (onProgress) {
-        // Simulate progress update
+      if (onProgress && !signal?.aborted) {
+        // Simulate progress update with ability to cancel
         onProgress(0.1);
-        setTimeout(() => onProgress(0.3), 300);
-        setTimeout(() => onProgress(0.6), 600);
-        setTimeout(() => onProgress(0.8), 800);
+        
+        // Store timers so they can be cleared if aborted
+        progressTimers.push(
+          setTimeout(() => {
+            if (!signal?.aborted) onProgress(0.3);
+          }, 300),
+          setTimeout(() => {
+            if (!signal?.aborted) onProgress(0.6);
+          }, 600),
+          setTimeout(() => {
+            if (!signal?.aborted) onProgress(0.8);
+          }, 800)
+        );
       }
       
-      // Upload to S3
-      const command = new PutObjectCommand(uploadParams);
-      await this.s3Client.send(command);
+      // Setup abort handler for the signal
+      let abortHandler: (() => void) | undefined;
+      
+      if (signal) {
+        const abortPromise = new Promise<never>((_, reject) => {
+          abortHandler = () => {
+            reject(new DOMException('The operation was aborted', 'AbortError'));
+          };
+          signal.addEventListener('abort', abortHandler);
+        });
+        
+        // Create a race between the upload and abortion
+        await Promise.race([
+          this.s3Client.send(new PutObjectCommand(uploadParams)),
+          abortPromise
+        ]);
+      } else {
+        // Upload to S3 without abort capability
+        await this.s3Client.send(new PutObjectCommand(uploadParams));
+      }
       
       // Complete the progress if needed
-      if (onProgress) {
+      if (onProgress && !signal?.aborted) {
         onProgress(1);
       }
       
       return key;
     } catch (error) {
+      // Clean up all progress timers
+      progressTimers.forEach(timer => clearTimeout(timer));
+      
+      // Check if this is an abort error
+      if (signal?.aborted || (error instanceof DOMException && error.name === 'AbortError')) {
+        throw new DOMException('The operation was aborted', 'AbortError');
+      }
+      
       console.error('Error uploading file to S3:', error);
       throw new StorageError(
         error instanceof Error 
@@ -166,4 +227,4 @@ export class S3StorageService {
 }
 
 // Export a singleton instance
-export const s3StorageService = new S3StorageService(); 
+export const s3StorageService = new S3StorageService();

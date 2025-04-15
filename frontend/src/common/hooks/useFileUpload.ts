@@ -45,6 +45,8 @@ export const useFileUpload = ({ onUploadComplete }: UseFileUploadOptions = {}): 
   const [error, setError] = useState<string | null>(null);
   // Use a ref to track if upload should be canceled
   const cancelRef = useRef<boolean>(false);
+  // Use a ref to hold the AbortController
+  const abortControllerRef = useRef<AbortController | null>(null);
 
   const reset = useCallback(() => {
     setFile(null);
@@ -52,11 +54,24 @@ export const useFileUpload = ({ onUploadComplete }: UseFileUploadOptions = {}): 
     setProgress(0);
     setError(null);
     cancelRef.current = false;
+    
+    // Abort any pending requests from previous uploads
+    if (abortControllerRef.current) {
+      abortControllerRef.current.abort();
+      abortControllerRef.current = null;
+    }
   }, []);
 
   const cancelUpload = useCallback(() => {
+    cancelRef.current = true;
+    
+    // Abort the ongoing request if there's one
+    if (abortControllerRef.current) {
+      abortControllerRef.current.abort();
+      abortControllerRef.current = null;
+    }
+    
     if (status === UploadStatus.UPLOADING || status === UploadStatus.REQUESTING_PERMISSION) {
-      cancelRef.current = true;
       setStatus(UploadStatus.IDLE);
       setProgress(0);
     } else {
@@ -89,6 +104,20 @@ export const useFileUpload = ({ onUploadComplete }: UseFileUploadOptions = {}): 
     setError(null);
   }, [t]);
 
+  // Extract the progress callback outside of uploadFile to reduce complexity
+  const createProgressCallback = useCallback((signal: AbortSignal): UploadProgressCallback => {
+    return (progress: number) => {
+      if (!cancelRef.current && !signal.aborted) {
+        setProgress(progress);
+      }
+    };
+  }, []);
+  
+  // Helper to check if the upload has been canceled
+  const isUploadCanceled = useCallback((signal: AbortSignal): boolean => {
+    return cancelRef.current || signal.aborted;
+  }, []);
+
   const uploadFile = useCallback(async () => {
     if (!file) {
       setError(t('upload.error.noFile'));
@@ -97,26 +126,25 @@ export const useFileUpload = ({ onUploadComplete }: UseFileUploadOptions = {}): 
 
     // Reset cancel flag
     cancelRef.current = false;
+    
+    // Create a new AbortController for this upload request
+    abortControllerRef.current = new AbortController();
+    const { signal } = abortControllerRef.current;
 
     try {
       setStatus(UploadStatus.REQUESTING_PERMISSION);
       
-      // Check for permissions
-      let hasPermission = await checkFilePermissions();
+      // Check and request permissions if needed
+      const hasPermission = await checkPermissions();
       
       if (!hasPermission) {
-        // Request permissions
-        hasPermission = await requestFilePermissions();
-        
-        if (!hasPermission) {
-          setStatus(UploadStatus.ERROR);
-          setError(t('upload.error.permissionDenied'));
-          return;
-        }
+        setStatus(UploadStatus.ERROR);
+        setError(t('upload.error.permissionDenied'));
+        return;
       }
       
       // Check if canceled during permission check
-      if (cancelRef.current) {
+      if (isUploadCanceled(signal)) {
         setStatus(UploadStatus.IDLE);
         return;
       }
@@ -124,43 +152,62 @@ export const useFileUpload = ({ onUploadComplete }: UseFileUploadOptions = {}): 
       setStatus(UploadStatus.UPLOADING);
       setProgress(0);
       
-      // Create a progress callback for the upload
-      const updateProgress: UploadProgressCallback = (progress) => {
-        // Only update progress if not canceled
-        if (!cancelRef.current) {
-          setProgress(progress);
-        }
-      };
+      // Get a progress callback
+      const updateProgress = createProgressCallback(signal);
       
-      // Upload the file using the API service
-      const result = await uploadReport(file, updateProgress);
+      // Upload the file
+      const result = await uploadReport(file, updateProgress, signal);
       
       // Check if canceled during upload
-      if (cancelRef.current) {
+      if (isUploadCanceled(signal)) {
         setStatus(UploadStatus.IDLE);
         return;
       }
       
-      // Set progress to 100% to indicate completion
+      // Success
       setProgress(1);
       setStatus(UploadStatus.SUCCESS);
       
-      // Notify parent component if callback provided
       if (onUploadComplete) {
         onUploadComplete(result);
       }
     } catch (error) {
-      // Don't show error if canceled
-      if (!cancelRef.current) {
-        setStatus(UploadStatus.ERROR);
-        setError(
-          error instanceof Error 
-            ? error.message 
-            : t('upload.error.unknown')
-        );
-      }
+      handleUploadError(error as Error, signal);
+    } finally {
+      cleanupAbortController(signal);
     }
-  }, [file, onUploadComplete, t]);
+  }, [file, onUploadComplete, t, createProgressCallback, isUploadCanceled]);
+
+  // Helper to handle file permissions
+  const checkPermissions = useCallback(async (): Promise<boolean> => {
+    let hasPermission = await checkFilePermissions();
+    
+    if (!hasPermission) {
+      hasPermission = await requestFilePermissions();
+    }
+    
+    return hasPermission;
+  }, []);
+  
+  // Helper to handle upload errors
+  const handleUploadError = useCallback((error: Error, signal: AbortSignal) => {
+    // Don't show error for aborted requests
+    if (error instanceof DOMException && error.name === 'AbortError') {
+      return;
+    }
+    
+    if (!isUploadCanceled(signal)) {
+      setStatus(UploadStatus.ERROR);
+      setError(error instanceof Error ? error.message : t('upload.error.unknown'));
+    }
+  }, [t, isUploadCanceled]);
+  
+  // Helper to clean up the AbortController
+  const cleanupAbortController = useCallback((signal: AbortSignal) => {
+    if (abortControllerRef.current?.signal === signal) {
+      abortControllerRef.current = null;
+    }
+  }, []);
 
   return {
     file,
@@ -173,4 +220,4 @@ export const useFileUpload = ({ onUploadComplete }: UseFileUploadOptions = {}): 
     formatFileSize,
     cancelUpload
   };
-}; 
+};

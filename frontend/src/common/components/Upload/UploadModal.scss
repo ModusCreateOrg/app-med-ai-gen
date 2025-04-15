@@ -281,8 +281,16 @@
     width: 100%;
     max-width: 15rem;
     --color: white;
-    --border-color: white;
-    --background: transparent;
+    --border-color: rgba(255, 255, 255, 0.6);
+    --background: rgba(255, 255, 255, 0.1);
+    --border-radius: 0.5rem;
+    --border-width: 1px;
+    --border-style: solid;
+    
+    ion-icon {
+      margin-right: 0.5rem;
+      font-size: 1.25rem;
+    }
   }
   
   &__file-item {
@@ -338,4 +346,4 @@
     --background: rgba(0, 0, 0, 0.1);
     --progress-background: var(--ion-color-primary);
   }
-} 
+}
