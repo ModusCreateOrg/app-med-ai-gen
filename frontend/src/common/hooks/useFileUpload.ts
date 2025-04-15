@@ -15,7 +15,8 @@ export enum UploadStatus {
   REQUESTING_PERMISSION = 'requesting_permission',
   UPLOADING = 'uploading',
   SUCCESS = 'success',
-  ERROR = 'error'
+  ERROR = 'error',
+  CANCELLED = 'cancelled'
 }
 
 interface UseFileUploadOptions {
@@ -72,7 +73,7 @@ export const useFileUpload = ({ onUploadComplete }: UseFileUploadOptions = {}): 
     }
     
     if (status === UploadStatus.UPLOADING || status === UploadStatus.REQUESTING_PERMISSION) {
-      setStatus(UploadStatus.IDLE);
+      setStatus(UploadStatus.CANCELLED);
       setProgress(0);
     } else {
       reset();
@@ -119,8 +120,15 @@ export const useFileUpload = ({ onUploadComplete }: UseFileUploadOptions = {}): 
   }, []);
 
   const uploadFile = useCallback(async () => {
+    // Don't proceed if there's no file or if the status is CANCELLED
     if (!file) {
       setError(t('upload.error.noFile'));
+      return;
+    }
+    
+    // If currently in CANCELLED state, we need to reset first
+    if (status === UploadStatus.CANCELLED) {
+      reset();
       return;
     }
 
@@ -145,7 +153,7 @@ export const useFileUpload = ({ onUploadComplete }: UseFileUploadOptions = {}): 
       
       // Check if canceled during permission check
       if (isUploadCanceled(signal)) {
-        setStatus(UploadStatus.IDLE);
+        setStatus(UploadStatus.CANCELLED);
         return;
       }
       
@@ -160,7 +168,7 @@ export const useFileUpload = ({ onUploadComplete }: UseFileUploadOptions = {}): 
       
       // Check if canceled during upload
       if (isUploadCanceled(signal)) {
-        setStatus(UploadStatus.IDLE);
+        setStatus(UploadStatus.CANCELLED);
         return;
       }
       
@@ -176,7 +184,7 @@ export const useFileUpload = ({ onUploadComplete }: UseFileUploadOptions = {}): 
     } finally {
       cleanupAbortController(signal);
     }
-  }, [file, onUploadComplete, t, createProgressCallback, isUploadCanceled]);
+  }, [file, status, onUploadComplete, t, createProgressCallback, isUploadCanceled, reset]);
 
   // Helper to handle file permissions
   const checkPermissions = useCallback(async (): Promise<boolean> => {
