@@ -1,7 +1,7 @@
 import { Injectable, Logger, BadRequestException } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { TextractClient, AnalyzeDocumentCommand, Block } from '@aws-sdk/client-textract';
-import { validateFileSecurely, RateLimiter } from '../../utils/security.utils';
+import { RateLimiter } from '../../utils/security.utils';
 import { createHash } from 'crypto';
 
 export interface ExtractedTextResult {
@@ -81,37 +81,25 @@ export class AwsTextractService {
   /**
    * Extract text from a medical lab report image or PDF
    * @param fileBuffer The file buffer containing the image or PDF
-   * @param fileType The MIME type of the file (e.g., 'image/jpeg', 'application/pdf')
    * @param userId The authenticated user's ID for rate limiting
    * @returns Extracted text result with structured information
    */
-  async extractText(
-    fileBuffer: Buffer,
-    fileType: string,
-    userId: string,
-  ): Promise<ExtractedTextResult> {
+  async extractText(fileBuffer: Buffer, userId: string): Promise<ExtractedTextResult> {
     try {
       const startTime = Date.now();
 
-      // 1. Rate limiting check
       if (!this.rateLimiter.tryRequest(userId)) {
         throw new BadRequestException('Too many requests. Please try again later.');
       }
 
-      // 2. Validate file securely
-      validateFileSecurely(fileBuffer, fileType);
-
       // Add diagnostic information about the document being processed
       this.logger.debug('Processing document', {
-        fileType,
         fileSize: `${(fileBuffer.length / 1024).toFixed(2)} KB`,
         contentHashPrefix: createHash('sha256').update(fileBuffer).digest('hex').substring(0, 10),
       });
 
-      // 3. Process document
-      const result = await this.processDocument(fileBuffer, fileType);
+      const result = await this.processDocument(fileBuffer);
 
-      // 4. Calculate processing time
       const processingTime = Date.now() - startTime;
 
       this.logger.log(`Document processed in ${processingTime}ms`, {
@@ -125,7 +113,6 @@ export class AwsTextractService {
       // Log error securely without exposing sensitive details
       this.logger.error('Error processing document', {
         error: error instanceof Error ? error.message : 'Unknown error',
-        fileType,
         timestamp: new Date().toISOString(),
         userId: this.hashIdentifier(userId),
       });
@@ -143,13 +130,8 @@ export class AwsTextractService {
   /**
    * Process a document (image or PDF)
    */
-  private async processDocument(
-    documentBuffer: Buffer,
-    documentType: string,
-  ): Promise<ExtractedTextResult> {
-    this.logger.log(
-      `Processing ${documentType === 'application/pdf' ? 'PDF document' : 'single image'} with Textract`,
-    );
+  private async processDocument(documentBuffer: Buffer): Promise<ExtractedTextResult> {
+    this.logger.log(`Processing file with Textract`);
 
     // Use Analyze Document API for more comprehensive analysis
     const command = new AnalyzeDocumentCommand({
@@ -346,12 +328,12 @@ export class AwsTextractService {
 
   /**
    * Process multiple documents in batch
-   * @param documents Array of document buffers with their types
+   * @param documents Array of document buffers
    * @param userId The authenticated user's ID for rate limiting
    * @returns Array of extracted text results
    */
   async processBatch(
-    documents: Array<{ buffer: Buffer; type: string }>,
+    documents: Array<{ buffer: Buffer }>,
     userId: string,
   ): Promise<ExtractedTextResult[]> {
     // Validate batch size
@@ -365,12 +347,11 @@ export class AwsTextractService {
 
     for (const doc of documents) {
       try {
-        const result = await this.extractText(doc.buffer, doc.type, userId);
+        const result = await this.extractText(doc.buffer, userId);
         results.push(result);
       } catch (error) {
         this.logger.error('Error processing document in batch', {
           error: error instanceof Error ? error.message : 'Unknown error',
-          fileType: doc.type,
           fileSize: doc.buffer.length,
         });
 

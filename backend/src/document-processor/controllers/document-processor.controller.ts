@@ -8,6 +8,10 @@ import {
   Logger,
   Get,
   Res,
+  Req,
+  UnauthorizedException,
+  NotFoundException,
+  InternalServerErrorException,
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
 import {
@@ -16,12 +20,21 @@ import {
 } from '../services/document-processor.service';
 import { Express } from 'express';
 import { Response } from 'express';
+import { ReportsService } from '../../reports/reports.service';
+import { RequestWithUser } from '../../auth/auth.middleware';
+import { Readable } from 'stream';
+import { S3Client, GetObjectCommand } from '@aws-sdk/client-s3';
+import { ConfigService } from '@nestjs/config';
 
 @Controller('document-processor')
 export class DocumentProcessorController {
   private readonly logger = new Logger(DocumentProcessorController.name);
 
-  constructor(private readonly documentProcessorService: DocumentProcessorService) {}
+  constructor(
+    private readonly documentProcessorService: DocumentProcessorService,
+    private readonly reportsService: ReportsService,
+    private readonly configService: ConfigService,
+  ) {}
 
   @Post('upload')
   @UseInterceptors(FileInterceptor('file'))
@@ -35,11 +48,17 @@ export class DocumentProcessorController {
     }
 
     // Validate file type
-    const validMimeTypes = ['image/jpeg', 'image/png', 'image/tiff', 'application/pdf'];
+    const validMimeTypes = [
+      'image/jpeg',
+      'image/png',
+      'image/heic',
+      'image/heif',
+      'application/pdf',
+    ];
 
     if (!validMimeTypes.includes(file.mimetype)) {
       throw new BadRequestException(
-        `Invalid file type: ${file.mimetype}. Supported types: JPEG, PNG, TIFF, and PDF.`,
+        `Invalid file type: ${file.mimetype}. Supported types: JPEG, PNG, HEIC, HEIF, and PDF.`,
       );
     }
 
@@ -63,7 +82,6 @@ export class DocumentProcessorController {
       // Process the document
       const result = await this.documentProcessorService.processDocument(
         file.buffer,
-        file.mimetype,
         effectiveUserId,
       );
 
@@ -93,6 +111,138 @@ export class DocumentProcessorController {
       );
       throw error;
     }
+  }
+
+  @Post('process-file')
+  async processFileFromPath(
+    @Body('filePath') filePath: string,
+    @Req() request: RequestWithUser,
+  ): Promise<ProcessedDocumentResult | any> {
+    if (!filePath) {
+      throw new BadRequestException('No filePath provided');
+    }
+
+    // Extract userId from the request (attached by auth middleware)
+    const userId = request.user?.sub;
+    if (!userId) {
+      throw new UnauthorizedException('User ID not found in request');
+    }
+
+    this.logger.log(`Processing document from file path: ${filePath}`);
+
+    try {
+      // Fetch the associated report record from DynamoDB
+      const report = await this.reportsService.findByFilePath(filePath, userId);
+      if (!report) {
+        throw new NotFoundException(`Report with filePath ${filePath} not found`);
+      }
+
+      // Get the file from S3
+      const fileBuffer = await this.getFileFromS3(filePath);
+
+      // Process the document
+      const result = await this.documentProcessorService.processDocument(fileBuffer, userId);
+
+      // Update the report with analysis results
+      report.title = result.analysis.title || 'Untitled Report';
+      report.category = result.analysis.category || 'general';
+      report.isProcessed = true;
+
+      // Extract lab values
+      report.labValues = result.analysis.labValues || [];
+
+      // Create summary from simplified explanation or diagnoses
+      report.summary =
+        result.simplifiedExplanation ||
+        result.analysis.diagnoses.map(d => d.condition).join(', ') ||
+        'No summary available';
+
+      report.updatedAt = new Date().toISOString();
+
+      // Update the report in DynamoDB
+      await this.reportsService.updateReport(report);
+
+      return {
+        success: true,
+        reportId: report.id,
+        analysis: result.analysis,
+      };
+    } catch (error: unknown) {
+      this.logger.error(
+        `Error processing document from path ${filePath}: ${error instanceof Error ? error.message : 'Unknown error'}`,
+      );
+      throw error;
+    }
+  }
+
+  /**
+   * Retrieves a file from S3 storage
+   * @param filePath - The S3 key of the file
+   * @returns Buffer containing the file data
+   */
+  private async getFileFromS3(filePath: string): Promise<Buffer> {
+    try {
+      const bucketName = this.configService.get<string>('aws.s3.uploadBucket');
+      if (!bucketName) {
+        throw new InternalServerErrorException('S3 bucket name not configured');
+      }
+
+      const region = this.configService.get<string>('aws.region') || 'us-east-1';
+
+      // Get optional AWS credentials if they exist
+      const accessKeyId = this.configService.get<string>('aws.aws.accessKeyId');
+      const secretAccessKey = this.configService.get<string>('aws.aws.secretAccessKey');
+      const sessionToken = this.configService.get<string>('aws.aws.sessionToken');
+
+      // Create S3 client with credentials if they exist
+      const s3ClientOptions: any = { region };
+
+      if (accessKeyId && secretAccessKey) {
+        s3ClientOptions.credentials = {
+          accessKeyId,
+          secretAccessKey,
+          ...(sessionToken && { sessionToken }),
+        };
+      }
+
+      const s3Client = new S3Client(s3ClientOptions);
+
+      const command = new GetObjectCommand({
+        Bucket: bucketName,
+        Key: filePath,
+      });
+
+      const response = await s3Client.send(command);
+
+      // Check if response.Body exists before converting
+      if (!response.Body) {
+        throw new InternalServerErrorException('Empty response from S3');
+      }
+
+      // Convert the readable stream to a buffer
+      return await this.streamToBuffer(response.Body as Readable);
+    } catch (error) {
+      this.logger.error(
+        `Error retrieving file from S3: ${error instanceof Error ? error.message : 'Unknown error'}`,
+      );
+      throw new InternalServerErrorException(
+        `Failed to retrieve file from S3: ${error instanceof Error ? error.message : 'Unknown error'}`,
+      );
+    }
+  }
+
+  /**
+   * Converts a readable stream to a buffer
+   * @param stream - The readable stream from S3
+   * @returns Buffer containing the stream data
+   */
+  private async streamToBuffer(stream: Readable): Promise<Buffer> {
+    return new Promise((resolve, reject) => {
+      const chunks: Buffer[] = [];
+      stream.on('data', chunk => chunks.push(Buffer.isBuffer(chunk) ? chunk : Buffer.from(chunk)));
+      stream.on('end', () => resolve(Buffer.concat(chunks)));
+      stream.on('error', reject);
+    });
   }
 
   @Get('test')
@@ -229,8 +379,8 @@ export class DocumentProcessorController {
       
       <form id="uploadForm" enctype="multipart/form-data">
         <div class="form-group">
-          <label for="file">Select File (PDF, JPEG, PNG, TIFF):</label>
-          <input type="file" id="file" name="file" accept=".pdf,.jpg,.jpeg,.png,.tiff">
+          <label for="file">Select File (PDF, JPEG, PNG, HEIC, HEIF):</label>
+          <input type="file" id="file" name="file" accept=".pdf,.jpg,.jpeg,.png,.heic,.heif">
         </div>
         
         <div id="filePreview"></div>

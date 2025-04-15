@@ -15,11 +15,11 @@ interface ReportItemProps {
  */
 const ReportItem: React.FC<ReportItemProps> = ({ report, onClick }) => {
   const { t } = useTranslation();
-  const { title, category, date, status } = report;
+  const { title, category, createdAt, status } = report;
   const isUnread = status === ReportStatus.UNREAD;
-  
-  // Format the date from ISO string to MM/DD/YYYY
-  const formattedDate = format(new Date(date), 'MM/dd/yyyy');
+
+  // Format the createdAt from ISO string to MM/DD/YYYY
+  const formattedDate = format(new Date(createdAt), 'MM/dd/yyyy');
   
   // Get the appropriate icon based on report category
   const getCategoryIcon = () => {

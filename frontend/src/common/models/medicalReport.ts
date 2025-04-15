@@ -26,11 +26,6 @@ export interface MedicalReport {
   id: string;
   title: string;
   category: ReportCategory;
-  date: string; // ISO date string
+  createdAt: string; // ISO date string
   status: ReportStatus;
-  documentUrl?: string;
-  summary?: string;
-  content?: string;
-  doctor?: string;
-  facility?: string;
 } 

@@ -65,17 +65,19 @@ vi.mock('@aws-sdk/client-bedrock-runtime', () => {
                 {
                   type: 'text',
                   text: JSON.stringify({
-                    keyMedicalTerms: [
-                      { term: 'RBC', definition: 'Red Blood Cells' },
-                      { term: 'WBC', definition: 'White Blood Cells' },
-                    ],
+                    title: 'Blood Test Results',
+                    category: 'general',
                     labValues: [
                       {
                         name: 'Hemoglobin',
                         value: '14.2',
                         unit: 'g/dL',
                         normalRange: '13.5-17.5',
-                        isAbnormal: false,
+                        status: 'normal',
+                        isCritical: false,
+                        conclusion:
+                          'Normal hemoglobin levels indicate adequate oxygen-carrying capacity.',
+                        suggestions: 'Continue regular health maintenance.',
                       },
                     ],
                     diagnoses: [],
@@ -126,17 +128,18 @@ describe('AwsBedrockService', () => {
   `;
 
   const mockMedicalAnalysis: MedicalDocumentAnalysis = {
-    keyMedicalTerms: [
-      { term: 'RBC', definition: 'Red Blood Cells' },
-      { term: 'WBC', definition: 'White Blood Cells' },
-    ],
+    title: 'Blood Test Results',
+    category: 'general',
     labValues: [
       {
         name: 'Hemoglobin',
         value: '14.2',
         unit: 'g/dL',
         normalRange: '13.5-17.5',
-        isAbnormal: false,
+        status: 'normal',
+        isCritical: false,
+        conclusion: 'Normal hemoglobin levels indicate adequate oxygen-carrying capacity.',
+        suggestions: 'Continue regular health maintenance.',
       },
     ],
     diagnoses: [],
@@ -290,10 +293,8 @@ describe('AwsBedrockService', () => {
       const invalidResponses = [
         null,
         {},
-        { keyMedicalTerms: 'not an array' },
-        { keyMedicalTerms: [], labValues: [], diagnoses: [] }, // Missing metadata
+        { labValues: [], diagnoses: [] }, // Missing metadata
         {
-          keyMedicalTerms: [],
           labValues: [],
           diagnoses: [],
           metadata: { isMedicalReport: 'not a boolean', confidence: 0.5, missingInformation: [] },
@@ -309,8 +310,21 @@ describe('AwsBedrockService', () => {
 
       // Test a valid response
       const validResponse: MedicalDocumentAnalysis = {
-        keyMedicalTerms: [],
-        labValues: [],
+        title: 'Test Report',
+        category: 'general',
+        labValues: [
+          // Adding an empty lab value with required properties
+          {
+            name: 'Sample Test',
+            value: '0',
+            unit: 'units',
+            normalRange: '0-1',
+            status: 'normal',
+            isCritical: false,
+            conclusion: 'Normal test result',
+            suggestions: 'No action needed',
+          },
+        ],
         diagnoses: [],
         metadata: {
           isMedicalReport: true,

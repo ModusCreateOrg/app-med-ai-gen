@@ -3,6 +3,9 @@ export default () => ({
   environment: process.env.NODE_ENV || 'development',
   aws: {
     region: process.env.AWS_REGION || 'us-east-1',
+    s3: {
+      uploadBucket: process.env.S3_UPLOAD_BUCKET || '',
+    },
     cognito: {
       userPoolId: process.env.AWS_COGNITO_USER_POOL_ID,
       clientId: process.env.AWS_COGNITO_CLIENT_ID,
@@ -35,4 +38,6 @@ export default () => ({
     model: process.env.PERPLEXITY_MODEL || 'sonar',
     maxTokens: parseInt(process.env.PERPLEXITY_MAX_TOKENS || '2048', 10),
   },
+  dynamodbReportsTable:
+    process.env.DYNAMODB_REPORTS_TABLE || 'AIMedicalReportReportsTabledevelopment',
 });

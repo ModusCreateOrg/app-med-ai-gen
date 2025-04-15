@@ -6,9 +6,10 @@ import { AwsBedrockService } from './services/aws-bedrock.service';
 import { DocumentProcessorController } from './controllers/document-processor.controller';
 import { PerplexityService } from '../services/perplexity.service';
 import { AwsSecretsService } from '../services/aws-secrets.service';
+import { ReportsModule } from '../reports/reports.module';
 
 @Module({
-  imports: [ConfigModule],
+  imports: [ConfigModule, ReportsModule],
   controllers: [DocumentProcessorController],
   providers: [
     DocumentProcessorService,

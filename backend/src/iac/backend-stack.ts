@@ -85,7 +85,7 @@ export class BackendStack extends cdk.Stack {
       removalPolicy: isProd ? RemovalPolicy.RETAIN : RemovalPolicy.DESTROY,
     });
 
-    // Add GSI for querying by date
+    // Add GSI for querying by createdAt
     reportsTable.addGlobalSecondaryIndex({
       indexName: 'userIdDateIndex',
       partitionKey: {
@@ -93,7 +93,7 @@ export class BackendStack extends cdk.Stack {
         type: AttributeType.STRING,
       },
       sortKey: {
-        name: 'date',
+        name: 'createdAt',
         type: AttributeType.STRING,
       },
     });
