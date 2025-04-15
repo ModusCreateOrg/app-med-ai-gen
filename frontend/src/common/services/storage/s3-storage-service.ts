@@ -155,11 +155,18 @@ export class S3StorageService {
           signal.addEventListener('abort', abortHandler);
         });
         
-        // Create a race between the upload and abortion
-        await Promise.race([
-          this.s3Client.send(new PutObjectCommand(uploadParams)),
-          abortPromise
-        ]);
+        try {
+          // Create a race between the upload and abortion
+          await Promise.race([
+            this.s3Client.send(new PutObjectCommand(uploadParams)),
+            abortPromise
+          ]);
+        } finally {
+          // Clean up the event listener to prevent memory leaks
+          if (abortHandler && signal) {
+            signal.removeEventListener('abort', abortHandler);
+          }
+        }
       } else {
         // Upload to S3 without abort capability
         await this.s3Client.send(new PutObjectCommand(uploadParams));
