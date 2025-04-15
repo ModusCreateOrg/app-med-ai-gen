@@ -74,6 +74,7 @@ vi.mock('@aws-sdk/client-bedrock-runtime', () => {
                         unit: 'g/dL',
                         normalRange: '13.5-17.5',
                         status: 'normal',
+                        isCritical: false,
                         conclusion:
                           'Normal hemoglobin levels indicate adequate oxygen-carrying capacity.',
                         suggestions: 'Continue regular health maintenance.',
@@ -136,6 +137,7 @@ describe('AwsBedrockService', () => {
         unit: 'g/dL',
         normalRange: '13.5-17.5',
         status: 'normal',
+        isCritical: false,
         conclusion: 'Normal hemoglobin levels indicate adequate oxygen-carrying capacity.',
         suggestions: 'Continue regular health maintenance.',
       },
@@ -310,7 +312,19 @@ describe('AwsBedrockService', () => {
       const validResponse: MedicalDocumentAnalysis = {
         title: 'Test Report',
         category: 'general',
-        labValues: [],
+        labValues: [
+          // Adding an empty lab value with required properties
+          {
+            name: 'Sample Test',
+            value: '0',
+            unit: 'units',
+            normalRange: '0-1',
+            status: 'normal',
+            isCritical: false,
+            conclusion: 'Normal test result',
+            suggestions: 'No action needed',
+          },
+        ],
         diagnoses: [],
         metadata: {
           isMedicalReport: true,

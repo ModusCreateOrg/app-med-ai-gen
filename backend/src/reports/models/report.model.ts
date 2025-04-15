@@ -31,6 +31,7 @@ export class Report {
     unit: string;
     normalRange: string;
     status: 'normal' | 'high' | 'low';
+    isCritical: boolean;
     conclusion: string;
     suggestions: string;
   }>;
