@@ -8,7 +8,7 @@ import {
   IonLabel,
   IonItem
 } from '@ionic/react';
-import { closeOutline, cloudUploadOutline, documentOutline, checkmarkOutline, closeCircleOutline } from 'ionicons/icons';
+import { closeOutline, cloudUploadOutline, documentOutline, checkmarkOutline } from 'ionicons/icons';
 import { useTranslation } from 'react-i18next';
 import { UploadStatus, useFileUpload } from '../../hooks/useFileUpload';
 import { MedicalReport } from '../../models/medicalReport';
@@ -157,15 +157,16 @@ const UploadModal = ({ isOpen, onClose, onUploadComplete }: UploadModalProps): J
             </div>
           </div>
         )}
-        
-        {/* Cancel button */}
+      </div>
+      
+      {/* Cancel button - updated to match the size of the upload button */}
+      <div className="upload-modal__bottom-actions">
         <IonButton 
           expand="block" 
           fill="outline"
           className="upload-modal__cancel-btn"
           onClick={handleCancel}
         >
-          <IonIcon icon={closeCircleOutline} slot="start" />
           {t('common.cancel')}
         </IonButton>
       </div>
