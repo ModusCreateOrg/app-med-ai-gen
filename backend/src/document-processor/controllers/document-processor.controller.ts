@@ -48,11 +48,17 @@ export class DocumentProcessorController {
     }
 
     // Validate file type
-    const validMimeTypes = ['image/jpeg', 'image/png', 'image/tiff', 'application/pdf'];
+    const validMimeTypes = [
+      'image/jpeg',
+      'image/png',
+      'image/heic',
+      'image/heif',
+      'application/pdf',
+    ];
 
     if (!validMimeTypes.includes(file.mimetype)) {
       throw new BadRequestException(
-        `Invalid file type: ${file.mimetype}. Supported types: JPEG, PNG, TIFF, and PDF.`,
+        `Invalid file type: ${file.mimetype}. Supported types: JPEG, PNG, HEIC, HEIF, and PDF.`,
       );
     }
 
@@ -373,8 +379,8 @@ export class DocumentProcessorController {
       
       <form id="uploadForm" enctype="multipart/form-data">
         <div class="form-group">
-          <label for="file">Select File (PDF, JPEG, PNG, TIFF):</label>
-          <input type="file" id="file" name="file" accept=".pdf,.jpg,.jpeg,.png,.tiff">
+          <label for="file">Select File (PDF, JPEG, PNG, HEIC, HEIF):</label>
+          <input type="file" id="file" name="file" accept=".pdf,.jpg,.jpeg,.png,.heic,.heif">
         </div>
         
         <div id="filePreview"></div>

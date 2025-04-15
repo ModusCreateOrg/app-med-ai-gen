@@ -1,7 +1,7 @@
 import { Injectable, Logger, BadRequestException } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { TextractClient, AnalyzeDocumentCommand, Block } from '@aws-sdk/client-textract';
-import { validateFileSecurely, RateLimiter } from '../../utils/security.utils';
+import { RateLimiter } from '../../utils/security.utils';
 import { createHash } from 'crypto';
 
 export interface ExtractedTextResult {
@@ -88,13 +88,9 @@ export class AwsTextractService {
     try {
       const startTime = Date.now();
 
-      // 1. Rate limiting check
       if (!this.rateLimiter.tryRequest(userId)) {
         throw new BadRequestException('Too many requests. Please try again later.');
       }
-
-      // 2. Validate file securely
-      validateFileSecurely(fileBuffer);
 
       // Add diagnostic information about the document being processed
       this.logger.debug('Processing document', {
@@ -102,10 +98,8 @@ export class AwsTextractService {
         contentHashPrefix: createHash('sha256').update(fileBuffer).digest('hex').substring(0, 10),
       });
 
-      // 3. Process document
       const result = await this.processDocument(fileBuffer);
 
-      // 4. Calculate processing time
       const processingTime = Date.now() - startTime;
 
       this.logger.log(`Document processed in ${processingTime}ms`, {
