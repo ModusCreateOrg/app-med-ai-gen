@@ -30,7 +30,7 @@ export class Report {
     value: string;
     unit: string;
     normalRange: string;
-    isNormal: 'normal' | 'high' | 'low';
+    status: 'normal' | 'high' | 'low';
     conclusion: string;
     suggestions: string;
   }>;
