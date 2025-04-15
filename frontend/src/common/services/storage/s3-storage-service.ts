@@ -172,6 +172,9 @@ export class S3StorageService {
         await this.s3Client.send(new PutObjectCommand(uploadParams));
       }
       
+      // Clean up all progress timers before marking complete
+      progressTimers.forEach(timer => clearTimeout(timer));
+      
       // Complete the progress if needed
       if (onProgress && !signal?.aborted) {
         onProgress(1);
