@@ -67,10 +67,6 @@ vi.mock('@aws-sdk/client-bedrock-runtime', () => {
                   text: JSON.stringify({
                     title: 'Blood Test Results',
                     category: 'general',
-                    keyMedicalTerms: [
-                      { term: 'RBC', definition: 'Red Blood Cells' },
-                      { term: 'WBC', definition: 'White Blood Cells' },
-                    ],
                     labValues: [
                       {
                         name: 'Hemoglobin',
@@ -133,10 +129,6 @@ describe('AwsBedrockService', () => {
   const mockMedicalAnalysis: MedicalDocumentAnalysis = {
     title: 'Blood Test Results',
     category: 'general',
-    keyMedicalTerms: [
-      { term: 'RBC', definition: 'Red Blood Cells' },
-      { term: 'WBC', definition: 'White Blood Cells' },
-    ],
     labValues: [
       {
         name: 'Hemoglobin',
@@ -299,10 +291,8 @@ describe('AwsBedrockService', () => {
       const invalidResponses = [
         null,
         {},
-        { keyMedicalTerms: 'not an array' },
-        { keyMedicalTerms: [], labValues: [], diagnoses: [] }, // Missing metadata
+        { labValues: [], diagnoses: [] }, // Missing metadata
         {
-          keyMedicalTerms: [],
           labValues: [],
           diagnoses: [],
           metadata: { isMedicalReport: 'not a boolean', confidence: 0.5, missingInformation: [] },
@@ -320,7 +310,6 @@ describe('AwsBedrockService', () => {
       const validResponse: MedicalDocumentAnalysis = {
         title: 'Test Report',
         category: 'general',
-        keyMedicalTerms: [],
         labValues: [],
         diagnoses: [],
         metadata: {

@@ -84,7 +84,6 @@ export class DocumentProcessorService {
       this.logger.log(`Document processing completed in ${processingTime}ms`, {
         isMedicalReport: analysis.metadata.isMedicalReport,
         confidence: analysis.metadata.confidence,
-        keyTermCount: analysis.keyMedicalTerms.length,
         labValueCount: analysis.labValues.length,
         hasExplanation: !!simplifiedExplanation,
       });
@@ -156,7 +155,6 @@ export class DocumentProcessorService {
           analysis: {
             title: 'Failed Document',
             category: 'general',
-            keyMedicalTerms: [],
             labValues: [],
             diagnoses: [],
             metadata: {

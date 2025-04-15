@@ -49,7 +49,6 @@ describe('AppModule', () => {
       .useValue({
         generateResponse: vi.fn().mockResolvedValue('test response'),
         analyzeMedicalDocument: vi.fn().mockResolvedValue({
-          keyMedicalTerms: [],
           labValues: [],
           diagnoses: [],
           metadata: {

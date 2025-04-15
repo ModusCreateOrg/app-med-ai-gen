@@ -36,7 +36,6 @@ describe('DocumentProcessorService', () => {
       const medicalAnalysis = {
         title: 'Test Report',
         category: 'general',
-        keyMedicalTerms: [],
         labValues: [],
         diagnoses: [],
         metadata: {
@@ -148,7 +147,6 @@ describe('DocumentProcessorService', () => {
         analysis: {
           title: 'Document 1 Report',
           category: 'general',
-          keyMedicalTerms: [],
           labValues: [],
           diagnoses: [],
           metadata: {
@@ -174,7 +172,6 @@ describe('DocumentProcessorService', () => {
         analysis: {
           title: 'Document 2 Report',
           category: 'general',
-          keyMedicalTerms: [],
           labValues: [],
           diagnoses: [],
           metadata: {

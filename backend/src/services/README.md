@@ -59,7 +59,6 @@ The structured medical information from Bedrock:
 
 ```typescript
 export interface MedicalDocumentAnalysis {
-  keyMedicalTerms: Array<{ term: string; definition: string }>;
   labValues: Array<{
     name: string;
     value: string;
@@ -111,9 +110,6 @@ curl -X POST \
     ]
   },
   "analysis": {
-    "keyMedicalTerms": [
-      { "term": "Hemoglobin", "definition": "Oxygen-carrying protein in red blood cells" }
-    ],
     "labValues": [
       {
         "name": "Hemoglobin",

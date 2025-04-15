@@ -14,7 +14,6 @@ import { createHash } from 'crypto';
 export interface MedicalDocumentAnalysis {
   title: string;
   category: string;
-  keyMedicalTerms: Array<{ term: string; definition: string }>;
   labValues: Array<{
     name: string;
     value: string;
@@ -50,10 +49,9 @@ export class AwsBedrockService {
 Look for and extract the following information:
 1. Document title or main subject based on content
 2. Document category based on organ system focus
-3. Key medical terms visible in the document with their definitions
-4. Lab test values with their normal ranges and whether they are normal, high, or low (particularly important for blood work, metabolic panels, etc.)
-5. Any diagnoses, findings, or medical observations with details and recommendations
-6. Analyze if this is a medical document (lab report, test result, medical chart, prescription, etc.) and provide confidence level
+3. Lab test values with their normal ranges and whether they are normal, high, or low (particularly important for blood work, metabolic panels, etc.)
+4. Any diagnoses, findings, or medical observations with details and recommendations
+5. Analyze if this is a medical document (lab report, test result, medical chart, prescription, etc.) and provide confidence level
 
 This document may be a lab report showing blood work or other test results, so please pay special attention to tables, numeric values, reference ranges, and medical terminology.
 
@@ -61,7 +59,6 @@ Format the response as a JSON object with the following structure:
 {
   "title": string,
   "category": string,
-  "keyMedicalTerms": [{"term": string, "definition": string}],
   "labValues": [{"name": string, "value": string, "unit": string, "normalRange": string, "status": "normal" | "high" | "low", "conclusion": string, "suggestions": string}],
   "diagnoses": [{"condition": string, "details": string, "recommendations": string}],
   "metadata": {
@@ -116,16 +113,16 @@ INCORRECT RESPONSE FORMATS (DO NOT DO THESE):
 "This appears to be a medical report. Here is the information extracted in the requested JSON format:
 
 {
-  \"keyMedicalTerms\": [...],
+  \"category\": \"heart\",
   ...
 }"
 
 2) DO NOT DO THIS - Nested JSON:
 {
-  "keyMedicalTerms": [
+  "labValues": [
     {
-      "term": "Here is the information extracted",
-      "definition": "{\"keyMedicalTerms\": [{\"term\": \"RBC\", \"definition\": \"Red blood cells\"}]}"
+      "name": "Here is the information extracted",
+      "value": "{\"labValues\": [{\"name\": \"RBC\", \"value\": \"14.2\"}]}"
     }
   ]
 }
@@ -134,10 +131,6 @@ CORRECT FORMAT (DO THIS):
 {
   "title": "Complete Blood Count Results",
   "category": "heart",
-  "keyMedicalTerms": [
-    {"term": "RBC", "definition": "Red blood cells"},
-    {"term": "WBC", "definition": "White blood cells"}
-  ],
   "labValues": [
     {
       "name": "Hemoglobin", 
@@ -432,7 +425,6 @@ Document text:
       !response ||
       typeof response.title !== 'string' ||
       typeof response.category !== 'string' ||
-      !Array.isArray(response.keyMedicalTerms) ||
       !Array.isArray(response.labValues) ||
       !Array.isArray(response.diagnoses) ||
       !response.metadata
