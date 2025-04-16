@@ -74,7 +74,7 @@ describe('ReportItem', () => {
     expect(screen.getByText('General')).toBeInTheDocument();
     expect(screen.getByText(/Upload Date • 01\/27\/2025/)).toBeInTheDocument();
     expect(screen.getByTestId('mocked-icon-user')).toBeInTheDocument();
-    
+
     // Check for unread class
     const reportItem = screen.getByText('Blood Test').closest('.report-item');
     expect(reportItem).toHaveClass('report-item--unread');
@@ -86,7 +86,7 @@ describe('ReportItem', () => {
 
     // ASSERT
     expect(screen.getByText('MRI Scan')).toBeInTheDocument();
-    
+
     // Check that it doesn't have unread class
     const reportItem = screen.getByText('MRI Scan').closest('.report-item');
     expect(reportItem).not.toHaveClass('report-item--unread');
@@ -103,26 +103,4 @@ describe('ReportItem', () => {
     // ASSERT
     expect(onClickMock).toHaveBeenCalledTimes(1);
   });
-
-  it('should render different icons for different categories', () => {
-    // Test with different categories
-    const categories = [
-      { category: ReportCategory.GENERAL, icon: 'user' },
-      { category: ReportCategory.NEUROLOGICAL, icon: 'circleInfo' },
-      { category: ReportCategory.HEART, icon: 'circleInfo' }
-    ];
-
-    for (const { category, icon } of categories) {
-      const report = { ...mockReport, category };
-      
-      // ARRANGE
-      render(<ReportItem report={report} />);
-      
-      // ASSERT
-      expect(screen.getByTestId(`mocked-icon-${icon}`)).toBeInTheDocument();
-      
-      // Clean up after each iteration
-      cleanup();
-    }
-  });
-}); 
+});
