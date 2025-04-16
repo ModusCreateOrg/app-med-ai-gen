@@ -279,10 +279,29 @@
   &__cancel-btn {
     margin-top: 1rem;
     width: 100%;
-    max-width: 15rem;
+    max-width: 12rem; // Match the upload button's max-width
     --color: white;
-    --border-color: white;
-    --background: transparent;
+    --border-color: rgba(255, 255, 255, 0.6);
+    --background: rgba(255, 255, 255, 0.1);
+    --border-radius: 0.5rem;
+    --border-width: 1px;
+    --border-style: solid;
+    height: 2.5rem; // Exactly match the upload button's height (40px)
+    font-weight: 500;
+    text-transform: none;
+    
+    ion-icon {
+      margin-right: 0.5rem;
+      font-size: 1.25rem;
+    }
+  }
+
+  &__bottom-actions {
+    margin-top: 20px;
+    width: 100%;
+    display: flex;
+    justify-content: center; // Center the button
+    padding: 0 1rem;
   }
   
   &__file-item {
@@ -338,4 +357,4 @@
     --background: rgba(0, 0, 0, 0.1);
     --progress-background: var(--ion-color-primary);
   }
-} 
+}

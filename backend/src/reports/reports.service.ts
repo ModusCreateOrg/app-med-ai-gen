@@ -27,26 +27,31 @@ export class ReportsService {
   private readonly logger = new Logger(ReportsService.name);
 
   constructor(private configService: ConfigService) {
-    const region = this.configService.get<string>('AWS_REGION', 'us-east-1');
-    const accessKeyId = this.configService.get<string>('AWS_ACCESS_KEY_ID');
-    const secretAccessKey = this.configService.get<string>('AWS_SECRET_ACCESS_KEY');
+    const region = this.configService.get<string>('aws.region') || 'us-east-1';
 
-    // Prepare client configuration
-    const clientConfig: any = { region };
+    // Get optional AWS credentials if they exist
+    const accessKeyId = this.configService.get<string>('aws.aws.accessKeyId');
+    const secretAccessKey = this.configService.get<string>('aws.aws.secretAccessKey');
+    const sessionToken = this.configService.get<string>('aws.aws.sessionToken');
 
-    // Only add credentials if both values are present
+    const clientOptions: any = { region };
+
     if (accessKeyId && secretAccessKey) {
-      clientConfig.credentials = { accessKeyId, secretAccessKey };
+      clientOptions.credentials = {
+        accessKeyId,
+        secretAccessKey,
+        ...(sessionToken && { sessionToken }),
+      };
     }
 
     try {
-      this.dynamoClient = new DynamoDBClient(clientConfig);
+      this.dynamoClient = new DynamoDBClient(clientOptions);
     } catch (error: unknown) {
       this.logger.error('Failed to initialize DynamoDB client:', error);
       throw new InternalServerErrorException('Failed to initialize database connection');
     }
 
-    this.tableName = this.configService.get<string>('DYNAMODB_REPORTS_TABLE', 'reports');
+    this.tableName = this.configService.get<string>('dynamodbReportsTable')!;
   }
 
   async findAll(userId: string): Promise<Report[]> {
@@ -270,6 +275,9 @@ export class ReportsService {
         title: 'New Report',
         bookmarked: false,
         category: '',
+        isProcessed: false,
+        labValues: [],
+        summary: '',
         status: ReportStatus.UNREAD,
         createdAt: new Date().toISOString(),
         updatedAt: new Date().toISOString(),
@@ -298,6 +306,103 @@ export class ReportsService {
       }
 
       throw new InternalServerErrorException('Failed to save report to database');
+    }
+  }
+
+  /**
+   * Find a report by its filePath
+   * @param filePath The S3 path of the file
+   * @param userId User ID for authorization
+   * @returns Report record if found
+   */
+  async findByFilePath(filePath: string, userId: string): Promise<Report | null> {
+    if (!filePath) {
+      throw new NotFoundException('File path is required');
+    }
+
+    if (!userId) {
+      throw new ForbiddenException('User ID is required');
+    }
+
+    try {
+      // Since filePath isn't a key attribute, we need to scan with filter
+      const command = new ScanCommand({
+        TableName: this.tableName,
+        FilterExpression: 'filePath = :filePath AND userId = :userId',
+        ExpressionAttributeValues: marshall({
+          ':filePath': filePath,
+          ':userId': userId,
+        }),
+        Limit: 1, // We only want one record
+      });
+
+      const response = await this.dynamoClient.send(command);
+
+      if (!response.Items || response.Items.length === 0) {
+        return null;
+      }
+
+      return unmarshall(response.Items[0]) as Report;
+    } catch (error: unknown) {
+      this.logger.error(`Error finding report with filePath ${filePath}:`);
+      this.logger.error(error);
+
+      if (error instanceof DynamoDBServiceException) {
+        if (error.name === 'ResourceNotFoundException') {
+          throw new InternalServerErrorException(
+            `Table "${this.tableName}" not found. Please check your database configuration.`,
+          );
+        }
+      }
+
+      throw new InternalServerErrorException(`Failed to fetch report with filePath ${filePath}`);
+    }
+  }
+
+  /**
+   * Update a report with new data
+   * @param report Updated report object
+   * @returns The updated report
+   */
+  async updateReport(report: Report): Promise<Report> {
+    if (!report || !report.id) {
+      throw new NotFoundException('Report ID is required');
+    }
+
+    if (!report.userId) {
+      throw new ForbiddenException('User ID is required');
+    }
+
+    try {
+      // Update report in DynamoDB
+      const command = new PutItemCommand({
+        TableName: this.tableName,
+        Item: marshall(report),
+        ConditionExpression: 'userId = :userId',
+        ExpressionAttributeValues: marshall({
+          ':userId': report.userId,
+        }),
+      });
+
+      await this.dynamoClient.send(command);
+      this.logger.log(`Successfully updated report with ID ${report.id}`);
+
+      return report;
+    } catch (error: unknown) {
+      this.logger.error(`Error updating report with ID ${report.id}:`);
+      this.logger.error(error);
+
+      if (error instanceof DynamoDBServiceException) {
+        if (error.name === 'ConditionalCheckFailedException') {
+          throw new ForbiddenException('You do not have permission to update this report');
+        } else if (error.name === 'ResourceNotFoundException') {
+          throw new InternalServerErrorException(
+            `Table "${this.tableName}" not found. Please check your database configuration.`,
+          );
+        }
+      }
+
+      throw new InternalServerErrorException(`Failed to update report with ID ${report.id}`);
     }
   }
 }

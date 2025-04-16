@@ -30,7 +30,6 @@ export interface ProcessedDocumentResult {
   analysis: MedicalDocumentAnalysis;
   processingMetadata: {
     processingTimeMs: number;
-    fileType: string;
     fileSize: number;
   };
 }
@@ -60,13 +59,12 @@ The structured medical information from Bedrock:
 
 ```typescript
 export interface MedicalDocumentAnalysis {
-  keyMedicalTerms: Array<{ term: string; definition: string }>;
   labValues: Array<{
     name: string;
     value: string;
     unit: string;
     normalRange: string;
-    isAbnormal: boolean;
+    isNormal: 'normal' | 'high' | 'low';
   }>;
   diagnoses: Array<{ condition: string; details: string; recommendations: string }>;
   metadata: {
@@ -112,16 +110,13 @@ curl -X POST \
     ]
   },
   "analysis": {
-    "keyMedicalTerms": [
-      { "term": "Hemoglobin", "definition": "Oxygen-carrying protein in red blood cells" }
-    ],
     "labValues": [
       {
         "name": "Hemoglobin",
         "value": "14.2",
         "unit": "g/dL",
         "normalRange": "13.5-17.5",
-        "isAbnormal": false
+        "isNormal": "normal"
       }
     ],
     "diagnoses": [],
@@ -133,7 +128,6 @@ curl -X POST \
   },
   "processingMetadata": {
     "processingTimeMs": 2345,
-    "fileType": "application/pdf",
     "fileSize": 12345
   }
 }
@@ -146,17 +140,16 @@ curl -X POST \
 constructor(private readonly documentProcessorService: DocumentProcessorService) {}
 
 // Process a document
-async processReport(fileBuffer: Buffer, fileType: string, userId: string) {
+async processReport(fileBuffer: Buffer, userId: string) {
   try {
     const result = await this.documentProcessorService.processDocument(
       fileBuffer,
-      fileType,
       userId
     );
     
     // Use the structured medical data
     const labValues = result.analysis.labValues;
-    const abnormalValues = labValues.filter(lab => lab.isAbnormal);
+    const abnormalValues = labValues.filter(lab => lab.isNormal !== 'normal');
     
     return result;
   } catch (error) {
@@ -179,8 +172,8 @@ The service supports batch processing of multiple documents:
 ```typescript
 const results = await documentProcessorService.processBatch(
   [
-    { buffer: fileBuffer1, type: fileType1 },
-    { buffer: fileBuffer2, type: fileType2 }
+    { buffer: fileBuffer1 },
+    { buffer: fileBuffer2 }
   ],
   userId
 );
@@ -214,4 +207,4 @@ Planned future enhancements:
 - Support for multi-page PDF processing using async APIs
 - Enhanced lab report detection and categorization
 - Integration with medical terminology databases
-- OCR preprocessing for low-quality images 
+- OCR preprocessing for low-quality images

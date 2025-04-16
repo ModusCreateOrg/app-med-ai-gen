@@ -14,7 +14,7 @@ export interface UploadProgressCallback {
 /**
  * Creates an authenticated request config with bearer token
  */
-export const getAuthConfig = async (): Promise<{ headers: { Accept: string, 'Content-Type': string, Authorization: string }, onUploadProgress?: (progressEvent: AxiosProgressEvent) => void }> => {
+export const getAuthConfig = async (signal?: AbortSignal): Promise<{ headers: { Accept: string, 'Content-Type': string, Authorization: string }, signal?: AbortSignal, onUploadProgress?: (progressEvent: AxiosProgressEvent) => void }> => {
   const session = await fetchAuthSession();
   const idToken = session.tokens?.idToken?.toString() || '';
   return {
@@ -22,7 +22,8 @@ export const getAuthConfig = async (): Promise<{ headers: { Accept: string, 'Con
         Accept: 'application/json',
         'Content-Type': 'application/json',
         Authorization: idToken ? `Bearer ${idToken}` : ''
-    }
+      },
+      signal
   };
 };
 
@@ -40,11 +41,13 @@ export class ReportError extends Error {
  * Uploads a medical report file
  * @param file - The file to upload
  * @param onProgress - Optional callback for tracking upload progress
+ * @param signal - Optional abort signal for canceling the request
  * @returns Promise with the created medical report
  */
 export const uploadReport = async (
   file: File,
-  onProgress?: UploadProgressCallback
+  onProgress?: UploadProgressCallback,
+  signal?: AbortSignal
 ): Promise<MedicalReport> => {
   try {
     // Import s3StorageService dynamically to avoid circular dependency
@@ -54,11 +57,12 @@ export const uploadReport = async (
     const s3Key = await s3StorageService.uploadFile(
       file,
       'reports',
-      onProgress as (progress: number) => void
+      onProgress as (progress: number) => void,
+      signal
     );
 
     // Then create the report record with the S3 key
-    const config = await getAuthConfig();
+    const config = await getAuthConfig(signal);
 
     // Send the report metadata to the API
     const response = await axios.post(
@@ -71,6 +75,11 @@ export const uploadReport = async (
 
     return response.data;
   } catch (error) {
+    // If the request was aborted, propagate the abort error
+    if (signal?.aborted) {
+      throw new DOMException('The operation was aborted', 'AbortError');
+    }
+    
     if (axios.isAxiosError(error)) {
       console.error('API Error Details:', error.response?.data, error.response?.headers);
       throw new ReportError(`Failed to upload report: ${error.message}`);

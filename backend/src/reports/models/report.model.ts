@@ -21,6 +21,24 @@ export class Report {
   @ApiProperty({ description: 'Category of the report' })
   category: string;
 
+  @ApiProperty({ description: 'Whether the report has been processed' })
+  isProcessed: boolean;
+
+  @ApiProperty({ description: 'List of lab values' })
+  labValues: Array<{
+    name: string;
+    value: string;
+    unit: string;
+    normalRange: string;
+    status: 'normal' | 'high' | 'low';
+    isCritical: boolean;
+    conclusion: string;
+    suggestions: string;
+  }>;
+
+  @ApiProperty({ description: 'Summary of the report' })
+  summary: string;
+
   @ApiProperty({
     description: 'Status of the report',
     enum: ReportStatus,

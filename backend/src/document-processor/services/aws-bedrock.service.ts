@@ -12,13 +12,17 @@ import { createHash } from 'crypto';
  * Interface for medical document analysis result
  */
 export interface MedicalDocumentAnalysis {
-  keyMedicalTerms: Array<{ term: string; definition: string }>;
+  title: string;
+  category: string;
   labValues: Array<{
     name: string;
     value: string;
     unit: string;
     normalRange: string;
-    isAbnormal: boolean;
+    status: 'normal' | 'high' | 'low';
+    isCritical: boolean;
+    conclusion: string;
+    suggestions: string;
   }>;
   diagnoses: Array<{ condition: string; details: string; recommendations: string }>;
   metadata: {
@@ -44,17 +48,19 @@ export class AwsBedrockService {
   private readonly medicalAnalysisPrompt = `Please analyze this medical document carefully, with specific attention to medical lab reports.
 
 Look for and extract the following information:
-1. Key medical terms visible in the document with their definitions
-2. Lab test values with their normal ranges and whether they are abnormal (particularly important for blood work, metabolic panels, etc.)
-3. Any diagnoses, findings, or medical observations with details and recommendations
-4. Analyze if this is a medical document (lab report, test result, medical chart, prescription, etc.) and provide confidence level
+1. Document title or main subject based on content
+2. Document category based on organ system focus
+3. Lab test values with their normal ranges and whether they are normal, high, or low (particularly important for blood work, metabolic panels, etc.)
+4. Any diagnoses, findings, or medical observations with details and recommendations
+5. Analyze if this is a medical document (lab report, test result, medical chart, prescription, etc.) and provide confidence level
 
 This document may be a lab report showing blood work or other test results, so please pay special attention to tables, numeric values, reference ranges, and medical terminology.
 
 Format the response as a JSON object with the following structure:
 {
-  "keyMedicalTerms": [{"term": string, "definition": string}],
-  "labValues": [{"name": string, "value": string, "unit": string, "normalRange": string, "isAbnormal": boolean}],
+  "title": string,
+  "category": string,
+  "labValues": [{"name": string, "value": string, "unit": string, "normalRange": string, "status": "normal" | "high" | "low", "isCritical": boolean, "conclusion": string, "suggestions": string}],
   "diagnoses": [{"condition": string, "details": string, "recommendations": string}],
   "metadata": {
     "isMedicalReport": boolean,
@@ -62,6 +68,12 @@ Format the response as a JSON object with the following structure:
     "missingInformation": string[]
   }
 }
+
+For the title field, create a concise title that summarizes what the document is about (e.g., "Complete Blood Count Results", "Liver Function Test", "MRI Report").
+For the category field, you MUST choose exactly one of these three values:
+- "heart" - if the document focuses primarily on cardiac/cardiovascular issues or tests
+- "brain" - if the document focuses primarily on neurological issues or brain-related tests
+- "general" - for all other medical documents, or when the focus spans multiple systems
 
 Set isMedicalReport to true if you see ANY medical content such as lab values, medical terminology, doctor's notes, or prescription information.
 Set confidence between 0 and 1 based on document clarity and how confident you are about the medical nature of the document.
@@ -72,6 +84,10 @@ This is extremely important: If you see ANY lab values, numbers with units, or m
 When extracting lab values:
 1. Look for tables with numeric values and reference ranges
 2. Include any values even if you're not sure of the meaning
+3. For each lab value, use "status" field with values "normal", "high", or "low" based on whether the value falls within, above, or below the normal range
+4. Set "isCritical" to true when the value indicates an urgent medical situation. Set it to false for values that are normal or only slightly abnormal.
+5. Include a "conclusion" field that provides a brief interpretation of what this value indicates about the patient's health
+6. Include a "suggestions" field that provides brief recommendations based on this value
 
 EXTREMELY IMPORTANT FORMATTING INSTRUCTIONS:
 1. ABSOLUTELY DO NOT START YOUR RESPONSE WITH ANY TEXT. Begin immediately with the JSON object.
@@ -99,27 +115,36 @@ INCORRECT RESPONSE FORMATS (DO NOT DO THESE):
 "This appears to be a medical report. Here is the information extracted in the requested JSON format:
 
 {
-  \"keyMedicalTerms\": [...],
+  \"category\": \"heart\",
   ...
 }"
 
 2) DO NOT DO THIS - Nested JSON:
 {
-  "keyMedicalTerms": [
+  "labValues": [
     {
-      "term": "Here is the information extracted",
-      "definition": "{\"keyMedicalTerms\": [{\"term\": \"RBC\", \"definition\": \"Red blood cells\"}]}"
+      "name": "Here is the information extracted",
+      "value": "{\"labValues\": [{\"name\": \"RBC\", \"value\": \"14.2\"}]}"
     }
   ]
 }
 
 CORRECT FORMAT (DO THIS):
 {
-  "keyMedicalTerms": [
-    {"term": "RBC", "definition": "Red blood cells"},
-    {"term": "WBC", "definition": "White blood cells"}
+  "title": "Complete Blood Count Results",
+  "category": "heart",
+  "labValues": [
+    {
+      "name": "Hemoglobin", 
+      "value": "14.2", 
+      "unit": "g/dL", 
+      "normalRange": "13.5-17.5", 
+      "status": "normal",
+      "isCritical": false,
+      "conclusion": "Normal hemoglobin levels indicate adequate oxygen-carrying capacity.",
+      "suggestions": "Continue regular health maintenance."
+    }
   ],
-  "labValues": [...],
   "diagnoses": [...],
   "metadata": {...}
 }
@@ -401,7 +426,8 @@ Document text:
     // Check if response has all required properties
     if (
       !response ||
-      !Array.isArray(response.keyMedicalTerms) ||
+      typeof response.title !== 'string' ||
+      typeof response.category !== 'string' ||
       !Array.isArray(response.labValues) ||
       !Array.isArray(response.diagnoses) ||
       !response.metadata
