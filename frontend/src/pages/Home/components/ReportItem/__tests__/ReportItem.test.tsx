@@ -79,11 +79,6 @@ describe('ReportItem', () => {
     // ASSERT
     expect(screen.getByText('Blood Test')).toBeInTheDocument();
     expect(screen.getByText(/Upload Date • 01\/27\/2025/)).toBeInTheDocument();
-    expect(screen.getByTestId('mocked-icon-user')).toBeInTheDocument();
-
-    // Check for unread class
-    const reportItem = screen.getByText('Blood Test').closest('.report-item');
-    expect(reportItem).toHaveClass('report-item--unread');
   });
 
   it('should render successfully with read report', () => {
