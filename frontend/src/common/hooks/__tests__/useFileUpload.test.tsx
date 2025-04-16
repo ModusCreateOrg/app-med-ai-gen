@@ -35,7 +35,7 @@ import { uploadReport } from '../../api/reportService';
 // Define mocked function types
 type MockedValidateFile = { mockReturnValue: (value: { isValid: boolean, errorKey?: string }) => void };
 type MockedUploadReport = { 
-  mockImplementation: (fn: (file: File, progressCallback?: UploadProgressCallback) => Promise<MedicalReport>) => void;
+  mockImplementation: (fn: (file: File, progressCallback?: UploadProgressCallback, signal?: AbortSignal) => Promise<MedicalReport>) => void;
   mockRejectedValue: (err: Error) => void;
 };
 type MockedPermissionCheck = { mockResolvedValue: (value: boolean) => void };
@@ -48,7 +48,7 @@ describe('useFileUpload hook', () => {
     vi.resetAllMocks();
     // Default mock implementation with safer type casting
     (validateFile as unknown as MockedValidateFile).mockReturnValue({ isValid: true });
-    (uploadReport as unknown as MockedUploadReport).mockImplementation((file: File, progressCallback?: UploadProgressCallback) => {
+    (uploadReport as unknown as MockedUploadReport).mockImplementation((file: File, progressCallback?: UploadProgressCallback, _signal?: AbortSignal) => {
       if (progressCallback) progressCallback(1);
       return Promise.resolve(mockReport as MedicalReport);
     });
@@ -114,7 +114,7 @@ describe('useFileUpload hook', () => {
     });
     
     expect(checkFilePermissions).toHaveBeenCalled();
-    expect(uploadReport).toHaveBeenCalledWith(mockFile, expect.any(Function));
+    expect(uploadReport).toHaveBeenCalledWith(mockFile, expect.any(Function), expect.any(AbortSignal));
     expect(result.current.status).toBe(UploadStatus.SUCCESS);
     expect(result.current.progress).toBe(1);
     expect(onUploadCompleteMock).toHaveBeenCalledWith(mockReport);
@@ -140,7 +140,7 @@ describe('useFileUpload hook', () => {
       }
     });
     
-    expect(uploadReport).toHaveBeenCalledWith(mockFile, expect.any(Function));
+    expect(uploadReport).toHaveBeenCalledWith(mockFile, expect.any(Function), expect.any(AbortSignal));
     expect(result.current.status).toBe(UploadStatus.ERROR);
     expect(result.current.error).toBe('Upload failed');
   });
@@ -186,4 +186,4 @@ describe('useFileUpload hook', () => {
     expect(result.current.progress).toBe(0);
     expect(result.current.error).toBeNull();
   });
-}); 
+});

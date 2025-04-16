@@ -157,8 +157,10 @@ const UploadModal = ({ isOpen, onClose, onUploadComplete }: UploadModalProps): J
             </div>
           </div>
         )}
-        
-        {/* Cancel button */}
+      </div>
+      
+      {/* Cancel button - updated to match the size of the upload button */}
+      <div className="upload-modal__bottom-actions">
         <IonButton 
           expand="block" 
           fill="outline"
@@ -227,4 +229,4 @@ const UploadModal = ({ isOpen, onClose, onUploadComplete }: UploadModalProps): J
   );
 };
 
-export default UploadModal; 
+export default UploadModal;
