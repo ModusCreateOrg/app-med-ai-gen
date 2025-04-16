@@ -36,28 +36,28 @@ vi.mock('@ionic/react', async () => {
   return {
     ...actual,
     IonApp: ({ children }: { children: React.ReactNode }) => <div data-testid="mock-ion-app">{children}</div>,
-    IonTabs: ({ children, className }: { children: React.ReactNode, className?: string }) => 
+    IonTabs: ({ children, className }: { children: React.ReactNode, className?: string }) =>
       <div data-testid="mock-ion-tabs" className={className}>{children}</div>,
-    IonRouterOutlet: ({ children, id }: { children: React.ReactNode, id?: string }) => 
+    IonRouterOutlet: ({ children, id }: { children: React.ReactNode, id?: string }) =>
       <div data-testid="mock-ion-router-outlet" id={id}>{children}</div>,
-    IonTabBar: ({ children, slot, className }: { children: React.ReactNode, slot?: string, className?: string }) => 
+    IonTabBar: ({ children, slot, className }: { children: React.ReactNode, slot?: string, className?: string }) =>
       <div data-testid="mock-ion-tab-bar" data-slot={slot} className={className}>{children}</div>,
-    IonTabButton: ({ 
-      children, 
-      tab, 
+    IonTabButton: ({
+      children,
+      tab,
       href,
       className,
-      onClick 
-    }: { 
-      children: React.ReactNode, 
-      tab?: string, 
+      onClick
+    }: {
+      children: React.ReactNode,
+      tab?: string,
       href?: string,
       className?: string,
       onClick?: () => void
     }) => {
       const tabButton = (
-        <div 
-          data-testid={`mock-ion-tab-button-${tab}`} 
+        <div
+          data-testid={`mock-ion-tab-button-${tab}`}
           data-tab={tab}
           data-href={href}
           className={className}
@@ -132,9 +132,9 @@ vi.mock('../../Icon/Icon', () => ({
     size?: string;
     fixedWidth?: boolean;
   }) => (
-    <div 
-      data-testid={`mock-icon-${icon}`} 
-      data-icon-style={iconStyle} 
+    <div
+      data-testid={`mock-icon-${icon}`}
+      data-icon-style={iconStyle}
       className={className}
       data-size={size}
       data-fixed-width={fixedWidth ? 'true' : 'false'}
@@ -220,16 +220,16 @@ describe('TabNavigation', () => {
     // ASSERT
     // Check for home tab button
     expect(screen.getByTestId('mock-ion-tab-button-home')).toHaveAttribute('data-href', '/tabs/home');
-    
+
     // Check for analytics tab button
-    expect(screen.getByTestId('mock-ion-tab-button-analytics')).toHaveAttribute('data-href', '/tabs/analytics');
-    
+    expect(screen.getByTestId('mock-ion-tab-button-reports')).toHaveAttribute('data-href', '/reports');
+
     // Check for chat tab button
     expect(screen.getByTestId('mock-ion-tab-button-chat')).toHaveAttribute('data-href', '/tabs/chat');
-    
+
     // Check for account tab button
     expect(screen.getByTestId('mock-ion-tab-button-account')).toHaveAttribute('data-href', '/tabs/account');
-    
+
     // Upload button doesn't have href attribute as it opens modal
     const uploadButton = screen.getByTestId('mock-ion-tab-button-upload');
     expect(uploadButton).not.toHaveAttribute('data-href');
@@ -242,16 +242,16 @@ describe('TabNavigation', () => {
     // ASSERT
     // Check for home tab button
     expect(screen.getByTestId('mock-ion-tab-button-home')).toHaveAttribute('data-tab', 'home');
-    
+
     // Check for analytics tab button
-    expect(screen.getByTestId('mock-ion-tab-button-analytics')).toHaveAttribute('data-tab', 'analytics');
-    
+    expect(screen.getByTestId('mock-ion-tab-button-reports')).toHaveAttribute('data-tab', 'reports');
+
     // Check for upload tab button
     expect(screen.getByTestId('mock-ion-tab-button-upload')).toHaveAttribute('data-tab', 'upload');
-    
+
     // Check for chat tab button
     expect(screen.getByTestId('mock-ion-tab-button-chat')).toHaveAttribute('data-tab', 'chat');
-    
+
     // Check for account tab button
     expect(screen.getByTestId('mock-ion-tab-button-account')).toHaveAttribute('data-tab', 'account');
   });
@@ -264,21 +264,21 @@ describe('TabNavigation', () => {
     // Home icon should not have a style (using default solid)
     const homeIcon = screen.getByTestId('mock-icon-home');
     expect(homeIcon).not.toHaveAttribute('data-icon-style');
-    
+
     // FileLines icon should have regular style
     const fileLinesIcon = screen.getByTestId('mock-icon-fileLines');
     expect(fileLinesIcon).toHaveAttribute('data-icon-style', 'regular');
-    
+
     // Upload icon should not have a style (using default solid)
     const uploadIcon = screen.getByTestId('mock-icon-arrowUpFromBracket');
     expect(uploadIcon).not.toHaveAttribute('data-icon-style');
-    
+
     // Comment icon should have regular style
     const commentIcon = screen.getByTestId('mock-icon-comment');
     expect(commentIcon).toHaveAttribute('data-icon-style', 'regular');
-    
+
     // User icon should not have a style (using default solid)
     const userIcon = screen.getByTestId('mock-icon-userCircle');
     expect(userIcon).not.toHaveAttribute('data-icon-style');
   });
-}); 
+});

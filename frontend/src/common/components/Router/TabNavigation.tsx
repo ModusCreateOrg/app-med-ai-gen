@@ -43,7 +43,7 @@ const TabNavigation = (): JSX.Element => {
   const handleUploadComplete = () => {
     // Close the modal
     setIsUploadModalOpen(false);
-    
+
     // Navigate to home page to see the newly uploaded report
     history.push('/tabs/home');
   };
@@ -96,7 +96,7 @@ const TabNavigation = (): JSX.Element => {
               fixedWidth
             />
           </IonTabButton>
-          <IonTabButton className="ls-tab-navigation__bar-button" tab="analytics" href="/tabs/analytics">
+          <IonTabButton className="ls-tab-navigation__bar-button" tab="reports" href="/reports">
             <Icon
               className="ls-tab-navigation__bar-button-icon"
               icon="fileLines"
@@ -105,9 +105,9 @@ const TabNavigation = (): JSX.Element => {
               fixedWidth
             />
           </IonTabButton>
-          <IonTabButton 
-            className="ls-tab-navigation__bar-button ls-tab-navigation__bar-button--upload" 
-            tab="upload" 
+          <IonTabButton
+            className="ls-tab-navigation__bar-button ls-tab-navigation__bar-button--upload"
+            tab="upload"
             onClick={handleUploadClick}
           >
             <div className="ls-tab-navigation__bar-button-upload-wrapper">
@@ -143,7 +143,7 @@ const TabNavigation = (): JSX.Element => {
         </IonTabBar>
       </IonTabs>
 
-      <UploadModal 
+      <UploadModal
         isOpen={isUploadModalOpen}
         onClose={() => setIsUploadModalOpen(false)}
         onUploadComplete={handleUploadComplete}
