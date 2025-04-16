@@ -56,6 +56,13 @@ describe('ReportItem', () => {
     category: ReportCategory.GENERAL,
     createdAt: '2025-01-27',
     status: ReportStatus.UNREAD,
+    userId: '1',
+    bookmarked: false,
+    isProcessed: true,
+    labValues: [],
+    summary: '',
+    filePath: '',
+    updatedAt: '2025-01-27',
   };
 
   const mockReadReport: MedicalReport = {
@@ -71,7 +78,7 @@ describe('ReportItem', () => {
 
     // ASSERT
     expect(screen.getByText('Blood Test')).toBeInTheDocument();
-    // expect(screen.getByText('General')).toBeInTheDocument();
+    expect(screen.getByText('general')).toBeInTheDocument();
     expect(screen.getByText(/Upload Date • 01\/27\/2025/)).toBeInTheDocument();
     expect(screen.getByTestId('mocked-icon-user')).toBeInTheDocument();
 
