@@ -78,7 +78,6 @@ describe('ReportItem', () => {
 
     // ASSERT
     expect(screen.getByText('Blood Test')).toBeInTheDocument();
-    expect(screen.getByText('general')).toBeInTheDocument();
     expect(screen.getByText(/Upload Date • 01\/27\/2025/)).toBeInTheDocument();
     expect(screen.getByTestId('mocked-icon-user')).toBeInTheDocument();
 

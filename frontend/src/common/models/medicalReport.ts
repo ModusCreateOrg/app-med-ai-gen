@@ -49,10 +49,4 @@ export interface MedicalReport {
   filePath: string;
   createdAt: string; // ISO date string
   updatedAt: string; // ISO date string
-
-  // Optional fields for backward compatibility
-  documentUrl?: string;
-  content?: string;
-  doctor?: string;
-  facility?: string;
 }
