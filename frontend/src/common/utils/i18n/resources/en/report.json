@@ -43,8 +43,17 @@
     "hemoglobinSuggestion2": "Consider iron-rich foods or supplements after medical consultation already on one."
   },
   "list": {
-    "title": "Medical Reports",
+    "title": "Reports",
     "emptyState": "No reports found",
-    "uploadPrompt": "Upload a medical report to get started"
+    "uploadPrompt": "Upload a medical report to get started",
+    "filterAll": "All",
+    "filterBookmarked": "Bookmarked",
+    "noBookmarksTitle": "No Bookmarked Reports",
+    "noBookmarksMessage": "Bookmark reports to find them quickly here",
+    "sortButton": "Sort reports",
+    "filterButton": "Filter reports",
+    "categoryGeneral": "General",
+    "categoryBrain": "Brain",
+    "categoryHeart": "Heart"
   }
 }

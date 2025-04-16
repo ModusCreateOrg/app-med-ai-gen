@@ -1,25 +1,32 @@
 import {
-  IonBackButton,
-  IonButtons,
   IonContent,
   IonHeader,
   IonPage,
-  IonTitle,
   IonToolbar,
   IonList,
   IonSkeletonText,
   IonItem,
   IonLabel,
+  IonSegment,
+  IonSegmentButton,
+  IonIcon,
+  IonButton,
+  IonToast,
 } from '@ionic/react';
 import { useTranslation } from 'react-i18next';
 import { useHistory } from 'react-router-dom';
-import { useQuery } from '@tanstack/react-query';
-import { fetchAllReports } from 'common/api/reportService';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
+import { fetchAllReports, toggleReportBookmark } from 'common/api/reportService';
 import { useMarkReportAsRead } from 'common/hooks/useReports';
 import ReportItem from 'pages/Home/components/ReportItem/ReportItem';
 import NoReportsMessage from 'pages/Home/components/NoReportsMessage/NoReportsMessage';
+import { useState, useMemo } from 'react';
+import { MedicalReport } from 'common/models/medicalReport';
+import { documentTextOutline, funnel, arrowDown } from 'ionicons/icons';
 
 import './ReportsListPage.scss';
+
+type FilterOption = 'all' | 'bookmarked';
 
 /**
  * Page component for displaying a list of all medical reports.
@@ -27,11 +34,27 @@ import './ReportsListPage.scss';
 const ReportsListPage: React.FC = () => {
   const { t } = useTranslation('report');
   const history = useHistory();
+  const queryClient = useQueryClient();
+  const [filter, setFilter] = useState<FilterOption>('all');
+  const [showToast, setShowToast] = useState(false);
+  const [toastMessage, setToastMessage] = useState('');
+
   const { data: reports = [], isLoading, isError } = useQuery({
     queryKey: ['reports'],
     queryFn: fetchAllReports
   });
+
   const { mutate: markAsRead } = useMarkReportAsRead();
+
+  // Filter reports based on selected filter
+  const filteredReports = useMemo(() => {
+    if (filter === 'all') return reports;
+    return reports.filter(report => report.bookmarked);
+  }, [reports, filter]);
+
+  const handleSegmentChange = (e: CustomEvent) => {
+    setFilter(e.detail.value as FilterOption);
+  };
 
   const handleReportClick = (reportId: string) => {
     // Mark the report as read
@@ -41,12 +64,39 @@ const ReportsListPage: React.FC = () => {
     history.push(`/tabs/reports/${reportId}`);
   };
 
+  const handleToggleBookmark = async (reportId: string, isCurrentlyBookmarked: boolean) => {
+    try {
+      // Toggle the bookmark status
+      const updatedReport = await toggleReportBookmark(reportId, !isCurrentlyBookmarked);
+
+      // Update the reports in the cache
+      queryClient.setQueryData<MedicalReport[]>(['reports'], (oldReports) => {
+        if (!oldReports) return [];
+        return oldReports.map(report =>
+          report.id === updatedReport.id ? updatedReport : report
+        );
+      });
+    } catch (error) {
+      console.error('Failed to toggle bookmark:', error);
+    }
+  };
+
   const handleUpload = () => {
     history.push('/tabs/upload');
   };
 
   const handleRetry = () => {
     window.location.reload();
+  };
+
+  const handleSortClick = () => {
+    setToastMessage(t('list.sortButton'));
+    setShowToast(true);
+  };
+
+  const handleFilterClick = () => {
+    setToastMessage(t('list.filterButton'));
+    setShowToast(true);
   };
 
   const renderReportsList = () => {
@@ -76,43 +126,90 @@ const ReportsListPage: React.FC = () => {
       );
     }
 
-    if (!reports || reports.length === 0) {
+    if (filteredReports.length === 0) {
       return (
         <div className="reports-list-page__empty-state">
-          <NoReportsMessage
-            onUpload={handleUpload}
-            onRetry={handleRetry}
-          />
+          {filter === 'bookmarked' ? (
+            <div className="reports-list-page__no-bookmarks">
+              <h3>{t('list.noBookmarksTitle')}</h3>
+              <p>{t('list.noBookmarksMessage')}</p>
+            </div>
+          ) : (
+            <NoReportsMessage
+              onUpload={handleUpload}
+              onRetry={handleRetry}
+            />
+          )}
         </div>
       );
     }
 
-    return reports.map((report) => (
+    return filteredReports.map((report) => (
       <ReportItem
         key={report.id}
         report={report}
         onClick={() => handleReportClick(report.id)}
+        onToggleBookmark={() => handleToggleBookmark(report.id, !!report.bookmarked)}
+        showBookmarkButton
       />
     ));
   };
 
   return (
     <IonPage className="reports-list-page">
-      <IonHeader>
+      <IonHeader className="reports-list-page__header">
         <IonToolbar>
-          <IonButtons slot="start">
-            <IonBackButton defaultHref="/tabs/home" />
-          </IonButtons>
-          <IonTitle>{t('list.title')}</IonTitle>
+          <div className="reports-list-page__title-container">
+            <IonIcon icon={documentTextOutline} className="reports-list-page__title-icon" />
+            <h1 className="reports-list-page__title">{t('list.title')}</h1>
+          </div>
+          <div className="reports-list-page__actions">
+            <IonButton
+              fill="clear"
+              className="reports-list-page__sort-button"
+              onClick={handleSortClick}
+              aria-label={t('list.sortButton')}
+            >
+              <IonIcon slot="icon-only" icon={arrowDown} />
+            </IonButton>
+            <IonButton
+              fill="clear"
+              className="reports-list-page__filter-button"
+              onClick={handleFilterClick}
+              aria-label={t('list.filterButton')}
+            >
+              <IonIcon slot="icon-only" icon={funnel} />
+            </IonButton>
+          </div>
         </IonToolbar>
       </IonHeader>
-      <IonContent>
+      <IonContent className="reports-list-page__content-container">
+        <div className="reports-list-page__filter">
+          <div className="reports-list-page__segment-wrapper">
+            <IonSegment value={filter} onIonChange={handleSegmentChange} mode="ios">
+              <IonSegmentButton value="all">
+                <IonLabel>{t('list.filterAll')}</IonLabel>
+              </IonSegmentButton>
+              <IonSegmentButton value="bookmarked">
+                <IonLabel>{t('list.filterBookmarked')}</IonLabel>
+              </IonSegmentButton>
+            </IonSegment>
+          </div>
+        </div>
         <div className="reports-list-page__content">
-          <IonList className="reports-list-page__list">
+          <IonList className="reports-list-page__list" lines="none">
             {renderReportsList()}
           </IonList>
         </div>
       </IonContent>
+
+      <IonToast
+        isOpen={showToast}
+        onDidDismiss={() => setShowToast(false)}
+        message={toastMessage}
+        duration={2000}
+        position="bottom"
+      />
     </IonPage>
   );
 };
