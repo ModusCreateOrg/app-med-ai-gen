@@ -40,7 +40,7 @@ vi.mock('common/components/Upload/UploadModal', () => {
       id: '123',
       title: 'Test Report',
       category: ReportCategory.GENERAL,
-      date: '2023-01-01',
+      createdAt: '2023-01-01',
       status: ReportStatus.UNREAD,
     };
     

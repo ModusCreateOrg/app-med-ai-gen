@@ -54,10 +54,8 @@ describe('ReportItem', () => {
     id: '1',
     title: 'Blood Test',
     category: ReportCategory.GENERAL,
-    date: '2025-01-27',
+    createdAt: '2025-01-27',
     status: ReportStatus.UNREAD,
-    doctor: 'Dr. Smith',
-    facility: 'City Hospital'
   };
 
   const mockReadReport: MedicalReport = {
