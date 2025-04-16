@@ -104,7 +104,7 @@ const TabNavigation = (): JSX.Element => {
               fixedWidth
             />
           </IonTabButton>
-          <IonTabButton className="ls-tab-navigation__bar-button" tab="reports" href="/reports">
+          <IonTabButton className="ls-tab-navigation__bar-button" tab="reports" href="/tabs/reports">
             <Icon
               className="ls-tab-navigation__bar-button-icon"
               icon="fileLines"
