@@ -150,8 +150,8 @@ export class ReportsService {
     const command = new GetItemCommand({
       TableName: this.tableName,
       Key: marshall({
-        userId,  // Partition key
-        id       // Sort key
+        userId, // Partition key
+        id, // Sort key
       }),
     });
 
