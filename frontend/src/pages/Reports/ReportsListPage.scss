@@ -1,0 +1,151 @@
+.reports-list-page {
+  --background: #f7f7fa;
+
+  &__header {
+    background: white;
+    box-shadow: none;
+
+    ion-toolbar {
+      --background: white;
+      --border-width: 0;
+      --min-height: 60px;
+      padding: 10px 16px;
+    }
+  }
+
+  &__title-container {
+    display: flex;
+    align-items: center;
+    float: left;
+  }
+
+  &__title-icon {
+    font-size: 20px;
+    margin-right: 8px;
+    color: #4355b9;
+  }
+
+  &__title {
+    font-size: 18px;
+    font-weight: 600;
+    margin: 0;
+    color: #333;
+  }
+
+  &__actions {
+    float: right;
+    display: flex;
+    align-items: center;
+  }
+
+  &__sort-button,
+  &__filter-button {
+    --padding-start: 8px;
+    --padding-end: 8px;
+    height: 36px;
+    width: 36px;
+    --background: transparent;
+    --color: #4355b9;
+    --box-shadow: none;
+    margin-left: 4px;
+
+    ion-icon {
+      font-size: 20px;
+    }
+  }
+
+  &__content-container {
+    --background: #f7f7fa;
+    --padding-top: 0;
+  }
+
+  &__filter {
+    padding: 8px 16px;
+    background-color: white;
+  }
+
+  &__segment-wrapper {
+    ion-segment {
+      --background: #ebeef9;
+      border-radius: 50px;
+      height: 40px;
+      overflow: hidden;
+      --border-radius: 50px;
+
+      ion-segment-button {
+        --color: #777;
+        --color-checked: #4355b9;
+        --indicator-color: white;
+        --background-checked: white;
+        --border-radius: 50px;
+        --border-color: transparent;
+        text-transform: none;
+        font-weight: 500;
+        letter-spacing: normal;
+        font-size: 14px;
+        min-height: 36px;
+
+        &::part(indicator) {
+          border-radius: 50px;
+          box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+      }
+    }
+  }
+
+  &__content {
+    padding: 0;
+  }
+
+  &__list {
+    background-color: transparent;
+    padding: 12px;
+    margin: 0;
+
+    ion-item {
+      --padding-start: 0;
+      --inner-padding-end: 0;
+      --background: transparent;
+    }
+  }
+
+  &__empty-state {
+    padding: 2rem;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+  }
+
+  &__no-bookmarks {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    padding: 2rem 1rem;
+
+    h3 {
+      font-size: 1.2rem;
+      margin-bottom: 0.5rem;
+      color: #333;
+      font-weight: 600;
+    }
+
+    p {
+      font-size: 0.9rem;
+      color: #666;
+      margin: 0;
+    }
+  }
+
+  // Skeleton loading styles
+  .skeleton {
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    background-color: #ebeef9;
+    margin-right: 16px;
+  }
+}

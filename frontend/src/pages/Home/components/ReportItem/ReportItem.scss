@@ -1,91 +1,93 @@
 .report-item {
-  --padding-start: 1rem;
-  --padding-end: 1rem;
-  --padding-top: 0.75rem;
-  --padding-bottom: 0.75rem;
-  --background: white;
-  --border-color: rgba(0, 0, 0, 0.05);
-  border-radius: 0.75rem;
-  margin-bottom: 0.75rem;
-  
-  &__category {
-    font-size: 0.75rem;
-    color: #ff7a45;
-    margin-bottom: 0.25rem;
-    font-weight: 600;
-    display: flex;
-    align-items: center;
-    
-    &::before {
-      content: '';
+  display: flex;
+  padding: 16px;
+  background: white;
+  border-radius: 12px;
+  margin-bottom: 12px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+  position: relative;
+  cursor: pointer;
+
+  &__content {
+    flex: 1;
+    margin-left: 16px;
+  }
+
+  &__category-label {
+    font-size: 12px;
+    color: #4355b9;
+    margin-bottom: 4px;
+    font-weight: 500;
+
+    // Add a small bullet before neurological category
+    &:before {
+      content: "";
       display: inline-block;
-      width: 8px;
-      height: 8px;
+      width: 6px;
+      height: 6px;
+      background-color: #fd6a6a;
       border-radius: 50%;
-      background-color: #ff7a45;
-      margin-right: 6px;
+      margin-right: 8px;
+      vertical-align: middle;
     }
   }
-  
+
   &__title {
     font-weight: 600;
-    margin: 0;
-    font-size: 1rem;
-    color: var(--ion-color-dark);
-    line-height: 1.3;
+    font-size: 16px;
+    color: #111;
+    margin-bottom: 4px;
   }
-  
+
   &__date {
-    font-size: 0.75rem;
-    color: var(--ion-color-medium);
-    margin-top: 0.25rem;
+    font-size: 12px;
+    color: #777;
   }
-  
+
   &__bookmark {
-    color: var(--ion-color-primary);
-    font-size: 1.25rem;
-    
-    &--inactive {
-      opacity: 0.3;
-    }
-  }
-  
-  &__icon {
+    padding: 8px;
     display: flex;
     align-items: center;
     justify-content: center;
-    width: 2.5rem;
-    height: 2.5rem;
-    border-radius: 0.75rem;
-    margin-right: 1rem;
-    color: white;
-    
-    &--general {
-      background-color: #4765ff;
-    }
-    
-    &--neurological {
-      background-color: #5856d6;
-    }
-    
-    &--oftalmological {
-      background-color: #34c759;
-    }
-    
-    &--heart {
-      background-color: #ff2d55;
-    }
-    
-    &--gastro {
-      background-color: #ff9500;
-    }
-    
-    &--orthopedic {
-      background-color: #007aff;
-    }
-    
-    &--other {
-      background-color: #8e8e93;
+
+    &-icon {
+      font-size: 22px;
+      color: #aaa;
+
+      &--active {
+        color: #4355b9;
+      }
     }
   }
-} 
+
+  &__icon {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+
+    &--general {
+      background-color: #4355b9;
+    }
+
+    &--brain {
+      background-color: #4355b9;
+    }
+
+    &--neurological {
+      background-color: #4355b9;
+    }
+
+    &--heart {
+      background-color: #4355b9;
+    }
+
+    svg {
+      width: 22px;
+      height: 22px;
+    }
+  }
+}

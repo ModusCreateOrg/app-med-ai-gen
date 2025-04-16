@@ -222,7 +222,7 @@ describe('TabNavigation', () => {
     expect(screen.getByTestId('mock-ion-tab-button-home')).toHaveAttribute('data-href', '/tabs/home');
 
     // Check for analytics tab button
-    expect(screen.getByTestId('mock-ion-tab-button-reports')).toHaveAttribute('data-href', '/reports');
+    expect(screen.getByTestId('mock-ion-tab-button-reports')).toHaveAttribute('data-href', '/tabs/reports');
 
     // Check for chat tab button
     expect(screen.getByTestId('mock-ion-tab-button-chat')).toHaveAttribute('data-href', '/tabs/chat');

@@ -66,7 +66,7 @@ export const uploadReport = async (
 
     // Send the report metadata to the API
     const response = await axios.post(
-      `${API_URL}/api/reports`, 
+      `${API_URL}/api/reports`,
       {
         filePath: s3Key,
       },
@@ -140,5 +140,39 @@ export const markReportAsRead = async (reportId: string): Promise<MedicalReport>
       throw new ReportError(`Failed to mark report as read: ${error.message}`);
     }
     throw new ReportError('Failed to mark report as read');
+  }
+};
+
+/**
+ * Toggles the bookmark status of a report.
+ * @param reportId - ID of the report to toggle bookmark status
+ * @param isBookmarked - Boolean indicating if the report should be bookmarked or not
+ * @returns Promise with the updated report
+ */
+export const toggleReportBookmark = async (reportId: string, isBookmarked: boolean): Promise<MedicalReport> => {
+  try {
+    await axios.patch(`${API_URL}/api/reports/${reportId}/bookmark`, {
+      bookmarked: isBookmarked
+    }, await getAuthConfig());
+
+    // In a real implementation, this would return the response from the API
+    // return response.data;
+
+    // For now, we'll mock the response
+    const report = mockReports.find(r => r.id === reportId);
+
+    if (!report) {
+      throw new Error(`Report with ID ${reportId} not found`);
+    }
+
+    // Update the bookmark status
+    report.bookmarked = isBookmarked;
+
+    return { ...report };
+  } catch (error) {
+    if (axios.isAxiosError(error)) {
+      throw new ReportError(`Failed to toggle bookmark status: ${error.message}`);
+    }
+    throw new ReportError('Failed to toggle bookmark status');
   }
 };

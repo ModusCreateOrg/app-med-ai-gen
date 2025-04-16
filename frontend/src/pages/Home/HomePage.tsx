@@ -31,16 +31,16 @@ const HomePage: React.FC = () => {
   const { mutate: markAsRead } = useMarkReportAsRead();
   const currentUser = useCurrentUser();
   const [isAIAssistantOpen, setIsAIAssistantOpen] = useState<boolean>(false);
-  
+
   // Get user display name from token data
   const displayName = currentUser?.firstName || currentUser?.name?.split(' ')[0] || 'User';
-  
+
   const handleReportClick = (reportId: string) => {
     // Mark the report as read
     markAsRead(reportId);
-    
+
     // Navigate to the report detail page
-    history.push(`/reports/${reportId}`);
+    history.push(`/tabs/reports/${reportId}`);
   };
 
   const handleUpload = () => {
@@ -74,9 +74,9 @@ const HomePage: React.FC = () => {
     if (isError) {
       return (
         <div className="home-page__empty-state">
-          <NoReportsMessage 
-            onUpload={handleUpload} 
-            onRetry={handleRetry} 
+          <NoReportsMessage
+            onUpload={handleUpload}
+            onRetry={handleRetry}
           />
         </div>
       );
@@ -85,9 +85,9 @@ const HomePage: React.FC = () => {
     if (!reports || reports.length === 0) {
       return (
         <div className="home-page__empty-state">
-          <NoReportsMessage 
-            onUpload={handleUpload} 
-            onRetry={handleRetry} 
+          <NoReportsMessage
+            onUpload={handleUpload}
+            onRetry={handleRetry}
           />
         </div>
       );
@@ -109,7 +109,7 @@ const HomePage: React.FC = () => {
           <div className="home-page__greeting">
             <div className="home-page__greeting-container">
               <div className="home-page__avatar">
-                <Avatar 
+                <Avatar
                   value={currentUser?.name || currentUser?.email || ''}
                   size="large"
                   shape="round"
@@ -118,7 +118,7 @@ const HomePage: React.FC = () => {
               </div>
               <div className="home-page__greeting-text">
                 <h1 className="home-page__greeting-title">
-                  {t('pages.home.greeting', { 
+                  {t('pages.home.greeting', {
                     name: displayName
                   })}
                 </h1>
@@ -149,7 +149,7 @@ const HomePage: React.FC = () => {
 
           <div className="home-page__reports-header">
             <h3 className="home-page__reports-title">{t('reports.latestTitle')}</h3>
-            <IonRouterLink routerLink="/reports" className="home-page__reports-link">
+            <IonRouterLink routerLink="/tabs/reports" className="home-page__reports-link">
               {t('reports.seeAll')}
             </IonRouterLink>
           </div>
@@ -159,8 +159,8 @@ const HomePage: React.FC = () => {
           </IonList>
         </div>
       </IonContent>
-      
-      <AIAssistantModal 
+
+      <AIAssistantModal
         isOpen={isAIAssistantOpen}
         setIsOpen={setIsAIAssistantOpen}
       />
