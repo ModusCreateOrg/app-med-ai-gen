@@ -165,7 +165,6 @@ export class DocumentProcessorController {
       return {
         success: true,
         reportId: report.id,
-        analysis: result.analysis,
       };
     } catch (error: unknown) {
       this.logger.error(
