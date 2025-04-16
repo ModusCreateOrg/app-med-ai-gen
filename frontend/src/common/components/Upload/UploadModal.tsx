@@ -6,9 +6,14 @@ import {
   IonIcon,
   IonProgressBar,
   IonLabel,
-  IonItem
+  IonItem,
 } from '@ionic/react';
-import { closeOutline, cloudUploadOutline, documentOutline, checkmarkOutline } from 'ionicons/icons';
+import {
+  closeOutline,
+  cloudUploadOutline,
+  documentOutline,
+  checkmarkOutline,
+} from 'ionicons/icons';
 import { useTranslation } from 'react-i18next';
 import { UploadStatus, useFileUpload } from '../../hooks/useFileUpload';
 import { MedicalReport } from '../../models/medicalReport';
@@ -34,7 +39,7 @@ const UploadModal = ({ isOpen, onClose, onUploadComplete }: UploadModalProps): J
   const [uploadResult, setUploadResult] = useState<MedicalReport | null>(null);
   // Track when to show the upload cancelled notice
   const [showCancelNotice, setShowCancelNotice] = useState(false);
-  
+
   const {
     file,
     status,
@@ -44,12 +49,13 @@ const UploadModal = ({ isOpen, onClose, onUploadComplete }: UploadModalProps): J
     uploadFile,
     reset,
     formatFileSize,
-    cancelUpload
-  } = useFileUpload({ 
+    cancelUpload,
+  } = useFileUpload({
     // Override onUploadComplete to store the result and not call the parent immediately
-    onUploadComplete: (result) => {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    onUploadComplete: (result: any) => {
       setUploadResult(result);
-      
+
       // Automatically redirect to processing screen after 2 seconds
       setTimeout(() => {
         reset();
@@ -57,10 +63,16 @@ const UploadModal = ({ isOpen, onClose, onUploadComplete }: UploadModalProps): J
         if (onUploadComplete) {
           onUploadComplete(result);
         }
-        // Navigate to the processing tab
-        history.push('/tabs/processing');
+        // Navigate to the processing tab with filePath in state
+        if (file) {
+          history.push('/tabs/processing', {
+            filePath: result.filePath,
+          });
+        } else {
+          history.push('/tabs/processing');
+        }
       }, 2000);
-    }
+    },
   });
 
   // Effect to automatically start upload when a file is selected and validated
@@ -77,7 +89,7 @@ const UploadModal = ({ isOpen, onClose, onUploadComplete }: UploadModalProps): J
     if (!files || files.length === 0) {
       return;
     }
-    
+
     selectFile(files[0]);
     // Upload will be triggered by the useEffect
   };
@@ -104,12 +116,12 @@ const UploadModal = ({ isOpen, onClose, onUploadComplete }: UploadModalProps): J
     if (status === UploadStatus.SUCCESS && uploadResult && onUploadComplete) {
       onUploadComplete(uploadResult);
     }
-    
+
     // Reset state
     reset();
     setUploadResult(null);
     setShowCancelNotice(false);
-    
+
     // Close modal
     onClose();
   };
@@ -129,7 +141,7 @@ const UploadModal = ({ isOpen, onClose, onUploadComplete }: UploadModalProps): J
             {t('upload.imageSizeLimit')} / {t('upload.pdfSizeLimit')}
           </p>
         </div>
-        
+
         {/* Show cancel notice */}
         {showCancelNotice && (
           <div className="upload-modal__cancel-notice">
@@ -139,15 +151,15 @@ const UploadModal = ({ isOpen, onClose, onUploadComplete }: UploadModalProps): J
             <span>Upload cancelled.</span>
           </div>
         )}
-        
-        {error && !showCancelNotice && 
-          <IonItem className='upload-modal__error-message'>
-            <div className='upload-modal__error-icon' slot='start'>
-              <FontAwesomeIcon icon={faCircleXmark} aria-hidden="true"/>
+
+        {error && !showCancelNotice && (
+          <IonItem className="upload-modal__error-message">
+            <div className="upload-modal__error-icon" slot="start">
+              <FontAwesomeIcon icon={faCircleXmark} aria-hidden="true" />
             </div>
             <IonLabel className="upload-modal__error-label ion-text-wrap">{error}</IonLabel>
           </IonItem>
-        }
+        )}
         <input
           type="file"
           ref={fileInputRef}
@@ -155,11 +167,7 @@ const UploadModal = ({ isOpen, onClose, onUploadComplete }: UploadModalProps): J
           onChange={handleFileChange}
           className="upload-modal__file-input"
         />
-        <IonButton 
-          expand="block" 
-          className="upload-modal__upload-btn"
-          onClick={handleUploadClick}
-        >
+        <IonButton expand="block" className="upload-modal__upload-btn" onClick={handleUploadClick}>
           {t('upload.selectFile')}
         </IonButton>
       </div>
@@ -170,7 +178,7 @@ const UploadModal = ({ isOpen, onClose, onUploadComplete }: UploadModalProps): J
     <div className="upload-modal__initial">
       <div className="upload-modal__drop-area">
         <IonIcon icon={cloudUploadOutline} className="upload-modal__icon" />
-        
+
         {/* File display item */}
         {file && (
           <div className="upload-modal__file-item">
@@ -183,19 +191,16 @@ const UploadModal = ({ isOpen, onClose, onUploadComplete }: UploadModalProps): J
                 {formatFileSize(file.size)} • {Math.ceil((1 - progress) * 10)} seconds left
               </div>
               {/* Progress bar */}
-              <IonProgressBar 
-                value={progress} 
-                className="upload-modal__progress"
-              />
+              <IonProgressBar value={progress} className="upload-modal__progress" />
             </div>
           </div>
         )}
       </div>
-      
+
       {/* Cancel button - updated to match the size of the upload button */}
       <div className="upload-modal__bottom-actions">
-        <IonButton 
-          expand="block" 
+        <IonButton
+          expand="block"
           fill="outline"
           className="upload-modal__cancel-btn"
           onClick={handleCancel}
@@ -234,11 +239,12 @@ const UploadModal = ({ isOpen, onClose, onUploadComplete }: UploadModalProps): J
   };
 
   // Show close button for success state but hide during uploading
-  const showCloseButton = status !== UploadStatus.UPLOADING && status !== UploadStatus.REQUESTING_PERMISSION;
+  const showCloseButton =
+    status !== UploadStatus.UPLOADING && status !== UploadStatus.REQUESTING_PERMISSION;
 
   return (
-    <IonModal 
-      isOpen={isOpen} 
+    <IonModal
+      isOpen={isOpen}
       onDidDismiss={handleClose}
       backdropDismiss={false}
       className="upload-modal"
@@ -247,11 +253,7 @@ const UploadModal = ({ isOpen, onClose, onUploadComplete }: UploadModalProps): J
         <div className="upload-modal__header">
           <h1>{t('upload.addNewFile')}</h1>
           {showCloseButton && (
-            <IonButton 
-              fill="clear"
-              className="upload-modal__close-button"
-              onClick={handleClose}
-            >
+            <IonButton fill="clear" className="upload-modal__close-button" onClick={handleClose}>
               <IonIcon icon={closeOutline} />
             </IonButton>
           )}
