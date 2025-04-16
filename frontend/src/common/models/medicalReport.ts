@@ -15,8 +15,22 @@ export enum ReportCategory {
  * Status of a medical report.
  */
 export enum ReportStatus {
-  READ = 'read',
-  UNREAD = 'unread'
+  READ = 'READ',
+  UNREAD = 'UNREAD'
+}
+
+/**
+ * Interface for report lab values.
+ */
+export interface LabValue {
+  name: string;
+  value: string;
+  unit: string;
+  normalRange: string;
+  status: 'normal' | 'high' | 'low';
+  isCritical: boolean;
+  conclusion: string;
+  suggestions: string;
 }
 
 /**
@@ -24,14 +38,21 @@ export enum ReportStatus {
  */
 export interface MedicalReport {
   id: string;
+  userId: string;
   title: string;
-  category: ReportCategory;
-  createdAt: string; // ISO date string
+  category: ReportCategory | string;
+  bookmarked: boolean;
+  isProcessed: boolean;
+  labValues: LabValue[];
+  summary: string;
   status: ReportStatus;
+  filePath: string;
+  createdAt: string; // ISO date string
+  updatedAt: string; // ISO date string
+
+  // Optional fields for backward compatibility
   documentUrl?: string;
-  summary?: string;
   content?: string;
   doctor?: string;
   facility?: string;
-  bookmarked?: boolean;
 }

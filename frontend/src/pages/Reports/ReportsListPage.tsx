@@ -32,7 +32,7 @@ type FilterOption = 'all' | 'bookmarked';
  * Page component for displaying a list of all medical reports.
  */
 const ReportsListPage: React.FC = () => {
-  const { t } = useTranslation('report');
+  const { t } = useTranslation(['report', 'common']);
   const history = useHistory();
   const queryClient = useQueryClient();
   const [filter, setFilter] = useState<FilterOption>('all');
@@ -90,12 +90,12 @@ const ReportsListPage: React.FC = () => {
   };
 
   const handleSortClick = () => {
-    setToastMessage(t('list.sortButton'));
+    setToastMessage(t('list.sortButton', { ns: 'report' }));
     setShowToast(true);
   };
 
   const handleFilterClick = () => {
-    setToastMessage(t('list.filterButton'));
+    setToastMessage(t('list.filterButton', { ns: 'report' }));
     setShowToast(true);
   };
 
@@ -131,8 +131,8 @@ const ReportsListPage: React.FC = () => {
         <div className="reports-list-page__empty-state">
           {filter === 'bookmarked' ? (
             <div className="reports-list-page__no-bookmarks">
-              <h3>{t('list.noBookmarksTitle')}</h3>
-              <p>{t('list.noBookmarksMessage')}</p>
+              <h3>{t('list.noBookmarksTitle', { ns: 'report' })}</h3>
+              <p>{t('list.noBookmarksMessage', { ns: 'report' })}</p>
             </div>
           ) : (
             <NoReportsMessage
@@ -149,7 +149,7 @@ const ReportsListPage: React.FC = () => {
         key={report.id}
         report={report}
         onClick={() => handleReportClick(report.id)}
-        onToggleBookmark={() => handleToggleBookmark(report.id, !!report.bookmarked)}
+        onToggleBookmark={() => handleToggleBookmark(report.id, report.bookmarked)}
         showBookmarkButton
       />
     ));
@@ -161,14 +161,14 @@ const ReportsListPage: React.FC = () => {
         <IonToolbar>
           <div className="reports-list-page__title-container">
             <IonIcon icon={documentTextOutline} className="reports-list-page__title-icon" />
-            <h1 className="reports-list-page__title">{t('list.title')}</h1>
+            <h1 className="reports-list-page__title">{t('list.title', { ns: 'report' })}</h1>
           </div>
           <div className="reports-list-page__actions">
             <IonButton
               fill="clear"
               className="reports-list-page__sort-button"
               onClick={handleSortClick}
-              aria-label={t('list.sortButton')}
+              aria-label={t('list.sortButton', { ns: 'report' })}
             >
               <IonIcon slot="icon-only" icon={arrowDown} />
             </IonButton>
@@ -176,7 +176,7 @@ const ReportsListPage: React.FC = () => {
               fill="clear"
               className="reports-list-page__filter-button"
               onClick={handleFilterClick}
-              aria-label={t('list.filterButton')}
+              aria-label={t('list.filterButton', { ns: 'report' })}
             >
               <IonIcon slot="icon-only" icon={funnel} />
             </IonButton>
@@ -188,10 +188,10 @@ const ReportsListPage: React.FC = () => {
           <div className="reports-list-page__segment-wrapper">
             <IonSegment value={filter} onIonChange={handleSegmentChange} mode="ios">
               <IonSegmentButton value="all">
-                <IonLabel>{t('list.filterAll')}</IonLabel>
+                <IonLabel>{t('list.filterAll', { ns: 'report' })}</IonLabel>
               </IonSegmentButton>
               <IonSegmentButton value="bookmarked">
-                <IonLabel>{t('list.filterBookmarked')}</IonLabel>
+                <IonLabel>{t('list.filterBookmarked', { ns: 'report' })}</IonLabel>
               </IonSegmentButton>
             </IonSegment>
           </div>

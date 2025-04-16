@@ -24,6 +24,7 @@ const ReportItem: React.FC<ReportItemProps> = ({
   const { t } = useTranslation(['common', 'report']);
   const { title, category, createdAt, status, bookmarked } = report;
   console.log(status)
+
   // Treat category as string
   const categoryStr = category.toString();
 
@@ -98,11 +99,11 @@ const ReportItem: React.FC<ReportItemProps> = ({
 
       <div className="report-item__content">
         <div className="report-item__category-label">
-          {t(`report:${getCategoryTranslationKey()}`)}
+          {t(`report:${getCategoryTranslationKey()}`, { ns: 'report' })}
         </div>
         <div className="report-item__title">{title}</div>
         <div className="report-item__date">
-          {t('common:reports.uploadDate')} • {formattedDate}
+          {t('reports.uploadDate', { ns: 'common' })} • {formattedDate}
         </div>
       </div>
 
