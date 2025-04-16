@@ -1,13 +1,44 @@
 .ls-signup-page {
-  .ls-signup-page__container {
-    max-width: 32rem;
+  --ion-background-color: var(--ion-color-background);
+  
+  &__container {
+    max-width: 35rem;
     height: 100%;
     display: flex;
     flex-direction: column;
-    padding-top: 1rem;
+    align-items: center;
+    padding: 2rem 1.5rem;
   }
 
-  .ls-signup-page__form {
+  &__logo-container {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 2.5rem;
+  }
+
+  &__logo {
+    width: 3.5rem;
+    height: auto;
+    margin-right: 0.75rem;
+  }
+  
+  &__logo-text {
+    color: white;
+    font-size: 1.75rem;
+    font-weight: 600;
+  }
+
+  &__card {
+    width: 100%;
+    max-width: 22rem;
+    background-color: white;
+    border-radius: 1.7rem;
+    padding: 2rem;
+    box-shadow: 0 0.5rem 1.5rem rgba(0, 0, 0, 0.15);
+  }
+
+  &__form {
     width: 100%;
   }
 } 

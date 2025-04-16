@@ -4,14 +4,13 @@ import {
   useIonRouter,
   useIonViewDidEnter,
   IonText,
-  IonIcon,
 } from '@ionic/react';
 import { useRef, useState, useEffect } from 'react';
 import classNames from 'classnames';
 import { Form, Formik } from 'formik';
 import { object, string, ref } from 'yup';
 import { useTranslation } from 'react-i18next';
-import { lockClosed } from 'ionicons/icons';
+import { Link } from 'react-router-dom';
 
 import './ResetPasswordForm.scss';
 import { BaseComponentProps } from 'common/components/types';
@@ -151,76 +150,69 @@ const ResetPasswordForm = ({ className, testid = 'form-reset-password' }: ResetP
       >
         {({ dirty, isSubmitting }) => (
           <Form data-testid={`${testid}-form`}>
-            <div className="ls-reset-password-form__icon">
-              <IonIcon icon={lockClosed} />
+            <div className="ls-reset-password-form__title">
+              {t('password-reset.title', { ns: 'auth', defaultValue: 'Reset Password' })}
             </div>
             
-            <div className="ls-reset-password-form__title">
-              {t('password-reset.title', { ns: 'auth' })}
-            </div>
-
-            <div className="ls-reset-password-form__message">
-              <IonText>
-                {t('password-reset.message', { ns: 'auth' })}
-              </IonText>
-              {email && (
-                <IonText className="ls-reset-password-form__email">
-                  <strong>{email}</strong>
-                </IonText>
-              )}
+            <div className="ls-reset-password-form__subtitle">
+              {t('password-reset.subtitle', { ns: 'auth', defaultValue: 'Set a new password for your account.' })}
             </div>
 
             {!email && (
-              <Input
-                name="email"
-                label={t('label.email', { ns: 'auth' })}
-                labelPlacement="stacked"
-                maxlength={50}
-                autocomplete="email"
-                className="ls-reset-password-form__input"
-                ref={focusInput}
-                data-testid={`${testid}-field-email`}
-                type="email"
-              />
+              <div className="ls-reset-password-form__field">
+                <label className="ls-reset-password-form__label">{t('label.email', { ns: 'auth' })}</label>
+                <Input
+                  name="email"
+                  maxlength={50}
+                  autocomplete="email"
+                  className="ls-reset-password-form__input"
+                  ref={focusInput}
+                  data-testid={`${testid}-field-email`}
+                  type="email"
+                />
+              </div>
             )}
 
-            <Input
-              name="code"
-              label={t('label.verification-code', { ns: 'auth' })}
-              labelPlacement="stacked"
-              maxlength={6}
-              className="ls-reset-password-form__input"
-              data-testid={`${testid}-field-code`}
-              type="text"
-              inputmode="numeric"
-              ref={email ? focusInput : undefined}
-            />
+            <div className="ls-reset-password-form__field">
+              <label className="ls-reset-password-form__label">{t('label.verification-code', { ns: 'auth' })}</label>
+              <Input
+                name="code"
+                maxlength={6}
+                className="ls-reset-password-form__input"
+                data-testid={`${testid}-field-code`}
+                type="text"
+                inputmode="numeric"
+                ref={email ? focusInput : undefined}
+              />
+            </div>
 
-            <Input
-              type="password"
-              name="password"
-              label={t('label.password', { ns: 'auth' })}
-              labelPlacement="stacked"
-              maxlength={30}
-              autocomplete="new-password"
-              className="ls-reset-password-form__input"
-              data-testid={`${testid}-field-password`}
-            >
-              <IonInputPasswordToggle slot="end"></IonInputPasswordToggle>
-            </Input>
+            <div className="ls-reset-password-form__field">
+              <label className="ls-reset-password-form__label">{t('label.password', { ns: 'auth' })}</label>
+              <Input
+                type="password"
+                name="password"
+                maxlength={30}
+                autocomplete="new-password"
+                className="ls-reset-password-form__input"
+                data-testid={`${testid}-field-password`}
+              >
+                <IonInputPasswordToggle slot="end"></IonInputPasswordToggle>
+              </Input>
+            </div>
 
-            <Input
-              type="password"
-              name="confirmPassword"
-              label={t('label.confirm-password', { ns: 'auth' })}
-              labelPlacement="stacked"
-              maxlength={30}
-              autocomplete="new-password"
-              className="ls-reset-password-form__input"
-              data-testid={`${testid}-field-confirm-password`}
-            >
-              <IonInputPasswordToggle slot="end"></IonInputPasswordToggle>
-            </Input>
+            <div className="ls-reset-password-form__field">
+              <label className="ls-reset-password-form__label">{t('label.confirm-password', { ns: 'auth' })}</label>
+              <Input
+                type="password"
+                name="confirmPassword"
+                maxlength={30}
+                autocomplete="new-password"
+                className="ls-reset-password-form__input"
+                data-testid={`${testid}-field-confirm-password`}
+              >
+                <IonInputPasswordToggle slot="end"></IonInputPasswordToggle>
+              </Input>
+            </div>
 
             <IonButton
               type="submit"
@@ -229,13 +221,12 @@ const ResetPasswordForm = ({ className, testid = 'form-reset-password' }: ResetP
               disabled={isSubmitting || !dirty || isLoading}
               data-testid={`${testid}-button-submit`}
             >
-              {t('password-reset.button', { ns: 'auth' })}
+              {t('password-reset.button', { ns: 'auth', defaultValue: 'Reset Password' })}
             </IonButton>
             
-            <div className="ls-reset-password-form__back-link">
-              <a href="/auth/signin">
-                {t('back.to.signin', { ns: 'auth' })}
-              </a>
+            <div className="ls-reset-password-form__signup-login">
+              <span>{t('already-have-account', { ns: 'auth', defaultValue: 'Already have an account?' })} </span>
+              <Link to="/auth/signin" className="ls-reset-password-form__link">{t('signin', { ns: 'auth', defaultValue: 'Login' })}</Link>
             </div>
           </Form>
         )}

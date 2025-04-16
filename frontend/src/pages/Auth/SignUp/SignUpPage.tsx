@@ -1,12 +1,11 @@
-import { IonContent, IonPage } from '@ionic/react';
+import { IonContent, IonPage, IonImg } from '@ionic/react';
 import { useTranslation } from 'react-i18next';
 
 import './SignUpPage.scss';
 import { PropsWithTestId } from 'common/components/types';
 import ProgressProvider from 'common/providers/ProgressProvider';
-import Header from 'common/components/Header/Header';
 import SignUpForm from './components/SignUpForm';
-import Container from 'common/components/Content/Container';
+import logo from 'assets/logo_ls.png';
 
 /**
  * Properties for the `SignUpPage` component.
@@ -24,12 +23,17 @@ const SignUpPage = ({ testid = 'page-signup' }: SignUpPageProps): JSX.Element =>
   return (
     <IonPage className="ls-signup-page" data-testid={testid}>
       <ProgressProvider>
-        <Header title={t('signup', { ns: 'auth' })} />
-
         <IonContent fullscreen className="ion-padding" scrollY={true}>
-          <Container className="ls-signup-page__container" fixed>
-            <SignUpForm className="ls-signup-page__form" />
-          </Container>
+          <div className="ls-signup-page__container">
+            <div className="ls-signup-page__logo-container">
+              <IonImg src={logo} alt="Logo" className="ls-signup-page__logo" />
+              <span className="ls-signup-page__logo-text">{t('app.name', { ns: 'common' })}</span>
+            </div>
+            
+            <div className="ls-signup-page__card">
+              <SignUpForm className="ls-signup-page__form" />
+            </div>
+          </div>
         </IonContent>
       </ProgressProvider>
     </IonPage>

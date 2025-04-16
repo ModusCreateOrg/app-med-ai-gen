@@ -1,0 +1,23 @@
+/* 
+ * Global input component styles
+ * Used by various form components throughout the application
+ */
+
+/* Error state styling for inputs */
+.ls-input,
+.ls-textarea,
+.ls-signin-form__input,
+.ls-signup-form__input,
+.ls-forgot-password-form__input,
+.ls-profile-form__input,
+.ls-user-form__input,
+.ls-reset-password-form__input {
+  &.ion-invalid {
+    border-color: var(--ion-color-danger);
+    --highlight-color-focused: transparent;
+
+    .input-bottom {
+      border-top: none;
+    }
+  }
+} 
