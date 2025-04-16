@@ -87,7 +87,7 @@ export class BackendStack extends cdk.Stack {
 
     // Add GSI for querying by createdAt
     reportsTable.addGlobalSecondaryIndex({
-      indexName: 'userIdDateIndex',
+      indexName: 'userIdCreatedAtIndex',
       partitionKey: {
         name: 'userId',
         type: AttributeType.STRING,
@@ -431,6 +431,13 @@ export class BackendStack extends cdk.Stack {
       },
     });
 
+    const processFileIntegration = new apigateway.Integration({
+      type: apigateway.IntegrationType.HTTP_PROXY,
+      integrationHttpMethod: 'POST',
+      uri: `${serviceUrl}/api/document-processor/process-file`,
+      options: integrationOptions,
+    });
+
     // Define method options with authorization
     const methodOptions = {
       authorizer: authorizer,
@@ -451,6 +458,14 @@ export class BackendStack extends cdk.Stack {
     });
 
     reportStatusResource.addMethod('PATCH', patchReportStatusIntegration, {
+      ...methodOptions,
+      requestParameters: {
+        'method.request.path.id': true,
+      },
+    });
+
+    // Add POST method to process file
+    reportIdResource.addMethod('POST', processFileIntegration, {
       ...methodOptions,
       requestParameters: {
         'method.request.path.id': true,
