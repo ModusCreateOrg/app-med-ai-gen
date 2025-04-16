@@ -15,6 +15,8 @@ import { MedicalReport } from '../../models/medicalReport';
 import './UploadModal.scss';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faCircleXmark } from '@fortawesome/free-regular-svg-icons';
+import { useHistory } from 'react-router';
+import { useTimeout } from '../../hooks/useTimeout';
 
 export interface UploadModalProps {
   isOpen: boolean;
@@ -25,6 +27,8 @@ export interface UploadModalProps {
 
 const UploadModal = ({ isOpen, onClose, onUploadComplete }: UploadModalProps): JSX.Element => {
   const { t } = useTranslation();
+  const history = useHistory();
+  const { setTimeout } = useTimeout();
   const fileInputRef = useRef<HTMLInputElement>(null);
   // Track the upload result to use when the user closes the success screen
   const [uploadResult, setUploadResult] = useState<MedicalReport | null>(null);
@@ -45,6 +49,17 @@ const UploadModal = ({ isOpen, onClose, onUploadComplete }: UploadModalProps): J
     // Override onUploadComplete to store the result and not call the parent immediately
     onUploadComplete: (result) => {
       setUploadResult(result);
+      
+      // Automatically redirect to processing screen after 2 seconds
+      setTimeout(() => {
+        reset();
+        onClose();
+        if (onUploadComplete) {
+          onUploadComplete(result);
+        }
+        // Navigate to the processing tab
+        history.push('/tabs/processing');
+      }, 2000);
     }
   });
 
