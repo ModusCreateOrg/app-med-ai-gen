@@ -28,6 +28,8 @@ const UploadModal = ({ isOpen, onClose, onUploadComplete }: UploadModalProps): J
   const fileInputRef = useRef<HTMLInputElement>(null);
   // Track the upload result to use when the user closes the success screen
   const [uploadResult, setUploadResult] = useState<MedicalReport | null>(null);
+  // Track when to show the upload cancelled notice
+  const [showCancelNotice, setShowCancelNotice] = useState(false);
   
   const {
     file,
@@ -49,6 +51,8 @@ const UploadModal = ({ isOpen, onClose, onUploadComplete }: UploadModalProps): J
   // Effect to automatically start upload when a file is selected and validated
   useEffect(() => {
     if (file && status === UploadStatus.IDLE) {
+      // When starting a new upload, hide the cancel notice if it's showing
+      setShowCancelNotice(false);
       uploadFile();
     }
   }, [file, status, uploadFile]);
@@ -71,6 +75,8 @@ const UploadModal = ({ isOpen, onClose, onUploadComplete }: UploadModalProps): J
   const handleCancel = () => {
     if (status === UploadStatus.UPLOADING) {
       cancelUpload?.();
+      // Show the cancel notice when a user explicitly cancels an upload in progress
+      setShowCancelNotice(true);
     } else {
       reset();
       setUploadResult(null);
@@ -87,6 +93,7 @@ const UploadModal = ({ isOpen, onClose, onUploadComplete }: UploadModalProps): J
     // Reset state
     reset();
     setUploadResult(null);
+    setShowCancelNotice(false);
     
     // Close modal
     onClose();
@@ -107,7 +114,18 @@ const UploadModal = ({ isOpen, onClose, onUploadComplete }: UploadModalProps): J
             {t('upload.imageSizeLimit')} / {t('upload.pdfSizeLimit')}
           </p>
         </div>
-        {error && 
+        
+        {/* Show cancel notice */}
+        {showCancelNotice && (
+          <div className="upload-modal__cancel-notice">
+            <div className="upload-modal__cancel-notice-icon">
+              <FontAwesomeIcon icon={faCircleXmark} />
+            </div>
+            <span>Upload cancelled.</span>
+          </div>
+        )}
+        
+        {error && !showCancelNotice && 
           <IonItem className='upload-modal__error-message'>
             <div className='upload-modal__error-icon' slot='start'>
               <FontAwesomeIcon icon={faCircleXmark} aria-hidden="true"/>
