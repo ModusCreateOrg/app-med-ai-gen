@@ -79,7 +79,7 @@ export const uploadReport = async (
     if (signal?.aborted) {
       throw new DOMException('The operation was aborted', 'AbortError');
     }
-    
+
     if (axios.isAxiosError(error)) {
       console.error('API Error Details:', error.response?.data, error.response?.headers);
       throw new ReportError(`Failed to upload report: ${error.message}`);
@@ -174,5 +174,20 @@ export const toggleReportBookmark = async (reportId: string, isBookmarked: boole
       throw new ReportError(`Failed to toggle bookmark status: ${error.message}`);
     }
     throw new ReportError('Failed to toggle bookmark status');
+  }
+};
+
+/**
+ * Fetches a single medical report by ID
+ * @param reportId The ID of the report to fetch
+ * @returns Promise with the report data
+ */
+export const fetchReportById = async (reportId: string): Promise<MedicalReport> => {
+  try {
+    const response = await axios.get(`${API_URL}/api/reports/${reportId}`, await getAuthConfig());
+    return response.data;
+  } catch (error) {
+    console.error('Error fetching report:', error);
+    throw error;
   }
 };
