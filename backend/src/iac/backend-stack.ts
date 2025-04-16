@@ -87,7 +87,7 @@ export class BackendStack extends cdk.Stack {
 
     // Add GSI for querying by createdAt
     reportsTable.addGlobalSecondaryIndex({
-      indexName: 'userIdDateIndex',
+      indexName: 'userIdCreatedAtIndex',
       partitionKey: {
         name: 'userId',
         type: AttributeType.STRING,
