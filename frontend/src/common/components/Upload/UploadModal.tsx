@@ -63,10 +63,10 @@ const UploadModal = ({ isOpen, onClose, onUploadComplete }: UploadModalProps): J
         if (onUploadComplete) {
           onUploadComplete(result);
         }
-        // Navigate to the processing tab with filePath in state
+        // Navigate to the processing tab with reportId in state
         if (file) {
           history.push('/tabs/processing', {
-            filePath: result.filePath,
+            reportId: result.id,
           });
         } else {
           history.push('/tabs/processing');
