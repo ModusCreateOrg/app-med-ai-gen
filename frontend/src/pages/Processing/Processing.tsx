@@ -26,6 +26,7 @@ const Processing: React.FC = () => {
   const location = useLocation<{ filePath: string }>();
   const filePath = location.state?.filePath;
   const [reportId, setReportId] = useState(null);
+  const [isFetching, setIsFetching] = useState(false);
 
   // Send the API request when component mounts
   useEffect(() => {
@@ -35,11 +36,13 @@ const Processing: React.FC = () => {
       return;
     }
 
-    if (reportId) {
+    if (reportId && isFetching) {
       return;
     }
 
     const processFile = async () => {
+      setIsFetching(true);
+
       try {
         // Send POST request to backend API
         const response = await axios.post(
