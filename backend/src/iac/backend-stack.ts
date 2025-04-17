@@ -372,6 +372,9 @@ export class BackendStack extends cdk.Stack {
     // Create the 'status' resource under ':id'
     const reportStatusResource = reportIdResource.addResource('status');
 
+    // Create the 'process-file' resource under ':id'
+    const processFileResource = reportIdResource.addResource('process-file');
+
     // Define integration options once for reuse
     const integrationOptions = {
       connectionType: apigateway.ConnectionType.VPC_LINK,
@@ -465,7 +468,7 @@ export class BackendStack extends cdk.Stack {
     });
 
     // Add POST method to process file
-    reportIdResource.addMethod('POST', processFileIntegration, {
+    processFileResource.addMethod('POST', processFileIntegration, {
       ...methodOptions,
       requestParameters: {
         'method.request.path.id': true,
@@ -503,6 +506,10 @@ export class BackendStack extends cdk.Stack {
       allowCredentials: false,
     });
     docsResource.addCorsPreflight({
+      ...corsOptions,
+      allowCredentials: false,
+    });
+    processFileResource.addCorsPreflight({
       ...corsOptions,
       allowCredentials: false,
     });
