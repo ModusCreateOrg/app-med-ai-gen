@@ -4,7 +4,7 @@ import { useCallback, useEffect, useRef } from 'react';
  * Custom hook for handling setTimeout with cleanup
  */
 export const useTimeout = () => {
-  const timeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const timeoutRef = useRef<number | null>(null);
 
   // Clear the timeout when component unmounts or when called manually
   const clearTimeout = useCallback(() => {

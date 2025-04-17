@@ -176,6 +176,31 @@ export class BackendStack extends cdk.Stack {
       }),
     );
 
+    // Add Amazon Textract permissions for document analysis
+    taskRole.addToPolicy(
+      new iam.PolicyStatement({
+        effect: iam.Effect.ALLOW,
+        actions: [
+          'textract:AnalyzeDocument',
+          'textract:DetectDocumentText',
+          'textract:GetDocumentAnalysis',
+          'textract:StartDocumentAnalysis',
+          'textract:StartDocumentTextDetection',
+          'textract:GetDocumentTextDetection',
+        ],
+        resources: ['*'], // You may want to restrict this to specific resources in production
+      }),
+    );
+
+    // Add Amazon Bedrock permissions for model invocation
+    taskRole.addToPolicy(
+      new iam.PolicyStatement({
+        effect: iam.Effect.ALLOW,
+        actions: ['bedrock:InvokeModel'],
+        resources: ['*'],
+      }),
+    );
+
     // Task Definition with explicit roles
     const taskDefinition = new ecs.FargateTaskDefinition(
       this,
