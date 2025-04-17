@@ -15,7 +15,7 @@ import {
   QueryCommand,
 } from '@aws-sdk/client-dynamodb';
 import { marshall, unmarshall } from '@aws-sdk/util-dynamodb';
-import { Report, ReportStatus } from './models/report.model';
+import { Report, ReportStatus, ProcessingStatus } from './models/report.model';
 import { GetReportsQueryDto } from './dto/get-reports.dto';
 import { UpdateReportStatusDto } from './dto/update-report-status.dto';
 import { v4 as uuidv4 } from 'uuid';
@@ -299,7 +299,7 @@ export class ReportsService {
         title: 'New Report',
         bookmarked: false,
         category: '',
-        isProcessed: false,
+        processingStatus: ProcessingStatus.UNPROCESSED,
         labValues: [],
         summary: '',
         status: ReportStatus.UNREAD,

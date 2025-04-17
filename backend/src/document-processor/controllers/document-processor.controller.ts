@@ -25,6 +25,7 @@ import { RequestWithUser } from '../../auth/auth.middleware';
 import { Readable } from 'stream';
 import { S3Client, GetObjectCommand } from '@aws-sdk/client-s3';
 import { ConfigService } from '@nestjs/config';
+import { ProcessingStatus } from '../../reports/models/report.model';
 
 @Controller('document-processor')
 export class DocumentProcessorController {
@@ -146,7 +147,7 @@ export class DocumentProcessorController {
       // Update the report with analysis results
       report.title = result.analysis.title || 'Untitled Report';
       report.category = result.analysis.category || 'general';
-      report.isProcessed = true;
+      report.processingStatus = ProcessingStatus.PROCESSED;
 
       // Extract lab values
       report.labValues = result.analysis.labValues || [];

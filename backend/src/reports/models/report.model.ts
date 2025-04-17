@@ -5,6 +5,12 @@ export enum ReportStatus {
   READ = 'READ',
 }
 
+export enum ProcessingStatus {
+  PROCESSED = 'processed',
+  UNPROCESSED = 'unprocessed',
+  IN_PROGRESS = 'in_progress',
+}
+
 export class Report {
   @ApiProperty({ description: 'Unique identifier for the report' })
   id: string;
@@ -21,8 +27,12 @@ export class Report {
   @ApiProperty({ description: 'Category of the report' })
   category: string;
 
-  @ApiProperty({ description: 'Whether the report has been processed' })
-  isProcessed: boolean;
+  @ApiProperty({
+    description: 'Processing status of the report',
+    enum: ProcessingStatus,
+    default: ProcessingStatus.UNPROCESSED,
+  })
+  processingStatus: ProcessingStatus;
 
   @ApiProperty({ description: 'List of lab values' })
   labValues: Array<{
