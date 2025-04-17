@@ -405,6 +405,7 @@ export class BackendStack extends cdk.Stack {
     const integrationOptions = {
       connectionType: apigateway.ConnectionType.VPC_LINK,
       vpcLink: vpcLink,
+      timeout: cdk.Duration.seconds(300), // Adding 5-minute timeout (300 seconds)
     };
 
     const getDocsIntegration = new apigateway.Integration({
