@@ -149,7 +149,10 @@ export class ReportsService {
 
     const command = new GetItemCommand({
       TableName: this.tableName,
-      Key: marshall({ id }),
+      Key: marshall({
+        userId, // Partition key
+        id, // Sort key
+      }),
     });
 
     try {
@@ -161,14 +164,9 @@ export class ReportsService {
 
       const report = unmarshall(response.Item) as Report;
 
-      // Verify the report belongs to the user
-      if (report.userId !== userId) {
-        throw new ForbiddenException('You do not have permission to access this report');
-      }
-
       return report;
     } catch (error: unknown) {
-      if (error instanceof NotFoundException) {
+      if (error instanceof NotFoundException || error instanceof ForbiddenException) {
         throw error;
       }
 
@@ -179,6 +177,14 @@ export class ReportsService {
         if (error.name === 'ResourceNotFoundException') {
           throw new InternalServerErrorException(
             `Table "${this.tableName}" not found. Please check your database configuration.`,
+          );
+        } else if (error.name === 'UnrecognizedClientException') {
+          throw new InternalServerErrorException(
+            'Invalid AWS credentials. Please check your AWS configuration.',
+          );
+        } else if (error.name === 'ValidationException') {
+          throw new InternalServerErrorException(
+            'The provided key structure does not match the table schema. Please check your DynamoDB table configuration.',
           );
         }
       }
