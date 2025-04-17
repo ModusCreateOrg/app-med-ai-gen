@@ -192,6 +192,15 @@ export class BackendStack extends cdk.Stack {
       }),
     );
 
+    // Add Amazon Bedrock permissions for model invocation
+    taskRole.addToPolicy(
+      new iam.PolicyStatement({
+        effect: iam.Effect.ALLOW,
+        actions: ['bedrock:InvokeModel'],
+        resources: ['*'],
+      }),
+    );
+
     // Task Definition with explicit roles
     const taskDefinition = new ecs.FargateTaskDefinition(
       this,
