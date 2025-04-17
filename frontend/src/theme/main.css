@@ -38,3 +38,5 @@
 @import './typography.css';
 /* flexbox and grid */
 @import './grid.css';
+/* global component styles */
+@import './components/inputs.scss';
