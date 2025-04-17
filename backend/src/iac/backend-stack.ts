@@ -423,13 +423,6 @@ export class BackendStack extends cdk.Stack {
       },
     });
 
-    const processFileIntegration = new apigateway.Integration({
-      type: apigateway.IntegrationType.HTTP_PROXY,
-      integrationHttpMethod: 'POST',
-      uri: `${serviceUrl}/api/document-processor/process-file`,
-      options: integrationOptions,
-    });
-
     const patchReportStatusIntegration = new apigateway.Integration({
       type: apigateway.IntegrationType.HTTP_PROXY,
       integrationHttpMethod: 'PATCH',
