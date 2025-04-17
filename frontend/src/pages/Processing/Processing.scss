@@ -1,0 +1,102 @@
+.processing-page {
+  --background: #1c1c1e;
+  
+  &__container {
+    background-color: white;
+    border-radius: 32px;
+    height: 100%;
+    margin: 0;
+    padding: 24px;
+    display: flex;
+    flex-direction: column;
+    position: relative;
+  }
+  
+  &__header {
+    display: flex;
+    flex-direction: column;
+    margin-top: 20px;
+  }
+  
+  &__avatar-wrapper {
+    margin-bottom: 20px;
+    
+    // Styles for the Avatar component - adjusted size to match design
+    .ls-avatar {
+      --size: 60px !important;
+      margin: 0;
+      
+      // This makes sure even round avatars are sized correctly
+      &.ls-avatar--round {
+        width: var(--size);
+        height: var(--size);
+      }
+    }
+  }
+  
+  &__title {
+    margin-bottom: 40px;
+  }
+  
+  &__subtitle {
+    font-size: 20px;
+    color: #9BA1AB;
+    margin: 0 0 5px 0;
+    font-weight: 400;
+  }
+  
+  &__heading {
+    font-size: 36px;
+    font-weight: 600;
+    color: #394150;
+    margin: 0;
+  }
+  
+  &__animation {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    
+    &-circle {
+      // Adjusted animation size to match design
+      width: 180px;
+      height: 180px;
+      border-radius: 50%;
+      background: radial-gradient(circle at 30% 30%, #4f7dff 10%, #c97eff 40%, #ff8afc 80%);
+      box-shadow: 
+        0 0 40px rgba(201, 126, 255, 0.5),
+        0 0 80px rgba(201, 126, 255, 0.3);
+      position: relative;
+      overflow: hidden;
+      animation: pulse 3s infinite ease-in-out;
+      
+      &::after {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: linear-gradient(135deg, rgba(255,255,255,0.4) 0%, transparent 50%);
+        border-radius: 50%;
+      }
+    }
+  }
+}
+
+// Animation for the pulse effect
+@keyframes pulse {
+  0% {
+    transform: scale(0.95);
+    opacity: 0.8;
+  }
+  50% {
+    transform: scale(1);
+    opacity: 1;
+  }
+  100% {
+    transform: scale(0.95);
+    opacity: 0.8;
+  }
+}

@@ -8,11 +8,11 @@ import {
 import { ConfigService } from '@nestjs/config';
 import {
   DynamoDBClient,
-  ScanCommand,
   GetItemCommand,
   UpdateItemCommand,
   DynamoDBServiceException,
   PutItemCommand,
+  QueryCommand,
 } from '@aws-sdk/client-dynamodb';
 import { marshall, unmarshall } from '@aws-sdk/util-dynamodb';
 import { Report, ReportStatus } from './models/report.model';
@@ -60,10 +60,10 @@ export class ReportsService {
     }
 
     try {
-      // If the table has a GSI for userId, use QueryCommand instead
-      const command = new ScanCommand({
+      // Use QueryCommand instead of ScanCommand since userId is the partition key
+      const command = new QueryCommand({
         TableName: this.tableName,
-        FilterExpression: 'userId = :userId',
+        KeyConditionExpression: 'userId = :userId',
         ExpressionAttributeValues: marshall({
           ':userId': userId,
         }),
@@ -105,23 +105,21 @@ export class ReportsService {
       typeof queryDto.limit === 'string' ? parseInt(queryDto.limit, 10) : queryDto.limit || 10;
 
     try {
-      // If the table has a GSI for userId, use QueryCommand instead
-      const command = new ScanCommand({
+      // Use the GSI userIdCreatedAtIndex with QueryCommand for efficient retrieval
+      // This is much more efficient than a ScanCommand
+      const command = new QueryCommand({
         TableName: this.tableName,
-        FilterExpression: 'userId = :userId',
+        IndexName: 'userIdCreatedAtIndex', // Use the GSI for efficient queries
+        KeyConditionExpression: 'userId = :userId',
         ExpressionAttributeValues: marshall({
           ':userId': userId,
         }),
-        Limit: limit * 5, // Fetch more items since we'll filter by userId
+        ScanIndexForward: false, // Get items in descending order (newest first)
+        Limit: limit, // Only fetch the number of items we need
       });
 
       const response = await this.dynamoClient.send(command);
-      const reports = (response.Items || []).map(item => unmarshall(item) as Report);
-
-      // Sort by createdAt in descending order
-      return reports
-        .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
-        .slice(0, limit);
+      return (response.Items || []).map(item => unmarshall(item) as Report);
     } catch (error: unknown) {
       this.logger.error(`Error fetching latest reports for user ${userId}:`);
       this.logger.error(error);
@@ -131,6 +129,26 @@ export class ReportsService {
           throw new InternalServerErrorException(
             `Table "${this.tableName}" not found. Please check your database configuration.`,
           );
+        } else if (error.name === 'ValidationException') {
+          // This could happen if the GSI doesn't exist
+          this.logger.warn('GSI validation error, falling back to standard query');
+
+          // Fallback to standard query and sort in memory if GSI has issues
+          const fallbackCommand = new QueryCommand({
+            TableName: this.tableName,
+            KeyConditionExpression: 'userId = :userId',
+            ExpressionAttributeValues: marshall({
+              ':userId': userId,
+            }),
+          });
+
+          const fallbackResponse = await this.dynamoClient.send(fallbackCommand);
+          const reports = (fallbackResponse.Items || []).map(item => unmarshall(item) as Report);
+
+          // Sort by createdAt in descending order
+          return reports
+            .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
+            .slice(0, limit);
         }
       }
 
@@ -330,25 +348,75 @@ export class ReportsService {
       throw new ForbiddenException('User ID is required');
     }
 
+    // Log the actual filePath being searched for debugging
+    this.logger.log(`Searching for report with filePath: "${filePath}" for user ${userId}`);
+
     try {
-      // Since filePath isn't a key attribute, we need to scan with filter
-      const command = new ScanCommand({
+      const command = new QueryCommand({
         TableName: this.tableName,
-        FilterExpression: 'filePath = :filePath AND userId = :userId',
+        KeyConditionExpression: 'userId = :userId',
+        FilterExpression: 'filePath = :filePath',
         ExpressionAttributeValues: marshall({
-          ':filePath': filePath,
           ':userId': userId,
+          ':filePath': filePath,
         }),
         Limit: 1, // We only want one record
       });
 
+      this.logger.log('Executing QueryCommand with params:', {
+        TableName: this.tableName,
+        KeyConditionExpression: 'userId = :userId',
+        FilterExpression: 'filePath = :filePath',
+        Values: {
+          userId,
+          filePath,
+        },
+      });
+
       const response = await this.dynamoClient.send(command);
 
+      this.logger.log(`Query response received, found ${response.Items?.length || 0} items`);
+
       if (!response.Items || response.Items.length === 0) {
+        // If no exact match, try with case-insensitive comparison as a fallback
+        this.logger.log('No exact match found, trying with case-insensitive search');
+
+        // Get all items for the user and filter manually for case-insensitive match
+        const allUserItemsCommand = new QueryCommand({
+          TableName: this.tableName,
+          KeyConditionExpression: 'userId = :userId',
+          ExpressionAttributeValues: marshall({
+            ':userId': userId,
+          }),
+        });
+
+        const allUserResponse = await this.dynamoClient.send(allUserItemsCommand);
+
+        if (!allUserResponse.Items || allUserResponse.Items.length === 0) {
+          return null;
+        }
+
+        // Convert items and find case-insensitive match
+        const allReports = allUserResponse.Items.map(item => unmarshall(item) as Report);
+        const matchingReport = allReports.find(
+          report => report.filePath.toLowerCase() === filePath.toLowerCase(),
+        );
+
+        if (matchingReport) {
+          this.logger.log(
+            `Found case-insensitive match for ${filePath}: ${matchingReport.filePath}`,
+          );
+
+          return matchingReport;
+        }
+
         return null;
       }
 
-      return unmarshall(response.Items[0]) as Report;
+      const result = unmarshall(response.Items[0]) as Report;
+      this.logger.log(`Found report with ID ${result.id}`);
+
+      return result;
     } catch (error: unknown) {
       this.logger.error(`Error finding report with filePath ${filePath}:`);
       this.logger.error(error);
