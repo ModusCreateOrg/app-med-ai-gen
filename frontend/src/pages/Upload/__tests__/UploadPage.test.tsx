@@ -2,7 +2,7 @@ import { vi, describe, test, expect, beforeEach } from 'vitest';
 import { render, screen, fireEvent } from '@testing-library/react';
 import UploadPage from '../UploadPage';
 import { MemoryRouter } from 'react-router-dom';
-import { MedicalReport, ReportCategory, ReportStatus } from 'common/models/medicalReport';
+import { MedicalReport, ReportCategory, ReportStatus, ProcessingStatus } from 'common/models/medicalReport';
 import '@testing-library/jest-dom';
 
 // Mock the dependencies
@@ -28,9 +28,13 @@ vi.mock('react-router-dom', async () => {
 
 // Mock the UploadModal component
 vi.mock('common/components/Upload/UploadModal', () => {
-  const ModalMock = ({ isOpen, onClose, onUploadComplete }: { 
-    isOpen: boolean; 
-    onClose: () => void; 
+  const ModalMock = ({
+    isOpen,
+    onClose,
+    onUploadComplete,
+  }: {
+    isOpen: boolean;
+    onClose: () => void;
     onUploadComplete: (report: MedicalReport) => void;
   }) => {
     if (!isOpen) return null;
@@ -38,27 +42,33 @@ vi.mock('common/components/Upload/UploadModal', () => {
     // Mock report that will be returned on upload complete
     const mockReport: MedicalReport = {
       id: '123',
+      userId: 'test-user',
       title: 'Test Report',
       category: ReportCategory.GENERAL,
       createdAt: '2023-01-01',
       status: ReportStatus.UNREAD,
+      bookmarked: false,
+      processingStatus: ProcessingStatus.PROCESSED,
+      labValues: [],
+      summary: 'Test report summary',
+      filePath: '/reports/test-report.pdf',
+      updatedAt: '2023-01-01',
     };
-    
+
     return (
       <div data-testid="upload-modal">
-        <button data-testid="close-modal-btn" onClick={onClose}>Close Modal</button>
-        <button 
-          data-testid="complete-upload-btn" 
-          onClick={() => onUploadComplete(mockReport)}
-        >
+        <button data-testid="close-modal-btn" onClick={onClose}>
+          Close Modal
+        </button>
+        <button data-testid="complete-upload-btn" onClick={() => onUploadComplete(mockReport)}>
           Complete Upload
         </button>
       </div>
     );
   };
-  
+
   return {
-    default: ModalMock
+    default: ModalMock,
   };
 });
 
@@ -69,12 +79,19 @@ vi.mock('@ionic/react', () => ({
   IonPage: ({ children }: { children: React.ReactNode }) => <div>{children}</div>,
   IonTitle: ({ children }: { children: React.ReactNode }) => <div>{children}</div>,
   IonToolbar: ({ children }: { children: React.ReactNode }) => <div>{children}</div>,
-  IonButton: ({ children, onClick }: { 
-    children: React.ReactNode; 
+  IonButton: ({
+    children,
+    onClick,
+  }: {
+    children: React.ReactNode;
     onClick?: () => void;
     expand?: string;
     className?: string;
-  }) => <button onClick={onClick} data-testid="select-file-btn">{children}</button>,
+  }) => (
+    <button onClick={onClick} data-testid="select-file-btn">
+      {children}
+    </button>
+  ),
 }));
 
 describe('UploadPage', () => {
@@ -82,103 +99,103 @@ describe('UploadPage', () => {
     // Reset mocks before each test
     vi.clearAllMocks();
   });
-  
+
   test('renders correctly', () => {
     render(
       <MemoryRouter>
         <UploadPage />
-      </MemoryRouter>
+      </MemoryRouter>,
     );
-    
+
     // Check for key elements
     expect(screen.getByText('pages.upload.title')).toBeInTheDocument();
     expect(screen.getByText('pages.upload.subtitle')).toBeInTheDocument();
     expect(screen.getByText('pages.upload.description')).toBeInTheDocument();
     expect(screen.getByText('upload.selectFile')).toBeInTheDocument();
   });
-  
+
   test('opens modal when button is clicked', () => {
     render(
       <MemoryRouter>
         <UploadPage />
-      </MemoryRouter>
+      </MemoryRouter>,
     );
-    
+
     // Modal should not be visible initially
     expect(screen.queryByTestId('upload-modal')).not.toBeInTheDocument();
-    
+
     // Click the button to open modal
     const button = screen.getByTestId('select-file-btn');
     fireEvent.click(button);
-    
+
     // Modal should now be visible
     expect(screen.getByTestId('upload-modal')).toBeInTheDocument();
   });
-  
+
   test('closes modal when onClose is called', () => {
     render(
       <MemoryRouter>
         <UploadPage />
-      </MemoryRouter>
+      </MemoryRouter>,
     );
-    
+
     // Open the modal first
     const openButton = screen.getByTestId('select-file-btn');
     fireEvent.click(openButton);
-    
+
     // Modal should be visible
     expect(screen.getByTestId('upload-modal')).toBeInTheDocument();
-    
+
     // Click the close button
     const closeButton = screen.getByTestId('close-modal-btn');
     fireEvent.click(closeButton);
-    
+
     // Modal should now be hidden
     expect(screen.queryByTestId('upload-modal')).not.toBeInTheDocument();
   });
-  
+
   test('navigates to home page after successful upload', () => {
     render(
       <MemoryRouter>
         <UploadPage />
-      </MemoryRouter>
+      </MemoryRouter>,
     );
-    
+
     // Open the modal first
     const openButton = screen.getByTestId('select-file-btn');
     fireEvent.click(openButton);
-    
+
     // Complete the upload
     const completeButton = screen.getByTestId('complete-upload-btn');
     fireEvent.click(completeButton);
-    
+
     // Should navigate to home page
     expect(mockHistoryPush).toHaveBeenCalledWith('/tabs/home');
-    
+
     // Modal should be closed after upload completion
     expect(screen.queryByTestId('upload-modal')).not.toBeInTheDocument();
   });
-  
+
   test('handles canceling an upload', () => {
     render(
       <MemoryRouter>
         <UploadPage />
-      </MemoryRouter>
+      </MemoryRouter>,
     );
-    
+
     // Open the modal
     const openButton = screen.getByTestId('select-file-btn');
     fireEvent.click(openButton);
-    
+
     // Verify modal is shown
     expect(screen.getByTestId('upload-modal')).toBeInTheDocument();
-    
+
     // Cancel/close the upload
     const closeButton = screen.getByTestId('close-modal-btn');
     fireEvent.click(closeButton);
-    
+
     // Modal should be hidden and no navigation should happen
     expect(screen.queryByTestId('upload-modal')).not.toBeInTheDocument();
     expect(mockHistoryPush).not.toHaveBeenCalled();
   });
-}); 
+});

@@ -15,8 +15,17 @@ export enum ReportCategory {
  * Status of a medical report.
  */
 export enum ReportStatus {
+  UNREAD = 'UNREAD',
   READ = 'READ',
-  UNREAD = 'UNREAD'
+}
+
+/**
+ * Processing status of a medical report.
+ */
+export enum ProcessingStatus {
+  PROCESSED = 'processed',
+  UNPROCESSED = 'unprocessed',
+  IN_PROGRESS = 'in_progress',
 }
 
 /**
@@ -42,7 +51,7 @@ export interface MedicalReport {
   title: string;
   category: ReportCategory | string;
   bookmarked: boolean;
-  isProcessed: boolean;
+  processingStatus: ProcessingStatus;
   labValues: LabValue[];
   summary: string;
   status: ReportStatus;

@@ -14,6 +14,9 @@ async function bootstrap() {
   // Configure JSON body parser with increased limits
   app.use(json({ limit: '3mb' })); // Increased from default 100kb to 3mb
 
+  // Set server timeout to 5 minutes (300,000 ms)
+  app.getHttpAdapter().getInstance().timeout = 300000;
+
   // Enable CORS
   app.enableCors({
     origin: [

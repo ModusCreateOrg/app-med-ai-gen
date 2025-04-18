@@ -1,8 +1,40 @@
 import axios, { AxiosProgressEvent } from 'axios';
-import { MedicalReport } from '../models/medicalReport';
+import { MedicalReport, ReportCategory, ReportStatus, ProcessingStatus } from '../models/medicalReport';
 import { fetchAuthSession } from '@aws-amplify/auth';
 // Get the API URL from environment variables
 const API_URL = import.meta.env.VITE_BASE_URL_API || '';
+
+// Mock data for testing and development
+const mockReports: MedicalReport[] = [
+  {
+    id: '1',
+    userId: 'user1',
+    title: 'Blood Test Report',
+    category: ReportCategory.GENERAL,
+    bookmarked: false,
+    processingStatus: ProcessingStatus.PROCESSED,
+    labValues: [],
+    summary: 'Blood test results within normal range',
+    status: ReportStatus.UNREAD,
+    filePath: '/reports/blood-test.pdf',
+    createdAt: '2023-04-15T12:30:00Z',
+    updatedAt: '2023-04-15T12:30:00Z',
+  },
+  {
+    id: '2',
+    userId: 'user1',
+    title: 'Heart Checkup',
+    category: ReportCategory.HEART,
+    bookmarked: true,
+    processingStatus: ProcessingStatus.PROCESSED,
+    labValues: [],
+    summary: 'Heart functioning normally',
+    status: ReportStatus.READ,
+    filePath: '/reports/heart-checkup.pdf',
+    createdAt: '2023-04-10T10:15:00Z',
+    updatedAt: '2023-04-10T10:15:00Z',
+  },
+];
 
 /**
  * Interface for upload progress callback
@@ -14,16 +46,22 @@ export interface UploadProgressCallback {
 /**
  * Creates an authenticated request config with bearer token
  */
-export const getAuthConfig = async (signal?: AbortSignal): Promise<{ headers: { Accept: string, 'Content-Type': string, Authorization: string }, signal?: AbortSignal, onUploadProgress?: (progressEvent: AxiosProgressEvent) => void }> => {
+export const getAuthConfig = async (
+  signal?: AbortSignal,
+): Promise<{
+  headers: { Accept: string; 'Content-Type': string; Authorization: string };
+  signal?: AbortSignal;
+  onUploadProgress?: (progressEvent: AxiosProgressEvent) => void;
+}> => {
   const session = await fetchAuthSession();
   const idToken = session.tokens?.idToken?.toString() || '';
   return {
-      headers: {
-        Accept: 'application/json',
-        'Content-Type': 'application/json',
-        Authorization: idToken ? `Bearer ${idToken}` : ''
-      },
-      signal
+    headers: {
+      Accept: 'application/json',
+      'Content-Type': 'application/json',
+      Authorization: idToken ? `Bearer ${idToken}` : '',
+    },
+    signal,
   };
 };
 
@@ -47,7 +85,7 @@ export class ReportError extends Error {
 export const uploadReport = async (
   file: File,
   onProgress?: UploadProgressCallback,
-  signal?: AbortSignal
+  signal?: AbortSignal,
 ): Promise<MedicalReport> => {
   try {
     // Import s3StorageService dynamically to avoid circular dependency
@@ -58,7 +96,7 @@ export const uploadReport = async (
       file,
       'reports',
       onProgress as (progress: number) => void,
-      signal
+      signal,
     );
 
     // Then create the report record with the S3 key
@@ -70,7 +108,7 @@ export const uploadReport = async (
       {
         filePath: s3Key,
       },
-      config
+      config,
     );
 
     return response.data;
@@ -95,7 +133,10 @@ export const uploadReport = async (
  */
 export const fetchLatestReports = async (limit = 3): Promise<MedicalReport[]> => {
   try {
-    const response = await axios.get(`${API_URL}/api/reports/latest?limit=${limit}`, await getAuthConfig());
+    const response = await axios.get(
+      `${API_URL}/api/reports/latest?limit=${limit}`,
+      await getAuthConfig(),
+    );
     console.log('response', response.data);
     console.log('API_URL', API_URL);
     return response.data;
@@ -113,7 +154,7 @@ export const fetchLatestReports = async (limit = 3): Promise<MedicalReport[]> =>
  */
 export const fetchAllReports = async (): Promise<MedicalReport[]> => {
   try {
-    const response = await axios.get(`${API_URL}/api/reports`, await getAuthConfig() );
+    const response = await axios.get(`${API_URL}/api/reports`, await getAuthConfig());
     return response.data;
   } catch (error) {
     if (axios.isAxiosError(error)) {
@@ -131,7 +172,7 @@ export const fetchAllReports = async (): Promise<MedicalReport[]> => {
 export const markReportAsRead = async (reportId: string): Promise<MedicalReport> => {
   try {
     const response = await axios.patch(`${API_URL}/api/reports/${reportId}`, {
-      status: 'READ'
+      status: 'READ',
     });
 
     return response.data;
@@ -149,17 +190,24 @@ export const markReportAsRead = async (reportId: string): Promise<MedicalReport>
  * @param isBookmarked - Boolean indicating if the report should be bookmarked or not
  * @returns Promise with the updated report
  */
-export const toggleReportBookmark = async (reportId: string, isBookmarked: boolean): Promise<MedicalReport> => {
+export const toggleReportBookmark = async (
+  reportId: string,
+  isBookmarked: boolean,
+): Promise<MedicalReport> => {
   try {
-    await axios.patch(`${API_URL}/api/reports/${reportId}/bookmark`, {
-      bookmarked: isBookmarked
-    }, await getAuthConfig());
+    await axios.patch(
+      `${API_URL}/api/reports/${reportId}/bookmark`,
+      {
+        bookmarked: isBookmarked,
+      },
+      await getAuthConfig(),
+    );
 
     // In a real implementation, this would return the response from the API
     // return response.data;
 
     // For now, we'll mock the response
-    const report = mockReports.find(r => r.id === reportId);
+    const report = mockReports.find((r) => r.id === reportId);
 
     if (!report) {
       throw new Error(`Report with ID ${reportId} not found`);

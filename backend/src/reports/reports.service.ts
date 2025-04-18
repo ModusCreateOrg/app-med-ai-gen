@@ -8,14 +8,14 @@ import {
 import { ConfigService } from '@nestjs/config';
 import {
   DynamoDBClient,
-  ScanCommand,
   GetItemCommand,
   UpdateItemCommand,
   DynamoDBServiceException,
   PutItemCommand,
+  QueryCommand,
 } from '@aws-sdk/client-dynamodb';
 import { marshall, unmarshall } from '@aws-sdk/util-dynamodb';
-import { Report, ReportStatus } from './models/report.model';
+import { Report, ReportStatus, ProcessingStatus } from './models/report.model';
 import { GetReportsQueryDto } from './dto/get-reports.dto';
 import { UpdateReportStatusDto } from './dto/update-report-status.dto';
 import { v4 as uuidv4 } from 'uuid';
@@ -60,10 +60,10 @@ export class ReportsService {
     }
 
     try {
-      // If the table has a GSI for userId, use QueryCommand instead
-      const command = new ScanCommand({
+      // Use QueryCommand instead of ScanCommand since userId is the partition key
+      const command = new QueryCommand({
         TableName: this.tableName,
-        FilterExpression: 'userId = :userId',
+        KeyConditionExpression: 'userId = :userId',
         ExpressionAttributeValues: marshall({
           ':userId': userId,
         }),
@@ -105,23 +105,21 @@ export class ReportsService {
       typeof queryDto.limit === 'string' ? parseInt(queryDto.limit, 10) : queryDto.limit || 10;
 
     try {
-      // If the table has a GSI for userId, use QueryCommand instead
-      const command = new ScanCommand({
+      // Use the GSI userIdCreatedAtIndex with QueryCommand for efficient retrieval
+      // This is much more efficient than a ScanCommand
+      const command = new QueryCommand({
         TableName: this.tableName,
-        FilterExpression: 'userId = :userId',
+        IndexName: 'userIdCreatedAtIndex', // Use the GSI for efficient queries
+        KeyConditionExpression: 'userId = :userId',
         ExpressionAttributeValues: marshall({
           ':userId': userId,
         }),
-        Limit: limit * 5, // Fetch more items since we'll filter by userId
+        ScanIndexForward: false, // Get items in descending order (newest first)
+        Limit: limit, // Only fetch the number of items we need
       });
 
       const response = await this.dynamoClient.send(command);
-      const reports = (response.Items || []).map(item => unmarshall(item) as Report);
-
-      // Sort by createdAt in descending order
-      return reports
-        .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
-        .slice(0, limit);
+      return (response.Items || []).map(item => unmarshall(item) as Report);
     } catch (error: unknown) {
       this.logger.error(`Error fetching latest reports for user ${userId}:`);
       this.logger.error(error);
@@ -131,6 +129,26 @@ export class ReportsService {
           throw new InternalServerErrorException(
             `Table "${this.tableName}" not found. Please check your database configuration.`,
           );
+        } else if (error.name === 'ValidationException') {
+          // This could happen if the GSI doesn't exist
+          this.logger.warn('GSI validation error, falling back to standard query');
+
+          // Fallback to standard query and sort in memory if GSI has issues
+          const fallbackCommand = new QueryCommand({
+            TableName: this.tableName,
+            KeyConditionExpression: 'userId = :userId',
+            ExpressionAttributeValues: marshall({
+              ':userId': userId,
+            }),
+          });
+
+          const fallbackResponse = await this.dynamoClient.send(fallbackCommand);
+          const reports = (fallbackResponse.Items || []).map(item => unmarshall(item) as Report);
+
+          // Sort by createdAt in descending order
+          return reports
+            .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
+            .slice(0, limit);
         }
       }
 
@@ -281,7 +299,7 @@ export class ReportsService {
         title: 'New Report',
         bookmarked: false,
         category: '',
-        isProcessed: false,
+        processingStatus: ProcessingStatus.UNPROCESSED,
         labValues: [],
         summary: '',
         status: ReportStatus.UNREAD,
@@ -312,56 +330,6 @@ export class ReportsService {
       }
 
       throw new InternalServerErrorException('Failed to save report to database');
-    }
-  }
-
-  /**
-   * Find a report by its filePath
-   * @param filePath The S3 path of the file
-   * @param userId User ID for authorization
-   * @returns Report record if found
-   */
-  async findByFilePath(filePath: string, userId: string): Promise<Report | null> {
-    if (!filePath) {
-      throw new NotFoundException('File path is required');
-    }
-
-    if (!userId) {
-      throw new ForbiddenException('User ID is required');
-    }
-
-    try {
-      // Since filePath isn't a key attribute, we need to scan with filter
-      const command = new ScanCommand({
-        TableName: this.tableName,
-        FilterExpression: 'filePath = :filePath AND userId = :userId',
-        ExpressionAttributeValues: marshall({
-          ':filePath': filePath,
-          ':userId': userId,
-        }),
-        Limit: 1, // We only want one record
-      });
-
-      const response = await this.dynamoClient.send(command);
-
-      if (!response.Items || response.Items.length === 0) {
-        return null;
-      }
-
-      return unmarshall(response.Items[0]) as Report;
-    } catch (error: unknown) {
-      this.logger.error(`Error finding report with filePath ${filePath}:`);
-      this.logger.error(error);
-
-      if (error instanceof DynamoDBServiceException) {
-        if (error.name === 'ResourceNotFoundException') {
-          throw new InternalServerErrorException(
-            `Table "${this.tableName}" not found. Please check your database configuration.`,
-          );
-        }
-      }
-
-      throw new InternalServerErrorException(`Failed to fetch report with filePath ${filePath}`);
     }
   }
 
