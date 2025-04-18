@@ -32,12 +32,8 @@
     },
     "categories": {
       "general": "Général",
-      "neurological": "Neurologique",
-      "oftalmological": "Ophtalmologique",
-      "heart": "Cardiaque",
-      "gastro": "Gastroentérologie",
-      "orthopedic": "Orthopédique",
-      "other": "Autre"
+      "heart": "Cœur",
+      "brain": "Cerveau"
     },
     "status": {
       "read": "Lu",

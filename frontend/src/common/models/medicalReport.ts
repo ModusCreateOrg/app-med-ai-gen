@@ -2,13 +2,9 @@
  * Possible categories for medical reports.
  */
 export enum ReportCategory {
-  GENERAL = 'General',
-  NEUROLOGICAL = 'Neurological',
-  OFTALMOLOGICAL = 'Oftalmological',
-  HEART = 'Heart',
-  GASTRO = 'Gastroenterology',
-  ORTHOPEDIC = 'Orthopedic',
-  OTHER = 'Other'
+  GENERAL = 'general',
+  BRAIN = 'brain',
+  HEART = 'heart',
 }
 
 /**

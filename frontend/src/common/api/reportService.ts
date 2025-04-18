@@ -224,3 +224,18 @@ export const toggleReportBookmark = async (
     throw new ReportError('Failed to toggle bookmark status');
   }
 };
+
+/**
+ * Fetches a single medical report by ID
+ * @param reportId The ID of the report to fetch
+ * @returns Promise with the report data
+ */
+export const fetchReportById = async (reportId: string): Promise<MedicalReport> => {
+  try {
+    const response = await axios.get(`${API_URL}/api/reports/${reportId}`, await getAuthConfig());
+    return response.data;
+  } catch (error) {
+    console.error('Error fetching report:', error);
+    throw error;
+  }
+};

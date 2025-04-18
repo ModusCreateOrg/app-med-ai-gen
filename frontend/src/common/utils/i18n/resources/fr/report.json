@@ -2,6 +2,7 @@
   "detail": {
     "title": "Détail du Rapport",
     "loading": "Chargement du rapport...",
+    "errorLoading": "Erreur lors du chargement du rapport. Veuillez réessayer plus tard.",
     "aiInsights": "Analyse IA",
     "testResults": "Résultats d'Analyses",
     "test": "Test",

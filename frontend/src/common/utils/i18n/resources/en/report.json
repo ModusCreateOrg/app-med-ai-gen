@@ -2,6 +2,7 @@
   "detail": {
     "title": "Report Detail",
     "loading": "Loading report...",
+    "errorLoading": "Error loading report. Please try again later.",
     "aiInsights": "AI Insights",
     "testResults": "Test Results",
     "test": "Test",

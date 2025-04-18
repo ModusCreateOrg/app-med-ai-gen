@@ -12,13 +12,13 @@ import {
   IonIcon,
   IonToast,
 } from '@ionic/react';
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { bookmark, bookmarkOutline, warningOutline, chevronDown, chevronUp } from 'ionicons/icons';
 import { MedicalReport } from 'common/models/medicalReport';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { fetchAllReports, toggleReportBookmark } from 'common/api/reportService';
+import { fetchReportById, toggleReportBookmark } from 'common/api/reportService';
 
 import './ReportDetailPage.scss';
 
@@ -56,16 +56,16 @@ const ReportDetailPage: React.FC = () => {
   const { t } = useTranslation('report');
   const { reportId } = useParams<ReportDetailParams>();
   const [selectedSegment, setSelectedSegment] = useState<'aiInsights' | 'testResults'>('aiInsights');
-  const [report, setReport] = useState<MedicalReport | null>(null);
   const [showBookmarkToast, setShowBookmarkToast] = useState(false);
   const [bookmarkToastMessage, setBookmarkToastMessage] = useState('');
   const [flaggedValuesExpanded, setFlaggedValuesExpanded] = useState(true);
   const queryClient = useQueryClient();
 
-  // Fetch all reports and find the one we need
-  const { data: reports = [] } = useQuery({
-    queryKey: ['reports'],
-    queryFn: fetchAllReports
+  // Fetch the specific report by ID
+  const { data: report, isLoading, isError } = useQuery({
+    queryKey: ['report', reportId],
+    queryFn: () => fetchReportById(reportId),
+    enabled: !!reportId
   });
 
   // Toggle bookmark mutation
@@ -74,10 +74,10 @@ const ReportDetailPage: React.FC = () => {
       return toggleReportBookmark(reportId, isBookmarked);
     },
     onSuccess: (updatedReport) => {
-      // Update the report state with the updated bookmarked status
-      setReport(updatedReport);
-
       // Update the reports query cache
+      queryClient.setQueryData(['report', reportId], updatedReport);
+
+      // Also update the reports list if it exists in the cache
       queryClient.setQueryData(['reports'], (oldData: MedicalReport[] | undefined) => {
         if (!oldData) return [];
         return oldData.map(oldReport =>
@@ -147,18 +147,6 @@ const ReportDetailPage: React.FC = () => {
     }
   ];
 
-  // Find the report from the list
-  useEffect(() => {
-    if (reports.length > 0 && reportId) {
-      const foundReport = reports.find((r) => r.id === reportId);
-      if (foundReport) {
-        setReport(foundReport);
-        // Mark report as read if necessary
-        // markReportAsRead(reportId);
-      }
-    }
-  }, [reports, reportId]);
-
   // Handle segment change
   const handleSegmentChange = (e: CustomEvent) => {
     setSelectedSegment(e.detail.value);
@@ -169,7 +157,7 @@ const ReportDetailPage: React.FC = () => {
     setFlaggedValuesExpanded(!flaggedValuesExpanded);
   };
 
-  if (!report) {
+  if (isLoading || !report) {
     return (
       <IonPage className="report-detail-page">
         <IonContent>
@@ -179,6 +167,23 @@ const ReportDetailPage: React.FC = () => {
                 <IonBackButton defaultHref="/tabs/home" text="" />
               </div>
               <IonText>{t('detail.loading')}</IonText>
+            </div>
+          </div>
+        </IonContent>
+      </IonPage>
+    );
+  }
+
+  if (isError) {
+    return (
+      <IonPage className="report-detail-page">
+        <IonContent>
+          <div className="report-detail-page__header report-detail-page__header--error">
+            <div className="ion-padding">
+              <div className="report-detail-page__back-button">
+                <IonBackButton defaultHref="/tabs/home" text="" />
+              </div>
+              <IonText>{t('detail.errorLoading')}</IonText>
             </div>
           </div>
         </IonContent>

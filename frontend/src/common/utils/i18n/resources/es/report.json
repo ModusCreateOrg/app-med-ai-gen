@@ -2,6 +2,7 @@
   "detail": {
     "title": "Detalle del Informe",
     "loading": "Cargando informe...",
+    "errorLoading": "Error al cargar el informe. Por favor, inténtelo de nuevo más tarde.",
     "aiInsights": "Análisis de IA",
     "testResults": "Resultados de Pruebas",
     "test": "Prueba",

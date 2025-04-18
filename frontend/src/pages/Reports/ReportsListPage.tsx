@@ -20,9 +20,11 @@ import { fetchAllReports, toggleReportBookmark } from 'common/api/reportService'
 import { useMarkReportAsRead } from 'common/hooks/useReports';
 import ReportItem from 'pages/Home/components/ReportItem/ReportItem';
 import NoReportsMessage from 'pages/Home/components/NoReportsMessage/NoReportsMessage';
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import { MedicalReport } from 'common/models/medicalReport';
-import { documentTextOutline, funnel, arrowDown } from 'ionicons/icons';
+import { documentTextOutline } from 'ionicons/icons';
+import sortSvg from 'assets/icons/sort.svg';
+import filterOutlineIcon from 'assets/icons/filter-outline.svg';
 
 import './ReportsListPage.scss';
 
@@ -51,6 +53,18 @@ const ReportsListPage: React.FC = () => {
     if (filter === 'all') return reports;
     return reports.filter(report => report.bookmarked);
   }, [reports, filter]);
+
+  // Check if there are any bookmarked reports
+  const hasBookmarkedReports = useMemo(() => {
+    return reports.some(report => report.bookmarked);
+  }, [reports]);
+
+  // Reset to 'all' filter if no bookmarked reports and current filter is 'bookmarked'
+  useEffect(() => {
+    if (!hasBookmarkedReports && filter === 'bookmarked') {
+      setFilter('all');
+    }
+  }, [hasBookmarkedReports, filter]);
 
   const handleSegmentChange = (e: CustomEvent) => {
     setFilter(e.detail.value as FilterOption);
@@ -159,43 +173,59 @@ const ReportsListPage: React.FC = () => {
     <IonPage className="reports-list-page">
       <IonHeader className="reports-list-page__header">
         <IonToolbar>
-          <div className="reports-list-page__title-container">
-            <IonIcon icon={documentTextOutline} className="reports-list-page__title-icon" />
-            <h1 className="reports-list-page__title">{t('list.title', { ns: 'report' })}</h1>
-          </div>
-          <div className="reports-list-page__actions">
-            <IonButton
-              fill="clear"
-              className="reports-list-page__sort-button"
-              onClick={handleSortClick}
-              aria-label={t('list.sortButton', { ns: 'report' })}
-            >
-              <IonIcon slot="icon-only" icon={arrowDown} />
-            </IonButton>
-            <IonButton
-              fill="clear"
-              className="reports-list-page__filter-button"
-              onClick={handleFilterClick}
-              aria-label={t('list.filterButton', { ns: 'report' })}
-            >
-              <IonIcon slot="icon-only" icon={funnel} />
-            </IonButton>
+          <div style={{ display: 'flex', justifyContent: 'space-between', width: '100%', alignItems: 'center' }}>
+            <div className="reports-list-page__title-container">
+              <IonIcon icon={documentTextOutline} className="reports-list-page__title-icon" />
+              <h1 className="reports-list-page__title">{t('list.title', { ns: 'report' })}</h1>
+            </div>
+            <div className="reports-list-page__actions">
+              <IonButton
+                fill="clear"
+                className="reports-list-page__sort-button"
+                onClick={handleSortClick}
+                aria-label={t('list.sortButton', { ns: 'report' })}
+              >
+                <div className="custom-icon-wrapper">
+                  <img
+                    src={sortSvg}
+                    alt={t('list.sortButton', { ns: 'report' })}
+                    className="custom-icon"
+                  />
+                </div>
+              </IonButton>
+              <IonButton
+                fill="clear"
+                className="reports-list-page__filter-button"
+                onClick={handleFilterClick}
+                aria-label={t('list.filterButton', { ns: 'report' })}
+              >
+                <div className="custom-icon-wrapper">
+                  <img
+                    src={filterOutlineIcon}
+                    alt={t('list.filterButton', { ns: 'report' })}
+                    className="custom-icon"
+                  />
+                </div>
+              </IonButton>
+            </div>
           </div>
         </IonToolbar>
       </IonHeader>
       <IonContent className="reports-list-page__content-container">
-        <div className="reports-list-page__filter">
-          <div className="reports-list-page__segment-wrapper">
-            <IonSegment value={filter} onIonChange={handleSegmentChange} mode="ios">
-              <IonSegmentButton value="all">
-                <IonLabel>{t('list.filterAll', { ns: 'report' })}</IonLabel>
-              </IonSegmentButton>
-              <IonSegmentButton value="bookmarked">
-                <IonLabel>{t('list.filterBookmarked', { ns: 'report' })}</IonLabel>
-              </IonSegmentButton>
-            </IonSegment>
+        {!isLoading && !isError && reports.length > 0 && hasBookmarkedReports && (
+          <div className="reports-list-page__filter">
+            <div className="reports-list-page__segment-wrapper">
+              <IonSegment value={filter} onIonChange={handleSegmentChange} mode="ios">
+                <IonSegmentButton value="all">
+                  <IonLabel>{t('list.filterAll', { ns: 'report' })}</IonLabel>
+                </IonSegmentButton>
+                <IonSegmentButton value="bookmarked">
+                  <IonLabel>{t('list.filterBookmarked', { ns: 'report' })}</IonLabel>
+                </IonSegmentButton>
+              </IonSegment>
+            </div>
           </div>
-        </div>
+        )}
         <div className="reports-list-page__content">
           <IonList className="reports-list-page__list" lines="none">
             {renderReportsList()}
