@@ -18,7 +18,7 @@ import ChatPage from 'pages/Chat/ChatPage';
 import UploadPage from 'pages/Upload/UploadPage';
 import ReportsListPage from 'pages/Reports/ReportsListPage';
 import ReportDetailPage from 'pages/Reports/ReportDetailPage';
-import Processing from 'pages/Processing/Processing';
+import ProcessingPage from 'pages/Processing/ProcessingPage';
 
 /**
  * The `TabNavigation` component provides a router outlet for all of the
@@ -92,7 +92,7 @@ const TabNavigation = (): JSX.Element => {
             <ReportDetailPage />
           </Route>
           <Route exact path="/tabs/processing">
-            <Processing />
+            <ProcessingPage />
           </Route>
           <Route exact path="/">
             <Redirect to="/tabs/home" />

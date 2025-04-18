@@ -4,7 +4,7 @@ import Avatar from '../../common/components/Icon/Avatar';
 import { useLocation, useHistory } from 'react-router-dom';
 import { useEffect, useState, useRef } from 'react';
 import { useAxios } from '../../common/hooks/useAxios';
-import './Processing.scss';
+import './ProcessingPage.scss';
 import { getAuthConfig } from 'common/api/reportService';
 const API_URL = import.meta.env.VITE_BASE_URL_API || '';
 
@@ -12,7 +12,7 @@ const API_URL = import.meta.env.VITE_BASE_URL_API || '';
  * Processing page that shows while the system analyzes uploaded documents
  * This page automatically displays after a successful upload
  */
-const Processing: React.FC = () => {
+const ProcessingPage: React.FC = () => {
   const currentUser = useCurrentUser();
   const firstName = currentUser?.name?.split(' ')[0];
   const axios = useAxios();
@@ -166,4 +166,4 @@ const Processing: React.FC = () => {
   );
 };
 
-export default Processing;
+export default ProcessingPage;
