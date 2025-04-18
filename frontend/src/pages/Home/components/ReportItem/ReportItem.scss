@@ -68,26 +68,18 @@
     align-items: center;
     justify-content: center;
     flex-shrink: 0;
+    background-color: white;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+    border: 1px solid rgba(0, 0, 0, 0.03);
 
-    &--general {
-      background-color: #4355b9;
+    &--general, &--brain, &--neurological, &--heart {
+      background-color: white;
     }
 
-    &--brain {
-      background-color: #4355b9;
-    }
-
-    &--neurological {
-      background-color: #4355b9;
-    }
-
-    &--heart {
-      background-color: #4355b9;
-    }
-
-    svg {
-      width: 22px;
-      height: 22px;
+    img {
+      width: 24px;
+      height: 24px;
+      filter: none; /* Remove previous filter that made the SVG white */
     }
   }
 }
