@@ -20,7 +20,7 @@ import { fetchAllReports, toggleReportBookmark } from 'common/api/reportService'
 import { useMarkReportAsRead } from 'common/hooks/useReports';
 import ReportItem from 'pages/Home/components/ReportItem/ReportItem';
 import NoReportsMessage from 'pages/Home/components/NoReportsMessage/NoReportsMessage';
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import { MedicalReport } from 'common/models/medicalReport';
 import { documentTextOutline } from 'ionicons/icons';
 import sortSvg from 'assets/icons/sort.svg';
@@ -53,6 +53,18 @@ const ReportsListPage: React.FC = () => {
     if (filter === 'all') return reports;
     return reports.filter(report => report.bookmarked);
   }, [reports, filter]);
+
+  // Check if there are any bookmarked reports
+  const hasBookmarkedReports = useMemo(() => {
+    return reports.some(report => report.bookmarked);
+  }, [reports]);
+
+  // Reset to 'all' filter if no bookmarked reports and current filter is 'bookmarked'
+  useEffect(() => {
+    if (!hasBookmarkedReports && filter === 'bookmarked') {
+      setFilter('all');
+    }
+  }, [hasBookmarkedReports, filter]);
 
   const handleSegmentChange = (e: CustomEvent) => {
     setFilter(e.detail.value as FilterOption);
@@ -200,18 +212,20 @@ const ReportsListPage: React.FC = () => {
         </IonToolbar>
       </IonHeader>
       <IonContent className="reports-list-page__content-container">
-        <div className="reports-list-page__filter">
-          <div className="reports-list-page__segment-wrapper">
-            <IonSegment value={filter} onIonChange={handleSegmentChange} mode="ios">
-              <IonSegmentButton value="all">
-                <IonLabel>{t('list.filterAll', { ns: 'report' })}</IonLabel>
-              </IonSegmentButton>
-              <IonSegmentButton value="bookmarked">
-                <IonLabel>{t('list.filterBookmarked', { ns: 'report' })}</IonLabel>
-              </IonSegmentButton>
-            </IonSegment>
+        {!isLoading && !isError && reports.length > 0 && hasBookmarkedReports && (
+          <div className="reports-list-page__filter">
+            <div className="reports-list-page__segment-wrapper">
+              <IonSegment value={filter} onIonChange={handleSegmentChange} mode="ios">
+                <IonSegmentButton value="all">
+                  <IonLabel>{t('list.filterAll', { ns: 'report' })}</IonLabel>
+                </IonSegmentButton>
+                <IonSegmentButton value="bookmarked">
+                  <IonLabel>{t('list.filterBookmarked', { ns: 'report' })}</IonLabel>
+                </IonSegmentButton>
+              </IonSegment>
+            </div>
           </div>
-        </div>
+        )}
         <div className="reports-list-page__content">
           <IonList className="reports-list-page__list" lines="none">
             {renderReportsList()}
