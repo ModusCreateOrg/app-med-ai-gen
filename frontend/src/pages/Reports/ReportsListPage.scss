@@ -1,5 +1,5 @@
 .reports-list-page {
-  --background: #f7f7fa;
+  --background: white;
 
   &__header {
     background: white;
@@ -40,22 +40,36 @@
 
   &__sort-button,
   &__filter-button {
-    --padding-start: 8px;
-    --padding-end: 8px;
+    --padding-start: 0;
+    --padding-end: 0;
     height: 36px;
     width: 36px;
     --background: transparent;
     --color: #4355b9;
     --box-shadow: none;
-    margin-left: 4px;
+    --ripple-color: transparent;
+    margin-left: 10px;
 
-    ion-icon {
-      font-size: 20px;
+    .custom-icon-wrapper {
+      width: 36px;
+      height: 36px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 50%;
+      background-color: white;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+      border: 1px solid rgba(0, 0, 0, 0.03);
+    }
+
+    .custom-icon {
+      width: 22px;
+      height: 22px;
     }
   }
 
   &__content-container {
-    --background: #f7f7fa;
+    --background: white;
     --padding-top: 0;
   }
 

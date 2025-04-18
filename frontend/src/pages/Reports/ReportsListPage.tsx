@@ -22,7 +22,9 @@ import ReportItem from 'pages/Home/components/ReportItem/ReportItem';
 import NoReportsMessage from 'pages/Home/components/NoReportsMessage/NoReportsMessage';
 import { useState, useMemo } from 'react';
 import { MedicalReport } from 'common/models/medicalReport';
-import { documentTextOutline, funnel, arrowDown } from 'ionicons/icons';
+import { documentTextOutline } from 'ionicons/icons';
+import sortSvg from 'assets/icons/sort.svg';
+import filterOutlineIcon from 'assets/icons/filter-outline.svg';
 
 import './ReportsListPage.scss';
 
@@ -170,7 +172,13 @@ const ReportsListPage: React.FC = () => {
               onClick={handleSortClick}
               aria-label={t('list.sortButton', { ns: 'report' })}
             >
-              <IonIcon slot="icon-only" icon={arrowDown} />
+              <div className="custom-icon-wrapper">
+                <img
+                  src={sortSvg}
+                  alt={t('list.sortButton', { ns: 'report' })}
+                  className="custom-icon"
+                />
+              </div>
             </IonButton>
             <IonButton
               fill="clear"
@@ -178,7 +186,13 @@ const ReportsListPage: React.FC = () => {
               onClick={handleFilterClick}
               aria-label={t('list.filterButton', { ns: 'report' })}
             >
-              <IonIcon slot="icon-only" icon={funnel} />
+              <div className="custom-icon-wrapper">
+                <img
+                  src={filterOutlineIcon}
+                  alt={t('list.filterButton', { ns: 'report' })}
+                  className="custom-icon"
+                />
+              </div>
             </IonButton>
           </div>
         </IonToolbar>
