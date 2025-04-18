@@ -9,6 +9,7 @@ export enum ProcessingStatus {
   PROCESSED = 'processed',
   UNPROCESSED = 'unprocessed',
   IN_PROGRESS = 'in_progress',
+  FAILED = 'failed',
 }
 
 export class Report {

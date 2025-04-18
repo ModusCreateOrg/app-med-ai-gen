@@ -218,7 +218,7 @@ export class DocumentProcessorController {
       try {
         const report = await this.reportsService.findOne(reportId, userId);
         if (report) {
-          report.processingStatus = ProcessingStatus.UNPROCESSED; // Could add a FAILED status in the enum if needed
+          report.processingStatus = ProcessingStatus.FAILED;
           report.updatedAt = new Date().toISOString();
           await this.reportsService.updateReport(report);
         }
