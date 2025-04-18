@@ -98,7 +98,7 @@ const mockReports = [
     id: '2',
     title: 'brain-scan',
     status: ReportStatus.UNREAD,
-    category: ReportCategory.NEUROLOGICAL,
+    category: ReportCategory.BRAIN,
     date: '2024-03-24',
   }
 ];
@@ -154,20 +154,20 @@ describe('reportService', () => {
       const heartReport = await uploadReport(heartFile);
       expect(heartReport.category).toBe(ReportCategory.HEART);
 
-      // Mock response for neurological file
+      // Mock response for brain file
       (axios.post as ReturnType<typeof vi.fn>).mockResolvedValueOnce({
         data: {
           id: 'neuro-id',
           title: 'brain-scan',
           status: ReportStatus.UNREAD,
-          category: ReportCategory.NEUROLOGICAL,
+          category: ReportCategory.BRAIN,
           date: '2024-05-10',
         }
       });
 
       const neuroFile = new File(['test'], 'brain-scan.pdf', { type: 'application/pdf' });
       const neuroReport = await uploadReport(neuroFile);
-      expect(neuroReport.category).toBe(ReportCategory.NEUROLOGICAL);
+      expect(neuroReport.category).toBe(ReportCategory.BRAIN);
     });
 
     test('should handle upload without progress callback', async () => {

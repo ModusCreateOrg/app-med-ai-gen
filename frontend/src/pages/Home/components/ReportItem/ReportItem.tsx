@@ -40,7 +40,7 @@ const ReportItem: React.FC<ReportItemProps> = ({
   const getCategoryTranslationKey = () => {
     if (categoryStr === ReportCategory.GENERAL.toLowerCase()) {
       return 'list.categoryGeneral';
-    } else if (categoryStr === ReportCategory.BRAIN.toLowerCase() || categoryStr === 'neurological') {
+    } else if (categoryStr === ReportCategory.BRAIN.toLowerCase()) {
       return 'list.categoryBrain';
     } else if (categoryStr === ReportCategory.HEART.toLowerCase()) {
       return 'list.categoryHeart';
@@ -66,7 +66,7 @@ const ReportItem: React.FC<ReportItemProps> = ({
   const getCategoryIconSrc = (category: string) => {
     if (category === ReportCategory.GENERAL.toLowerCase()) {
       return healthIcon;
-    } else if (category === ReportCategory.BRAIN.toLowerCase() || category === 'neurological') {
+    } else if (category === ReportCategory.BRAIN.toLowerCase()) {
       return brainIcon;
     } else if (category === ReportCategory.HEART.toLowerCase()) {
       return heartIcon;
