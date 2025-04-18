@@ -671,12 +671,9 @@ export class DocumentProcessorController {
   }
 
   @Get('report-status/:reportId')
-  async getReportStatus(
-    @Req() request: RequestWithUser,
-    @Body('reportId') idFromBody: string,
-  ): Promise<any> {
-    // Get reportId from path parameter or body
-    const reportId = request.params.reportId || idFromBody;
+  async getReportStatus(@Req() request: RequestWithUser): Promise<any> {
+    // Get reportId from path parameter
+    const reportId = request.params.reportId;
 
     if (!reportId) {
       throw new BadRequestException('No reportId provided');
