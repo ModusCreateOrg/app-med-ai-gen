@@ -30,13 +30,18 @@ import {
   faComment,
   faUserCircle,
   faGlobe as faGoogle,
-  faA as faApple
+  faA as faApple,
+  faFlag,
+  faFlask,
+  faChevronUp,
+  faChevronDown,
+  faVial,
 } from '@fortawesome/free-solid-svg-icons';
 import {
   faFileLines as faRegularFileLines,
   faComment as faRegularComment,
   faUser as faRegularUser,
-  faBookmark as faRegularBookmark
+  faBookmark as faRegularBookmark,
 } from '@fortawesome/free-regular-svg-icons';
 import classNames from 'classnames';
 
@@ -76,7 +81,12 @@ export type IconName =
   | 'userGear'
   | 'xmark'
   | 'google'
-  | 'apple';
+  | 'apple'
+  | 'flag'
+  | 'flask'
+  | 'chevronUp'
+  | 'chevronDown'
+  | 'vial';
 
 /**
  * Properties for the `Icon` component.
@@ -123,6 +133,11 @@ const solidIcons: Record<IconName, IconProp> = {
   xmark: faXmark,
   google: faGoogle,
   apple: faApple,
+  flag: faFlag,
+  flask: faFlask,
+  chevronUp: faChevronUp,
+  chevronDown: faChevronDown,
+  vial: faVial,
 };
 
 /**
@@ -154,9 +169,8 @@ const Icon = ({
   ...iconProps
 }: IconProps): JSX.Element => {
   // Select icon based on style
-  const faIcon = iconStyle === 'regular' && regularIcons[icon] 
-    ? regularIcons[icon] 
-    : solidIcons[icon];
+  const faIcon =
+    iconStyle === 'regular' && regularIcons[icon] ? regularIcons[icon] : solidIcons[icon];
 
   return (
     <IonText color={color} slot={slot} data-testid={testid}>

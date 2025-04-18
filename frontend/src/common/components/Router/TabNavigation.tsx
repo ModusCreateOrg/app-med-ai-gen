@@ -16,8 +16,8 @@ import ProfilePage from 'pages/Account/components/Profile/ProfilePage';
 import DiagnosticsPage from 'pages/Account/components/Diagnostics/DiagnosticsPage';
 import ChatPage from 'pages/Chat/ChatPage';
 import UploadPage from 'pages/Upload/UploadPage';
-import ReportDetailPage from 'pages/Reports/ReportDetailPage';
 import ReportsListPage from 'pages/Reports/ReportsListPage';
+import ReportDetailPage from 'pages/Reports/ReportDetailPage';
 import Processing from 'pages/Processing/Processing';
 
 /**
@@ -101,14 +101,13 @@ const TabNavigation = (): JSX.Element => {
 
         <IonTabBar slot="bottom" className="ls-tab-navigation__bar ion-hide-md-up">
           <IonTabButton className="ls-tab-navigation__bar-button" tab="home" href="/tabs/home">
-            <Icon
-              className="ls-tab-navigation__bar-button-icon"
-              icon="home"
-              size="xl"
-              fixedWidth
-            />
+            <Icon className="ls-tab-navigation__bar-button-icon" icon="home" size="xl" fixedWidth />
           </IonTabButton>
-          <IonTabButton className="ls-tab-navigation__bar-button" tab="reports" href="/tabs/reports">
+          <IonTabButton
+            className="ls-tab-navigation__bar-button"
+            tab="reports"
+            href="/tabs/reports"
+          >
             <Icon
               className="ls-tab-navigation__bar-button-icon"
               icon="fileLines"

@@ -400,6 +400,9 @@ export class BackendStack extends cdk.Stack {
     // Create the 'status' resource under ':id'
     const documentProcessorResource = apiResource.addResource('document-processor');
     const processFileResource = documentProcessorResource.addResource('process-file');
+    // Add report-status/:reportId resource under document-processor
+    const reportStatusDPResource = documentProcessorResource.addResource('report-status');
+    const reportStatusDPIdResource = reportStatusDPResource.addResource('{reportId}');
 
     // Define integration options once for reuse
     const integrationOptions = {
@@ -467,6 +470,19 @@ export class BackendStack extends cdk.Stack {
       options: integrationOptions,
     });
 
+    // Integration for document-processor/report-status/{reportId}
+    const getReportStatusDPIntegration = new apigateway.Integration({
+      type: apigateway.IntegrationType.HTTP_PROXY,
+      integrationHttpMethod: 'GET',
+      uri: `${serviceUrl}/api/document-processor/report-status/{reportId}`,
+      options: {
+        ...integrationOptions,
+        requestParameters: {
+          'integration.request.path.reportId': 'method.request.path.reportId',
+        },
+      },
+    });
+
     // Define method options with authorization
     const methodOptions = {
       authorizer: authorizer,
@@ -495,6 +511,13 @@ export class BackendStack extends cdk.Stack {
 
     // Add POST method to process file
     processFileResource.addMethod('POST', processFileIntegration, methodOptions);
+    // Add GET method to document-processor/report-status/{reportId}
+    reportStatusDPIdResource.addMethod('GET', getReportStatusDPIntegration, {
+      ...methodOptions,
+      requestParameters: {
+        'method.request.path.reportId': true,
+      },
+    });
 
     // Add CORS to each resource separately - after methods have been created
     const corsOptions = {
@@ -531,6 +554,11 @@ export class BackendStack extends cdk.Stack {
       allowCredentials: false,
     });
     processFileResource.addCorsPreflight({
+      ...corsOptions,
+      allowCredentials: false,
+    });
+    // Add CORS to new resource
+    reportStatusDPIdResource.addCorsPreflight({
       ...corsOptions,
       allowCredentials: false,
     });
