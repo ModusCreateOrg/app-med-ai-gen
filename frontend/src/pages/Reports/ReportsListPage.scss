@@ -10,19 +10,27 @@
       --border-width: 0;
       --min-height: 60px;
       padding: 10px 16px;
+      display: flex;
+      align-items: center;
     }
   }
 
   &__title-container {
     display: flex;
     align-items: center;
-    float: left;
   }
 
   &__title-icon {
-    font-size: 20px;
-    margin-right: 8px;
-    color: #4355b9;
+    margin-right: 12px;
+    color: #333;
+    padding: 8px;
+    background-color: #f0f2f5;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 18px;
+    height: 18px;
   }
 
   &__title {
@@ -33,9 +41,9 @@
   }
 
   &__actions {
-    float: right;
     display: flex;
     align-items: center;
+    justify-content: flex-end;
   }
 
   &__sort-button,

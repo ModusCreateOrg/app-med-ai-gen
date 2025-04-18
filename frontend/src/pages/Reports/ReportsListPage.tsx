@@ -161,39 +161,41 @@ const ReportsListPage: React.FC = () => {
     <IonPage className="reports-list-page">
       <IonHeader className="reports-list-page__header">
         <IonToolbar>
-          <div className="reports-list-page__title-container">
-            <IonIcon icon={documentTextOutline} className="reports-list-page__title-icon" />
-            <h1 className="reports-list-page__title">{t('list.title', { ns: 'report' })}</h1>
-          </div>
-          <div className="reports-list-page__actions">
-            <IonButton
-              fill="clear"
-              className="reports-list-page__sort-button"
-              onClick={handleSortClick}
-              aria-label={t('list.sortButton', { ns: 'report' })}
-            >
-              <div className="custom-icon-wrapper">
-                <img
-                  src={sortSvg}
-                  alt={t('list.sortButton', { ns: 'report' })}
-                  className="custom-icon"
-                />
-              </div>
-            </IonButton>
-            <IonButton
-              fill="clear"
-              className="reports-list-page__filter-button"
-              onClick={handleFilterClick}
-              aria-label={t('list.filterButton', { ns: 'report' })}
-            >
-              <div className="custom-icon-wrapper">
-                <img
-                  src={filterOutlineIcon}
-                  alt={t('list.filterButton', { ns: 'report' })}
-                  className="custom-icon"
-                />
-              </div>
-            </IonButton>
+          <div style={{ display: 'flex', justifyContent: 'space-between', width: '100%', alignItems: 'center' }}>
+            <div className="reports-list-page__title-container">
+              <IonIcon icon={documentTextOutline} className="reports-list-page__title-icon" />
+              <h1 className="reports-list-page__title">{t('list.title', { ns: 'report' })}</h1>
+            </div>
+            <div className="reports-list-page__actions">
+              <IonButton
+                fill="clear"
+                className="reports-list-page__sort-button"
+                onClick={handleSortClick}
+                aria-label={t('list.sortButton', { ns: 'report' })}
+              >
+                <div className="custom-icon-wrapper">
+                  <img
+                    src={sortSvg}
+                    alt={t('list.sortButton', { ns: 'report' })}
+                    className="custom-icon"
+                  />
+                </div>
+              </IonButton>
+              <IonButton
+                fill="clear"
+                className="reports-list-page__filter-button"
+                onClick={handleFilterClick}
+                aria-label={t('list.filterButton', { ns: 'report' })}
+              >
+                <div className="custom-icon-wrapper">
+                  <img
+                    src={filterOutlineIcon}
+                    alt={t('list.filterButton', { ns: 'report' })}
+                    className="custom-icon"
+                  />
+                </div>
+              </IonButton>
+            </div>
           </div>
         </IonToolbar>
       </IonHeader>
