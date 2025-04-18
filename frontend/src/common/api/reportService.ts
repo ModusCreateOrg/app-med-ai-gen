@@ -1,40 +1,8 @@
 import axios, { AxiosProgressEvent } from 'axios';
-import { MedicalReport, ReportCategory, ReportStatus, ProcessingStatus } from '../models/medicalReport';
+import { MedicalReport } from '../models/medicalReport';
 import { fetchAuthSession } from '@aws-amplify/auth';
 // Get the API URL from environment variables
 const API_URL = import.meta.env.VITE_BASE_URL_API || '';
-
-// Mock data for testing and development
-const mockReports: MedicalReport[] = [
-  {
-    id: '1',
-    userId: 'user1',
-    title: 'Blood Test Report',
-    category: ReportCategory.GENERAL,
-    bookmarked: false,
-    processingStatus: ProcessingStatus.PROCESSED,
-    labValues: [],
-    summary: 'Blood test results within normal range',
-    status: ReportStatus.UNREAD,
-    filePath: '/reports/blood-test.pdf',
-    createdAt: '2023-04-15T12:30:00Z',
-    updatedAt: '2023-04-15T12:30:00Z',
-  },
-  {
-    id: '2',
-    userId: 'user1',
-    title: 'Heart Checkup',
-    category: ReportCategory.HEART,
-    bookmarked: true,
-    processingStatus: ProcessingStatus.PROCESSED,
-    labValues: [],
-    summary: 'Heart functioning normally',
-    status: ReportStatus.READ,
-    filePath: '/reports/heart-checkup.pdf',
-    createdAt: '2023-04-10T10:15:00Z',
-    updatedAt: '2023-04-10T10:15:00Z',
-  },
-];
 
 /**
  * Interface for upload progress callback
@@ -195,7 +163,7 @@ export const toggleReportBookmark = async (
   isBookmarked: boolean,
 ): Promise<MedicalReport> => {
   try {
-    await axios.patch(
+    const response = await axios.patch(
       `${API_URL}/api/reports/${reportId}/bookmark`,
       {
         bookmarked: isBookmarked,
@@ -203,20 +171,7 @@ export const toggleReportBookmark = async (
       await getAuthConfig(),
     );
 
-    // In a real implementation, this would return the response from the API
-    // return response.data;
-
-    // For now, we'll mock the response
-    const report = mockReports.find((r) => r.id === reportId);
-
-    if (!report) {
-      throw new Error(`Report with ID ${reportId} not found`);
-    }
-
-    // Update the bookmark status
-    report.bookmarked = isBookmarked;
-
-    return { ...report };
+    return response.data;
   } catch (error) {
     if (axios.isAxiosError(error)) {
       throw new ReportError(`Failed to toggle bookmark status: ${error.message}`);

@@ -379,4 +379,78 @@ export class ReportsService {
       throw new InternalServerErrorException(`Failed to update report with ID ${report.id}`);
     }
   }
+
+  /**
+   * Toggle the bookmark status of a report
+   * @param id Report ID
+   * @param bookmarked New bookmark status
+   * @param userId User ID
+   * @returns The updated report
+   */
+  async toggleBookmark(id: string, bookmarked: boolean, userId: string): Promise<Report> {
+    if (!id) {
+      throw new NotFoundException('Report ID is required');
+    }
+
+    if (bookmarked === undefined) {
+      throw new InternalServerErrorException('Bookmark status is required');
+    }
+
+    if (!userId) {
+      throw new ForbiddenException('User ID is required');
+    }
+
+    try {
+      // First check if the report exists and belongs to the user
+      const existingReport = await this.findOne(id, userId);
+
+      const command = new UpdateItemCommand({
+        TableName: this.tableName,
+        Key: marshall({
+          userId,
+          id,
+        }),
+        UpdateExpression: 'SET bookmarked = :bookmarked, updatedAt = :updatedAt',
+        ConditionExpression: 'userId = :userId', // Ensure the report belongs to the user
+        ExpressionAttributeValues: marshall({
+          ':bookmarked': bookmarked,
+          ':updatedAt': new Date().toISOString(),
+          ':userId': userId,
+        }),
+        ReturnValues: 'ALL_NEW',
+      });
+
+      const response = await this.dynamoClient.send(command);
+
+      if (!response.Attributes) {
+        // If for some reason Attributes is undefined, return the existing report with updated bookmark status
+        return {
+          ...existingReport,
+          bookmarked,
+          updatedAt: new Date().toISOString(),
+        };
+      }
+
+      return unmarshall(response.Attributes) as Report;
+    } catch (error: unknown) {
+      if (error instanceof NotFoundException) {
+        throw error;
+      }
+
+      this.logger.error(`Error toggling bookmark for report ID ${id}:`);
+      this.logger.error(error);
+
+      if (error instanceof DynamoDBServiceException) {
+        if (error.name === 'ConditionalCheckFailedException') {
+          throw new ForbiddenException('You do not have permission to update this report');
+        } else if (error.name === 'ResourceNotFoundException') {
+          throw new InternalServerErrorException(
+            `Table "${this.tableName}" not found. Please check your database configuration.`,
+          );
+        }
+      }
+
+      throw new InternalServerErrorException(`Failed to toggle bookmark for report ID ${id}`);
+    }
+  }
 }

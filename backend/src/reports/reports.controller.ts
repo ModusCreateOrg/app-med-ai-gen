@@ -107,6 +107,42 @@ export class ReportsController {
     return this.reportsService.updateStatus(id, updateDto, userId);
   }
 
+  @ApiOperation({ summary: 'Toggle report bookmark status' })
+  @ApiResponse({
+    status: 200,
+    description: 'Report bookmark status toggled successfully',
+    type: Report,
+  })
+  @ApiResponse({
+    status: 404,
+    description: 'Report not found',
+  })
+  @ApiParam({
+    name: 'id',
+    description: 'Report ID',
+  })
+  @ApiBody({
+    schema: {
+      type: 'object',
+      properties: {
+        bookmarked: {
+          type: 'boolean',
+          description: 'New bookmark status',
+        },
+      },
+      required: ['bookmarked'],
+    },
+  })
+  @Patch(':id/bookmark')
+  async toggleBookmark(
+    @Param('id') id: string,
+    @Body('bookmarked') bookmarked: boolean,
+    @Req() request: RequestWithUser,
+  ): Promise<Report> {
+    const userId = this.extractUserId(request);
+    return this.reportsService.toggleBookmark(id, bookmarked, userId);
+  }
+
   @ApiOperation({ summary: 'Create a new report from S3 file' })
   @ApiResponse({
     status: 201,
