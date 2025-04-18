@@ -411,7 +411,6 @@ export class ReportsService {
           id,
         }),
         UpdateExpression: 'SET bookmarked = :bookmarked, updatedAt = :updatedAt',
-        ConditionExpression: 'userId = :userId', // Ensure the report belongs to the user
         ExpressionAttributeValues: marshall({
           ':bookmarked': bookmarked,
           ':updatedAt': new Date().toISOString(),
