@@ -397,6 +397,9 @@ export class BackendStack extends cdk.Stack {
     // Create the 'status' resource under ':id'
     const reportStatusResource = reportIdResource.addResource('status');
 
+    // Create the 'bookmark' resource under ':id'
+    const reportBookmarkResource = reportIdResource.addResource('bookmark');
+
     // Create the 'status' resource under ':id'
     const documentProcessorResource = apiResource.addResource('document-processor');
     const processFileResource = documentProcessorResource.addResource('process-file');
@@ -463,6 +466,18 @@ export class BackendStack extends cdk.Stack {
       },
     });
 
+    const patchReportBookmarkIntegration = new apigateway.Integration({
+      type: apigateway.IntegrationType.HTTP_PROXY,
+      integrationHttpMethod: 'PATCH',
+      uri: `${serviceUrl}/api/reports/{id}/bookmark`,
+      options: {
+        ...integrationOptions,
+        requestParameters: {
+          'integration.request.path.id': 'method.request.path.id',
+        },
+      },
+    });
+
     const processFileIntegration = new apigateway.Integration({
       type: apigateway.IntegrationType.HTTP_PROXY,
       integrationHttpMethod: 'POST',
@@ -509,6 +524,14 @@ export class BackendStack extends cdk.Stack {
       },
     });
 
+    // Add method for bookmark endpoint
+    reportBookmarkResource.addMethod('PATCH', patchReportBookmarkIntegration, {
+      ...methodOptions,
+      requestParameters: {
+        'method.request.path.id': true,
+      },
+    });
+
     // Add POST method to process file
     processFileResource.addMethod('POST', processFileIntegration, methodOptions);
     // Add GET method to document-processor/report-status/{reportId}
@@ -546,6 +569,10 @@ export class BackendStack extends cdk.Stack {
       allowCredentials: false,
     });
     reportStatusResource.addCorsPreflight({
+      ...corsOptions,
+      allowCredentials: false,
+    });
+    reportBookmarkResource.addCorsPreflight({
       ...corsOptions,
       allowCredentials: false,
     });
