@@ -5,7 +5,6 @@ export enum ReportCategory {
   GENERAL = 'general',
   BRAIN = 'brain',
   HEART = 'heart',
-  OTHER = 'Other'
 }
 
 /**
