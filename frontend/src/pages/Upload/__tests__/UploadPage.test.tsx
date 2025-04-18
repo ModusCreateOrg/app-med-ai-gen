@@ -2,7 +2,7 @@ import { vi, describe, test, expect, beforeEach } from 'vitest';
 import { render, screen, fireEvent } from '@testing-library/react';
 import UploadPage from '../UploadPage';
 import { MemoryRouter } from 'react-router-dom';
-import { MedicalReport, ReportCategory, ReportStatus } from 'common/models/medicalReport';
+import { MedicalReport, ReportCategory, ReportStatus, ProcessingStatus } from 'common/models/medicalReport';
 import '@testing-library/jest-dom';
 
 // Mock the dependencies
@@ -48,7 +48,7 @@ vi.mock('common/components/Upload/UploadModal', () => {
       createdAt: '2023-01-01',
       status: ReportStatus.UNREAD,
       bookmarked: false,
-      isProcessed: true,
+      processingStatus: ProcessingStatus.PROCESSED,
       labValues: [],
       summary: 'Test report summary',
       filePath: '/reports/test-report.pdf',

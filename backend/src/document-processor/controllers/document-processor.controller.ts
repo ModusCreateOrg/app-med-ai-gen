@@ -25,6 +25,7 @@ import { RequestWithUser } from '../../auth/auth.middleware';
 import { Readable } from 'stream';
 import { S3Client, GetObjectCommand } from '@aws-sdk/client-s3';
 import { ConfigService } from '@nestjs/config';
+import { ProcessingStatus } from '../../reports/models/report.model';
 
 @Controller('document-processor')
 export class DocumentProcessorController {
@@ -38,7 +39,7 @@ export class DocumentProcessorController {
 
   @Post('upload')
   @UseInterceptors(FileInterceptor('file'))
-  async processDocument(
+  async uploadAndProcessReport(
     @UploadedFile() file: Express.Multer.File,
     @Body('userId') userId: string,
     @Body('debug') debug?: string,
@@ -114,12 +115,12 @@ export class DocumentProcessorController {
   }
 
   @Post('process-file')
-  async processFileFromPath(
-    @Body('filePath') filePath: string,
+  async processReport(
+    @Body('reportId') reportId: string,
     @Req() request: RequestWithUser,
-  ): Promise<ProcessedDocumentResult | any> {
-    if (!filePath) {
-      throw new BadRequestException('No filePath provided');
+  ): Promise<any> {
+    if (!reportId) {
+      throw new BadRequestException('No reportId provided');
     }
 
     // Extract userId from the request (attached by auth middleware)
@@ -128,14 +129,57 @@ export class DocumentProcessorController {
       throw new UnauthorizedException('User ID not found in request');
     }
 
-    this.logger.log(`Processing document from file path: ${filePath}`);
+    this.logger.log(`Queueing document for processing, report ID: ${reportId}`);
 
     try {
-      // Fetch the associated report record from DynamoDB
-      const report = await this.reportsService.findByFilePath(filePath, userId);
+      // Fetch the associated report record from DynamoDB using findOne method
+      const report = await this.reportsService.findOne(reportId, userId);
       if (!report) {
-        throw new NotFoundException(`Report with filePath ${filePath} not found`);
+        throw new NotFoundException(`Report with ID ${reportId} not found`);
       }
+
+      // Make sure we have a filePath to retrieve the file
+      if (!report.filePath) {
+        throw new BadRequestException(`Report with ID ${reportId} has no associated file`);
+      }
+
+      // Update report status to IN_PROGRESS before starting async processing
+      report.processingStatus = ProcessingStatus.IN_PROGRESS;
+      report.updatedAt = new Date().toISOString();
+      await this.reportsService.updateReport(report);
+
+      // Start async processing in background
+      this.processReportAsync(reportId, userId, report.filePath).catch(error => {
+        this.logger.error(`Async processing failed for report ${reportId}: ${error.message}`);
+      });
+
+      return {
+        success: true,
+        reportId: report.id,
+        status: ProcessingStatus.IN_PROGRESS,
+        message: 'Document processing started. Check the report status to know when it completes.',
+      };
+    } catch (error: unknown) {
+      this.logger.error(
+        `Error queueing document for report ID ${reportId}: ${error instanceof Error ? error.message : 'Unknown error'}`,
+      );
+      throw error;
+    }
+  }
+
+  /**
+   * Processes a report file asynchronously
+   * @param reportId - ID of the report to process
+   * @param userId - ID of the user who owns the report
+   * @param filePath - S3 path to the file
+   */
+  private async processReportAsync(
+    reportId: string,
+    userId: string,
+    filePath: string,
+  ): Promise<void> {
+    try {
+      this.logger.log(`Started async processing for report: ${reportId}`);
 
       // Get the file from S3
       const fileBuffer = await this.getFileFromS3(filePath);
@@ -143,10 +187,16 @@ export class DocumentProcessorController {
       // Process the document
       const result = await this.documentProcessorService.processDocument(fileBuffer, userId);
 
+      // Fetch the report again to ensure we have the latest version
+      const report = await this.reportsService.findOne(reportId, userId);
+      if (!report) {
+        throw new Error(`Report ${reportId} not found during async processing`);
+      }
+
       // Update the report with analysis results
       report.title = result.analysis.title || 'Untitled Report';
       report.category = result.analysis.category || 'general';
-      report.isProcessed = true;
+      report.processingStatus = ProcessingStatus.PROCESSED;
 
       // Extract lab values
       report.labValues = result.analysis.labValues || [];
@@ -162,13 +212,26 @@ export class DocumentProcessorController {
       // Update the report in DynamoDB
       await this.reportsService.updateReport(report);
 
-      return {
-        success: true,
-        reportId: report.id,
-      };
-    } catch (error: unknown) {
+      this.logger.log(`Completed async processing for report: ${reportId}`);
+    } catch (error) {
+      // If processing fails, update the report status to indicate failure
+      try {
+        const report = await this.reportsService.findOne(reportId, userId);
+        if (report) {
+          report.processingStatus = ProcessingStatus.FAILED;
+          report.updatedAt = new Date().toISOString();
+          await this.reportsService.updateReport(report);
+        }
+      } catch (updateError: unknown) {
+        this.logger.error(
+          `Failed to update report status after processing error: ${
+            updateError instanceof Error ? updateError.message : 'Unknown error'
+          }`,
+        );
+      }
+
       this.logger.error(
-        `Error processing document from path ${filePath}: ${error instanceof Error ? error.message : 'Unknown error'}`,
+        `Error during async processing for report ${reportId}: ${error instanceof Error ? error.message : 'Unknown error'}`,
       );
       throw error;
     }
@@ -605,5 +668,40 @@ export class DocumentProcessorController {
     `;
 
     res.type('text/html').send(html);
+  }
+
+  @Get('report-status/:reportId')
+  async getReportStatus(@Req() request: RequestWithUser): Promise<any> {
+    // Get reportId from path parameter
+    const reportId = request.params.reportId;
+
+    if (!reportId) {
+      throw new BadRequestException('No reportId provided');
+    }
+
+    // Extract userId from the request (attached by auth middleware)
+    const userId = request.user?.sub;
+    if (!userId) {
+      throw new UnauthorizedException('User ID not found in request');
+    }
+
+    try {
+      // Fetch the associated report record from DynamoDB
+      const report = await this.reportsService.findOne(reportId, userId);
+      if (!report) {
+        throw new NotFoundException(`Report with ID ${reportId} not found`);
+      }
+
+      return {
+        reportId: report.id,
+        status: report.processingStatus,
+        isComplete: report.processingStatus === ProcessingStatus.PROCESSED,
+      };
+    } catch (error: unknown) {
+      this.logger.error(
+        `Error fetching report status for ${reportId}: ${error instanceof Error ? error.message : 'Unknown error'}`,
+      );
+      throw error;
+    }
   }
 }

@@ -1,5 +1,5 @@
 import axios, { AxiosProgressEvent } from 'axios';
-import { MedicalReport, ReportCategory, ReportStatus } from '../models/medicalReport';
+import { MedicalReport, ReportCategory, ReportStatus, ProcessingStatus } from '../models/medicalReport';
 import { fetchAuthSession } from '@aws-amplify/auth';
 // Get the API URL from environment variables
 const API_URL = import.meta.env.VITE_BASE_URL_API || '';
@@ -12,7 +12,7 @@ const mockReports: MedicalReport[] = [
     title: 'Blood Test Report',
     category: ReportCategory.GENERAL,
     bookmarked: false,
-    isProcessed: true,
+    processingStatus: ProcessingStatus.PROCESSED,
     labValues: [],
     summary: 'Blood test results within normal range',
     status: ReportStatus.UNREAD,
@@ -26,7 +26,7 @@ const mockReports: MedicalReport[] = [
     title: 'Heart Checkup',
     category: ReportCategory.HEART,
     bookmarked: true,
-    isProcessed: true,
+    processingStatus: ProcessingStatus.PROCESSED,
     labValues: [],
     summary: 'Heart functioning normally',
     status: ReportStatus.READ,
