@@ -1,91 +1,91 @@
 {
-  "detail": {
-    "title": "Report Detail",
-    "loading": "Loading report...",
-    "errorLoading": "Error loading report. Please try again later.",
-    "aiInsights": "AI Insights",
-    "testResults": "Test Results",
-    "test": "Test",
-    "results": "Results",
-    "refRange": "Ref. Range",
-    "reportDate": "Report Date",
-    "medicalComments": "Medical Comments",
-    "hemoglobin": "Hemoglobin",
-    "ldl": "LDL Cholesterol",
-    "glucose": "Fasting Blood Glucose",
-    "alt": "ALT (Liver Enzyme)",
-    "wbc": "WBC (White Blood Cells)",
-    "vitaminD": "Vitamin D (25-OH)",
-    "cholesterol": "Total Cholesterol",
-    "bookmarkAdded": "Report added to bookmarks",
-    "bookmarkRemoved": "Report removed from bookmarks",
-    "aiInsightsContent": "Based on the blood test results, our AI has identified several points of interest that may require attention or further discussion with your healthcare provider.",
-    "insight1Title": "Hemoglobin Level",
-    "insight1Content": "Your hemoglobin level is slightly below the reference range. This could indicate mild anemia, which may cause fatigue and weakness.",
-    "insight2Title": "Cholesterol Levels",
-    "insight2Content": "Both your LDL cholesterol and total cholesterol are elevated, which may increase your risk for cardiovascular disease.",
-    "insight3Title": "Blood Glucose",
-    "insight3Content": "Your fasting blood glucose is elevated, potentially indicating prediabetes. Lifestyle modifications may help improve this value.",
-    "hemoglobinComment": "The patient's hemoglobin level is 12.5 g/dL, which falls within the lower end of the normal reference range for most adults. While this value may still be considered acceptable, it is important to assess it in the context of the patient's age, sex, clinical symptoms, and medical history.",
-    "emergencyWarning": "Please contact your doctor or seek emergency care immediately.",
-    "flaggedValues": "Flagged values",
-    "highLdl": "High LDL Cholesterol",
-    "lowHemoglobin": "Low Hemoglobin (10.1 g/dL)",
-    "conclusion": "Conclusion:",
-    "suggestions": "Suggestions:",
-    "ldlConclusion": "Elevated LDL (bad cholesterol) increases your risk of cardiovascular disease",
-    "ldlSuggestion1": "Consider a heart-healthy diet (e.g., Mediterranean).",
-    "ldlSuggestion2": "Increase physical activity.",
-    "ldlSuggestion3": "Discuss statin therapy with your doctor if not already on one.",
-    "hemoglobinConclusion": "This level suggests anemia, which may cause fatigue and weakness.",
-    "hemoglobinSuggestion1": "Test for iron, B12, and folate deficiency.",
-    "hemoglobinSuggestion2": "Consider iron-rich foods or supplements after medical consultation already on one."
-  },
-  "list": {
-    "title": "Reports",
-    "emptyState": "No reports found",
-    "uploadPrompt": "Upload a medical report to get started",
-    "filterAll": "All",
-    "filterBookmarked": "Bookmarked",
-    "noBookmarksTitle": "No Bookmarked Reports",
-    "noBookmarksMessage": "Bookmark reports to find them quickly here",
-    "sortButton": "Sort reports",
-    "filterButton": "Filter reports",
-    "categoryGeneral": "General",
-    "categoryBrain": "Brain",
-    "categoryHeart": "Heart"
-  },
-  "report": {
-    "analysis": {
-      "title": "Results Analysis"
+    "detail": {
+        "title": "Report Detail",
+        "loading": "Loading report...",
+        "errorLoading": "Error loading report. Please try again later.",
+        "aiInsights": "AI Insights",
+        "testResults": "Test Results",
+        "test": "Test",
+        "results": "Results",
+        "refRange": "Ref. Range",
+        "reportDate": "Report Date",
+        "medicalComments": "Medical Comments",
+        "hemoglobin": "Hemoglobin",
+        "ldl": "LDL Cholesterol",
+        "glucose": "Fasting Blood Glucose",
+        "alt": "ALT (Liver Enzyme)",
+        "wbc": "WBC (White Blood Cells)",
+        "vitaminD": "Vitamin D (25-OH)",
+        "cholesterol": "Total Cholesterol",
+        "bookmarkAdded": "Report added to bookmarks",
+        "bookmarkRemoved": "Report removed from bookmarks",
+        "aiInsightsContent": "Based on the blood test results, our AI has identified several points of interest that may require attention or further discussion with your healthcare provider.",
+        "insight1Title": "Hemoglobin Level",
+        "insight1Content": "Your hemoglobin level is slightly below the reference range. This could indicate mild anemia, which may cause fatigue and weakness.",
+        "insight2Title": "Cholesterol Levels",
+        "insight2Content": "Both your LDL cholesterol and total cholesterol are elevated, which may increase your risk for cardiovascular disease.",
+        "insight3Title": "Blood Glucose",
+        "insight3Content": "Your fasting blood glucose is elevated, potentially indicating prediabetes. Lifestyle modifications may help improve this value.",
+        "hemoglobinComment": "The patient's hemoglobin level is 12.5 g/dL, which falls within the lower end of the normal reference range for most adults. While this value may still be considered acceptable, it is important to assess it in the context of the patient's age, sex, clinical symptoms, and medical history.",
+        "emergencyWarning": "Please contact your doctor or seek emergency care immediately.",
+        "flaggedValues": "Flagged values",
+        "highLdl": "High LDL Cholesterol",
+        "lowHemoglobin": "Low Hemoglobin (10.1 g/dL)",
+        "conclusion": "Conclusion:",
+        "suggestions": "Suggestions:",
+        "ldlConclusion": "Elevated LDL (bad cholesterol) increases your risk of cardiovascular disease",
+        "ldlSuggestion1": "Consider a heart-healthy diet (e.g., Mediterranean).",
+        "ldlSuggestion2": "Increase physical activity.",
+        "ldlSuggestion3": "Discuss statin therapy with your doctor if not already on one.",
+        "hemoglobinConclusion": "This level suggests anemia, which may cause fatigue and weakness.",
+        "hemoglobinSuggestion1": "Test for iron, B12, and folate deficiency.",
+        "hemoglobinSuggestion2": "Consider iron-rich foods or supplements after medical consultation already on one."
     },
-    "emergency": {
-      "message": "Please contact your doctor or seek emergency care immediately."
+    "list": {
+        "title": "Reports",
+        "emptyState": "No reports found",
+        "uploadPrompt": "Upload a medical report to get started",
+        "filterAll": "All",
+        "filterBookmarked": "Bookmarked",
+        "noBookmarksTitle": "No Bookmarked Reports",
+        "noBookmarksMessage": "Bookmark reports to find them quickly here",
+        "sortButton": "Sort reports",
+        "filterButton": "Filter reports",
+        "generalCategory": "General",
+        "brainCategory": "Brain",
+        "heartCategory": "Heart"
     },
-    "flagged-values": {
-      "title": "Flagged values"
-    },
-    "normal-values": {
-      "title": "Normal values"
-    },
-    "conclusion": {
-      "title": "Conclusion"
-    },
-    "suggestions": {
-      "title": "Suggestions"
-    },
-    "doctor-note": "With all interpretations, these results should be discussed with your doctor.",
-    "ai-help": {
-      "title": "Still need further clarifications?",
-      "action": "Ask our AI Assistant"
-    },
-    "action": {
-      "discard": "Discard",
-      "new-upload": "New Upload"
-    },
-    "tabs": {
-      "ai-insights": "AI Insights",
-      "original-report": "Original Report"
+    "report": {
+        "analysis": {
+            "title": "Results Analysis"
+        },
+        "emergency": {
+            "message": "Please contact your doctor or seek emergency care immediately."
+        },
+        "flagged-values": {
+            "title": "Flagged values"
+        },
+        "normal-values": {
+            "title": "Normal values"
+        },
+        "conclusion": {
+            "title": "Conclusion"
+        },
+        "suggestions": {
+            "title": "Suggestions"
+        },
+        "doctor-note": "With all interpretations, these results should be discussed with your doctor.",
+        "ai-help": {
+            "title": "Still need further clarifications?",
+            "action": "Ask our AI Assistant"
+        },
+        "action": {
+            "discard": "Discard",
+            "new-upload": "New Upload"
+        },
+        "tabs": {
+            "ai-insights": "AI Insights",
+            "original-report": "Original Report"
+        }
     }
-  }
 }

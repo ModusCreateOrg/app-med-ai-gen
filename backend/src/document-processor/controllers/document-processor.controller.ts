@@ -202,10 +202,7 @@ export class DocumentProcessorController {
       report.labValues = result.analysis.labValues || [];
 
       // Create summary from simplified explanation or diagnoses
-      report.summary =
-        result.simplifiedExplanation ||
-        result.analysis.diagnoses.map(d => d.condition).join(', ') ||
-        'No summary available';
+      report.summary = result.simplifiedExplanation!;
 
       report.updatedAt = new Date().toISOString();
 

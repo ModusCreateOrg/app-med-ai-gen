@@ -26,6 +26,8 @@ import {
   faArrowUpFromBracket,
   faHome,
   faFileLines as faSolidFileLines,
+  faFileAlt as faFileText,
+  faFilePdf,
   faUpload,
   faComment,
   faUserCircle,
@@ -36,12 +38,14 @@ import {
   faChevronUp,
   faChevronDown,
   faVial,
+  faLightbulb as faSolidLightbulb,
 } from '@fortawesome/free-solid-svg-icons';
 import {
   faFileLines as faRegularFileLines,
   faComment as faRegularComment,
   faUser as faRegularUser,
   faBookmark as faRegularBookmark,
+  faLightbulb as faRegularLightbulb,
 } from '@fortawesome/free-regular-svg-icons';
 import classNames from 'classnames';
 
@@ -63,6 +67,8 @@ export type IconName =
   | 'comment'
   | 'envelope'
   | 'fileLines'
+  | 'fileText'
+  | 'filePdf'
   | 'home'
   | 'house'
   | 'link'
@@ -86,7 +92,8 @@ export type IconName =
   | 'flask'
   | 'chevronUp'
   | 'chevronDown'
-  | 'vial';
+  | 'vial'
+  | 'lightbulb';
 
 /**
  * Properties for the `Icon` component.
@@ -114,6 +121,8 @@ const solidIcons: Record<IconName, IconProp> = {
   comment: faComment,
   envelope: faEnvelope,
   fileLines: faSolidFileLines,
+  fileText: faFileText,
+  filePdf: faFilePdf,
   home: faHome,
   house: faHouse,
   link: faLink,
@@ -138,6 +147,7 @@ const solidIcons: Record<IconName, IconProp> = {
   chevronUp: faChevronUp,
   chevronDown: faChevronDown,
   vial: faVial,
+  lightbulb: faSolidLightbulb,
 };
 
 /**
@@ -150,6 +160,7 @@ const regularIcons: Partial<Record<IconName, IconProp>> = {
   user: faRegularUser,
   bookmark: faRegularBookmark,
   circleXmark: faCircleXmark,
+  lightbulb: faRegularLightbulb,
 };
 
 /**

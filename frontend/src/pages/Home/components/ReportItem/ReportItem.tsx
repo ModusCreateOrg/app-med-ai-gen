@@ -24,7 +24,7 @@ const ReportItem: React.FC<ReportItemProps> = ({
   report,
   onClick,
   onToggleBookmark,
-  showBookmarkButton = false
+  showBookmarkButton = false,
 }) => {
   const { t } = useTranslation(['common', 'report']);
   const { title, category, createdAt, status, bookmarked } = report;
@@ -39,13 +39,13 @@ const ReportItem: React.FC<ReportItemProps> = ({
   // Get category translation key based on category value
   const getCategoryTranslationKey = () => {
     if (categoryStr === ReportCategory.GENERAL.toLowerCase()) {
-      return 'list.categoryGeneral';
+      return 'list.generalCategory';
     } else if (categoryStr === ReportCategory.BRAIN.toLowerCase()) {
-      return 'list.categoryBrain';
+      return 'list.brainCategory';
     } else if (categoryStr === ReportCategory.HEART.toLowerCase()) {
-      return 'list.categoryHeart';
+      return 'list.heartCategory';
     }
-    return 'list.categoryGeneral'; // Default to general if not found
+    return 'list.generalCategory'; // Default to general if not found
   };
 
   // Get the appropriate icon for the category
@@ -100,7 +100,9 @@ const ReportItem: React.FC<ReportItemProps> = ({
         <div className="report-item__bookmark" onClick={handleBookmarkClick}>
           <IonIcon
             icon={bookmarked ? bookmark : bookmarkOutline}
-            className={`report-item__bookmark-icon ${bookmarked ? 'report-item__bookmark-icon--active' : ''}`}
+            className={`report-item__bookmark-icon ${
+              bookmarked ? 'report-item__bookmark-icon--active' : ''
+            }`}
           />
         </div>
       )}
