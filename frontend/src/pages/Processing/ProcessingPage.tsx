@@ -22,11 +22,11 @@ const ProcessingPage: React.FC = () => {
   const [isProcessing, setIsProcessing] = useState(true);
   const [processingError, setProcessingError] = useState<string | null>(null);
   const statusCheckIntervalRef = useRef<number | null>(null);
+  const hasInitiatedProcessing = useRef(false);
 
   // Get the location state which may contain the reportId (previously filePath)
   const location = useLocation<{ reportId: string }>();
   const reportId = location.state?.reportId;
-  const [isFetching, setIsFetching] = useState(false);
 
   // Check the status of the report processing
   const checkReportStatus = async () => {
@@ -70,19 +70,21 @@ const ProcessingPage: React.FC = () => {
 
   // Send the API request when component mounts
   useEffect(() => {
+    // Use ref to ensure this effect runs only once for the core logic
+    if (hasInitiatedProcessing.current) {
+      return;
+    }
+
     if (!reportId) {
       setProcessingError('No report ID provided');
       setIsProcessing(false);
+      hasInitiatedProcessing.current = true; // Mark as initiated even on error
       return;
     }
 
-    if (isFetching) {
-      return;
-    }
+    hasInitiatedProcessing.current = true; // Mark as initiated before fetching
 
     const processFile = async () => {
-      setIsFetching(true);
-
       try {
         // Send POST request to backend API
         const response = await axios.post(
@@ -93,8 +95,8 @@ const ProcessingPage: React.FC = () => {
 
         console.log('File processing started:', response.data);
 
-        // Start checking the status every 5 seconds
-        statusCheckIntervalRef.current = window.setInterval(checkReportStatus, 5000);
+        // Start checking the status every 2 seconds
+        statusCheckIntervalRef.current = window.setInterval(checkReportStatus, 2000);
 
         // Run the first status check immediately
         checkReportStatus();
@@ -113,7 +115,8 @@ const ProcessingPage: React.FC = () => {
         window.clearInterval(statusCheckIntervalRef.current);
       }
     };
-  }, [reportId, axios, history]);
+  }, [reportId, location, history]);
+
 
   return (
     <IonPage className="processing-page">
