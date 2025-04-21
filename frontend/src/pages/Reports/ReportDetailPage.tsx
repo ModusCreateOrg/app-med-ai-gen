@@ -1,16 +1,40 @@
 import { IonPage, IonContent, IonButton } from '@ionic/react';
 import { useState } from 'react';
-import { useHistory } from 'react-router-dom';
+import { useHistory, useParams } from 'react-router-dom';
 import Icon from '../../common/components/Icon/Icon';
 import './ReportDetailPage.scss';
+import { useQuery } from '@tanstack/react-query';
+import axios from 'axios';
+import { MedicalReport, LabValue } from '../../common/models/medicalReport';
+import { useTranslation } from 'react-i18next';
+import { getAuthConfig } from 'common/api/reportService';
+
+const API_URL = import.meta.env.VITE_BASE_URL_API || '';
+
+// Function to fetch report by ID
+const fetchReportById = async (id: string): Promise<MedicalReport> => {
+  const response = await axios.get<MedicalReport>(
+    `${API_URL}/api/reports/${id}`,
+    await getAuthConfig(),
+  );
+  return response.data;
+};
 
 /**
  * Page component for displaying detailed medical report analysis.
  * This shows AI insights and original report data with flagged values.
  */
 const ReportDetailPage: React.FC = () => {
-//   const { reportId } = useParams<{ reportId: string }>();
+  const { reportId } = useParams<{ reportId: string }>();
   const history = useHistory();
+  const { t } = useTranslation();
+
+  // Fetch report data using react-query
+  const { data, isLoading, error } = useQuery<MedicalReport>({
+    queryKey: ['report', reportId],
+    queryFn: () => fetchReportById(reportId!),
+    enabled: !!reportId,
+  });
 
   // State to track expanded sections
   const [flaggedValuesExpanded, setFlaggedValuesExpanded] = useState(true);
@@ -20,6 +44,47 @@ const ReportDetailPage: React.FC = () => {
   // Toggle expanded state of sections
   const toggleFlaggedValues = () => setFlaggedValuesExpanded(!flaggedValuesExpanded);
   const toggleNormalValues = () => setNormalValuesExpanded(!normalValuesExpanded);
+
+  // Handle loading and error states
+  if (isLoading) {
+    return <IonPage></IonPage>;
+  }
+
+  if (error) {
+    return (
+      <IonPage>
+        <IonContent className="ion-padding">
+          <div>
+            {t('error.loading.report', { ns: 'errors', errorMessage: (error as Error).message })}
+          </div>
+        </IonContent>
+      </IonPage>
+    );
+  }
+
+  // Ensure reportData is available before rendering
+  if (!data) {
+    return (
+      <IonPage>
+        <IonContent className="ion-padding">
+          <div>{t('error.no-report-data', { ns: 'errors' })}</div>
+        </IonContent>
+      </IonPage>
+    );
+  }
+
+  const reportData = data;
+
+  // Derive hasEmergency from reportData.labValues
+  const hasEmergency = reportData.labValues.some((value) => value.isCritical);
+
+  // Filter lab values into flagged and normal
+  const flaggedValues: LabValue[] = reportData.labValues.filter(
+    (value) => value.status !== 'normal',
+  );
+  const normalValues: LabValue[] = reportData.labValues.filter(
+    (value) => value.status === 'normal',
+  );
 
   // Handle tab selection
   const handleTabChange = (tab: 'ai' | 'original') => {
@@ -40,48 +105,8 @@ const ReportDetailPage: React.FC = () => {
     history.push('/tabs/upload');
   };
 
-  // Hardcoded data for now, will be replaced with real API data later
-  const reportData = {
-    title: 'Blood Test',
-    category: 'General',
-    flaggedValues: [
-      {
-        name: 'High LDL Cholesterol',
-        level: 'High',
-        value: '165 mg/dL',
-        conclusion: 'Elevated LDL (bad cholesterol) increases your risk of cardiovascular disease',
-        suggestions: [
-          'Consider a heart-healthy diet (e.g., Mediterranean).',
-          'Increase physical activity.',
-          'Visit the nearest emergency room.',
-        ],
-      },
-      {
-        name: 'Low Hemoglobin (10.1 g/dL)',
-        level: 'Low',
-        value: '10.1 g/dL',
-        conclusion: 'This level suggests anemia, which may cause fatigue and weakness.',
-        suggestions: [
-          'Test for iron, B12, and folate deficiency.',
-          'Consider iron-rich foods or supplements after medical consultation.already on one.',
-        ],
-      },
-    ],
-    normalValues: [
-      {
-        name: 'White Blood Cell Count',
-        value: '6,800 /µL',
-        conclusion: 'Normal WBC count; your immune system is functioning well',
-        suggestions: ['Keep up a balanced diet, manage stress, and get adequate rest.'],
-      },
-      {
-        name: 'Vitamin D',
-        value: '35 ng/mL',
-        conclusion: 'Adequate levels for bone health and immunity.',
-        suggestions: ['Maintain outdoor exposure and dietary intake.'],
-      },
-    ],
-    hasEmergency: true,
+  const capitalize = (str: string) => {
+    return str.slice(0, 1).toUpperCase() + str.slice(1);
   };
 
   return (
@@ -90,7 +115,7 @@ const ReportDetailPage: React.FC = () => {
         {/* Header section */}
         <div className="report-detail-page__header">
           <div className="report-detail-page__title-container">
-            <h1>Results Analysis</h1>
+            <h1>{t('report.analysis.title', { ns: 'reportDetail' })}</h1>
             <div className="report-detail-page__header-actions">
               <IonButton fill="clear" className="close-button" onClick={handleClose}>
                 <Icon icon="xmark" size="lg" />
@@ -100,7 +125,9 @@ const ReportDetailPage: React.FC = () => {
 
           {/* Category & Title */}
           <div className="report-detail-page__category">
-            <span className="report-detail-page__category-text">{reportData.category}</span>
+            <span className="report-detail-page__category-text">
+              {capitalize(reportData.category)}
+            </span>
             <div className="report-detail-page__bookmark-container">
               <Icon icon="bookmark" iconStyle="regular" />
             </div>
@@ -146,7 +173,7 @@ const ReportDetailPage: React.FC = () => {
         </div>
 
         {/* Emergency alert if needed */}
-        {reportData.hasEmergency && (
+        {hasEmergency && (
           <div className="report-detail-page__emergency">
             <div className="report-detail-page__emergency-icon">
               <svg
@@ -180,7 +207,7 @@ const ReportDetailPage: React.FC = () => {
               </svg>
             </div>
             <p className="report-detail-page__emergency-text">
-              Please contact your doctor or seek emergency care immediately.
+              {t('report.emergency.message', { ns: 'reportDetail' })}
             </p>
           </div>
         )}
@@ -191,38 +218,38 @@ const ReportDetailPage: React.FC = () => {
             <div className="report-detail-page__section-icon">
               <Icon icon="flag" size="sm" style={{ color: '#c93a54' }} />
             </div>
-            <h3 className="report-detail-page__section-title">Flagged values</h3>
+            <h3 className="report-detail-page__section-title">
+              {t('report.flagged-values.title', { ns: 'reportDetail' })}
+            </h3>
             <div className="report-detail-page__section-toggle">
               <Icon icon={flaggedValuesExpanded ? 'chevronUp' : 'chevronDown'} size="sm" />
             </div>
           </div>
 
           {flaggedValuesExpanded &&
-            reportData.flaggedValues.map((item, index) => (
+            flaggedValues.map((item: LabValue, index) => (
               <div key={index} className="report-detail-page__item">
                 <div
-                  className={`report-detail-page__item-header report-detail-page__item-header--${item.level.toLowerCase()}`}
+                  className={`report-detail-page__item-header report-detail-page__item-header--${item.status.toLowerCase()}`}
                 >
                   <div className="report-detail-page__item-name">{item.name}</div>
                   <div
-                    className={`report-detail-page__item-level report-detail-page__item-level--${item.level.toLowerCase()}`}
+                    className={`report-detail-page__item-level report-detail-page__item-level--${item.status.toLowerCase()}`}
                   >
-                    {item.level}
+                    {item.status}
                   </div>
-                  <div className="report-detail-page__item-value">{item.value}</div>
+                  <div className="report-detail-page__item-value">
+                    {item.value} {item.unit}
+                  </div>
                 </div>
                 <div className="report-detail-page__item-details">
                   <div className="report-detail-page__item-section">
-                    <h4>Conclusion:</h4>
+                    <h4>{t('report.conclusion.title', { ns: 'reportDetail' })}:</h4>
                     <p>{item.conclusion}</p>
                   </div>
                   <div className="report-detail-page__item-section">
-                    <h4>Suggestions:</h4>
-                    <ul className="report-detail-page__item-list">
-                      {item.suggestions.map((suggestion, idx) => (
-                        <li key={idx}>{suggestion}</li>
-                      ))}
-                    </ul>
+                    <h4>{t('report.suggestions.title', { ns: 'reportDetail' })}:</h4>
+                    <p>{item.suggestions}</p>
                   </div>
                 </div>
               </div>
@@ -238,31 +265,31 @@ const ReportDetailPage: React.FC = () => {
             >
               <Icon icon="vial" size="sm" />
             </div>
-            <h3 className="report-detail-page__section-title">Normal values</h3>
+            <h3 className="report-detail-page__section-title">
+              {t('report.normal-values.title', { ns: 'reportDetail' })}
+            </h3>
             <div className="report-detail-page__section-toggle">
               <Icon icon={normalValuesExpanded ? 'chevronUp' : 'chevronDown'} size="sm" />
             </div>
           </div>
 
           {normalValuesExpanded &&
-            reportData.normalValues.map((item, index) => (
+            normalValues.map((item: LabValue, index) => (
               <div key={index} className="report-detail-page__item">
                 <div className="report-detail-page__item-header">
                   <div className="report-detail-page__item-name">{item.name}</div>
-                  <div className="report-detail-page__item-value">{item.value}</div>
+                  <div className="report-detail-page__item-value">
+                    {item.value} {item.unit}
+                  </div>
                 </div>
                 <div className="report-detail-page__item-details">
                   <div className="report-detail-page__item-section">
-                    <h4>Conclusion:</h4>
+                    <h4>{t('report.conclusion.title', { ns: 'reportDetail' })}:</h4>
                     <p>{item.conclusion}</p>
                   </div>
                   <div className="report-detail-page__item-section">
-                    <h4>Suggestions:</h4>
-                    <ul className="report-detail-page__item-list">
-                      {item.suggestions.map((suggestion, idx) => (
-                        <li key={idx}>{suggestion}</li>
-                      ))}
-                    </ul>
+                    <h4>{t('report.suggestions.title', { ns: 'reportDetail' })}:</h4>
+                    <p>{item.suggestions}</p>
                   </div>
                 </div>
               </div>
@@ -275,16 +302,18 @@ const ReportDetailPage: React.FC = () => {
             <Icon icon="circleInfo" />
           </div>
           <div className="report-detail-page__info-text">
-            With all interpretations, these results should be discussed with your doctor.
+            {t('report.doctor-note', { ns: 'reportDetail' })}
           </div>
         </div>
 
         {/* AI Assistant help section */}
         <div className="report-detail-page__ai-help">
           <div className="report-detail-page__ai-help-title">
-            Still need further clarifications?
+            {t('report.ai-help.title', { ns: 'reportDetail' })}
           </div>
-          <div className="report-detail-page__ai-help-action">Ask our AI Assistant &gt;</div>
+          <div className="report-detail-page__ai-help-action">
+            {t('report.ai-help.action', { ns: 'reportDetail' })} &gt;
+          </div>
         </div>
 
         {/* Action buttons at the bottom */}
@@ -293,13 +322,13 @@ const ReportDetailPage: React.FC = () => {
             className="report-detail-page__action-button report-detail-page__action-button--discard"
             onClick={handleDiscard}
           >
-            Discard
+            {t('report.action.discard', { ns: 'reportDetail' })}
           </button>
           <button
             className="report-detail-page__action-button report-detail-page__action-button--upload"
             onClick={handleNewUpload}
           >
-            New Upload
+            {t('report.action.new-upload', { ns: 'reportDetail' })}
           </button>
         </div>
       </IonContent>

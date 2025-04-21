@@ -3,6 +3,10 @@
     "general": "Désolé, une erreur s'est produite. Veuillez réessayer."
   },
   "ai": {
-    "content_filtered": "Je n'ai pas pu trouver de réponse. Veuillez reformuler votre question ou consulter votre prestataire de soins de santé."
-  }
-} 
+    "content_filtered": "Je n'ai pas pu trouver de réponse. Veuillez reformuler votre question ou consulter votre médecin."
+  },
+  "loading": {
+    "report": "Erreur lors du chargement du rapport. Veuillez réessayer."
+  },
+  "no-report-data": "Aucune donnée de rapport disponible."
+}

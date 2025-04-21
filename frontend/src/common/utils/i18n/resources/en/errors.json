@@ -4,5 +4,9 @@
   },
   "ai": {
     "content_filtered": "I couldn't find an answer. Please try rephrasing your question or consult your healthcare provider."
-  }
-} 
+  },
+  "loading": {
+    "report": "Error loading the report. Please try again."
+  },
+  "no-report-data": "No report data available."
+}
