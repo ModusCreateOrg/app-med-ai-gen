@@ -89,4 +89,4 @@ describe('File utilities', () => {
       expect(formatFileSize(2.5 * 1024 * 1024)).toBe('2.50 MB');
     });
   });
-}); 
+});

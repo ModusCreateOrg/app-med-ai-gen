@@ -24,15 +24,15 @@ interface AIAssistantModalProps {
   testid?: string;
 }
 
-const AIAssistantModal: React.FC<AIAssistantModalProps> = ({ 
-  isOpen, 
+const AIAssistantModal: React.FC<AIAssistantModalProps> = ({
+  isOpen,
   setIsOpen,
-  testid = 'ai-assistant-modal'
+  testid = 'ai-assistant-modal',
 }) => {
   const [isExpanded, setIsExpanded] = useState<boolean>(false);
   const [messages, setMessages] = useState<ChatMessageData[]>([]);
   const modalRef = useRef<HTMLIonModalElement>(null);
-  
+
   // Reset expanded state whenever modal opens
   useEffect(() => {
     if (isOpen) {
@@ -42,7 +42,7 @@ const AIAssistantModal: React.FC<AIAssistantModalProps> = ({
 
   const handleClose = async () => {
     setIsOpen(false);
-    
+
     // Reset the chat session and clear messages when modal is closed
     await chatService.resetSession();
     setMessages([]);
@@ -63,15 +63,15 @@ const AIAssistantModal: React.FC<AIAssistantModalProps> = ({
     if (!isExpanded) {
       setIsExpanded(true);
     }
-    
+
     const userMessage = chatService.createUserMessage(text);
-    setMessages(prevMessages => [...prevMessages, userMessage]);
+    setMessages((prevMessages) => [...prevMessages, userMessage]);
 
     try {
       // Get AI response
       const responseText = await chatService.sendMessage(text);
       const assistantMessage = chatService.createAssistantMessage(responseText);
-      setMessages(prevMessages => [...prevMessages, assistantMessage]);
+      setMessages((prevMessages) => [...prevMessages, assistantMessage]);
     } catch (error) {
       console.error('Error getting AI response:', error);
       // You could add error handling here, like showing an error message
@@ -79,7 +79,7 @@ const AIAssistantModal: React.FC<AIAssistantModalProps> = ({
   };
 
   return (
-    <IonModal 
+    <IonModal
       isOpen={isOpen}
       onDidDismiss={() => {
         setIsOpen(false);
@@ -93,18 +93,18 @@ const AIAssistantModal: React.FC<AIAssistantModalProps> = ({
       <IonHeader className="ai-assistant-header">
         <IonToolbar className="ai-assistant-toolbar">
           <div className="ai-assistant-title-container">
-          <img src={aiIcon} alt="AI Assistant Icon" className="ai-assistant-title-icon" />
+            <img src={aiIcon} alt="AI Assistant Icon" className="ai-assistant-title-icon" />
             <span className="ai-assistant-title-text">AI Assistant</span>
           </div>
           <IonButtons slot="end">
-            <IonButton 
+            <IonButton
               onClick={handleExpand}
-              aria-label={isExpanded ? "Collapse chat" : "Expand chat"}
+              aria-label={isExpanded ? 'Collapse chat' : 'Expand chat'}
               data-testid={`${testid}-expand-button`}
             >
               <IonIcon icon={isExpanded ? contractOutline : expandOutline} aria-hidden="true" />
             </IonButton>
-            <IonButton 
+            <IonButton
               onClick={handleClose}
               aria-label="Close AI Assistant"
               data-testid={`${testid}-close-button`}
@@ -114,7 +114,7 @@ const AIAssistantModal: React.FC<AIAssistantModalProps> = ({
           </IonButtons>
         </IonToolbar>
       </IonHeader>
-      
+
       <IonContent className="ai-assistant-content">
         <ChatContainer
           messages={messages}
@@ -124,13 +124,10 @@ const AIAssistantModal: React.FC<AIAssistantModalProps> = ({
       </IonContent>
 
       <IonFooter className="ai-assistant-footer">
-        <ChatInput
-          onSendMessage={handleSendMessage}
-          testid={`${testid}-input`}
-        />
+        <ChatInput onSendMessage={handleSendMessage} testid={`${testid}-input`} />
       </IonFooter>
     </IonModal>
   );
 };
 
-export default AIAssistantModal; 
+export default AIAssistantModal;

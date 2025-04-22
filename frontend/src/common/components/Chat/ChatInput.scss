@@ -4,14 +4,14 @@
   position: relative;
   width: 100%;
   z-index: 2;
-  
+
   .input-wrapper {
     position: relative;
     display: flex;
     align-items: center;
     justify-content: center;
     min-height: 3.5rem;
-    
+
     .message-input {
       flex: 1;
       width: 100%;
@@ -28,7 +28,7 @@
 
     .send-fab {
       right: 0;
-      
+
       .send-button {
         --background: var(--ion-color-primary);
         --ion-color-base: var(--ion-color-primary);
@@ -36,11 +36,11 @@
         height: 3rem;
         margin: 0;
       }
-      
+
       ion-icon {
         font-size: 1.25rem;
         color: white;
       }
     }
   }
-} 
+}

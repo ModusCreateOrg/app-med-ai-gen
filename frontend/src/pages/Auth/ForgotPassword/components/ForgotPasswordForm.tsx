@@ -1,11 +1,4 @@
-import {
-  IonButton,
-  useIonRouter,
-  useIonViewDidEnter,
-  IonText,
-  IonRow,
-  IonCol,
-} from '@ionic/react';
+import { IonButton, useIonRouter, useIonViewDidEnter, IonText, IonRow, IonCol } from '@ionic/react';
 import { useRef, useState } from 'react';
 import classNames from 'classnames';
 import { Form, Formik } from 'formik';
@@ -40,7 +33,10 @@ interface ForgotPasswordFormValues {
  * @param {ForgotPasswordFormProps} props - Component properties.
  * @returns {JSX.Element} JSX
  */
-const ForgotPasswordForm = ({ className, testid = 'form-forgot-password' }: ForgotPasswordFormProps): JSX.Element => {
+const ForgotPasswordForm = ({
+  className,
+  testid = 'form-forgot-password',
+}: ForgotPasswordFormProps): JSX.Element => {
   const focusInput = useRef<HTMLIonInputElement>(null);
   const [error, setError] = useState<AuthError | null>(null);
   const [successMessage, setSuccessMessage] = useState<string>('');
@@ -65,15 +61,15 @@ const ForgotPasswordForm = ({ className, testid = 'form-forgot-password' }: Forg
 
   return (
     <div className={classNames('ls-forgot-password-form', className)} data-testid={testid}>
-      <AuthErrorDisplay 
-        error={error} 
+      <AuthErrorDisplay
+        error={error}
         showDetails={true}
         className="ion-margin-bottom"
         testid={`${testid}-error`}
       />
 
-      <AuthLoadingIndicator 
-        isLoading={isLoading} 
+      <AuthLoadingIndicator
+        isLoading={isLoading}
         message={t('loading', { ns: 'auth' })}
         testid={`${testid}-loading`}
       />
@@ -94,15 +90,15 @@ const ForgotPasswordForm = ({ className, testid = 'form-forgot-password' }: Forg
             setSuccessMessage('');
             setIsLoading(true);
             setShowProgress(true);
-            
+
             await forgotPassword(values.email);
-            
+
             // Store the email in sessionStorage for the reset password page
             sessionStorage.setItem('reset_password_email', values.email);
-            
+
             // Show success message
             setSuccessMessage(t('password-recovery.success', { ns: 'auth' }));
-            
+
             // Wait before redirecting to allow the user to see the message
             setTimeout(() => {
               router.push('/auth/reset-password', 'forward', 'replace');
@@ -124,9 +120,7 @@ const ForgotPasswordForm = ({ className, testid = 'form-forgot-password' }: Forg
             </HeaderRow>
 
             <div className="ls-forgot-password-form__message">
-              <IonText>
-                {t('password-recovery.message', { ns: 'auth' })}
-              </IonText>
+              <IonText>{t('password-recovery.message', { ns: 'auth' })}</IonText>
             </div>
 
             <Input
@@ -151,7 +145,7 @@ const ForgotPasswordForm = ({ className, testid = 'form-forgot-password' }: Forg
             >
               {t('submit', { ns: 'auth' })}
             </IonButton>
-            
+
             <IonRow className="ion-text-center ion-padding-top">
               <IonCol>
                 <IonText color="medium">
@@ -166,4 +160,4 @@ const ForgotPasswordForm = ({ className, testid = 'form-forgot-password' }: Forg
   );
 };
 
-export default ForgotPasswordForm; 
+export default ForgotPasswordForm;

@@ -1,9 +1,4 @@
-import {
-  IonButton,
-  IonInputPasswordToggle,
-  useIonRouter,
-  useIonViewDidEnter,
-} from '@ionic/react';
+import { IonButton, IonInputPasswordToggle, useIonRouter, useIonViewDidEnter } from '@ionic/react';
 import { useRef, useState, useEffect } from 'react';
 import classNames from 'classnames';
 import { Form, Formik } from 'formik';
@@ -63,9 +58,7 @@ const SignInForm = ({ className, testid = 'form-signin' }: SignInFormProps): JSX
    * Sign in form validation schema.
    */
   const validationSchema = object<SignInFormValues>({
-    email: string()
-      .email(t('validation.email'))
-      .required(t('validation.required')),
+    email: string().email(t('validation.email')).required(t('validation.required')),
     password: string().required(t('validation.required')),
     rememberMe: boolean().default(false),
   });
@@ -88,15 +81,15 @@ const SignInForm = ({ className, testid = 'form-signin' }: SignInFormProps): JSX
 
   return (
     <div className={classNames('ls-signin-form', className)} data-testid={testid}>
-      <AuthErrorDisplay 
-        error={error} 
+      <AuthErrorDisplay
+        error={error}
         showDetails={true}
         className="ion-margin-bottom"
         testid={`${testid}-error`}
       />
 
-      <AuthLoadingIndicator 
-        isLoading={isLoading} 
+      <AuthLoadingIndicator
+        isLoading={isLoading}
         message={t('signin.loading', { ns: 'auth' })}
         testid={`${testid}-loading`}
       />
@@ -115,9 +108,9 @@ const SignInForm = ({ className, testid = 'form-signin' }: SignInFormProps): JSX
             setShowProgress(true);
             setShouldRedirect(false);
             setIsSignInComplete(false);
-            
+
             const result = await signIn(values.email, values.password);
-            
+
             // Check if user is already signed in
             if (result.alreadySignedIn) {
               // User is already signed in, but we still need to wait for user data
@@ -128,7 +121,7 @@ const SignInForm = ({ className, testid = 'form-signin' }: SignInFormProps): JSX
               setShouldRedirect(true);
               return;
             }
-            
+
             if (values.rememberMe) {
               storage.setJsonItem<RememberMe>(StorageKey.RememberMe, {
                 username: values.email,
@@ -136,12 +129,12 @@ const SignInForm = ({ className, testid = 'form-signin' }: SignInFormProps): JSX
             } else {
               storage.removeItem(StorageKey.RememberMe);
             }
-            
+
             // Trigger a token refresh to ensure we have the latest user data
             await refetchTokens();
             setIsSignInComplete(true);
             setShouldRedirect(true);
-            
+
             // The redirection will happen in the useEffect when user data is available
           } catch (err) {
             setError(formatAuthError(err));
@@ -168,7 +161,7 @@ const SignInForm = ({ className, testid = 'form-signin' }: SignInFormProps): JSX
                 placeholder=""
               />
             </div>
-            
+
             <div className="ls-signin-form__field">
               <label className="ls-signin-form__label">{t('label.password', { ns: 'auth' })}</label>
               <Input
@@ -190,14 +183,14 @@ const SignInForm = ({ className, testid = 'form-signin' }: SignInFormProps): JSX
                   name="rememberMe"
                   className="ls-signin-form__input-checkbox"
                   testid={`${testid}-field-rememberme`}
-                  labelPlacement='end'
+                  labelPlacement="end"
                 >
                   {t('label.remember-me', { ns: 'auth' })}
                 </CheckboxInput>
               </div>
 
-              <a 
-                href="/auth/forgot-password" 
+              <a
+                href="/auth/forgot-password"
                 className="ls-signin-form__forgot-link"
                 data-testid={`${testid}-link-forgot-password`}
               >

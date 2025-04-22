@@ -2,7 +2,12 @@ import { vi, describe, test, expect, beforeEach } from 'vitest';
 import { render, screen, fireEvent } from '@testing-library/react';
 import UploadPage from '../UploadPage';
 import { MemoryRouter } from 'react-router-dom';
-import { MedicalReport, ReportCategory, ReportStatus, ProcessingStatus } from 'common/models/medicalReport';
+import {
+  MedicalReport,
+  ReportCategory,
+  ReportStatus,
+  ProcessingStatus,
+} from 'common/models/medicalReport';
 import '@testing-library/jest-dom';
 
 // Mock the dependencies

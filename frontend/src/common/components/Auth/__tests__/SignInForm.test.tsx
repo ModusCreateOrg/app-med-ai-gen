@@ -36,12 +36,20 @@ vi.mock('../../../../utils/storage', () => ({
     removeItem: vi.fn(),
     getItem: vi.fn(),
     setItem: vi.fn(),
-  }
+  },
 }));
 
 // Mock the @ionic/react components
 vi.mock('@ionic/react', () => {
-  const IonButton = ({ onClick, children, type }: { onClick?: () => void; children: React.ReactNode; type?: "button" | "submit" | "reset" }) => (
+  const IonButton = ({
+    onClick,
+    children,
+    type,
+  }: {
+    onClick?: () => void;
+    children: React.ReactNode;
+    type?: 'button' | 'submit' | 'reset';
+  }) => (
     <button onClick={onClick} type={type}>
       {children}
     </button>
@@ -49,27 +57,27 @@ vi.mock('@ionic/react', () => {
 
   const IonItem = ({ children }: { children: React.ReactNode }) => <div>{children}</div>;
   const IonLabel = ({ children }: { children: React.ReactNode }) => <label>{children}</label>;
-  const IonInput = ({ 
-    value, 
-    onIonChange, 
-    type, 
+  const IonInput = ({
+    value,
+    onIonChange,
+    type,
     placeholder,
-    "data-testid": dataTestId,
-  }: { 
-    value?: string; 
-    onIonChange?: (e: { detail: { value: string } }) => void; 
-    type?: string; 
+    'data-testid': dataTestId,
+  }: {
+    value?: string;
+    onIonChange?: (e: { detail: { value: string } }) => void;
+    type?: string;
     placeholder?: string;
-    "data-testid"?: string;
+    'data-testid'?: string;
   }) => {
     // Create a mutable ref to store the value
     const [currentValue, setCurrentValue] = React.useState(value || '');
-    
+
     const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
       setCurrentValue(e.target.value);
       onIonChange?.({ detail: { value: e.target.value } });
     };
-    
+
     return (
       <input
         value={currentValue}
@@ -89,52 +97,47 @@ vi.mock('@ionic/react', () => {
   const IonCol = ({ children }: { children: React.ReactNode }) => <div>{children}</div>;
   const IonList = ({ children }: { children: React.ReactNode }) => <div>{children}</div>;
   const IonGrid = ({ children }: { children: React.ReactNode }) => <div>{children}</div>;
-  const IonCheckbox = ({ 
-    checked, 
+  const IonCheckbox = ({
+    checked,
     onIonChange,
-    "data-testid": dataTestId,
-  }: { 
-    checked?: boolean; 
+    'data-testid': dataTestId,
+  }: {
+    checked?: boolean;
     onIonChange?: (e: { detail: { checked: boolean } }) => void;
-    "data-testid"?: string;
+    'data-testid'?: string;
   }) => {
     // Create a mutable ref to store the checked state
     const [isChecked, setIsChecked] = React.useState(checked || false);
-    
+
     const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
       setIsChecked(e.target.checked);
       onIonChange?.({ detail: { checked: e.target.checked } });
     };
-    
+
     return (
-      <input
-        type="checkbox"
-        checked={isChecked}
-        onChange={handleChange}
-        data-testid={dataTestId}
-      />
+      <input type="checkbox" checked={isChecked} onChange={handleChange} data-testid={dataTestId} />
     );
   };
 
-  const IonInputPasswordToggle = ({ 
-    value, 
-    onIonChange, 
+  const IonInputPasswordToggle = ({
+    value,
+    onIonChange,
     placeholder,
-    "data-testid": dataTestId,
-  }: { 
-    value?: string; 
-    onIonChange?: (e: { detail: { value: string } }) => void; 
+    'data-testid': dataTestId,
+  }: {
+    value?: string;
+    onIonChange?: (e: { detail: { value: string } }) => void;
     placeholder?: string;
-    "data-testid"?: string;
+    'data-testid'?: string;
   }) => {
     // Create a mutable ref to store the value
     const [currentValue, setCurrentValue] = React.useState(value || '');
-    
+
     const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
       setCurrentValue(e.target.value);
       onIonChange?.({ detail: { value: e.target.value } });
     };
-    
+
     return (
       <input
         value={currentValue}
@@ -147,7 +150,15 @@ vi.mock('@ionic/react', () => {
   };
 
   // Add more components
-  const IonPopover = ({ children, trigger, triggerAction }: { children: React.ReactNode; trigger?: string; triggerAction?: string }) => (
+  const IonPopover = ({
+    children,
+    trigger,
+    triggerAction,
+  }: {
+    children: React.ReactNode;
+    trigger?: string;
+    triggerAction?: string;
+  }) => (
     <div data-testid="ion-popover" data-trigger={trigger} data-trigger-action={triggerAction}>
       {children}
     </div>
@@ -221,16 +232,14 @@ vi.mock('../../../../common/hooks/useAuth', () => ({
 
 // Mock the AuthErrorDisplay component
 vi.mock('../AuthErrorDisplay', () => ({
-  default: ({ error }: { error: null | { message: string } }) => (
-    error ? <div data-testid="auth-error">{error.message}</div> : null
-  ),
+  default: ({ error }: { error: null | { message: string } }) =>
+    error ? <div data-testid="auth-error">{error.message}</div> : null,
 }));
 
 // Mock the AuthLoadingIndicator component
 vi.mock('../AuthLoadingIndicator', () => ({
-  default: ({ isLoading }: { isLoading: boolean }) => (
-    isLoading ? <div data-testid="loading-indicator">Loading...</div> : null
-  ),
+  default: ({ isLoading }: { isLoading: boolean }) =>
+    isLoading ? <div data-testid="loading-indicator">Loading...</div> : null,
 }));
 
 // Mock the useTranslation hook
@@ -241,21 +250,18 @@ vi.mock('react-i18next', () => ({
 }));
 
 // Create a custom render function that includes the QueryClientProvider
-const createTestQueryClient = () => new QueryClient({
-  defaultOptions: {
-    queries: {
-      retry: false,
+const createTestQueryClient = () =>
+  new QueryClient({
+    defaultOptions: {
+      queries: {
+        retry: false,
+      },
     },
-  },
-});
+  });
 
 const renderWithQueryClient = (ui: React.ReactElement) => {
   const testQueryClient = createTestQueryClient();
-  return render(
-    <QueryClientProvider client={testQueryClient}>
-      {ui}
-    </QueryClientProvider>
-  );
+  return render(<QueryClientProvider client={testQueryClient}>{ui}</QueryClientProvider>);
 };
 
 describe('SignInForm', () => {
@@ -291,4 +297,4 @@ describe('SignInForm', () => {
     fireEvent.click(rememberMeCheckbox);
     expect(rememberMeCheckbox).toBeDefined();
   });
-}); 
+});

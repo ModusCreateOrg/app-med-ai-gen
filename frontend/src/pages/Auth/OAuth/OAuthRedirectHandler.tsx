@@ -21,7 +21,9 @@ interface OAuthRedirectHandlerProps extends PropsWithTestId {}
  * @param {OAuthRedirectHandlerProps} props - Component properties.
  * @returns {JSX.Element} JSX
  */
-const OAuthRedirectHandler = ({ testid = 'page-oauth-handler' }: OAuthRedirectHandlerProps): JSX.Element => {
+const OAuthRedirectHandler = ({
+  testid = 'page-oauth-handler',
+}: OAuthRedirectHandlerProps): JSX.Element => {
   const { t } = useTranslation();
   const router = useIonRouter();
   const [error, setError] = useState<string>('');
@@ -31,11 +33,11 @@ const OAuthRedirectHandler = ({ testid = 'page-oauth-handler' }: OAuthRedirectHa
       try {
         // Get the current session after OAuth
         const session = await CognitoAuthService.getCurrentSession();
-        
+
         if (session && session.tokens) {
           // Get the user data
           const currentUser = await CognitoAuthService.getCurrentUser();
-          
+
           if (currentUser) {
             // Map to our user model
             const userData = {
@@ -43,12 +45,12 @@ const OAuthRedirectHandler = ({ testid = 'page-oauth-handler' }: OAuthRedirectHa
               attributes: {
                 email: currentUser.username || '',
                 // Add more attributes if needed
-              }
+              },
             };
-            
+
             mapCognitoUserToAppUser(userData);
           }
-          
+
           // Redirect to app home
           router.push('/tabs/home', 'forward', 'replace');
         } else {
@@ -57,7 +59,7 @@ const OAuthRedirectHandler = ({ testid = 'page-oauth-handler' }: OAuthRedirectHa
       } catch (err) {
         console.error('OAuth redirect error:', err);
         setError(getAuthErrorMessage(err));
-        
+
         // If there's an error, redirect to sign in after a delay
         setTimeout(() => {
           router.push('/auth/signin', 'forward', 'replace');
@@ -89,4 +91,4 @@ const OAuthRedirectHandler = ({ testid = 'page-oauth-handler' }: OAuthRedirectHa
   );
 };
 
-export default OAuthRedirectHandler; 
+export default OAuthRedirectHandler;

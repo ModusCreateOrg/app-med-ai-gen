@@ -39,4 +39,4 @@ const WithMinimalProviders = ({ children }: PropsWithChildren): JSX.Element => {
   );
 };
 
-export default WithMinimalProviders; 
+export default WithMinimalProviders;

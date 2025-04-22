@@ -1,8 +1,4 @@
-import {
-  IonButton,
-  useIonRouter,
-  IonText,
-} from '@ionic/react';
+import { IonButton, useIonRouter, IonText } from '@ionic/react';
 import { useState } from 'react';
 import classNames from 'classnames';
 import { Form, Formik } from 'formik';
@@ -39,7 +35,11 @@ interface VerificationFormValues {
  * @param {VerificationFormProps} props - Component properties.
  * @returns {JSX.Element} JSX
  */
-const VerificationForm = ({ className, email, testid = 'form-verification' }: VerificationFormProps): JSX.Element => {
+const VerificationForm = ({
+  className,
+  email,
+  testid = 'form-verification',
+}: VerificationFormProps): JSX.Element => {
   const [error, setError] = useState<AuthError | null>(null);
   const [successMessage, setSuccessMessage] = useState<string>('');
   const [isLoading, setIsLoading] = useState(false);
@@ -63,11 +63,13 @@ const VerificationForm = ({ className, email, testid = 'form-verification' }: Ve
    */
   const handleResendCode = async () => {
     if (!email) {
-      setError(formatAuthError({
-        code: 'NoEmailError',
-        message: t('error.no-email', { ns: 'auth' }),
-        name: 'NoEmailError'
-      }));
+      setError(
+        formatAuthError({
+          code: 'NoEmailError',
+          message: t('error.no-email', { ns: 'auth' }),
+          name: 'NoEmailError',
+        }),
+      );
       return;
     }
 
@@ -88,15 +90,15 @@ const VerificationForm = ({ className, email, testid = 'form-verification' }: Ve
 
   return (
     <div className={classNames('ls-verification-form', className)} data-testid={testid}>
-      <AuthErrorDisplay 
-        error={error} 
+      <AuthErrorDisplay
+        error={error}
         showDetails={true}
         className="ion-margin-bottom"
         testid={`${testid}-error`}
       />
 
-      <AuthLoadingIndicator 
-        isLoading={isLoading} 
+      <AuthLoadingIndicator
+        isLoading={isLoading}
         message={t('verification.loading', { ns: 'auth' })}
         testid={`${testid}-loading`}
       />
@@ -113,11 +115,13 @@ const VerificationForm = ({ className, email, testid = 'form-verification' }: Ve
         }}
         onSubmit={async (values, { setSubmitting }) => {
           if (!email) {
-            setError(formatAuthError({
-              code: 'NoEmailError',
-              message: t('error.no-email', { ns: 'auth' }),
-              name: 'NoEmailError'
-            }));
+            setError(
+              formatAuthError({
+                code: 'NoEmailError',
+                message: t('error.no-email', { ns: 'auth' }),
+                name: 'NoEmailError',
+              }),
+            );
             return;
           }
 
@@ -127,11 +131,11 @@ const VerificationForm = ({ className, email, testid = 'form-verification' }: Ve
             setIsLoading(true);
             setShowProgress(true);
             await confirmSignUp(email, values.code);
-            
+
             // Show success message briefly before redirecting
             setSuccessMessage(t('email-verification.success', { ns: 'auth' }));
             setIsLoading(false);
-            
+
             // Short delay before redirect to allow user to see success message
             setTimeout(() => {
               router.push('/auth/signin', 'forward', 'replace');
@@ -153,9 +157,7 @@ const VerificationForm = ({ className, email, testid = 'form-verification' }: Ve
             </HeaderRow>
 
             <div className="ls-verification-form__message">
-              <IonText>
-                {t('email-verification.message', { ns: 'auth' })}
-              </IonText>
+              <IonText>{t('email-verification.message', { ns: 'auth' })}</IonText>
               {email && (
                 <IonText className="ls-verification-form__email">
                   <strong>{email}</strong>
@@ -184,7 +186,7 @@ const VerificationForm = ({ className, email, testid = 'form-verification' }: Ve
             >
               {t('confirm', { ns: 'auth' })}
             </IonButton>
-            
+
             <div className="ls-verification-form__resend">
               <IonButton
                 fill="clear"
@@ -203,4 +205,4 @@ const VerificationForm = ({ className, email, testid = 'form-verification' }: Ve
   );
 };
 
-export default VerificationForm; 
+export default VerificationForm;

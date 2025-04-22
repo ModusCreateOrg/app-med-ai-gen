@@ -50,19 +50,42 @@ vi.mock('react-i18next', () => ({
 
 // Mock the components
 vi.mock('@ionic/react', () => ({
-  IonButton: ({ onClick, children, type, disabled, ...props }: React.ButtonHTMLAttributes<HTMLButtonElement> & { children: React.ReactNode }) => (
+  IonButton: ({
+    onClick,
+    children,
+    type,
+    disabled,
+    ...props
+  }: React.ButtonHTMLAttributes<HTMLButtonElement> & { children: React.ReactNode }) => (
     <button {...props} type={type} onClick={onClick} disabled={disabled}>
       {children}
     </button>
   ),
-  IonContent: ({ children, ...props }: React.HTMLAttributes<HTMLDivElement> & { children: React.ReactNode }) => (
+  IonContent: ({
+    children,
+    ...props
+  }: React.HTMLAttributes<HTMLDivElement> & { children: React.ReactNode }) => (
     <div data-testid="ion-content" {...props}>
       {children}
     </div>
   ),
   IonInputPasswordToggle: () => <div data-testid="password-toggle">Toggle</div>,
-  IonPopover: ({ children, trigger, triggerAction, ...props }: React.HTMLAttributes<HTMLDivElement> & { children: React.ReactNode; trigger?: string; triggerAction?: string }) => (
-    <div data-testid="ion-popover" data-trigger={trigger} data-trigger-action={triggerAction} {...props}>
+  IonPopover: ({
+    children,
+    trigger,
+    triggerAction,
+    ...props
+  }: React.HTMLAttributes<HTMLDivElement> & {
+    children: React.ReactNode;
+    trigger?: string;
+    triggerAction?: string;
+  }) => (
+    <div
+      data-testid="ion-popover"
+      data-trigger={trigger}
+      data-trigger-action={triggerAction}
+      {...props}
+    >
       {children}
     </div>
   ),
@@ -70,9 +93,24 @@ vi.mock('@ionic/react', () => ({
     push: vi.fn(),
   }),
   useIonViewDidEnter: vi.fn((callback) => callback()),
-  IonText: ({ children, ...props }: React.HTMLAttributes<HTMLDivElement> & { children: React.ReactNode }) => <div {...props}>{children}</div>,
-  IonRow: ({ children, ...props }: React.HTMLAttributes<HTMLDivElement> & { children: React.ReactNode }) => <div {...props}>{children}</div>,
-  IonCol: ({ children, ...props }: React.HTMLAttributes<HTMLDivElement> & { children: React.ReactNode }) => <div {...props}>{children}</div>,
+  IonText: ({
+    children,
+    ...props
+  }: React.HTMLAttributes<HTMLDivElement> & { children: React.ReactNode }) => (
+    <div {...props}>{children}</div>
+  ),
+  IonRow: ({
+    children,
+    ...props
+  }: React.HTMLAttributes<HTMLDivElement> & { children: React.ReactNode }) => (
+    <div {...props}>{children}</div>
+  ),
+  IonCol: ({
+    children,
+    ...props
+  }: React.HTMLAttributes<HTMLDivElement> & { children: React.ReactNode }) => (
+    <div {...props}>{children}</div>
+  ),
 }));
 
 // Create a wrapper with QueryClientProvider
@@ -84,24 +122,29 @@ const renderWithQueryClient = (ui: React.ReactElement) => {
       },
     },
   });
-  
-  return render(
-    <QueryClientProvider client={queryClient}>
-      {ui}
-    </QueryClientProvider>
-  );
+
+  return render(<QueryClientProvider client={queryClient}>{ui}</QueryClientProvider>);
 };
 
 // Mock the custom components
 vi.mock('../../../../../common/components/Input/Input', () => ({
-  default: ({ name, label, type, maxlength, autocomplete, className, "data-testid": dataTestId, children }: {
+  default: ({
+    name,
+    label,
+    type,
+    maxlength,
+    autocomplete,
+    className,
+    'data-testid': dataTestId,
+    children,
+  }: {
     name: string;
     label: string;
     type?: string;
     maxlength?: number;
     autocomplete?: string;
     className?: string;
-    "data-testid"?: string;
+    'data-testid'?: string;
     children?: React.ReactNode;
   }) => (
     <div>
@@ -121,20 +164,19 @@ vi.mock('../../../../../common/components/Input/Input', () => ({
 }));
 
 vi.mock('../../../../../common/components/Input/CheckboxInput', () => ({
-  default: ({ name, className, testid, children }: {
+  default: ({
+    name,
+    className,
+    testid,
+    children,
+  }: {
     name: string;
     className?: string;
     testid?: string;
     children: React.ReactNode;
   }) => (
     <div>
-      <input
-        type="checkbox"
-        id={name}
-        name={name}
-        className={className}
-        data-testid={testid}
-      />
+      <input type="checkbox" id={name} name={name} className={className} data-testid={testid} />
       <label htmlFor={name}>{children}</label>
     </div>
   ),
@@ -142,12 +184,17 @@ vi.mock('../../../../../common/components/Input/CheckboxInput', () => ({
 
 vi.mock('../../../../../common/components/Icon/Icon', () => ({
   default: ({ id, icon, color }: { id?: string; icon?: string; color?: string }) => (
-    <span id={id} data-icon={icon} data-color={color}>Icon</span>
+    <span id={id} data-icon={icon} data-color={color}>
+      Icon
+    </span>
   ),
 }));
 
 vi.mock('../../../../../common/components/Text/HeaderRow', () => ({
-  default: ({ children, ...props }: React.HTMLAttributes<HTMLDivElement> & { children: React.ReactNode }) => (
+  default: ({
+    children,
+    ...props
+  }: React.HTMLAttributes<HTMLDivElement> & { children: React.ReactNode }) => (
     <div data-testid="header-row" {...props}>
       {children}
     </div>
@@ -155,15 +202,20 @@ vi.mock('../../../../../common/components/Text/HeaderRow', () => ({
 }));
 
 vi.mock('../../../../../common/components/Auth/AuthErrorDisplay', () => ({
-  default: ({ error, testid }: { error: { message: string } | null; testid?: string }) => (
-    error ? <div data-testid={testid}>{error.message}</div> : null
-  ),
+  default: ({ error, testid }: { error: { message: string } | null; testid?: string }) =>
+    error ? <div data-testid={testid}>{error.message}</div> : null,
 }));
 
 vi.mock('../../../../../common/components/Auth/AuthLoadingIndicator', () => ({
-  default: ({ isLoading, message, testid }: { isLoading: boolean; message?: string; testid?: string }) => (
-    isLoading ? <div data-testid={testid}>{message}</div> : null
-  ),
+  default: ({
+    isLoading,
+    message,
+    testid,
+  }: {
+    isLoading: boolean;
+    message?: string;
+    testid?: string;
+  }) => (isLoading ? <div data-testid={testid}>{message}</div> : null),
 }));
 
 describe('SignInForm', () => {

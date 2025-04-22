@@ -28,10 +28,13 @@ export const useAuthOperations = () => {
    * @param password User's password
    * @returns Object with alreadySignedIn flag if that error occurs
    */
-  const signIn = async (email: string, password: string): Promise<{ alreadySignedIn?: boolean }> => {
+  const signIn = async (
+    email: string,
+    password: string,
+  ): Promise<{ alreadySignedIn?: boolean }> => {
     setIsLoading(true);
     clearError();
-    
+
     try {
       await CognitoAuthService.signIn(email, password);
       // Convert the result to the structure expected by mapCognitoUserToAppUser
@@ -41,7 +44,7 @@ export const useAuthOperations = () => {
           email,
           given_name: email.split('@')[0] || '', // Use email username as firstName
           // Other attributes would be filled from the session if needed
-        }
+        },
       };
       const cognitoUser = mapCognitoUserToAppUser(userData);
       setUser(cognitoUser);
@@ -51,7 +54,7 @@ export const useAuthOperations = () => {
       const errorMessage = err instanceof Error ? err.message : String(err);
       if (errorMessage.includes(ALREADY_SIGNED_IN_ERROR)) {
         console.log('User is already signed in, getting current user');
-        
+
         try {
           // Try to get the current user
           const currentUser = await CognitoAuthService.getCurrentUser();
@@ -66,10 +69,10 @@ export const useAuthOperations = () => {
         } catch (innerErr) {
           console.error('Error getting current user after already signed in error:', innerErr);
         }
-        
+
         return { alreadySignedIn: true };
       }
-      
+
       // For other errors, set the error state and throw
       setError(formatAuthError(err));
       throw err;
@@ -86,14 +89,14 @@ export const useAuthOperations = () => {
    * @param lastName User's last name
    */
   const signUp = async (
-    email: string, 
-    password: string, 
-    firstName: string, 
-    lastName: string
+    email: string,
+    password: string,
+    firstName: string,
+    lastName: string,
   ): Promise<void> => {
     setIsLoading(true);
     clearError();
-    
+
     try {
       await CognitoAuthService.signUp(email, password, { firstName, lastName });
       // Don't set the user yet - confirmation is required first
@@ -113,7 +116,7 @@ export const useAuthOperations = () => {
   const confirmSignUp = async (email: string, code: string): Promise<void> => {
     setIsLoading(true);
     clearError();
-    
+
     try {
       await CognitoAuthService.confirmSignUp(email, code);
       // User confirmed, but not yet signed in
@@ -132,7 +135,7 @@ export const useAuthOperations = () => {
   const resendConfirmationCode = async (email: string): Promise<void> => {
     setIsLoading(true);
     clearError();
-    
+
     try {
       await CognitoAuthService.resendConfirmationCode(email);
       // Success - code resent to user's email
@@ -150,7 +153,7 @@ export const useAuthOperations = () => {
   const signOut = async (): Promise<void> => {
     setIsLoading(true);
     clearError();
-    
+
     try {
       await CognitoAuthService.signOut();
       setUser(undefined);
@@ -168,7 +171,7 @@ export const useAuthOperations = () => {
   const signInWithGoogle = async (): Promise<void> => {
     setIsLoading(true);
     clearError();
-    
+
     try {
       await CognitoAuthService.federatedSignIn('Google');
       // Note: This doesn't complete the sign-in flow.
@@ -188,7 +191,7 @@ export const useAuthOperations = () => {
   const signInWithApple = async (): Promise<void> => {
     setIsLoading(true);
     clearError();
-    
+
     try {
       await CognitoAuthService.federatedSignIn('SignInWithApple');
       // Note: This doesn't complete the sign-in flow.
@@ -209,7 +212,7 @@ export const useAuthOperations = () => {
   const forgotPassword = async (email: string): Promise<void> => {
     setIsLoading(true);
     clearError();
-    
+
     try {
       await CognitoAuthService.forgotPassword(email);
       // Success - code sent to user's email
@@ -228,13 +231,13 @@ export const useAuthOperations = () => {
    * @param newPassword New password
    */
   const confirmResetPassword = async (
-    email: string, 
-    code: string, 
-    newPassword: string
+    email: string,
+    code: string,
+    newPassword: string,
   ): Promise<void> => {
     setIsLoading(true);
     clearError();
-    
+
     try {
       await CognitoAuthService.confirmResetPassword(email, code, newPassword);
       // Success - password reset complete
@@ -262,4 +265,4 @@ export const useAuthOperations = () => {
     forgotPassword,
     confirmResetPassword,
   };
-}; 
+};

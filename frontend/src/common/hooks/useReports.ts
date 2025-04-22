@@ -43,7 +43,7 @@ export const useMarkReportAsRead = () => {
       queryClient.setQueryData<MedicalReport[]>([REPORTS_KEY], (oldReports) => {
         if (!oldReports) return undefined;
         return oldReports.map((report) =>
-          report.id === updatedReport.id ? updatedReport : report
+          report.id === updatedReport.id ? updatedReport : report,
         );
       });
 
@@ -51,9 +51,9 @@ export const useMarkReportAsRead = () => {
       queryClient.setQueryData<MedicalReport[]>([LATEST_REPORTS_KEY], (oldReports) => {
         if (!oldReports) return undefined;
         return oldReports.map((report) =>
-          report.id === updatedReport.id ? updatedReport : report
+          report.id === updatedReport.id ? updatedReport : report,
         );
       });
     },
   });
-}; 
+};

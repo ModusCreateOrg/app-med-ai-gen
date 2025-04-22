@@ -18,11 +18,11 @@ interface AuthErrorDisplayProps extends BaseComponentProps {
  * @param {AuthErrorDisplayProps} props - Component properties.
  * @returns {JSX.Element | null} JSX or null if no error
  */
-const AuthErrorDisplay = ({ 
+const AuthErrorDisplay = ({
   className,
   error,
   showDetails = false,
-  testid = 'auth-error-display' 
+  testid = 'auth-error-display',
 }: AuthErrorDisplayProps): JSX.Element | null => {
   const { t } = useTranslation();
 
@@ -30,23 +30,14 @@ const AuthErrorDisplay = ({
 
   // If error is a string, just display it
   if (typeof error === 'string') {
-    return (
-      <ErrorCard
-        className={className}
-        content={error}
-        testid={testid}
-      />
-    );
+    return <ErrorCard className={className} content={error} testid={testid} />;
   }
 
   // If error is an AuthError object
   return (
     <div className={`ls-auth-error-display ${className || ''}`} data-testid={testid}>
-      <ErrorCard
-        content={error.message}
-        testid={`${testid}-card`}
-      />
-      
+      <ErrorCard content={error.message} testid={`${testid}-card`} />
+
       {showDetails && error.code && (
         <div className="ls-auth-error-display__details" data-testid={`${testid}-details`}>
           <IonText color="medium">
@@ -60,4 +51,4 @@ const AuthErrorDisplay = ({
   );
 };
 
-export default AuthErrorDisplay; 
+export default AuthErrorDisplay;

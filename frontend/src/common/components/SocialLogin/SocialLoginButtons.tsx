@@ -18,10 +18,10 @@ interface SocialLoginButtonsProps extends BaseComponentProps {
  * @param {SocialLoginButtonsProps} props - Component properties.
  * @returns {JSX.Element} JSX
  */
-const SocialLoginButtons = ({ 
-  className, 
-  disabled = false, 
-  testid = 'social-login-buttons' 
+const SocialLoginButtons = ({
+  className,
+  disabled = false,
+  testid = 'social-login-buttons',
 }: SocialLoginButtonsProps): JSX.Element => {
   const { t } = useTranslation();
   const { signInWithGoogle, signInWithApple, isLoading } = useSocialSignIn();
@@ -32,9 +32,7 @@ const SocialLoginButtons = ({
     <div className={`ls-social-login-buttons ${className || ''}`} data-testid={testid}>
       <IonRow className="ion-text-center ion-padding">
         <IonCol>
-          <IonText color="medium">
-            {t('or-signin-with', { ns: 'auth' })}
-          </IonText>
+          <IonText color="medium">{t('or-signin-with', { ns: 'auth' })}</IonText>
         </IonCol>
       </IonRow>
 
@@ -72,4 +70,4 @@ const SocialLoginButtons = ({
   );
 };
 
-export default SocialLoginButtons; 
+export default SocialLoginButtons;

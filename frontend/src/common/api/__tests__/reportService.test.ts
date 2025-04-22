@@ -1,5 +1,11 @@
 import { vi, describe, test, expect, beforeEach } from 'vitest';
-import { uploadReport, ReportError, fetchLatestReports, fetchAllReports, markReportAsRead } from '../reportService';
+import {
+  uploadReport,
+  ReportError,
+  fetchLatestReports,
+  fetchAllReports,
+  markReportAsRead,
+} from '../reportService';
 import { ReportCategory, ReportStatus } from '../../models/medicalReport';
 import axios from 'axios';
 
@@ -12,13 +18,13 @@ vi.mock('axios', () => ({
     post: vi.fn(),
     get: vi.fn(),
     patch: vi.fn(),
-    isAxiosError: vi.fn(() => true)
-  }
+    isAxiosError: vi.fn(() => true),
+  },
 }));
 
 // Mock dynamic imports to handle the service functions
 vi.mock('../reportService', async (importOriginal) => {
-  const actual = await importOriginal() as typeof ReportServiceModule;
+  const actual = (await importOriginal()) as typeof ReportServiceModule;
 
   // Create a new object with the same properties as the original
   return {
@@ -38,9 +44,11 @@ vi.mock('../reportService', async (importOriginal) => {
         return response.data;
       } catch (error) {
         // Properly wrap the error in a ReportError
-        throw new actual.ReportError(error instanceof Error
-          ? `Failed to upload report: ${error.message}`
-          : 'Failed to upload report');
+        throw new actual.ReportError(
+          error instanceof Error
+            ? `Failed to upload report: ${error.message}`
+            : 'Failed to upload report',
+        );
       }
     },
 
@@ -50,9 +58,11 @@ vi.mock('../reportService', async (importOriginal) => {
         const response = await axios.get(`/api/reports/latest?limit=${limit}`);
         return response.data;
       } catch (error) {
-        throw new actual.ReportError(error instanceof Error
-          ? `Failed to fetch latest reports: ${error.message}`
-          : 'Failed to fetch latest reports');
+        throw new actual.ReportError(
+          error instanceof Error
+            ? `Failed to fetch latest reports: ${error.message}`
+            : 'Failed to fetch latest reports',
+        );
       }
     },
 
@@ -62,9 +72,11 @@ vi.mock('../reportService', async (importOriginal) => {
         const response = await axios.get(`/api/reports`);
         return response.data;
       } catch (error) {
-        throw new actual.ReportError(error instanceof Error
-          ? `Failed to fetch all reports: ${error.message}`
-          : 'Failed to fetch all reports');
+        throw new actual.ReportError(
+          error instanceof Error
+            ? `Failed to fetch all reports: ${error.message}`
+            : 'Failed to fetch all reports',
+        );
       }
     },
 
@@ -79,10 +91,10 @@ vi.mock('@aws-amplify/auth', () => ({
   fetchAuthSession: vi.fn().mockResolvedValue({
     tokens: {
       idToken: {
-        toString: () => 'mock-id-token'
-      }
-    }
-  })
+        toString: () => 'mock-id-token',
+      },
+    },
+  }),
 }));
 
 // Mock response data
@@ -100,7 +112,7 @@ const mockReports = [
     status: ReportStatus.UNREAD,
     category: ReportCategory.BRAIN,
     date: '2024-03-24',
-  }
+  },
 ];
 
 describe('reportService', () => {
@@ -122,7 +134,7 @@ describe('reportService', () => {
           status: ReportStatus.UNREAD,
           category: ReportCategory.GENERAL,
           date: '2024-05-10',
-        }
+        },
       });
     });
 
@@ -147,7 +159,7 @@ describe('reportService', () => {
           status: ReportStatus.UNREAD,
           category: ReportCategory.HEART,
           date: '2024-05-10',
-        }
+        },
       });
 
       const heartFile = new File(['test'], 'heart-report.pdf', { type: 'application/pdf' });
@@ -162,7 +174,7 @@ describe('reportService', () => {
           status: ReportStatus.UNREAD,
           category: ReportCategory.BRAIN,
           date: '2024-05-10',
-        }
+        },
       });
 
       const neuroFile = new File(['test'], 'brain-scan.pdf', { type: 'application/pdf' });
@@ -179,12 +191,10 @@ describe('reportService', () => {
     test('should throw ReportError on upload failure', async () => {
       // Mock axios.post to fail
       (axios.post as ReturnType<typeof vi.fn>).mockRejectedValueOnce(
-        new Error('API request failed')
+        new Error('API request failed'),
       );
 
-      await expect(uploadReport(mockFile, progressCallback))
-        .rejects
-        .toThrow(ReportError);
+      await expect(uploadReport(mockFile, progressCallback)).rejects.toThrow(ReportError);
     });
   });
 
@@ -192,7 +202,7 @@ describe('reportService', () => {
     beforeEach(() => {
       // Setup axios mock response
       (axios.get as ReturnType<typeof vi.fn>).mockResolvedValue({
-        data: mockReports.slice(0, 2)
+        data: mockReports.slice(0, 2),
       });
     });
 
@@ -201,16 +211,18 @@ describe('reportService', () => {
 
       expect(axios.get).toHaveBeenCalled();
       expect(reports).toHaveLength(2);
-      expect(reports[0]).toEqual(expect.objectContaining({
-        id: expect.any(String),
-        title: expect.any(String)
-      }));
+      expect(reports[0]).toEqual(
+        expect.objectContaining({
+          id: expect.any(String),
+          title: expect.any(String),
+        }),
+      );
     });
 
     test('should fetch latest reports with custom limit', async () => {
       const limit = 1;
       (axios.get as ReturnType<typeof vi.fn>).mockResolvedValue({
-        data: mockReports.slice(0, 1)
+        data: mockReports.slice(0, 1),
       });
 
       const reports = await fetchLatestReports(limit);
@@ -222,16 +234,14 @@ describe('reportService', () => {
     test('should throw ReportError on fetch failure', async () => {
       (axios.get as ReturnType<typeof vi.fn>).mockRejectedValue(new Error('Network error'));
 
-      await expect(fetchLatestReports())
-        .rejects
-        .toThrow(ReportError);
+      await expect(fetchLatestReports()).rejects.toThrow(ReportError);
     });
   });
 
   describe('fetchAllReports', () => {
     beforeEach(() => {
       (axios.get as ReturnType<typeof vi.fn>).mockResolvedValue({
-        data: mockReports
+        data: mockReports,
       });
     });
 
@@ -245,9 +255,7 @@ describe('reportService', () => {
     test('should throw ReportError on fetch failure', async () => {
       (axios.get as ReturnType<typeof vi.fn>).mockRejectedValue(new Error('Network error'));
 
-      await expect(fetchAllReports())
-        .rejects
-        .toThrow(ReportError);
+      await expect(fetchAllReports()).rejects.toThrow(ReportError);
     });
   });
 
@@ -255,11 +263,11 @@ describe('reportService', () => {
     beforeEach(() => {
       const updatedReport = {
         ...mockReports[0],
-        status: ReportStatus.READ
+        status: ReportStatus.READ,
       };
 
       (axios.patch as ReturnType<typeof vi.fn>).mockResolvedValue({
-        data: updatedReport
+        data: updatedReport,
       });
     });
 
@@ -273,9 +281,7 @@ describe('reportService', () => {
     test('should throw error when report not found', async () => {
       (axios.patch as ReturnType<typeof vi.fn>).mockRejectedValue(new Error('Report not found'));
 
-      await expect(markReportAsRead('non-existent-id'))
-        .rejects
-        .toThrow(ReportError);
+      await expect(markReportAsRead('non-existent-id')).rejects.toThrow(ReportError);
     });
   });
 });

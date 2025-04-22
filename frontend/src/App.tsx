@@ -27,7 +27,7 @@ const initializeStatusBar = async () => {
   try {
     if (Capacitor.isPluginAvailable('StatusBar')) {
       await StatusBar.setStyle({ style: Style.Light });
-      
+
       if (Capacitor.getPlatform() === 'android') {
         // Make status bar transparent on Android
         await StatusBar.setBackgroundColor({ color: '#4765ff' });
@@ -44,7 +44,6 @@ const initializeStatusBar = async () => {
  * @returns JSX
  */
 const App = (): JSX.Element => {
-  
   useEffect(() => {
     initializeStatusBar();
   }, []);

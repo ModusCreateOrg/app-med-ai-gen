@@ -25,4 +25,4 @@ const AnalyticsPage = (): JSX.Element => {
   );
 };
 
-export default AnalyticsPage; 
+export default AnalyticsPage;

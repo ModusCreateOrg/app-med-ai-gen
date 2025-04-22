@@ -1,7 +1,16 @@
-import { signIn, signUp, confirmSignUp, signOut, 
-  fetchAuthSession, getCurrentUser, resendSignUpCode, signInWithRedirect,
-  resetPassword, confirmResetPassword,
-  type AuthUser } from '@aws-amplify/auth';
+import {
+  signIn,
+  signUp,
+  confirmSignUp,
+  signOut,
+  fetchAuthSession,
+  getCurrentUser,
+  resendSignUpCode,
+  signInWithRedirect,
+  resetPassword,
+  confirmResetPassword,
+  type AuthUser,
+} from '@aws-amplify/auth';
 import { Amplify } from 'aws-amplify';
 import { amplifyConfig } from '../../config/aws-config';
 import { UserTokens } from '../../models/auth';
@@ -16,11 +25,10 @@ Amplify.configure(amplifyConfig);
 
 /**
  * Cognito Authentication Service
- * 
+ *
  * A service to handle interactions with AWS Cognito for authentication and user management
  */
 export class CognitoAuthService {
-
   /**
    * Sign in with email and password
    * @param username Email address
@@ -48,7 +56,7 @@ export class CognitoAuthService {
           throw error;
         }
       }
-      
+
       this.handleAuthError(error);
       throw error;
     }
@@ -61,7 +69,11 @@ export class CognitoAuthService {
    * @param attributes User attributes (first name, last name)
    * @returns Promise resolving to the sign up result
    */
-  static async signUp(email: string, password: string, attributes: { firstName: string; lastName: string }) {
+  static async signUp(
+    email: string,
+    password: string,
+    attributes: { firstName: string; lastName: string },
+  ) {
     try {
       const result = await signUp({
         username: email,
@@ -71,8 +83,8 @@ export class CognitoAuthService {
             email,
             given_name: attributes.firstName,
             family_name: attributes.lastName,
-          }
-        }
+          },
+        },
       });
       return result;
     } catch (error) {
@@ -130,7 +142,7 @@ export class CognitoAuthService {
   static async getCurrentUser(): Promise<AuthUser | null> {
     try {
       return await getCurrentUser();
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
     } catch (_) {
       // Not throwing here as this is often used to check if a user is signed in
       return null;
@@ -144,7 +156,7 @@ export class CognitoAuthService {
   static async getCurrentSession() {
     try {
       return await fetchAuthSession();
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
     } catch (_) {
       return null;
     }
@@ -157,15 +169,15 @@ export class CognitoAuthService {
   static async getUserTokens(): Promise<UserTokens | null> {
     try {
       const session = await fetchAuthSession();
-      
+
       if (!session.tokens || !session.tokens.accessToken || !session.tokens.idToken) {
         return null;
       }
-      
+
       // Get expiration time from access token
       const accessToken = session.tokens.accessToken;
       const expirationTime = accessToken.payload.exp ?? 0;
-      
+
       return {
         access_token: accessToken.toString(),
         id_token: session.tokens.idToken.toString(),
@@ -174,7 +186,7 @@ export class CognitoAuthService {
         expires_in: Math.floor((new Date(expirationTime * 1000).getTime() - Date.now()) / 1000),
         expires_at: new Date(expirationTime * 1000).toISOString(),
       };
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
     } catch (_) {
       return null;
     }
@@ -189,19 +201,19 @@ export class CognitoAuthService {
     try {
       // Map our provider names to Cognito's provider identifiers
       const providerMap: Record<string, AuthProvider> = {
-        'Google': 'Google' as AuthProvider,
-        'SignInWithApple': 'Apple' as AuthProvider
+        Google: 'Google' as AuthProvider,
+        SignInWithApple: 'Apple' as AuthProvider,
       };
-      
+
       // Get the OAuth provider
       const oauthProvider = providerMap[provider];
       if (!oauthProvider) {
         throw new Error(`Unsupported provider: ${provider}`);
       }
-      
+
       // Initiate the OAuth redirect flow
       await signInWithRedirect({ provider: oauthProvider });
-      
+
       // This function will redirect the browser and not return
       // The user will be redirected back to the app after authentication
     } catch (error) {
@@ -233,10 +245,10 @@ export class CognitoAuthService {
    */
   static async confirmResetPassword(username: string, code: string, newPassword: string) {
     try {
-      return await confirmResetPassword({ 
-        username, 
+      return await confirmResetPassword({
+        username,
         confirmationCode: code,
-        newPassword 
+        newPassword,
       });
     } catch (error) {
       this.handleAuthError(error);
@@ -251,7 +263,7 @@ export class CognitoAuthService {
   private static handleAuthError(error: unknown) {
     // Log the error for debugging
     console.error('Authentication error:', error);
-    
+
     // You can add custom error handling logic here
     // For example, mapping Cognito error codes to user-friendly messages
   }
@@ -260,4 +272,4 @@ export class CognitoAuthService {
 /**
  * Export singleton instance for easy imports
  */
-export default CognitoAuthService; 
+export default CognitoAuthService;

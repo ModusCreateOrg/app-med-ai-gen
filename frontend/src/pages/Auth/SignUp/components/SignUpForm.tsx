@@ -57,10 +57,14 @@ const PasswordGuidelines = () => {
 
   const renderGuideline = (isValid: boolean, text: string) => {
     return (
-      <div className={`ls-signup-form__password-guidelines-item ls-signup-form__password-guidelines-item-${isValid ? 'valid' : 'invalid'}`}>
-        <IonIcon 
-          icon={isValid ? checkmarkCircle : closeCircle} 
-          className="ls-signup-form__password-guidelines-item-icon" 
+      <div
+        className={`ls-signup-form__password-guidelines-item ls-signup-form__password-guidelines-item-${
+          isValid ? 'valid' : 'invalid'
+        }`}
+      >
+        <IonIcon
+          icon={isValid ? checkmarkCircle : closeCircle}
+          className="ls-signup-form__password-guidelines-item-icon"
         />
         <span>{text}</span>
       </div>
@@ -126,15 +130,15 @@ const SignUpForm = ({ className, testid = 'form-signup' }: SignUpFormProps): JSX
 
   return (
     <div className={classNames('ls-signup-form', className)} data-testid={testid}>
-      <AuthErrorDisplay 
-        error={error} 
+      <AuthErrorDisplay
+        error={error}
         showDetails={true}
         className="ion-margin-bottom ion-margin-top"
         testid={`${testid}-error`}
       />
 
-      <AuthLoadingIndicator 
-        isLoading={isLoading} 
+      <AuthLoadingIndicator
+        isLoading={isLoading}
         message={t('signup.loading', { ns: 'auth' })}
         testid={`${testid}-loading`}
       />
@@ -153,13 +157,13 @@ const SignUpForm = ({ className, testid = 'form-signup' }: SignUpFormProps): JSX
             setIsLoading(true);
             setShowProgress(true);
             await signUp(values.email, values.password, values.firstName, values.lastName);
-            
+
             // Store the email in sessionStorage for the verification page
             sessionStorage.setItem('verification_email', values.email);
-            
+
             // Show success briefly before redirecting
             setIsLoading(false);
-            
+
             // Navigate to verification page
             router.push('/auth/verify', 'forward', 'replace');
           } catch (err) {
@@ -248,7 +252,7 @@ const SignUpForm = ({ className, testid = 'form-signup' }: SignUpFormProps): JSX
             >
               {t('signup', { ns: 'auth' })}
             </IonButton>
-            
+
             <IonRow className="ion-text-center ion-padding-top">
               <IonCol>
                 <IonText color="medium">
@@ -264,4 +268,4 @@ const SignUpForm = ({ className, testid = 'form-signup' }: SignUpFormProps): JSX
   );
 };
 
-export default SignUpForm; 
+export default SignUpForm;

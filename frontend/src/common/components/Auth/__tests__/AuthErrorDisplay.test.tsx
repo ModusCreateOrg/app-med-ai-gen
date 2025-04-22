@@ -10,8 +10,8 @@ vi.mock('react-i18next', () => ({
       // Return the key as the translation for testing
       if (key === 'error.details') return 'Error details';
       return key;
-    }
-  })
+    },
+  }),
 }));
 
 describe('AuthErrorDisplay', () => {
@@ -28,7 +28,7 @@ describe('AuthErrorDisplay', () => {
   it('should render string error message', () => {
     const errorMessage = 'Test error message';
     render(<AuthErrorDisplay error={errorMessage} />);
-    
+
     const element = screen.getByText(errorMessage);
     expect(element).toBeDefined();
   });
@@ -37,14 +37,14 @@ describe('AuthErrorDisplay', () => {
     const error: AuthError = {
       code: 'TestError',
       message: 'Test error object message',
-      name: 'TestError'
+      name: 'TestError',
     };
-    
+
     render(<AuthErrorDisplay error={error} />);
-    
+
     const element = screen.getByText(error.message);
     expect(element).toBeDefined();
-    
+
     // Should not show error details by default
     const details = screen.queryByText(/Error details/);
     expect(details).toEqual(null);
@@ -54,17 +54,17 @@ describe('AuthErrorDisplay', () => {
     const error: AuthError = {
       code: 'DetailedError',
       message: 'Error with details',
-      name: 'DetailedError'
+      name: 'DetailedError',
     };
-    
+
     render(<AuthErrorDisplay error={error} showDetails={true} />);
-    
+
     const messageElement = screen.getByText(error.message);
     expect(messageElement).toBeDefined();
-    
+
     const detailsLabel = screen.getByText(/Error details/);
     expect(detailsLabel).toBeDefined();
-    
+
     const errorCode = screen.getByText(/DetailedError/);
     expect(errorCode).toBeDefined();
   });
@@ -72,9 +72,9 @@ describe('AuthErrorDisplay', () => {
   it('should apply custom className', () => {
     const error = 'Test error';
     const customClass = 'custom-class';
-    
+
     render(<AuthErrorDisplay error={error} className={customClass} />);
-    
+
     const errorElement = screen.getByTestId('auth-error-display');
     expect(errorElement.className).toContain(customClass);
   });
@@ -82,10 +82,10 @@ describe('AuthErrorDisplay', () => {
   it('should use custom testid', () => {
     const error = 'Test error';
     const customTestId = 'custom-error-display';
-    
+
     render(<AuthErrorDisplay error={error} testid={customTestId} />);
-    
+
     const element = screen.getByTestId(customTestId);
     expect(element).toBeDefined();
   });
-}); 
+});
