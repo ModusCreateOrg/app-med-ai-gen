@@ -4,19 +4,17 @@ import { useHistory, useParams } from 'react-router-dom';
 import './ReportDetailPage.scss';
 import { useQuery } from '@tanstack/react-query';
 import axios from 'axios';
-import { MedicalReport, LabValue } from '../../common/models/medicalReport';
+import { MedicalReport } from '../../common/models/medicalReport';
 import { useTranslation } from 'react-i18next';
 import { getAuthConfig } from 'common/api/reportService';
 
 // Import components
 import ReportHeader from './components/ReportHeader';
 import ReportTabs from './components/ReportTabs';
-import EmergencyAlert from './components/EmergencyAlert';
-import FlaggedValuesSection from './components/FlaggedValuesSection';
-import NormalValuesSection from './components/NormalValuesSection';
-import OriginalReport from './components/OriginalReport';
+import OriginalReportTab from './components/OriginalReportTab';
 import InfoCard from './components/InfoCard';
 import ActionButtons from './components/ActionButtons';
+import AiAnalysisTab from './components/AiAnalysisTab';
 
 const API_URL = import.meta.env.VITE_BASE_URL_API || '';
 
@@ -46,13 +44,7 @@ const ReportDetailPage: React.FC = () => {
   });
 
   // State to track expanded sections
-  const [flaggedValuesExpanded, setFlaggedValuesExpanded] = useState(true);
-  const [normalValuesExpanded, setNormalValuesExpanded] = useState(true);
   const [activeTab, setActiveTab] = useState<'ai' | 'original'>('ai');
-
-  // Toggle expanded state of sections
-  const toggleFlaggedValues = () => setFlaggedValuesExpanded(!flaggedValuesExpanded);
-  const toggleNormalValues = () => setNormalValuesExpanded(!normalValuesExpanded);
 
   // Handle loading and error states
   if (isLoading) {
@@ -82,15 +74,6 @@ const ReportDetailPage: React.FC = () => {
   }
 
   const reportData = data;
-
-  // Process lab values data
-  const hasEmergency = reportData.labValues.some((value) => value.isCritical);
-  const flaggedValues: LabValue[] = reportData.labValues.filter(
-    (value) => value.status !== 'normal',
-  );
-  const normalValues: LabValue[] = reportData.labValues.filter(
-    (value) => value.status === 'normal',
-  );
 
   // Handle tab selection
   const handleTabChange = (tab: 'ai' | 'original') => {
@@ -122,27 +105,10 @@ const ReportDetailPage: React.FC = () => {
 
         {/* Content based on active tab */}
         {activeTab === 'ai' ? (
-          <>
-            {/* Emergency alert if needed */}
-            {hasEmergency && <EmergencyAlert />}
-
-            {/* Flagged values section */}
-            <FlaggedValuesSection
-              flaggedValues={flaggedValues}
-              isExpanded={flaggedValuesExpanded}
-              onToggle={toggleFlaggedValues}
-            />
-
-            {/* Normal values section */}
-            <NormalValuesSection
-              normalValues={normalValues}
-              isExpanded={normalValuesExpanded}
-              onToggle={toggleNormalValues}
-            />
-          </>
+          <AiAnalysisTab reportData={reportData} />
         ) : (
           /* Original Report Tab Content */
-          <OriginalReport reportData={reportData} />
+          <OriginalReportTab reportData={reportData} />
         )}
 
         {/* Doctor information note */}
