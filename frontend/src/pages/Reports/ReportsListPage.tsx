@@ -29,6 +29,7 @@ import filterOutlineIcon from 'assets/icons/filter-outline.svg';
 import './ReportsListPage.scss';
 
 type FilterOption = 'all' | 'bookmarked';
+type SortDirection = 'desc' | 'asc';
 
 /**
  * Page component for displaying a list of all medical reports.
@@ -38,6 +39,7 @@ const ReportsListPage: React.FC = () => {
   const history = useHistory();
   const queryClient = useQueryClient();
   const [filter, setFilter] = useState<FilterOption>('all');
+  const [sortDirection, setSortDirection] = useState<SortDirection>('desc'); // Default sort by newest first
   const [showToast, setShowToast] = useState(false);
   const [toastMessage, setToastMessage] = useState('');
 
@@ -48,11 +50,18 @@ const ReportsListPage: React.FC = () => {
 
   const { mutate: markAsRead } = useMarkReportAsRead();
 
-  // Filter reports based on selected filter
+  // Filter and sort reports based on selected filter and sort direction
   const filteredReports = useMemo(() => {
-    if (filter === 'all') return reports;
-    return reports.filter(report => report.bookmarked);
-  }, [reports, filter]);
+    // First, filter the reports
+    const filtered = filter === 'all' ? reports : reports.filter(report => report.bookmarked);
+
+    // Then, sort the filtered reports by date
+    return [...filtered].sort((a, b) => {
+      const dateA = new Date(a.createdAt).getTime();
+      const dateB = new Date(b.createdAt).getTime();
+      return sortDirection === 'desc' ? dateB - dateA : dateA - dateB;
+    });
+  }, [reports, filter, sortDirection]);
 
   // Check if there are any bookmarked reports
   const hasBookmarkedReports = useMemo(() => {
@@ -104,8 +113,8 @@ const ReportsListPage: React.FC = () => {
   };
 
   const handleSortClick = () => {
-    setToastMessage(t('list.sortButton', { ns: 'report' }));
-    setShowToast(true);
+    const newSortDirection = sortDirection === 'desc' ? 'asc' : 'desc';
+    setSortDirection(newSortDirection);
   };
 
   const handleFilterClick = () => {
