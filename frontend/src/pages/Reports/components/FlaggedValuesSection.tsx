@@ -3,6 +3,7 @@ import { useTranslation } from 'react-i18next';
 import Icon from '../../../common/components/Icon/Icon';
 import { LabValue } from '../../../common/models/medicalReport';
 import LabValueItem from './LabValueItem';
+import flaggedValuesIcon from '../../../assets/icons/flagged-values.svg';
 
 interface FlaggedValuesSectionProps {
   flaggedValues: LabValue[];
@@ -21,7 +22,7 @@ const FlaggedValuesSection: React.FC<FlaggedValuesSectionProps> = ({
     <div className="report-detail-page__section">
       <div className="report-detail-page__section-header" onClick={onToggle}>
         <div className="report-detail-page__section-icon">
-          <Icon icon="flag" size="sm" style={{ color: '#c93a54' }} />
+          <img src={flaggedValuesIcon} alt="Flagged" />
         </div>
         <h3 className="report-detail-page__section-title">
           {t('report.flagged-values.title', { ns: 'reportDetail' })}

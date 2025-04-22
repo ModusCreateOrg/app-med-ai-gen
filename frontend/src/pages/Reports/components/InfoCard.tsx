@@ -1,17 +1,15 @@
 import React from 'react';
-import { useTranslation } from 'react-i18next';
-import Icon from '../../../common/components/Icon/Icon';
+import './InfoCard.scss';
+import bulbIcon from '../../../assets/icons/bulb.svg';
 
 const InfoCard: React.FC = () => {
-  const { t } = useTranslation();
-
   return (
-    <div className="report-detail-page__info-card">
-      <div className="report-detail-page__info-icon">
-        <Icon icon="circleInfo" />
+    <div className="info-card">
+      <div className="info-card__icon">
+        <img src={bulbIcon} alt="Bulb Icon" />
       </div>
-      <div className="report-detail-page__info-text">
-        {t('report.doctor-note', { ns: 'reportDetail' })}
+      <div className="info-card__text">
+        With all interpretations, these results should be discussed with your doctor.
       </div>
     </div>
   );

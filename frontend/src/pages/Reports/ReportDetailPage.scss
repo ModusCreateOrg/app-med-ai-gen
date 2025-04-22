@@ -75,6 +75,11 @@
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
   }
 
+  &__bookmark-button--active {
+    background-color: #435ff0;
+    color: #ffffff;
+  }
+
   &__subtitle {
     font-family: 'Inter', sans-serif;
     font-size: 18px;

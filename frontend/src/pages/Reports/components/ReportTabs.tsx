@@ -1,4 +1,5 @@
 import React from 'react';
+import aiInsightIcon from '../../../assets/icons/ai-insight.svg';
 
 interface ReportTabsProps {
   activeTab: 'ai' | 'original';
@@ -14,22 +15,7 @@ const ReportTabs: React.FC<ReportTabsProps> = ({ activeTab, onTabChange }) => {
         }`}
         onClick={() => onTabChange('ai')}
       >
-        <svg
-          className="report-detail-page__tab-icon-chevron"
-          width="16"
-          height="16"
-          viewBox="0 0 24 24"
-          fill="none"
-          xmlns="http://www.w3.org/2000/svg"
-        >
-          <path
-            d="M18.5 14.75L12 8.25L5.5 14.75"
-            stroke="#435FF0"
-            strokeWidth="2"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-          />
-        </svg>
+        <img src={aiInsightIcon} alt="AI Insights" style={{ marginRight: '8px' }} />
         AI Insights
       </div>
       <div

@@ -1,5 +1,7 @@
+import { IonButton } from '@ionic/react';
 import { useHistory } from 'react-router-dom';
 import '../ProcessingPage.scss';
+import warning from '../../../assets/icons/warning.svg';
 
 interface ProcessingErrorProps {
   errorMessage: string;
@@ -8,52 +10,49 @@ interface ProcessingErrorProps {
 
 /**
  * Component that displays processing error information and actions
+ * Exactly matches the design from the provided screenshot
  */
 const ProcessingError: React.FC<ProcessingErrorProps> = ({ errorMessage, onRetry }) => {
   const history = useHistory();
 
   return (
     <div className="processing-page__error-container">
-      <div className="processing-page__error-header">
-        <p className="processing-page__error-oops">Oops! ...</p>
-        <h2 className="processing-page__error-title">Problem detected</h2>
-      </div>
-
-      <div className="processing-page__error-icon">
-        <div className="processing-page__error-icon-circle">
-          <svg
-            width="48"
-            height="48"
-            viewBox="0 0 48 48"
-            fill="none"
-            xmlns="http://www.w3.org/2000/svg"
-          >
-            <path
-              d="M24 4C12.96 4 4 12.96 4 24C4 35.04 12.96 44 24 44C35.04 44 44 35.04 44 24C44 12.96 35.04 4 24 4ZM26 34H22V30H26V34ZM26 26H22V14H26V26Z"
-              fill="#C41E3A"
-            />
-          </svg>
+      <div className="processing-page__error-content">
+        <div className="processing-page__error-header">
+          <p className="processing-page__error-oops">Oops! ...</p>
+          <h2 className="processing-page__error-title">Problem detected</h2>
         </div>
+
+        <div className="processing-page__error-icon">
+          <img src={warning} alt="Warning Icon" className="processing-page__error-icon-img" />
+        </div>
+
+        <h3 className="processing-page__error-subheading">Processing Error</h3>
+
+        <p className="processing-page__error-message">{errorMessage}</p>
       </div>
-
-      <h3 className="processing-page__error-subheading">Processing Error</h3>
-
-      <p className="processing-page__error-message">
-        {errorMessage ||
-          'There was a problem processing your uploaded file. Please try again or upload another.'}
-      </p>
 
       <div className="processing-page__error-actions">
-        <button className="processing-page__retry-btn" onClick={onRetry}>
+        <IonButton
+          className="processing-page__retry-btn"
+          expand="block"
+          fill="outline"
+          shape="round"
+          color="primary"
+          onClick={onRetry}
+        >
           Try again
-        </button>
+        </IonButton>
 
-        <button
+        <IonButton
           className="processing-page__upload-btn"
+          expand="block"
+          shape="round"
+          color="primary"
           onClick={() => history.push('/tabs/upload')}
         >
           New Upload
-        </button>
+        </IonButton>
       </div>
     </div>
   );
