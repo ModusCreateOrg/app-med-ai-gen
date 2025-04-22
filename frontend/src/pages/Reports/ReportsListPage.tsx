@@ -41,9 +41,13 @@ const ReportsListPage: React.FC = () => {
   const [showToast, setShowToast] = useState(false);
   const [toastMessage, setToastMessage] = useState('');
 
-  const { data: reports = [], isLoading, isError } = useQuery({
+  const {
+    data: reports = [],
+    isLoading,
+    isError,
+  } = useQuery({
     queryKey: ['reports'],
-    queryFn: fetchAllReports
+    queryFn: fetchAllReports,
   });
 
   const { mutate: markAsRead } = useMarkReportAsRead();
@@ -51,12 +55,12 @@ const ReportsListPage: React.FC = () => {
   // Filter reports based on selected filter
   const filteredReports = useMemo(() => {
     if (filter === 'all') return reports;
-    return reports.filter(report => report.bookmarked);
+    return reports.filter((report) => report.bookmarked);
   }, [reports, filter]);
 
   // Check if there are any bookmarked reports
   const hasBookmarkedReports = useMemo(() => {
-    return reports.some(report => report.bookmarked);
+    return reports.some((report) => report.bookmarked);
   }, [reports]);
 
   // Reset to 'all' filter if no bookmarked reports and current filter is 'bookmarked'
@@ -86,8 +90,8 @@ const ReportsListPage: React.FC = () => {
       // Update the reports in the cache
       queryClient.setQueryData<MedicalReport[]>(['reports'], (oldReports) => {
         if (!oldReports) return [];
-        return oldReports.map(report =>
-          report.id === updatedReport.id ? updatedReport : report
+        return oldReports.map((report) =>
+          report.id === updatedReport.id ? updatedReport : report,
         );
       });
     } catch (error) {
@@ -132,10 +136,7 @@ const ReportsListPage: React.FC = () => {
     if (isError) {
       return (
         <div className="reports-list-page__empty-state">
-          <NoReportsMessage
-            onUpload={handleUpload}
-            onRetry={handleRetry}
-          />
+          <NoReportsMessage onUpload={handleUpload} onRetry={handleRetry} />
         </div>
       );
     }
@@ -149,10 +150,7 @@ const ReportsListPage: React.FC = () => {
               <p>{t('list.noBookmarksMessage', { ns: 'report' })}</p>
             </div>
           ) : (
-            <NoReportsMessage
-              onUpload={handleUpload}
-              onRetry={handleRetry}
-            />
+            <NoReportsMessage onUpload={handleUpload} onRetry={handleRetry} />
           )}
         </div>
       );
@@ -173,7 +171,14 @@ const ReportsListPage: React.FC = () => {
     <IonPage className="reports-list-page">
       <IonHeader className="reports-list-page__header">
         <IonToolbar>
-          <div style={{ display: 'flex', justifyContent: 'space-between', width: '100%', alignItems: 'center' }}>
+          <div
+            style={{
+              display: 'flex',
+              justifyContent: 'space-between',
+              width: '100%',
+              alignItems: 'center',
+            }}
+          >
             <div className="reports-list-page__title-container">
               <IonIcon icon={documentTextOutline} className="reports-list-page__title-icon" />
               <h1 className="reports-list-page__title">{t('list.title', { ns: 'report' })}</h1>

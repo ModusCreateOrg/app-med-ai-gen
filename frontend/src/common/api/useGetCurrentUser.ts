@@ -18,20 +18,20 @@ export const useGetCurrentUser = () => {
     try {
       // Get current user from Cognito
       const cognitoUser = await CognitoAuthService.getCurrentUser();
-      
+
       if (!cognitoUser) {
         throw new Error('User not found');
       }
-      
+
       // Map Cognito user data to our application's user model
       const userData = {
         username: cognitoUser.username || '',
         attributes: {
           // Extract whatever attributes are available from the user object
           email: cognitoUser.signInDetails?.loginId || '',
-        }
+        },
       };
-      
+
       return mapCognitoUserToAppUser(userData);
     } catch (error) {
       console.error('Error getting current user:', error);

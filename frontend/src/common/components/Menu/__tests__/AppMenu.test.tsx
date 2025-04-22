@@ -13,9 +13,9 @@ vi.mock('common/providers/AuthContext', async () => {
       user: {
         id: 'test-user-id',
         name: 'Test User',
-        email: 'test@example.com'
-      }
-    })
+        email: 'test@example.com',
+      },
+    }),
   };
 });
 
@@ -32,12 +32,12 @@ describe('AppMenu', () => {
     // ASSERT
     expect(screen.getByTestId('menu-app')).toBeDefined();
   });
-  
+
   it.skip('should include chat menu item when authenticated', async () => {
     // This test is skipped until we can properly fix the authentication mocking
     // ARRANGE
     customRender(<AppMenu />);
-    
+
     // ASSERT
     expect(screen.getByTestId('menu-app-item-chat')).toBeDefined();
   });

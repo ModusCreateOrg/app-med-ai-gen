@@ -34,8 +34,8 @@ const ChatContainer: React.FC<ChatContainerProps> = ({
   }, [messages]);
 
   return (
-    <div 
-      className={`chat-container ${className}`} 
+    <div
+      className={`chat-container ${className}`}
       ref={chatContainerRef}
       aria-live="polite"
       aria-label="Chat messages"
@@ -60,4 +60,4 @@ const ChatContainer: React.FC<ChatContainerProps> = ({
   );
 };
 
-export default ChatContainer; 
+export default ChatContainer;

@@ -15,12 +15,15 @@ export const useTimeout = () => {
   }, []);
 
   // Set a new timeout
-  const setTimeout = useCallback((callback: () => void, delay: number) => {
-    // Clear any existing timeout first
-    clearTimeout();
-    // Set the new timeout
-    timeoutRef.current = window.setTimeout(callback, delay);
-  }, [clearTimeout]);
+  const setTimeout = useCallback(
+    (callback: () => void, delay: number) => {
+      // Clear any existing timeout first
+      clearTimeout();
+      // Set the new timeout
+      timeoutRef.current = window.setTimeout(callback, delay);
+    },
+    [clearTimeout],
+  );
 
   // Clean up on unmount
   useEffect(() => {

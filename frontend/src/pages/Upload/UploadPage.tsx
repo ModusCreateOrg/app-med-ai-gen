@@ -16,7 +16,7 @@ const UploadPage = (): JSX.Element => {
   const handleUploadComplete = () => {
     // Close the modal
     setIsModalOpen(false);
-    
+
     // Navigate to home page to see the newly uploaded report
     history.push('/tabs/home');
   };
@@ -32,12 +32,8 @@ const UploadPage = (): JSX.Element => {
         <div className="ion-padding">
           <h1>{t('pages.upload.subtitle')}</h1>
           <p>{t('pages.upload.description')}</p>
-          
-          <IonButton
-            expand="block"
-            className="ion-margin-top"
-            onClick={() => setIsModalOpen(true)}
-          >
+
+          <IonButton expand="block" className="ion-margin-top" onClick={() => setIsModalOpen(true)}>
             {t('upload.selectFile')}
           </IonButton>
         </div>
@@ -52,4 +48,4 @@ const UploadPage = (): JSX.Element => {
   );
 };
 
-export default UploadPage; 
+export default UploadPage;

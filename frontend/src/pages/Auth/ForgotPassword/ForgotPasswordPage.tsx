@@ -18,7 +18,9 @@ interface ForgotPasswordPageProps extends PropsWithTestId {}
  * @param {ForgotPasswordPageProps} props - Component properties.
  * @returns {JSX.Element} JSX
  */
-const ForgotPasswordPage = ({ testid = 'page-forgot-password' }: ForgotPasswordPageProps): JSX.Element => {
+const ForgotPasswordPage = ({
+  testid = 'page-forgot-password',
+}: ForgotPasswordPageProps): JSX.Element => {
   const { t } = useTranslation();
 
   return (
@@ -36,4 +38,4 @@ const ForgotPasswordPage = ({ testid = 'page-forgot-password' }: ForgotPasswordP
   );
 };
 
-export default ForgotPasswordPage; 
+export default ForgotPasswordPage;

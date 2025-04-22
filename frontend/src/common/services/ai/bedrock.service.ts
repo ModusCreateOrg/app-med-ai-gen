@@ -13,7 +13,11 @@ const getHealthcareSystemPrompt = (): string => {
   return `You are a healthcare assistant that only responds to medical and healthcare-related questions. 
 If a user asks a question that is not directly related to healthcare, medicine, medical reports, 
 health conditions, treatments, or medical terminology, respond with: 
-"${i18n.t('ai.non_healthcare_topic', { ns: 'errors', defaultValue: "I couldn't find an answer. Please try rephrasing your question or consult your healthcare provider." })}"
+"${i18n.t('ai.non_healthcare_topic', {
+    ns: 'errors',
+    defaultValue:
+      "I couldn't find an answer. Please try rephrasing your question or consult your healthcare provider.",
+  })}"
 
 Only provide information about healthcare topics, and always mention that users should consult healthcare professionals for personalized medical advice.`;
 };
@@ -59,7 +63,7 @@ interface ClaudeRequestBody {
   max_tokens: number;
   messages: {
     role: 'user' | 'assistant' | 'system';
-    content: { type: string; text: string; }[];
+    content: { type: string; text: string }[];
   }[];
   temperature: number;
   top_p: number;
@@ -74,10 +78,11 @@ class BedrockService {
 
   constructor() {
     // Check if we're in a test environment (Node.js environment with no window)
-    this.isTestEnvironment = typeof window === 'undefined' || 
-                            import.meta.env.MODE === 'test' || 
-                            import.meta.env.VITEST === 'true';
-    
+    this.isTestEnvironment =
+      typeof window === 'undefined' ||
+      import.meta.env.MODE === 'test' ||
+      import.meta.env.VITEST === 'true';
+
     // Only initialize the client in non-test environments or if explicitly required
     if (!this.isTestEnvironment) {
       this.initializeClient();
@@ -87,19 +92,19 @@ class BedrockService {
   private async initializeClient() {
     try {
       const { credentials } = await fetchAuthSession();
-      
+
       // Check if credentials exist and have the necessary properties
       if (!credentials) {
         console.error('No credentials found in auth session');
-        
+
         // In test environment, create a mock client instead of throwing
         if (this.isTestEnvironment) {
           return;
         }
-        
+
         throw new Error('No credentials available');
       }
-      
+
       const bedrockCredentials: {
         accessKeyId: string;
         secretAccessKey: string;
@@ -120,11 +125,11 @@ class BedrockService {
 
       this.client = new BedrockRuntimeClient({
         region: REGION,
-        credentials: bedrockCredentials
+        credentials: bedrockCredentials,
       });
     } catch (error) {
       console.error('Error initializing Bedrock client:', error);
-      
+
       // Don't throw in test environment
       if (!this.isTestEnvironment) {
         throw error;
@@ -137,53 +142,55 @@ class BedrockService {
     if (!response.content || !response.content.length) {
       throw new Error('Invalid response structure: missing content');
     }
-    
+
     // Check for content filtering
-    if (response.stop_reason === "content_filtered") {
+    if (response.stop_reason === 'content_filtered') {
       // Increment counter for analytics
       this.contentFilteredCount++;
-      
+
       // Return the translated message
       return getContentFilteredMessage();
     }
 
     // Extract text from content blocks
     const textContent = response.content
-      .filter(block => block.type === 'text' && block.text)
-      .map(block => block.text)
+      .filter((block) => block.type === 'text' && block.text)
+      .map((block) => block.text)
       .join('\n');
-    
+
     return textContent || '';
   }
 
   private async invokeModel(messages: ChatMessage[], systemPrompt?: string): Promise<string> {
     // In test environment, return a mock response
     if (this.isTestEnvironment || !this.client) {
-      return `This is a test response to: "${messages[messages.length - 1]?.content || 'No message'}"`;
+      return `This is a test response to: "${
+        messages[messages.length - 1]?.content || 'No message'
+      }"`;
     }
-    
+
     // Format messages for Claude API
-    const formattedMessages = messages.map(msg => ({
+    const formattedMessages = messages.map((msg) => ({
       role: msg.role,
-      content: [{ type: 'text', text: msg.content }]
+      content: [{ type: 'text', text: msg.content }],
     }));
-    
+
     // Prepare request body for Claude 3.7 Sonnet
     const requestBody: ClaudeRequestBody = {
-      anthropic_version: "bedrock-2023-05-31",
+      anthropic_version: 'bedrock-2023-05-31',
       max_tokens: 4096,
       messages: formattedMessages,
       temperature: 0.7,
-      top_p: 0.9
+      top_p: 0.9,
     };
-    
+
     // Add system prompt if provided
     if (systemPrompt) {
       requestBody.system = systemPrompt;
     }
 
     // Use the cross-region inference profile ID as the model ID (following AWS docs)
-    // Do not specify inferenceProfileArn separately 
+    // Do not specify inferenceProfileArn separately
     const input = {
       modelId: 'us.anthropic.claude-3-7-sonnet-20250219-v1:0',
       contentType: 'application/json',
@@ -196,7 +203,7 @@ class BedrockService {
       const response = await this.client.send(command);
       const responseBody = new TextDecoder().decode(response.body);
       const parsedResponse = JSON.parse(responseBody) as ClaudeResponse;
-      
+
       return this.handleClaudeResponse(parsedResponse);
     } catch (error) {
       console.error('Error invoking Claude model:', error);
@@ -215,7 +222,11 @@ class BedrockService {
     return sessionId;
   }
 
-  public async sendMessage(sessionId: string, message: string, systemPrompt?: string): Promise<string> {
+  public async sendMessage(
+    sessionId: string,
+    message: string,
+    systemPrompt?: string,
+  ): Promise<string> {
     const session = this.sessions.get(sessionId);
     if (!session) {
       throw new Error('Chat session not found');
@@ -260,4 +271,4 @@ class BedrockService {
   }
 }
 
-export const bedrockService = new BedrockService(); 
+export const bedrockService = new BedrockService();

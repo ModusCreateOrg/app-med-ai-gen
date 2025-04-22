@@ -12,30 +12,30 @@ export interface AuthContextValue {
   isAuthenticated: boolean;
   authState: AuthState;
   isLoading: boolean;
-  
+
   // Token management
   userTokens?: UserTokens;
   refetchUserTokens?: () => Promise<QueryObserverBaseResult<UserTokens, Error>>;
-  
+
   // User data
   user?: CognitoUser;
   setUser?: (user: CognitoUser) => void;
-  
+
   // Authentication methods
   signIn: (email: string, password: string) => Promise<{ alreadySignedIn?: boolean }>;
   signUp: (email: string, password: string, firstName: string, lastName: string) => Promise<void>;
   confirmSignUp: (email: string, code: string) => Promise<void>;
   resendConfirmationCode: (email: string) => Promise<void>;
   signOut: () => Promise<void>;
-  
+
   // Password recovery
   forgotPassword: (email: string) => Promise<void>;
   confirmResetPassword: (email: string, code: string, newPassword: string) => Promise<void>;
-  
+
   // Social authentication
   signInWithGoogle: () => Promise<void>;
   signInWithApple: () => Promise<void>;
-  
+
   // Error handling
   error?: AuthError;
   clearError: () => void;
@@ -48,18 +48,38 @@ const DEFAULT_CONTEXT_VALUE: AuthContextValue = {
   isAuthenticated: false,
   authState: AuthState.SIGNED_OUT,
   isLoading: false,
-  
+
   // Placeholder implementations - will be replaced by actual implementations in the provider
-  signIn: async () => { throw new Error('AuthContext not initialized'); },
-  signUp: async () => { throw new Error('AuthContext not initialized'); },
-  confirmSignUp: async () => { throw new Error('AuthContext not initialized'); },
-  resendConfirmationCode: async () => { throw new Error('AuthContext not initialized'); },
-  signOut: async () => { throw new Error('AuthContext not initialized'); },
-  forgotPassword: async () => { throw new Error('AuthContext not initialized'); },
-  confirmResetPassword: async () => { throw new Error('AuthContext not initialized'); },
-  signInWithGoogle: async () => { throw new Error('AuthContext not initialized'); },
-  signInWithApple: async () => { throw new Error('AuthContext not initialized'); },
-  clearError: () => { /* empty implementation */ },
+  signIn: async () => {
+    throw new Error('AuthContext not initialized');
+  },
+  signUp: async () => {
+    throw new Error('AuthContext not initialized');
+  },
+  confirmSignUp: async () => {
+    throw new Error('AuthContext not initialized');
+  },
+  resendConfirmationCode: async () => {
+    throw new Error('AuthContext not initialized');
+  },
+  signOut: async () => {
+    throw new Error('AuthContext not initialized');
+  },
+  forgotPassword: async () => {
+    throw new Error('AuthContext not initialized');
+  },
+  confirmResetPassword: async () => {
+    throw new Error('AuthContext not initialized');
+  },
+  signInWithGoogle: async () => {
+    throw new Error('AuthContext not initialized');
+  },
+  signInWithApple: async () => {
+    throw new Error('AuthContext not initialized');
+  },
+  clearError: () => {
+    /* empty implementation */
+  },
 };
 
 /**

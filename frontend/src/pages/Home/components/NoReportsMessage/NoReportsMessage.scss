@@ -6,7 +6,7 @@
   text-align: center;
   padding: 2rem 1rem;
   width: 100%;
-  
+
   &__icon-container {
     display: flex;
     align-items: center;
@@ -17,41 +17,41 @@
     background-color: #f4f6ff;
     margin-bottom: 1.5rem;
   }
-  
+
   &__icon {
     color: #6b78ff;
     opacity: 0.7;
   }
-  
+
   &__title {
     font-size: 1.25rem;
     font-weight: 600;
     margin: 0 0 0.5rem;
     color: var(--ion-color-dark);
   }
-  
+
   &__message {
     font-size: 0.875rem;
     color: var(--ion-color-medium);
     margin: 0 0 2rem;
     max-width: 20rem;
   }
-  
+
   &__actions {
     width: 100%;
     display: flex;
     flex-direction: column;
     gap: 0.75rem;
   }
-  
+
   &__button {
     margin: 0;
     --border-radius: 0.5rem;
-    
+
     &--secondary {
       --background: white;
       --color: var(--ion-color-primary);
       --border-color: var(--ion-color-primary);
     }
   }
-} 
+}

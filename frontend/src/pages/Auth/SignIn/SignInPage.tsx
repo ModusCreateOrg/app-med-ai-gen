@@ -29,13 +29,13 @@ const SignInPage = ({ testid = 'page-signin' }: SignInPageProps): JSX.Element =>
               <IonImg src={logo} alt="Logo" className="ls-signin-page__logo" />
               <span className="ls-signin-page__logo-text">{t('app.name', { ns: 'common' })}</span>
             </div>
-            
+
             <div className="ls-signin-page__card">
               <div className="ls-signin-page__header">
                 <h1>{t('signin.title', { ns: 'auth' })}</h1>
                 <p>{t('signin.subtitle', { ns: 'auth' })}</p>
               </div>
-              
+
               <SignInForm className="ls-signin-page__form" />
             </div>
           </div>

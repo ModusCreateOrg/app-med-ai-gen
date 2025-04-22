@@ -18,7 +18,7 @@ vi.mock('@ionic/react', async () => {
       value,
       'data-testid': testId,
       className,
-      name
+      name,
     }: {
       children?: ReactNode;
       onIonChange?: (event: { detail: { checked: boolean; value?: string } }) => void;
@@ -30,18 +30,18 @@ vi.mock('@ionic/react', async () => {
     }) => {
       const handleChange = () => {
         const newChecked = typeof checked === 'string' ? checked === 'false' : !checked;
-        const detailObj = { 
+        const detailObj = {
           checked: newChecked,
-          value
+          value,
         };
         onIonChange?.({ detail: detailObj });
       };
-      
+
       const checkedValue = String(checked);
       const ariaChecked = checkedValue === 'true' ? 'true' : 'false';
-      
+
       return (
-        <div 
+        <div
           onClick={handleChange}
           onKeyDown={(e) => {
             if (e.key === 'Enter' || e.key === ' ') {
@@ -61,7 +61,7 @@ vi.mock('@ionic/react', async () => {
           {children}
         </div>
       );
-    }
+    },
   };
 });
 
@@ -140,10 +140,13 @@ describe('CheckboxInput', () => {
     await user.click(screen.getByTestId('input'));
 
     // ASSERT
-    await waitFor(() => {
-      expect(screen.getByTestId('input')).toBeDefined();
-      expect(screen.getByTestId('input')).toHaveAttribute('data-checked', 'true');
-    }, { timeout: 1000 });
+    await waitFor(
+      () => {
+        expect(screen.getByTestId('input')).toBeDefined();
+        expect(screen.getByTestId('input')).toHaveAttribute('data-checked', 'true');
+      },
+      { timeout: 1000 },
+    );
   });
 
   it('should change array value', async () => {
@@ -169,19 +172,25 @@ describe('CheckboxInput', () => {
     await user.click(screen.getByTestId('one'));
 
     // ASSERT
-    await waitFor(() => {
-      expect(screen.getByTestId('one')).toHaveAttribute('data-checked', 'true');
-      expect(screen.getByTestId('two')).toHaveAttribute('data-checked', 'false');
-    }, { timeout: 1000 });
+    await waitFor(
+      () => {
+        expect(screen.getByTestId('one')).toHaveAttribute('data-checked', 'true');
+        expect(screen.getByTestId('two')).toHaveAttribute('data-checked', 'false');
+      },
+      { timeout: 1000 },
+    );
 
     // ACT
     await user.click(screen.getByTestId('one'));
 
     // ASSERT
-    await waitFor(() => {
-      expect(screen.getByTestId('one')).toHaveAttribute('data-checked', 'false');
-      expect(screen.getByTestId('two')).toHaveAttribute('data-checked', 'false');
-    }, { timeout: 1000 });
+    await waitFor(
+      () => {
+        expect(screen.getByTestId('one')).toHaveAttribute('data-checked', 'false');
+        expect(screen.getByTestId('two')).toHaveAttribute('data-checked', 'false');
+      },
+      { timeout: 1000 },
+    );
   });
 
   it('should call onChange function', async () => {
@@ -204,9 +213,12 @@ describe('CheckboxInput', () => {
     await user.click(screen.getByTestId('input'));
 
     // ASSERT
-    await waitFor(() => {
-      expect(onChange).toHaveBeenCalledTimes(1);
-      expect(screen.getByTestId('input')).toHaveAttribute('data-checked', 'true');
-    }, { timeout: 1000 });
+    await waitFor(
+      () => {
+        expect(onChange).toHaveBeenCalledTimes(1);
+        expect(screen.getByTestId('input')).toHaveAttribute('data-checked', 'true');
+      },
+      { timeout: 1000 },
+    );
   });
 });

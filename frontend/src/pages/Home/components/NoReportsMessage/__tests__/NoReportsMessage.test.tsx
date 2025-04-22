@@ -12,12 +12,12 @@ vi.mock('react-i18next', async () => {
       t: (key: string) => {
         // Handle namespace prefixes by extracting the actual key
         const actualKey = key.includes(':') ? key.split(':')[1] : key;
-        
+
         const translations: Record<string, string> = {
           'reports.noReports.title': 'No Reports',
           'reports.noReports.message': 'Upload a report or try again later',
           'reports.noReports.uploadButton': 'Upload Report',
-          'label.tryAgain': 'Retry' // Add translation for the retry button
+          'label.tryAgain': 'Retry', // Add translation for the retry button
         };
         return translations[actualKey] || key;
       },
@@ -35,16 +35,26 @@ const render = (ui: React.ReactElement) => {
 
 // Mock the Icon component
 vi.mock('common/components/Icon/Icon', () => ({
-  default: ({ icon, iconStyle, className, size }: {
+  default: ({
+    icon,
+    iconStyle,
+    className,
+    size,
+  }: {
     icon: string;
     iconStyle?: string;
     className?: string;
     size?: string;
   }) => (
-    <div data-testid={`mocked-icon-${icon}`} data-icon-style={iconStyle} className={className} data-size={size}>
+    <div
+      data-testid={`mocked-icon-${icon}`}
+      data-icon-style={iconStyle}
+      className={className}
+      data-size={size}
+    >
       {icon}
     </div>
-  )
+  ),
 }));
 
 describe('NoReportsMessage', () => {
@@ -98,4 +108,4 @@ describe('NoReportsMessage', () => {
     // ASSERT
     expect(onRetryMock).toHaveBeenCalledTimes(1);
   });
-}); 
+});

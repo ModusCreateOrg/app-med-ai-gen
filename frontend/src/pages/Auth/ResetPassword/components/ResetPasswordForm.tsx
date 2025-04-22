@@ -44,7 +44,10 @@ interface ResetPasswordFormValues {
  * @param {ResetPasswordFormProps} props - Component properties.
  * @returns {JSX.Element} JSX
  */
-const ResetPasswordForm = ({ className, testid = 'form-reset-password' }: ResetPasswordFormProps): JSX.Element => {
+const ResetPasswordForm = ({
+  className,
+  testid = 'form-reset-password',
+}: ResetPasswordFormProps): JSX.Element => {
   const focusInput = useRef<HTMLIonInputElement>(null);
   const [error, setError] = useState<AuthError | null>(null);
   const [successMessage, setSuccessMessage] = useState<string>('');
@@ -87,15 +90,15 @@ const ResetPasswordForm = ({ className, testid = 'form-reset-password' }: ResetP
 
   return (
     <div className={classNames('ls-reset-password-form', className)} data-testid={testid}>
-      <AuthErrorDisplay 
-        error={error} 
+      <AuthErrorDisplay
+        error={error}
         showDetails={true}
         className="ion-margin-bottom"
         testid={`${testid}-error`}
       />
 
-      <AuthLoadingIndicator 
-        isLoading={isLoading} 
+      <AuthLoadingIndicator
+        isLoading={isLoading}
         message={t('loading', { ns: 'auth' })}
         testid={`${testid}-loading`}
       />
@@ -120,22 +123,22 @@ const ResetPasswordForm = ({ className, testid = 'form-reset-password' }: ResetP
             setSuccessMessage('');
             setIsLoading(true);
             setShowProgress(true);
-            
+
             // Use stored email if available, otherwise use form value
             const emailToUse = email || values.email;
-            
+
             if (!emailToUse) {
               throw new Error(t('error.no-email', { ns: 'auth' }));
             }
-            
+
             await confirmResetPassword(emailToUse, values.code, values.password);
-            
+
             // Show success message
             setSuccessMessage(t('password-reset.success', { ns: 'auth' }));
-            
+
             // Clear reset email from session storage
             sessionStorage.removeItem('reset_password_email');
-            
+
             // Wait before redirecting to allow the user to see the message
             setTimeout(() => {
               router.push('/auth/signin', 'forward', 'replace');
@@ -157,9 +160,7 @@ const ResetPasswordForm = ({ className, testid = 'form-reset-password' }: ResetP
             </HeaderRow>
 
             <div className="ls-reset-password-form__message">
-              <IonText>
-                {t('password-recovery.enter-code', { ns: 'auth' })}
-              </IonText>
+              <IonText>{t('password-recovery.enter-code', { ns: 'auth' })}</IonText>
               {email && (
                 <IonText className="ls-reset-password-form__email">
                   <strong>{email}</strong>
@@ -229,7 +230,7 @@ const ResetPasswordForm = ({ className, testid = 'form-reset-password' }: ResetP
             >
               {t('password-reset.button', { ns: 'auth' })}
             </IonButton>
-            
+
             <IonRow className="ion-text-center ion-padding-top">
               <IonCol>
                 <IonText color="medium">
@@ -244,4 +245,4 @@ const ResetPasswordForm = ({ className, testid = 'form-reset-password' }: ResetP
   );
 };
 
-export default ResetPasswordForm; 
+export default ResetPasswordForm;

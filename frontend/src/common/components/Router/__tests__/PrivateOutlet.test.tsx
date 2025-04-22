@@ -25,7 +25,7 @@ describe('PrivateOutlet', () => {
       signInWithApple: vi.fn(),
       forgotPassword: vi.fn(),
       confirmResetPassword: vi.fn(),
-      clearError: vi.fn()
+      clearError: vi.fn(),
     });
   });
 
@@ -57,9 +57,9 @@ describe('PrivateOutlet', () => {
       signInWithApple: vi.fn(),
       forgotPassword: vi.fn(),
       confirmResetPassword: vi.fn(),
-      clearError: vi.fn()
+      clearError: vi.fn(),
     });
-    
+
     render(
       <IonRouterOutlet>
         <Route path="/auth/signin" render={() => <div data-testid="page-signin"></div>} />

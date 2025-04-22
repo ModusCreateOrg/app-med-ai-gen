@@ -24,16 +24,16 @@ const ChatInput: React.FC<ChatInputProps> = ({
   const { t } = useTranslation();
   const [inputValue, setInputValue] = useState<string>('');
   const inputRef = useRef<HTMLIonInputElement>(null);
-  
+
   const defaultPlaceholder = t('aiAssistant.inputPlaceholder', 'Type your question...');
   const inputPlaceholder = placeholder || defaultPlaceholder;
 
   const handleSendMessage = () => {
     if (inputValue.trim() === '') return;
-    
+
     onSendMessage(inputValue);
     setInputValue('');
-    
+
     // Focus input after sending
     setTimeout(() => {
       inputRef.current?.setFocus();
@@ -65,7 +65,7 @@ const ChatInput: React.FC<ChatInputProps> = ({
           data-testid={`${testid}-field`}
         />
         <IonFab className="send-fab" vertical="center" horizontal="end" slot="fixed">
-          <IonFabButton 
+          <IonFabButton
             size="small"
             onClick={handleSendMessage}
             disabled={inputValue.trim() === ''}
@@ -81,4 +81,4 @@ const ChatInput: React.FC<ChatInputProps> = ({
   );
 };
 
-export default ChatInput; 
+export default ChatInput;

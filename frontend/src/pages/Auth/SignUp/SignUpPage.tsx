@@ -36,4 +36,4 @@ const SignUpPage = ({ testid = 'page-signup' }: SignUpPageProps): JSX.Element =>
   );
 };
 
-export default SignUpPage; 
+export default SignUpPage;
