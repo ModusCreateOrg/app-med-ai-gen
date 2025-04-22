@@ -34,12 +34,11 @@ interface MockComponentProps {
 vi.mock('@ionic/react', () => {
   const createMockComponent =
     (name: string) =>
-    ({ className, children, ...props }: MockComponentProps) =>
-      (
-        <div data-testid={`mock-${name}`} className={className} {...props}>
-          {children}
-        </div>
-      );
+    ({ className, children, ...props }: MockComponentProps) => (
+      <div data-testid={`mock-${name}`} className={className} {...props}>
+        {children}
+      </div>
+    );
 
   return {
     IonPage: createMockComponent('ion-page'),
