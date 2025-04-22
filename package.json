@@ -7,11 +7,9 @@
     "prepare": "husky",
     "build": "cd backend && npm run build",
     "build:backend": "cd backend && npm run build",
-    "build:frontend": "cd frontend && npm run build",
-    "format": "prettier --write \"**/*.{ts,tsx,js,jsx,json,md,scss,css}\" --ignore-path .gitignore"
+    "build:frontend": "cd frontend && npm run build"
   },
   "devDependencies": {
-    "husky": "^9.1.7",
-    "prettier": "^3.0.0"
+    "husky": "^9.1.7"
   }
 }
