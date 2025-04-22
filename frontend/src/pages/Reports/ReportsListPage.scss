@@ -5,7 +5,6 @@
     box-shadow: none;
 
     ion-toolbar {
-      --background: white;
       --border-width: 0;
       --min-height: 60px;
       padding: 10px 16px;
@@ -81,7 +80,6 @@
 
   &__filter {
     padding: 8px 16px;
-    background-color: white;
   }
 
   &__segment-wrapper {
@@ -94,7 +92,7 @@
 
       ion-segment-button {
         --color: #777;
-        --color-checked: #4355b9;
+        --color-checked: #000;
         --indicator-color: white;
         --background-checked: white;
         --border-radius: 50px;
