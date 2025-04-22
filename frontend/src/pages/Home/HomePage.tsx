@@ -98,6 +98,7 @@ const HomePage: React.FC = () => {
         key={report.id}
         report={report}
         onClick={() => handleReportClick(report.id)}
+        showBookmarkButton={true}
       />
     ));
   };
