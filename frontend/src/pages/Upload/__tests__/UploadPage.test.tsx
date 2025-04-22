@@ -57,6 +57,9 @@ vi.mock('common/components/Upload/UploadModal', () => {
       labValues: [],
       summary: 'Test report summary',
       filePath: '/reports/test-report.pdf',
+      originalFilename: 'test-report.pdf',
+      fileSize: 1024,
+      confidence: 0.95,
       updatedAt: '2023-01-01',
     };
 
