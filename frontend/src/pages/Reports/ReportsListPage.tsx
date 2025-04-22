@@ -322,6 +322,8 @@ const ReportsListPage: React.FC = () => {
         isOpen={showFilterModal}
         onDidDismiss={() => setShowFilterModal(false)}
         className="reports-list-page__filter-modal"
+        initialBreakpoint={0.9}
+        breakpoints={[0, 0.9]}
       >
         <FilterPanel
           categories={categories}

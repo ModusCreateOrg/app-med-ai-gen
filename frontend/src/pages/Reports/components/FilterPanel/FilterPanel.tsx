@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { IonButton, IonList, IonItem, IonLabel, IonCheckbox } from '@ionic/react';
+import { IonButton } from '@ionic/react';
 import { useTranslation } from 'react-i18next';
 import './FilterPanel.scss';
 
@@ -45,18 +45,19 @@ const FilterPanel: React.FC<FilterPanelProps> = ({
 
       <div className="filter-panel__category-section">
         <h3 className="filter-panel__category-title">{t('filter.category', { ns: 'report' })}</h3>
-        <IonList className="filter-panel__category-list">
+        <div className="filter-panel__category-container">
           {categories.map((category) => (
-            <IonItem key={category.id} className="filter-panel__category-item">
-              <IonLabel>{category.label}</IonLabel>
-              <IonCheckbox
-                slot="end"
-                checked={selectedCategories.includes(category.id)}
-                onIonChange={() => handleCategoryToggle(category.id)}
-              />
-            </IonItem>
+            <button
+              key={category.id}
+              className={`filter-panel__category-button ${
+                selectedCategories.includes(category.id) ? 'filter-panel__category-button--selected' : ''
+              }`}
+              onClick={() => handleCategoryToggle(category.id)}
+            >
+              {category.label}
+            </button>
           ))}
-        </IonList>
+        </div>
       </div>
 
       <div className="filter-panel__actions">
