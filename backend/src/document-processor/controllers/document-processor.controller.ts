@@ -201,6 +201,8 @@ export class DocumentProcessorController {
       // Extract lab values
       report.labValues = result.analysis.labValues || [];
 
+      report.confidence = result.analysis.metadata.confidence || 0;
+
       // Create summary from simplified explanation or diagnoses
       report.summary = result.simplifiedExplanation!;
 

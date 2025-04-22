@@ -317,6 +317,7 @@ export class ReportsService {
         processingStatus: ProcessingStatus.UNPROCESSED,
         labValues: [],
         summary: '',
+        confidence: 0,
         status: ReportStatus.UNREAD,
         createdAt: new Date().toISOString(),
         updatedAt: new Date().toISOString(),

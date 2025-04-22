@@ -51,6 +51,7 @@ export interface MedicalReport {
   processingStatus: ProcessingStatus;
   labValues: LabValue[];
   summary: string;
+  confidence: number;
   status: ReportStatus;
   filePath: string;
   originalFilename: string;

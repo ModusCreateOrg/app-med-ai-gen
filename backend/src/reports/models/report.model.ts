@@ -50,6 +50,9 @@ export class Report {
   @ApiProperty({ description: 'Summary of the report' })
   summary: string;
 
+  @ApiProperty({ description: 'Confidence score of the analysis (0-100)' })
+  confidence: number;
+
   @ApiProperty({
     description: 'Status of the report',
     enum: ReportStatus,

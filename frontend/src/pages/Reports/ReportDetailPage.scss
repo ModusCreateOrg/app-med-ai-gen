@@ -653,6 +653,34 @@
     background-color: #435ff0;
     border-radius: 100px;
   }
+
+  // Low Confidence Notice styles
+  .low-confidence-notice {
+    margin: 0 16px 20px;
+    padding: 14px 16px;
+    display: flex;
+    align-items: flex-start;
+    border: 1px solid #dce0e9;
+    border-radius: 16px;
+    background-color: #fff;
+  }
+
+  .notice-icon {
+    color: #667091;
+    margin-right: 12px;
+    font-size: 24px;
+    display: flex;
+    align-items: center;
+    min-width: 24px;
+  }
+
+  .notice-text {
+    color: #313E4C;
+    font-size: 14px;
+    line-height: 20px;
+    font-family: 'Inter', sans-serif;
+    font-weight: 400;
+  }
 }
 
 // Media Queries for responsiveness
@@ -682,6 +710,12 @@
       max-width: 600px;
       margin: 20px auto 32px;
       padding: 0 16px 16px;
+    }
+
+    .low-confidence-notice {
+      max-width: 600px;
+      margin-left: auto;
+      margin-right: auto;
     }
   }
 }

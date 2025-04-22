@@ -3,6 +3,7 @@ import { MedicalReport, LabValue } from '../../../common/models/medicalReport';
 import EmergencyAlert from './EmergencyAlert';
 import FlaggedValuesSection from './FlaggedValuesSection';
 import NormalValuesSection from './NormalValuesSection';
+import LowConfidenceNotice from './LowConfidenceNotice';
 
 interface AiAnalysisTabProps {
   reportData: MedicalReport;
@@ -30,10 +31,18 @@ const AiAnalysisTab: React.FC<AiAnalysisTabProps> = ({
     (value) => value.status === 'normal',
   );
 
+  // Format confidence score for display
+  const confidenceScore = reportData.confidence;
+
+  const isLowConfidence = confidenceScore < 0.75;
+
   return (
     <div className="ai-analysis-tab">
       {/* Emergency alert if needed */}
       {isEmergencyAlertVisible && hasEmergency && <EmergencyAlert />}
+
+      {/* Low confidence notice */}
+      {isLowConfidence && <LowConfidenceNotice />}
 
       {/* Flagged values section */}
       <FlaggedValuesSection
