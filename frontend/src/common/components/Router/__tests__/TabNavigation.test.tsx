@@ -9,7 +9,7 @@ beforeAll(() => {
   // Mock window.matchMedia
   Object.defineProperty(window, 'matchMedia', {
     writable: true,
-    value: vi.fn().mockImplementation(query => ({
+    value: vi.fn().mockImplementation((query) => ({
       matches: false,
       media: query,
       onchange: null,
@@ -35,25 +35,44 @@ vi.mock('@ionic/react', async () => {
   const actual = await vi.importActual('@ionic/react');
   return {
     ...actual,
-    IonApp: ({ children }: { children: React.ReactNode }) => <div data-testid="mock-ion-app">{children}</div>,
-    IonTabs: ({ children, className }: { children: React.ReactNode, className?: string }) =>
-      <div data-testid="mock-ion-tabs" className={className}>{children}</div>,
-    IonRouterOutlet: ({ children, id }: { children: React.ReactNode, id?: string }) =>
-      <div data-testid="mock-ion-router-outlet" id={id}>{children}</div>,
-    IonTabBar: ({ children, slot, className }: { children: React.ReactNode, slot?: string, className?: string }) =>
-      <div data-testid="mock-ion-tab-bar" data-slot={slot} className={className}>{children}</div>,
+    IonApp: ({ children }: { children: React.ReactNode }) => (
+      <div data-testid="mock-ion-app">{children}</div>
+    ),
+    IonTabs: ({ children, className }: { children: React.ReactNode; className?: string }) => (
+      <div data-testid="mock-ion-tabs" className={className}>
+        {children}
+      </div>
+    ),
+    IonRouterOutlet: ({ children, id }: { children: React.ReactNode; id?: string }) => (
+      <div data-testid="mock-ion-router-outlet" id={id}>
+        {children}
+      </div>
+    ),
+    IonTabBar: ({
+      children,
+      slot,
+      className,
+    }: {
+      children: React.ReactNode;
+      slot?: string;
+      className?: string;
+    }) => (
+      <div data-testid="mock-ion-tab-bar" data-slot={slot} className={className}>
+        {children}
+      </div>
+    ),
     IonTabButton: ({
       children,
       tab,
       href,
       className,
-      onClick
+      onClick,
     }: {
-      children: React.ReactNode,
-      tab?: string,
-      href?: string,
-      className?: string,
-      onClick?: () => void
+      children: React.ReactNode;
+      tab?: string;
+      href?: string;
+      className?: string;
+      onClick?: () => void;
     }) => {
       const tabButton = (
         <div
@@ -125,7 +144,13 @@ vi.mock('../../Menu/AppMenu', () => ({
 
 // Mock the Icon component
 vi.mock('../../Icon/Icon', () => ({
-  default: ({ icon, iconStyle, className, size, fixedWidth }: {
+  default: ({
+    icon,
+    iconStyle,
+    className,
+    size,
+    fixedWidth,
+  }: {
     icon: string;
     iconStyle?: string;
     className?: string;
@@ -146,17 +171,20 @@ vi.mock('../../Icon/Icon', () => ({
 
 // Mock the UploadModal component
 vi.mock('../../Upload/UploadModal', () => ({
-  default: ({ isOpen, onClose, _onUploadComplete }: {
+  default: ({
+    isOpen,
+    onClose,
+    _onUploadComplete,
+  }: {
     isOpen: boolean;
     onClose: () => void;
     _onUploadComplete?: (report: Record<string, unknown>) => void;
-  }) => (
+  }) =>
     isOpen ? (
       <div data-testid="mock-upload-modal">
         <button onClick={onClose}>Close</button>
       </div>
-    ) : null
-  ),
+    ) : null,
 }));
 
 // Mock the useGetCurrentUser hook
@@ -219,16 +247,28 @@ describe('TabNavigation', () => {
 
     // ASSERT
     // Check for home tab button
-    expect(screen.getByTestId('mock-ion-tab-button-home')).toHaveAttribute('data-href', '/tabs/home');
+    expect(screen.getByTestId('mock-ion-tab-button-home')).toHaveAttribute(
+      'data-href',
+      '/tabs/home',
+    );
 
     // Check for analytics tab button
-    expect(screen.getByTestId('mock-ion-tab-button-reports')).toHaveAttribute('data-href', '/tabs/reports');
+    expect(screen.getByTestId('mock-ion-tab-button-reports')).toHaveAttribute(
+      'data-href',
+      '/tabs/reports',
+    );
 
     // Check for chat tab button
-    expect(screen.getByTestId('mock-ion-tab-button-chat')).toHaveAttribute('data-href', '/tabs/chat');
+    expect(screen.getByTestId('mock-ion-tab-button-chat')).toHaveAttribute(
+      'data-href',
+      '/tabs/chat',
+    );
 
     // Check for account tab button
-    expect(screen.getByTestId('mock-ion-tab-button-account')).toHaveAttribute('data-href', '/tabs/account');
+    expect(screen.getByTestId('mock-ion-tab-button-account')).toHaveAttribute(
+      'data-href',
+      '/tabs/account',
+    );
 
     // Upload button doesn't have href attribute as it opens modal
     const uploadButton = screen.getByTestId('mock-ion-tab-button-upload');
@@ -244,7 +284,10 @@ describe('TabNavigation', () => {
     expect(screen.getByTestId('mock-ion-tab-button-home')).toHaveAttribute('data-tab', 'home');
 
     // Check for analytics tab button
-    expect(screen.getByTestId('mock-ion-tab-button-reports')).toHaveAttribute('data-tab', 'reports');
+    expect(screen.getByTestId('mock-ion-tab-button-reports')).toHaveAttribute(
+      'data-tab',
+      'reports',
+    );
 
     // Check for upload tab button
     expect(screen.getByTestId('mock-ion-tab-button-upload')).toHaveAttribute('data-tab', 'upload');
@@ -253,7 +296,10 @@ describe('TabNavigation', () => {
     expect(screen.getByTestId('mock-ion-tab-button-chat')).toHaveAttribute('data-tab', 'chat');
 
     // Check for account tab button
-    expect(screen.getByTestId('mock-ion-tab-button-account')).toHaveAttribute('data-tab', 'account');
+    expect(screen.getByTestId('mock-ion-tab-button-account')).toHaveAttribute(
+      'data-tab',
+      'account',
+    );
   });
 
   it('should have correct icon styles', () => {

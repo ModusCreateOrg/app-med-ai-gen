@@ -13,11 +13,11 @@ export const useGetUserTokens = () => {
     try {
       // Get tokens from Cognito
       const tokens = await CognitoAuthService.getUserTokens();
-      
+
       if (!tokens) {
         throw new Error('Tokens not found.');
       }
-      
+
       return tokens;
     } catch (error) {
       console.error('Error getting user tokens:', error);

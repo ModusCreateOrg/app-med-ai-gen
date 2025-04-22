@@ -20,7 +20,7 @@
 
     // Add a small bullet before brain category
     &:before {
-      content: "";
+      content: '';
       display: inline-block;
       width: 6px;
       height: 6px;
@@ -83,7 +83,9 @@
     box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
     border: 1px solid rgba(0, 0, 0, 0.03);
 
-    &--general, &--brain, &--heart {
+    &--general,
+    &--brain,
+    &--heart {
       background-color: white;
     }
 

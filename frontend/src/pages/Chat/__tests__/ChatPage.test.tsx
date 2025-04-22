@@ -10,17 +10,17 @@ vi.mock('../../../common/services/ChatService', () => ({
       id: 'mock-user-message-id',
       text,
       sender: 'user',
-      timestamp: new Date()
+      timestamp: new Date(),
     })),
     createAssistantMessage: vi.fn((text) => ({
       id: 'mock-assistant-message-id',
       text,
       sender: 'assistant',
-      timestamp: new Date()
+      timestamp: new Date(),
     })),
     sendMessage: vi.fn(async (text) => `Response to: "${text}"`),
-    resetSession: vi.fn(async () => Promise.resolve())
-  }
+    resetSession: vi.fn(async () => Promise.resolve()),
+  },
 }));
 
 // Define a type for the component props
@@ -32,7 +32,8 @@ interface MockComponentProps {
 
 // Mock the Ionic components
 vi.mock('@ionic/react', () => {
-  const createMockComponent = (name: string) => 
+  const createMockComponent =
+    (name: string) =>
     ({ className, children, ...props }: MockComponentProps) => (
       <div data-testid={`mock-${name}`} className={className} {...props}>
         {children}
@@ -63,14 +64,20 @@ vi.mock('@ionic/react', () => {
     getPlatforms: () => [],
     getConfig: () => ({
       getBoolean: () => false,
-      get: () => undefined
-    })
+      get: () => undefined,
+    }),
   };
 });
 
 // Mock shared components
 vi.mock('../../../common/components/Chat/ChatContainer', () => ({
-  default: ({ messages = [], testid }: { messages?: Array<{ id: string; text: string; sender: string; timestamp: Date }>; testid: string }) => {
+  default: ({
+    messages = [],
+    testid,
+  }: {
+    messages?: Array<{ id: string; text: string; sender: string; timestamp: Date }>;
+    testid: string;
+  }) => {
     if (!messages) {
       messages = [];
     }
@@ -87,32 +94,35 @@ vi.mock('../../../common/components/Chat/ChatContainer', () => ({
         )}
       </div>
     );
-  }
+  },
 }));
 
 vi.mock('../../../common/components/Chat/ChatInput', () => ({
-  default: ({ onSendMessage, testid }: { onSendMessage: (text: string) => void; testid: string }) => {
+  default: ({
+    onSendMessage,
+    testid,
+  }: {
+    onSendMessage: (text: string) => void;
+    testid: string;
+  }) => {
     const handleSend = () => {
       if (onSendMessage) {
         onSendMessage('Test message');
       }
     };
-    
+
     return (
       <div data-testid={testid}>
-        <input 
+        <input
           data-testid={`${testid}-field`}
           onChange={(_e: React.ChangeEvent<HTMLInputElement>) => {}}
         />
-        <button 
-          data-testid={`${testid}-send`}
-          onClick={handleSend}
-        >
+        <button data-testid={`${testid}-send`} onClick={handleSend}>
           Send
         </button>
       </div>
     );
-  }
+  },
 }));
 
 describe('ChatPage', () => {
@@ -124,9 +134,9 @@ describe('ChatPage', () => {
     render(
       <WithTestProviders>
         <ChatPage />
-      </WithTestProviders>
+      </WithTestProviders>,
     );
-    
+
     expect(screen.getByText('AI Assistant')).toBeInTheDocument();
   });
 
@@ -134,9 +144,9 @@ describe('ChatPage', () => {
     render(
       <WithTestProviders>
         <ChatPage />
-      </WithTestProviders>
+      </WithTestProviders>,
     );
-    
+
     expect(screen.getByTestId('chat-page-container')).toBeInTheDocument();
     expect(screen.getByTestId('chat-page-container-empty')).toBeInTheDocument();
   });
@@ -146,20 +156,20 @@ describe('ChatPage', () => {
     render(
       <WithTestProviders>
         <ChatPage />
-      </WithTestProviders>
+      </WithTestProviders>,
     );
-    
+
     // Find and click the send button
     const sendButton = screen.getByTestId('chat-page-input-send');
     fireEvent.click(sendButton);
-    
+
     // Verify that the chatService methods were called - skipped for now
     // expect(chatService.createUserMessage).toHaveBeenCalledWith('Test message');
     // expect(chatService.sendMessage).toHaveBeenCalledWith('Test message');
-    
+
     // Wait for the response to appear
     // await waitFor(() => {
     //   expect(chatService.createAssistantMessage).toHaveBeenCalled();
     // });
   });
-}); 
+});

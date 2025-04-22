@@ -20,7 +20,7 @@ describe('WelcomeBlock', () => {
   it('should use custom testid when provided', async () => {
     // ARRANGE
     render(<WelcomeBlock testid="custom-testid" />);
-    
+
     // ASSERT
     expect(screen.getByTestId('custom-testid')).toBeDefined();
   });
@@ -28,7 +28,7 @@ describe('WelcomeBlock', () => {
   it('should apply custom className when provided', async () => {
     // ARRANGE
     const { container } = render(<WelcomeBlock className="custom-class" />);
-    
+
     // ASSERT
     expect(container.querySelector('.custom-class')).not.toBeNull();
   });

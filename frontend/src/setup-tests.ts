@@ -7,12 +7,12 @@ vi.mock('@aws-amplify/auth', () => ({
       accessKeyId: 'test-access-key',
       secretAccessKey: 'test-secret-key',
       sessionToken: 'test-session-token',
-      expiration: new Date(Date.now() + 3600 * 1000)
-    }
+      expiration: new Date(Date.now() + 3600 * 1000),
+    },
   })),
   Amplify: {
-    configure: vi.fn()
-  }
+    configure: vi.fn(),
+  },
 }));
 
 // Mock AWS SDK Bedrock client
@@ -20,12 +20,14 @@ vi.mock('@aws-sdk/client-bedrock-runtime', () => {
   return {
     BedrockRuntimeClient: vi.fn().mockImplementation(() => ({
       send: vi.fn().mockResolvedValue({
-        body: new TextEncoder().encode(JSON.stringify({
-          results: [{ outputText: 'This is a mocked Bedrock response' }]
-        }))
-      })
+        body: new TextEncoder().encode(
+          JSON.stringify({
+            results: [{ outputText: 'This is a mocked Bedrock response' }],
+          }),
+        ),
+      }),
     })),
-    InvokeModelCommand: vi.fn().mockImplementation((params) => params)
+    InvokeModelCommand: vi.fn().mockImplementation((params) => params),
   };
 });
 
@@ -39,11 +41,11 @@ vi.mock('./common/services/ai/bedrock.service', () => {
         id: 'test-session-id',
         messages: [],
         createdAt: new Date(),
-        updatedAt: new Date()
+        updatedAt: new Date(),
       })),
-      getAllSessions: vi.fn(() => [])
+      getAllSessions: vi.fn(() => []),
     },
     ChatMessage: class {},
-    ChatSession: class {}
+    ChatSession: class {},
   };
-}); 
+});

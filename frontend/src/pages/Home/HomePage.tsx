@@ -74,10 +74,7 @@ const HomePage: React.FC = () => {
     if (isError) {
       return (
         <div className="home-page__empty-state">
-          <NoReportsMessage
-            onUpload={handleUpload}
-            onRetry={handleRetry}
-          />
+          <NoReportsMessage onUpload={handleUpload} onRetry={handleRetry} />
         </div>
       );
     }
@@ -85,10 +82,7 @@ const HomePage: React.FC = () => {
     if (!reports || reports.length === 0) {
       return (
         <div className="home-page__empty-state">
-          <NoReportsMessage
-            onUpload={handleUpload}
-            onRetry={handleRetry}
-          />
+          <NoReportsMessage onUpload={handleUpload} onRetry={handleRetry} />
         </div>
       );
     }
@@ -120,7 +114,7 @@ const HomePage: React.FC = () => {
               <div className="home-page__greeting-text">
                 <h1 className="home-page__greeting-title">
                   {t('pages.home.greeting', {
-                    name: displayName
+                    name: displayName,
                   })}
                 </h1>
                 <h2 className="home-page__greeting-subtitle">{t('pages.home.howAreYou')}</h2>
@@ -136,12 +130,18 @@ const HomePage: React.FC = () => {
             <IonCardContent>
               <div className="home-page__ai-card-content">
                 <div className="home-page__ai-card-image-container">
-                  <img src={healthcareImage} alt="Healthcare illustration" className="home-page__ai-card-image" />
+                  <img
+                    src={healthcareImage}
+                    alt="Healthcare illustration"
+                    className="home-page__ai-card-image"
+                  />
                 </div>
                 <div className="home-page__ai-card-text-container">
                   <h3 className="home-page__ai-card-title">{t('pages.home.aiAssistant.title')}</h3>
                   <div className="home-page__ai-card-button-inline">
-                    <span className="home-page__ai-card-button-inline">{t('pages.home.aiAssistant.button')}</span>
+                    <span className="home-page__ai-card-button-inline">
+                      {t('pages.home.aiAssistant.button')}
+                    </span>
                   </div>
                 </div>
               </div>
@@ -155,16 +155,11 @@ const HomePage: React.FC = () => {
             </IonRouterLink>
           </div>
 
-          <IonList className="home-page__reports-list">
-            {renderReportsList()}
-          </IonList>
+          <IonList className="home-page__reports-list">{renderReportsList()}</IonList>
         </div>
       </IonContent>
 
-      <AIAssistantModal
-        isOpen={isAIAssistantOpen}
-        setIsOpen={setIsAIAssistantOpen}
-      />
+      <AIAssistantModal isOpen={isAIAssistantOpen} setIsOpen={setIsAIAssistantOpen} />
     </IonPage>
   );
 };

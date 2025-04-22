@@ -76,7 +76,7 @@
 
       span.home-page__ai-card-button-inline {
         font-size: 0.875rem;
-        color: #FFBE5B;
+        color: #ffbe5b;
         font-weight: 500;
         position: relative;
         opacity: 1;
@@ -94,7 +94,18 @@
         width: 1rem;
         height: 1rem;
         background-color: #ffd24c;
-        clip-path: polygon(50% 0%, 61% 35%, 98% 35%, 68% 57%, 79% 91%, 50% 70%, 21% 91%, 32% 57%, 2% 35%, 39% 35%);
+        clip-path: polygon(
+          50% 0%,
+          61% 35%,
+          98% 35%,
+          68% 57%,
+          79% 91%,
+          50% 70%,
+          21% 91%,
+          32% 57%,
+          2% 35%,
+          39% 35%
+        );
         top: 0.75rem;
         right: 2.5rem;
       }
@@ -103,7 +114,18 @@
         width: 0.75rem;
         height: 0.75rem;
         background-color: #ffd24c;
-        clip-path: polygon(50% 0%, 61% 35%, 98% 35%, 68% 57%, 79% 91%, 50% 70%, 21% 91%, 32% 57%, 2% 35%, 39% 35%);
+        clip-path: polygon(
+          50% 0%,
+          61% 35%,
+          98% 35%,
+          68% 57%,
+          79% 91%,
+          50% 70%,
+          21% 91%,
+          32% 57%,
+          2% 35%,
+          39% 35%
+        );
         top: 2.5rem;
         right: 1rem;
       }
@@ -240,7 +262,7 @@ ion-card.home-page__ai-card ion-card-content h3.home-page__ai-card-title {
 
 ion-card.home-page__ai-card ion-card-content span.home-page__ai-card-button-inline {
   font-size: 0.875rem;
-  color: #FFBE5B;
+  color: #ffbe5b;
   font-weight: 500;
   position: relative;
   opacity: 1;

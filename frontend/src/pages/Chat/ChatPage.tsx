@@ -31,7 +31,7 @@ const ChatPage = (): JSX.Element => {
       await chatService.resetSession();
       resetChatState();
     })();
-    
+
     // Reset the chat session when the component unmounts
     return () => {
       // We need to call this synchronously in the cleanup function
@@ -51,34 +51,34 @@ const ChatPage = (): JSX.Element => {
         resetChatState();
       })();
     }
-    
+
     // If we're navigating away, reset chat state
     if (prevPathRef.current === '/tabs/chat' && location.pathname !== '/tabs/chat') {
       chatService.resetSession();
       resetChatState();
     }
-    
+
     // Update ref for next comparison
     prevPathRef.current = location.pathname;
   }, [location.pathname]);
 
   const handleSendMessage = async (text: string) => {
     const userMessage = chatService.createUserMessage(text);
-    setMessages(prevMessages => [...prevMessages, userMessage]);
+    setMessages((prevMessages) => [...prevMessages, userMessage]);
 
     try {
       // Get AI response
       const responseText = await chatService.sendMessage(text);
       const assistantMessage = chatService.createAssistantMessage(responseText);
-      setMessages(prevMessages => [...prevMessages, assistantMessage]);
+      setMessages((prevMessages) => [...prevMessages, assistantMessage]);
     } catch (error) {
       console.error('Error getting AI response:', error);
-      
+
       // Use i18n directly with the full namespace and key
       const errorMessage = t('chat.general', { ns: 'errors' });
-      
+
       const assistantErrorMessage = chatService.createAssistantMessage(errorMessage);
-      setMessages(prevMessages => [...prevMessages, assistantErrorMessage]);
+      setMessages((prevMessages) => [...prevMessages, assistantErrorMessage]);
     }
   };
 
@@ -114,4 +114,4 @@ const ChatPage = (): JSX.Element => {
   );
 };
 
-export default ChatPage; 
+export default ChatPage;

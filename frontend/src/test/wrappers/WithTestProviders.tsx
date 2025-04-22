@@ -20,4 +20,4 @@ const WithTestProviders = ({ children }: PropsWithChildren): JSX.Element => {
   );
 };
 
-export default WithTestProviders; 
+export default WithTestProviders;

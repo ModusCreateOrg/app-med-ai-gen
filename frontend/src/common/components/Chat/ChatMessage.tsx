@@ -23,17 +23,17 @@ interface ChatMessageProps {
  * ChatMessage component displays a single message in the chat UI.
  * It can be used for both user and AI assistant messages.
  */
-const ChatMessage: React.FC<ChatMessageProps> = ({ 
-  message, 
+const ChatMessage: React.FC<ChatMessageProps> = ({
+  message,
   aiIconSrc,
   robotIcon,
-  testid = 'chat-message' 
+  testid = 'chat-message',
 }) => {
   const isUser = message.sender === 'user';
   const messageTestId = `${testid}-${message.id}`;
 
   return (
-    <div 
+    <div
       className={`chat-message ${isUser ? 'user-message' : 'assistant-message'}`}
       aria-label={`${isUser ? 'You' : 'AI Assistant'}: ${message.text}`}
       data-testid={messageTestId}
@@ -43,7 +43,7 @@ const ChatMessage: React.FC<ChatMessageProps> = ({
           <IonIcon icon={personCircleOutline} aria-hidden="true" />
         </div>
       )}
-      
+
       {!isUser && (
         <div className="message-avatar assistant-avatar" data-testid={`${messageTestId}-avatar`}>
           {robotIcon ? (
@@ -55,18 +55,18 @@ const ChatMessage: React.FC<ChatMessageProps> = ({
           )}
         </div>
       )}
-      
+
       <div className="message-content">
         <p data-testid={`${messageTestId}-text`}>{message.text}</p>
       </div>
       <span className="sr-only">
         {new Intl.DateTimeFormat('en-US', {
           hour: 'numeric',
-          minute: 'numeric'
+          minute: 'numeric',
         }).format(message.timestamp)}
       </span>
     </div>
   );
 };
 
-export default ChatMessage; 
+export default ChatMessage;

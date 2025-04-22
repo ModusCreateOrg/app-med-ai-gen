@@ -19,7 +19,7 @@ const extractUserInfoFromToken = (idToken: string) => {
   try {
     // Decode the JWT token to get the payload
     const payload = JSON.parse(atob(idToken.split('.')[1]));
-    
+
     return {
       sub: payload.sub,
       email: payload.email,
@@ -44,7 +44,7 @@ const AuthProvider = ({ children }: PropsWithChildren): JSX.Element => {
   const { data: userTokens, isPending, isSuccess, refetch: refetchUserTokens } = useGetUserTokens();
   const [isInitializing, setIsInitializing] = useState(true);
   const [authState, setAuthState] = useState(AuthState.SIGNED_OUT);
-  
+
   // Get all authentication operations from our hook
   const {
     isLoading,
@@ -67,7 +67,7 @@ const AuthProvider = ({ children }: PropsWithChildren): JSX.Element => {
   useEffect(() => {
     if (userTokens?.id_token) {
       const userInfo = extractUserInfoFromToken(userTokens.id_token);
-      
+
       if (userInfo) {
         const userData = {
           username: userInfo.email || '',
@@ -78,9 +78,9 @@ const AuthProvider = ({ children }: PropsWithChildren): JSX.Element => {
             family_name: userInfo.family_name || '',
             email_verified: String(userInfo.email_verified || false),
             name: userInfo.name || '',
-          }
+          },
         };
-        
+
         const appUser = mapCognitoUserToAppUser(userData);
         console.log('User from token:', appUser);
         setUser?.(appUser);
@@ -94,16 +94,16 @@ const AuthProvider = ({ children }: PropsWithChildren): JSX.Element => {
       try {
         // Try to get the current user from Cognito
         const currentUser = await CognitoAuthService.getCurrentUser();
-        
+
         if (currentUser) {
           // If we have a user, update the auth state
           setAuthState(AuthState.SIGNED_IN);
-          
+
           // Get tokens to extract user info
           const tokens = await CognitoAuthService.getUserTokens();
           if (tokens?.id_token) {
             const userInfo = extractUserInfoFromToken(tokens.id_token);
-            
+
             if (userInfo) {
               const userData = {
                 username: userInfo.email || '',
@@ -114,9 +114,9 @@ const AuthProvider = ({ children }: PropsWithChildren): JSX.Element => {
                   family_name: userInfo.family_name || '',
                   email_verified: String(userInfo.email_verified || false),
                   name: userInfo.name || '',
-                }
+                },
               };
-              
+
               const appUser = mapCognitoUserToAppUser(userData);
               console.log('User from token on init:', appUser);
               setUser?.(appUser);
@@ -128,10 +128,10 @@ const AuthProvider = ({ children }: PropsWithChildren): JSX.Element => {
               attributes: {
                 email: currentUser.signInDetails?.loginId || '',
                 given_name: currentUser.username?.split('@')[0] || '',
-                family_name: ''
-              }
+                family_name: '',
+              },
             };
-            
+
             const appUser = mapCognitoUserToAppUser(userData);
             console.log('Fallback user:', appUser);
             setUser?.(appUser);

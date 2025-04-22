@@ -6,13 +6,13 @@ export const SUPPORTED_FILE_TYPES = {
   PDF: 'application/pdf',
   JPEG: 'image/jpeg',
   JPG: 'image/jpeg',
-  PNG: 'image/png'
+  PNG: 'image/png',
 };
 
 // File size limits in MB
 export const FILE_SIZE_LIMITS = {
   PDF: 10, // 10MB
-  IMAGE: 5  // 5MB for JPEG and PNG
+  IMAGE: 5, // 5MB for JPEG and PNG
 };
 
 /**
@@ -40,20 +40,21 @@ export const validateFile = (file: File): FileValidationResult => {
     return {
       isValid: false,
       error: `File type not supported. Supported types: PDF, JPEG, PNG`,
-      errorKey: 'upload.error.invalidType'
+      errorKey: 'upload.error.invalidType',
     };
   }
 
   // Check file size
   const fileSize = file.size / (1024 * 1024); // Convert to MB
-  const maxSize = file.type === SUPPORTED_FILE_TYPES.PDF ? FILE_SIZE_LIMITS.PDF : FILE_SIZE_LIMITS.IMAGE;
-  
+  const maxSize =
+    file.type === SUPPORTED_FILE_TYPES.PDF ? FILE_SIZE_LIMITS.PDF : FILE_SIZE_LIMITS.IMAGE;
+
   if (fileSize > maxSize) {
     return {
       isValid: false,
       error: `File size exceeds limit. Maximum size: ${maxSize}MB`,
       errorKey: 'upload.error.fileTooBig',
-      params: { max: maxSize }
+      params: { max: maxSize },
     };
   }
 
@@ -90,7 +91,7 @@ export const checkFilePermissions = async (): Promise<boolean> => {
     // This is a simple check that should work on both iOS and Android
     await Filesystem.readdir({
       path: '',
-      directory: Directory.Documents
+      directory: Directory.Documents,
     });
     return true;
   } catch (error: unknown) {
@@ -114,11 +115,11 @@ export const requestFilePermissions = async (): Promise<boolean> => {
     // We can just try to access the filesystem to trigger the permission request
     await Filesystem.readdir({
       path: '',
-      directory: Directory.Documents
+      directory: Directory.Documents,
     });
     return true;
   } catch (error: unknown) {
     console.error('Failed to get file permissions:', error);
     return false;
   }
-}; 
+};

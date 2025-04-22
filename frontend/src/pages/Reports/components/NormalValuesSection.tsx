@@ -3,6 +3,7 @@ import { useTranslation } from 'react-i18next';
 import Icon from '../../../common/components/Icon/Icon';
 import { LabValue } from '../../../common/models/medicalReport';
 import LabValueItem from './LabValueItem';
+import normalValuesIcon from '../../../assets/icons/normal-values.svg';
 
 interface NormalValuesSectionProps {
   normalValues: LabValue[];
@@ -24,7 +25,7 @@ const NormalValuesSection: React.FC<NormalValuesSectionProps> = ({
           className="report-detail-page__section-icon"
           style={{ borderRadius: '50%', backgroundColor: '#f0f0f0' }}
         >
-          <Icon icon="vial" size="sm" />
+          <img src={normalValuesIcon} alt="Normal Values Icon" />
         </div>
         <h3 className="report-detail-page__section-title">
           {t('report.normal-values.title', { ns: 'reportDetail' })}

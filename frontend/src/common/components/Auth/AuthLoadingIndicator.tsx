@@ -16,11 +16,11 @@ interface AuthLoadingIndicatorProps extends BaseComponentProps {
  * @param {AuthLoadingIndicatorProps} props - Component properties.
  * @returns {JSX.Element | null} JSX or null if not loading
  */
-const AuthLoadingIndicator = ({ 
+const AuthLoadingIndicator = ({
   className,
   isLoading,
   message,
-  testid = 'auth-loading' 
+  testid = 'auth-loading',
 }: AuthLoadingIndicatorProps): JSX.Element | null => {
   const { t } = useTranslation();
 
@@ -31,13 +31,11 @@ const AuthLoadingIndicator = ({
       <div className="ls-auth-loading__content">
         <IonSpinner name="circular" />
         <IonText>
-          <p className="ls-auth-loading__message">
-            {message || t('loading', { ns: 'auth' })}
-          </p>
+          <p className="ls-auth-loading__message">{message || t('loading', { ns: 'auth' })}</p>
         </IonText>
       </div>
     </div>
   );
 };
 
-export default AuthLoadingIndicator; 
+export default AuthLoadingIndicator;

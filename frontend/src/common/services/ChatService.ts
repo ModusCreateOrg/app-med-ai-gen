@@ -27,7 +27,7 @@ class ChatService {
 
     return bedrockService.sendMessage(this.currentSessionId!, message);
   }
-  
+
   /**
    * Reset the current chat session
    * This creates a new Bedrock session and discards the old one
@@ -35,7 +35,7 @@ class ChatService {
   async resetSession(): Promise<void> {
     this.currentSessionId = await bedrockService.createChatSession();
   }
-  
+
   /**
    * Create a user message object
    * @param text The message text
@@ -46,10 +46,10 @@ class ChatService {
       id: Date.now().toString(),
       text,
       sender: 'user',
-      timestamp: new Date()
+      timestamp: new Date(),
     };
   }
-  
+
   /**
    * Create an assistant message object
    * @param text The message text
@@ -60,10 +60,10 @@ class ChatService {
       id: (Date.now() + 1).toString(),
       text,
       sender: 'assistant',
-      timestamp: new Date()
+      timestamp: new Date(),
     };
   }
 }
 
 // Export a singleton instance
-export const chatService = new ChatService(); 
+export const chatService = new ChatService();

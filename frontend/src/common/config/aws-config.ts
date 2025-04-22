@@ -1,6 +1,6 @@
 /**
  * AWS Configuration for the application
- * 
+ *
  * This file contains configuration settings for AWS services including Cognito User Pool.
  * In a production environment, these values should come from environment variables.
  */
@@ -34,10 +34,10 @@ export const COGNITO_CONFIG = {
   // OAuth Configuration (for Social Login)
   OAUTH_DOMAIN: import.meta.env.VITE_COGNITO_DOMAIN,
   OAUTH_SCOPES: ['email', 'profile', 'openid'],
-  
+
   // Auth mechanisms
   AUTH_MECHANISMS: ['EMAIL'],
-  
+
   // Social providers
   SOCIAL_PROVIDERS: ['Google', 'SignInWithApple'],
 };
@@ -68,11 +68,11 @@ export const amplifyConfig = {
           scopes: COGNITO_CONFIG.OAUTH_SCOPES,
           redirectSignIn: redirectUrls.signIn,
           redirectSignOut: redirectUrls.signOut,
-          responseType: 'code' as const
-        }
-      }
-    }
+          responseType: 'code' as const,
+        },
+      },
+    },
   },
   // Configure only the region you need to use
-  region: REGION
-}; 
+  region: REGION,
+};

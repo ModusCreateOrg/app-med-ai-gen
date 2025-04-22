@@ -46,4 +46,4 @@ const VerificationPage = ({ testid = 'page-verification' }: VerificationPageProp
   );
 };
 
-export default VerificationPage; 
+export default VerificationPage;

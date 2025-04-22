@@ -34,7 +34,7 @@ export const mapCognitoUserToAppUser = (cognitoUser: CognitoUserData | null): Co
 
   // Extract attributes from Cognito user object
   const attributes = cognitoUser.attributes || {};
-  
+
   // Map the Cognito user to our application user model
   const user: CognitoUser = {
     id: attributes.sub || cognitoUser.username,
@@ -68,13 +68,13 @@ export const extractUserGroups = (idToken: string): string[] => {
   try {
     // Decode the JWT token to get the payload
     const payload = JSON.parse(atob(idToken.split('.')[1]));
-    
+
     // Extract cognito groups from token
     const groups = payload['cognito:groups'] || [];
-    
+
     return Array.isArray(groups) ? groups : [];
   } catch (error) {
     console.error('Error extracting user groups:', error);
     return [];
   }
-}; 
+};

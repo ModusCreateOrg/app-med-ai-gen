@@ -1,6 +1,6 @@
 .processing-page {
   --background: #1c1c1e;
-  
+
   &__container {
     background-color: white;
     border-radius: 32px;
@@ -11,21 +11,21 @@
     flex-direction: column;
     position: relative;
   }
-  
+
   &__header {
     display: flex;
     flex-direction: column;
     margin-top: 20px;
   }
-  
+
   &__avatar-wrapper {
     margin-bottom: 20px;
-    
-    // Styles for the Avatar component - adjusted size to match design
+
+    // Styles for the Avatar component
     .ls-avatar {
       --size: 60px !important;
       margin: 0;
-      
+
       // This makes sure even round avatars are sized correctly
       &.ls-avatar--round {
         width: var(--size);
@@ -33,152 +33,156 @@
       }
     }
   }
-  
+
+  // Animation styling
   &__title {
     margin-bottom: 40px;
   }
-  
+
   &__subtitle {
     font-size: 20px;
-    color: #9BA1AB;
+    color: #9ba1ab;
     margin: 0 0 5px 0;
     font-weight: 400;
   }
-  
+
   &__heading {
     font-size: 36px;
     font-weight: 600;
     color: #394150;
     margin: 0;
   }
-  
-  &__animation {
+
+  &__animation-container {
     flex: 1;
     display: flex;
     align-items: center;
     justify-content: center;
-    
-    &-circle {
-      // Adjusted animation size to match design
-      width: 180px;
-      height: 180px;
-      border-radius: 50%;
-      background: radial-gradient(circle at 30% 30%, #4f7dff 10%, #c97eff 40%, #ff8afc 80%);
-      box-shadow: 
-        0 0 40px rgba(201, 126, 255, 0.5),
-        0 0 80px rgba(201, 126, 255, 0.3);
-      position: relative;
-      overflow: hidden;
-      animation: pulse 3s infinite ease-in-out;
-      
-      &::after {
-        content: "";
-        position: absolute;
-        top: 0;
-        left: 0;
-        right: 0;
-        bottom: 0;
-        background: linear-gradient(135deg, rgba(255,255,255,0.4) 0%, transparent 50%);
-        border-radius: 50%;
-      }
-    }
   }
 
+  &__ai-icon {
+    width: 230px;
+    height: 230px;
+    animation: pulse 2s infinite ease-in-out;
+  }
+
+  // Error component styling - final adjustments
   &__error-container {
     display: flex;
     flex-direction: column;
     align-items: center;
     text-align: center;
-    padding: 2rem;
-    max-width: 500px;
-    margin: 0 auto;
+    padding: 0;
+    width: 100%;
+    height: 100%;
+    justify-content: space-between;
+  }
+
+  &__error-content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 100%;
   }
 
   &__error-header {
-    margin-bottom: 1.5rem;
+    margin-bottom: 40px;
+    text-align: left;
+    align-self: flex-start;
+    width: 100%;
   }
 
   &__error-oops {
-    font-size: 1.25rem;
-    color: var(--ion-color-medium);
-    margin-bottom: 0.5rem;
+    font-size: 24px;
+    font-weight: 400;
+    color: #8e8e93;
+    margin: 0 0 4px;
   }
 
   &__error-title {
-    font-size: 2rem;
-    font-weight: 600;
+    font-size: 34px;
+    font-weight: 700;
     margin: 0;
-    color: var(--ion-color-dark);
+    color: #1c1c1e;
+    line-height: 1.2;
   }
 
   &__error-icon {
-    margin: 1.5rem 0;
+    margin-bottom: 40px;
   }
 
   &__error-icon-circle {
-    width: 120px;
-    height: 120px;
-    background-color: rgba(196, 30, 58, 0.1);
+    width: 204px;
+    height: 204px;
+    background-color: #ffecef;
     border-radius: 50%;
     display: flex;
     align-items: center;
     justify-content: center;
+
+    svg {
+      width: 56px;
+      height: 56px;
+    }
   }
 
   &__error-subheading {
-    font-size: 1.5rem;
+    font-size: 22px;
     font-weight: 600;
-    color: var(--ion-color-dark);
-    margin-bottom: 1rem;
+    color: #1c1c1e;
+    margin: 0 0 16px;
   }
 
   &__error-message {
-    font-size: 1rem;
-    color: var(--ion-color-medium);
-    line-height: 1.5;
-    margin-bottom: 2rem;
-    max-width: 400px;
+    font-size: 17px;
+    line-height: 24px;
+    color: #8e8e93;
+    margin: 0 auto 40px;
+    max-width: 290px;
   }
 
   &__error-actions {
     display: flex;
-    gap: 1rem;
+    flex-direction: row;
+    gap: 12px;
     width: 100%;
+    padding: 0 16px;
     max-width: 400px;
+    margin-left: auto;
+    margin-right: auto;
+    margin-bottom: 32px;
+
+    ion-button {
+      margin: 0;
+      height: 48px;
+      --border-radius: 8px;
+      --border-width: 1px;
+      --padding-top: 0;
+      --padding-bottom: 0;
+      font-size: 16px;
+      font-weight: 600;
+      text-transform: none;
+      letter-spacing: 0;
+      flex: 1;
+    }
   }
 
   &__retry-btn {
-    flex: 1;
-    padding: 0.75rem 1rem;
-    border-radius: 2rem;
-    background: transparent;
-    border: 1px solid var(--ion-color-primary);
-    color: var(--ion-color-primary);
-    font-weight: 500;
-    font-size: 1rem;
-    cursor: pointer;
-    transition: background-color 0.2s, color 0.2s;
-
-    &:hover {
-      background-color: var(--ion-color-primary-tint);
-    }
+    --color: #4361ee;
+    --border-color: #4361ee;
+    --background: transparent;
+    --background-hover: rgba(67, 97, 238, 0.1);
+    --background-activated: rgba(67, 97, 238, 0.2);
+    --box-shadow: none;
+    --ripple-color: rgba(67, 97, 238, 0.1);
   }
 
   &__upload-btn {
-    flex: 1;
-    padding: 0.75rem 1rem;
-    border-radius: 2rem;
-    background: var(--ion-color-primary);
-    border: none;
-    color: white;
-    font-weight: 500;
-    font-size: 1rem;
-    cursor: pointer;
-    transition: background-color 0.2s;
-
-    &:hover {
-      background-color: var(--ion-color-primary-shade);
-    }
+    --background: #4361ee;
+    --background-hover: #3b56d9;
+    --background-activated: #3b56d9;
+    --color: white;
+    --box-shadow: none;
   }
 }
 

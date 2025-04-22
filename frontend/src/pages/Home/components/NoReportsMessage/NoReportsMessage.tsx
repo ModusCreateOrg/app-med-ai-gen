@@ -19,23 +19,19 @@ const NoReportsMessage: React.FC<NoReportsMessageProps> = ({ onUpload, onRetry }
       <div className="no-reports__icon-container">
         <Icon icon="fileLines" iconStyle="regular" className="no-reports__icon" size="4x" />
       </div>
-      
+
       <h2 className="no-reports__title">{t('reports.noReports.title')}</h2>
       <p className="no-reports__message">{t('reports.noReports.message')}</p>
-      
+
       <div className="no-reports__actions">
-        <IonButton 
-          expand="block" 
-          onClick={onUpload}
-          className="no-reports__button"
-        >
+        <IonButton expand="block" onClick={onUpload} className="no-reports__button">
           {t('reports.noReports.uploadButton')}
         </IonButton>
-        
+
         {onRetry && (
-          <IonButton 
-            expand="block" 
-            fill="outline" 
+          <IonButton
+            expand="block"
+            fill="outline"
             onClick={onRetry}
             className="no-reports__button no-reports__button--secondary"
           >
@@ -47,4 +43,4 @@ const NoReportsMessage: React.FC<NoReportsMessageProps> = ({ onUpload, onRetry }
   );
 };
 
-export default NoReportsMessage; 
+export default NoReportsMessage;

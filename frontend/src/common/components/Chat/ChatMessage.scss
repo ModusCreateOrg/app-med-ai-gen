@@ -4,32 +4,32 @@
   max-width: 90%;
   margin-bottom: 0.75rem;
   align-self: flex-start;
-  
+
   .message-content {
     padding: 0.75rem 1rem;
     border-radius: 1rem;
-    
+
     p {
       margin: 0;
       white-space: pre-wrap;
       word-break: break-word;
     }
   }
-  
+
   &.user-message {
     .message-content {
-      background-color: #EBECFD;
+      background-color: #ebecfd;
       color: var(--ion-color-dark);
     }
   }
-  
+
   &.assistant-message {
     .message-content {
-      background-color: #FFFFFF;
+      background-color: #ffffff;
       color: var(--ion-color-dark);
     }
   }
-  
+
   // Avatar styling
   .message-avatar {
     width: 1.5rem;
@@ -37,7 +37,7 @@
     border-radius: 50%;
     margin-right: 0.5rem;
     align-self: flex-start;
-    
+
     &.user-avatar {
       display: flex;
       align-items: center;
@@ -47,19 +47,19 @@
         width: 1.5rem;
         height: 1.5rem;
       }
-
     }
-    
+
     &.assistant-avatar {
       display: flex;
       align-items: center;
       justify-content: center;
-      
-      svg, img, ion-icon {
+
+      svg,
+      img,
+      ion-icon {
         width: 1.5rem;
         height: 1.5rem;
       }
-
     }
   }
 }
@@ -74,4 +74,4 @@
   overflow: hidden;
   clip: rect(0, 0, 0, 0);
   border: 0;
-} 
+}

@@ -25,7 +25,7 @@ const ProcessingPage: React.FC = () => {
   const [isProcessing, setIsProcessing] = useState(true);
   const [processingError, setProcessingError] = useState<string | null>(null);
   const statusCheckIntervalRef = useRef<number | null>(null);
-  const hasInitiatedProcessing = useRef(false);
+  const lastTriggeredTime = useRef<number | null>(null);
 
   // Get the location state which may contain the reportId (previously filePath)
   const location = useLocation<{ reportId: string }>();
@@ -98,28 +98,26 @@ const ProcessingPage: React.FC = () => {
   };
 
   // Handle retry attempt
-  const handleRetry = () => {
+  const execute = () => {
     // Reset error state and try processing the same file again
     setProcessingError(null);
     setIsProcessing(true);
-    hasInitiatedProcessing.current = false;
+    lastTriggeredTime.current = Date.now();
     processFile();
   };
 
   // Send the API request when component mounts
   useEffect(() => {
-    // Use ref to ensure this effect runs only once for the core logic
-    if (hasInitiatedProcessing.current) {
+    // check last triggered time to prevent multiple calls, if it's within 100ms then ignore
+    if ((lastTriggeredTime.current && lastTriggeredTime.current > Date.now() - 100) || !reportId) {
       return;
     }
 
-    hasInitiatedProcessing.current = true; // Mark as initiated before fetching
-
-    processFile();
+    execute();
 
     // Clean up the interval when the component unmounts
     return clearStatusCheckInterval;
-  }, [reportId, location, history]);
+  }, [reportId, location.pathname, history]);
 
   return (
     <IonPage className="processing-page">
@@ -141,9 +139,7 @@ const ProcessingPage: React.FC = () => {
           {isProcessing && <ProcessingAnimation firstName={firstName} />}
 
           {/* Error state - shows when processing fails */}
-          {processingError && (
-            <ProcessingError errorMessage={processingError} onRetry={handleRetry} />
-          )}
+          {processingError && <ProcessingError errorMessage={processingError} onRetry={execute} />}
         </div>
       </IonContent>
     </IonPage>

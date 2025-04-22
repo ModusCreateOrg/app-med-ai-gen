@@ -9,7 +9,7 @@ export function useChat(sessionId?: string) {
   // Query for getting chat session
   const { data: session } = useQuery({
     queryKey: [CHAT_QUERY_KEY, sessionId],
-    queryFn: () => sessionId ? bedrockService.getChatSession(sessionId) : undefined,
+    queryFn: () => (sessionId ? bedrockService.getChatSession(sessionId) : undefined),
     enabled: !!sessionId,
   });
 
@@ -47,4 +47,4 @@ export function useChat(sessionId?: string) {
     sendMessage,
     isLoading: createSession.isPending || sendMessage.isPending,
   };
-} 
+}

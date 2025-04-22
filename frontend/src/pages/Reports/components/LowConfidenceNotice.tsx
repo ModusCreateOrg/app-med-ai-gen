@@ -1,7 +1,6 @@
 import React from 'react';
 import { useTranslation } from 'react-i18next';
-import { IonIcon } from '@ionic/react';
-import { informationCircleOutline } from 'ionicons/icons';
+import info from '../../../assets/icons/info.svg';
 
 /**
  * Component to display a notice when the confidence level is low
@@ -12,7 +11,7 @@ const LowConfidenceNotice: React.FC = () => {
   return (
     <div className="low-confidence-notice">
       <div className="notice-icon">
-        <IonIcon icon={informationCircleOutline} />
+        <img src={info} alt="Information Icon" />
       </div>
       <div className="notice-text">
         {t('reports.lowConfidence.message', {

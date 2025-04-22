@@ -18,7 +18,9 @@ interface ResetPasswordPageProps extends PropsWithTestId {}
  * @param {ResetPasswordPageProps} props - Component properties.
  * @returns {JSX.Element} JSX
  */
-const ResetPasswordPage = ({ testid = 'page-reset-password' }: ResetPasswordPageProps): JSX.Element => {
+const ResetPasswordPage = ({
+  testid = 'page-reset-password',
+}: ResetPasswordPageProps): JSX.Element => {
   const { t } = useTranslation();
 
   return (
@@ -36,4 +38,4 @@ const ResetPasswordPage = ({ testid = 'page-reset-password' }: ResetPasswordPage
   );
 };
 
-export default ResetPasswordPage; 
+export default ResetPasswordPage;

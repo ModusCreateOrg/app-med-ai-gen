@@ -154,11 +154,11 @@ export class PerplexityService {
    */
   async explainMedicalText(medicalText: string): Promise<string> {
     const systemPrompt =
-      'You are an AI assistant that specializes in explaining complex medical information in simple terms. ' +
-      'Your goal is to help patients understand their medical reports by translating medical jargon into plain language. ' +
-      'Be accurate, comprehensive, but easy to understand. Use everyday analogies when helpful.';
+      'You are an AI assistant that specializes in explaining complex medical information in simple terms.\n' +
+      'Your goal is to help patients understand their medical reports by translating medical jargon into plain language.\n' +
+      'You must be accurate, concise, comprehensive, and easy to understand. Use everyday analogies when helpful.\n';
 
-    const userPrompt = `Please explain the following medical text in simple terms:\n\n${medicalText}`;
+    const userPrompt = `Please explain the following medical text in simple terms, in a single paragraph that's between 100 to 500 characters:\n\n${medicalText}`;
 
     const messages: PerplexityMessage[] = [
       { role: 'system', content: systemPrompt },
@@ -166,6 +166,6 @@ export class PerplexityService {
     ];
 
     const response = await this.createChatCompletion(messages);
-    return response.choices[0].message.content;
+    return response.choices[0].message.content.trim();
   }
 }
