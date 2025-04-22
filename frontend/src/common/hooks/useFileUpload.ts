@@ -99,7 +99,7 @@ export const useFileUpload = ({
         setError(
           validation.errorKey
             ? t(validation.errorKey, validation.params)
-            : validation.error ?? t('upload.error.unknown'),
+            : (validation.error ?? t('upload.error.unknown')),
         );
         return;
       }

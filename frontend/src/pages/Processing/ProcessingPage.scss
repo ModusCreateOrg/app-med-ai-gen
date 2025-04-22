@@ -64,7 +64,9 @@
       height: 180px;
       border-radius: 50%;
       background: radial-gradient(circle at 30% 30%, #4f7dff 10%, #c97eff 40%, #ff8afc 80%);
-      box-shadow: 0 0 40px rgba(201, 126, 255, 0.5), 0 0 80px rgba(201, 126, 255, 0.3);
+      box-shadow:
+        0 0 40px rgba(201, 126, 255, 0.5),
+        0 0 80px rgba(201, 126, 255, 0.3);
       position: relative;
       overflow: hidden;
       animation: pulse 3s infinite ease-in-out;
@@ -155,7 +157,9 @@
     font-weight: 500;
     font-size: 1rem;
     cursor: pointer;
-    transition: background-color 0.2s, color 0.2s;
+    transition:
+      background-color 0.2s,
+      color 0.2s;
 
     &:hover {
       background-color: var(--ion-color-primary-tint);

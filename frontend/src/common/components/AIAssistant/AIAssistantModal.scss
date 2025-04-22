@@ -5,7 +5,9 @@
   --box-shadow: 0 -0.25rem 1rem rgba(0, 0, 0, 0.1);
   --backdrop-opacity: 0.3;
   align-items: flex-end;
-  transition: --height 0.3s ease-out, --max-height 0.3s ease-out;
+  transition:
+    --height 0.3s ease-out,
+    --max-height 0.3s ease-out;
 
   &.expanded {
     --height: 85vh;
