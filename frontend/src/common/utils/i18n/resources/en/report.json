@@ -49,10 +49,20 @@
     "filterBookmarked": "Bookmarked",
     "noBookmarksTitle": "No Bookmarked Reports",
     "noBookmarksMessage": "Bookmark reports to find them quickly here",
+    "noMatchesTitle": "No Matching Reports",
+    "noMatchesMessage": "No reports match your current filters. Try changing or clearing your filters.",
+    "clearFilters": "Clear Filters",
     "sortButton": "Sort reports",
-    "filterButton": "Filter reports",
-    "generalCategory": "General",
-    "brainCategory": "Brain",
-    "heartCategory": "Heart"
+    "filterButton": "Filter reports"
+  },
+  "filter": {
+    "title": "Filter",
+    "category": "Category",
+    "apply": "Apply"
+  },
+  "category": {
+    "general": "General",
+    "heart": "Heart",
+    "brain": "Brain"
   }
 }

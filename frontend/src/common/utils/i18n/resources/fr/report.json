@@ -48,6 +48,21 @@
     "filterAll": "Tous",
     "filterBookmarked": "Favoris",
     "noBookmarksTitle": "Aucun Rapport en Favoris",
-    "noBookmarksMessage": "Marquez des rapports comme favoris pour les trouver rapidement ici"
+    "noBookmarksMessage": "Marquez des rapports comme favoris pour les trouver rapidement ici",
+    "noMatchesTitle": "Aucun Rapport Correspondant",
+    "noMatchesMessage": "Aucun rapport ne correspond à vos filtres actuels. Essayez de modifier ou de supprimer vos filtres.",
+    "clearFilters": "Effacer les Filtres",
+    "sortButton": "Trier les rapports",
+    "filterButton": "Filtrer les rapports"
+  },
+  "filter": {
+    "title": "Filtrer",
+    "category": "Catégorie",
+    "apply": "Appliquer"
+  },
+  "category": {
+    "general": "Général",
+    "heart": "Cœur",
+    "brain": "Cerveau"
   }
 }
