@@ -50,6 +50,9 @@ export class Report {
   @ApiProperty({ description: 'Summary of the report' })
   summary: string;
 
+  @ApiProperty({ description: 'Confidence score of the analysis (0-100)' })
+  confidence: number;
+
   @ApiProperty({
     description: 'Status of the report',
     enum: ReportStatus,
@@ -59,6 +62,12 @@ export class Report {
 
   @ApiProperty({ description: 'File path of the report' })
   filePath: string;
+
+  @ApiProperty({ description: 'Original filename of the uploaded file' })
+  originalFilename: string;
+
+  @ApiProperty({ description: 'File size in bytes' })
+  fileSize: number;
 
   @ApiProperty({ description: 'Creation timestamp' })
   createdAt: string;

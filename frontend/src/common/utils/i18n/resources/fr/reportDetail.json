@@ -1,0 +1,35 @@
+{
+  "report": {
+    "analysis": {
+      "title": "Analyse des résultats"
+    },
+    "emergency": {
+      "message": "Veuillez contacter votre médecin ou consulter immédiatement un service d'urgence."
+    },
+    "flagged-values": {
+      "title": "Valeurs signalées"
+    },
+    "normal-values": {
+      "title": "Valeurs normales"
+    },
+    "conclusion": {
+      "title": "Conclusion"
+    },
+    "suggestions": {
+      "title": "Suggestions"
+    },
+    "doctor-note": "Pour toute interprétation, ces résultats doivent être discutés avec votre médecin.",
+    "ai-help": {
+      "title": "Besoin de plus de clarifications?",
+      "action": "Demandez à notre assistant IA"
+    },
+    "action": {
+      "discard": "Annuler",
+      "new-upload": "Nouveau téléchargement"
+    },
+    "tabs": {
+      "ai-insights": "Analyses IA",
+      "original-report": "Rapport original"
+    }
+  }
+}

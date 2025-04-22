@@ -60,12 +60,15 @@
   },
   "validation": {
     "email": "Doit être une adresse e-mail. ",
-    "max": "Doit contenir au maximum {{max}} caractères. ",
-    "min": "Doit contenir au moins {{min}} caractères. ",
-    "oneOf": "Doit être l'un des: {{values}} ",
-    "required": "Requis. ",
+    "max": "Doit être au maximum {{max}} caractères. ",
+    "min": "Doit être au moins {{min}} caractères. ",
+    "oneOf": "Doit être l'un des suivants : {{values}} ",
+    "required": "Obligatoire. ",
     "required-path": "{{path}} est obligatoire. ",
     "url": "Doit être une URL. "
+  },
+  "loading": {
+    "report": "Chargement du rapport..."
   },
   "no": "non",
   "updated": "mis à jour",

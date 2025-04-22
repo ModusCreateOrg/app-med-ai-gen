@@ -22,6 +22,7 @@ export enum ProcessingStatus {
   PROCESSED = 'processed',
   UNPROCESSED = 'unprocessed',
   IN_PROGRESS = 'in_progress',
+  FAILED = 'failed',
 }
 
 /**
@@ -50,8 +51,11 @@ export interface MedicalReport {
   processingStatus: ProcessingStatus;
   labValues: LabValue[];
   summary: string;
+  confidence: number;
   status: ReportStatus;
   filePath: string;
+  originalFilename: string;
+  fileSize: number;
   createdAt: string; // ISO date string
   updatedAt: string; // ISO date string
 }

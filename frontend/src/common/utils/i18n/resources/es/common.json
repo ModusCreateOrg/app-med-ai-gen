@@ -64,8 +64,11 @@
     "min": "Debe tener al menos {{min}} caracteres. ",
     "oneOf": "Debe ser uno de: {{values}} ",
     "required": "Requerido. ",
-    "required-path": "{{path}} es obligatorio. ",
+    "required-path": "{{path}} es requerido. ",
     "url": "Debe ser una URL. "
+  },
+  "loading": {
+    "report": "Cargando informe..."
   },
   "no": "no",
   "updated": "actualizado",
