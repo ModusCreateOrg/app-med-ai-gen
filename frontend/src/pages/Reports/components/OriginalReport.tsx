@@ -8,6 +8,20 @@ interface OriginalReportProps {
 }
 
 const OriginalReport: React.FC<OriginalReportProps> = ({ reportData }) => {
+  // Function to format file size in KB or MB
+  const formatFileSize = (bytes: number): string => {
+    if (bytes < 1024) return bytes + ' B';
+    else if (bytes < 1048576) return Math.round(bytes / 1024) + ' KB';
+    else return (bytes / 1048576).toFixed(1) + ' MB';
+  };
+
+  // Get filename from originalFilename or fall back to file path
+  const filename =
+    reportData.originalFilename || reportData.filePath.split('/').pop() || 'Unknown file';
+
+  // Format file size if available
+  const fileSize = reportData.fileSize ? formatFileSize(reportData.fileSize) : 'Unknown size';
+
   return (
     <div className="report-detail-page__original-report">
       {/* Test results table */}
@@ -45,6 +59,12 @@ const OriginalReport: React.FC<OriginalReportProps> = ({ reportData }) => {
         ))}
       </div>
 
+      {/* Medical Comments Section */}
+      <div className="report-detail-page__comments-section">
+        <h4 className="report-detail-page__comments-title">Medical Comments:</h4>
+        <div className="report-detail-page__comments-text">{reportData.summary}</div>
+      </div>
+
       {/* Uploaded File Section */}
       <div className="report-detail-page__uploaded-file">
         <h4 className="report-detail-page__uploaded-file-title">Uploaded file</h4>
@@ -53,11 +73,9 @@ const OriginalReport: React.FC<OriginalReportProps> = ({ reportData }) => {
             <Icon icon="filePdf" />
           </div>
           <div className="report-detail-page__file-details">
-            <div className="report-detail-page__file-name">
-              {reportData.filePath.split('/').pop() || 'Exam_11_01_2024.pdf'}
-            </div>
+            <div className="report-detail-page__file-name">{filename}</div>
             <div className="report-detail-page__file-info">
-              <span className="report-detail-page__file-size">92 kb</span>
+              <span className="report-detail-page__file-size">{fileSize}</span>
               <span className="report-detail-page__file-separator">•</span>
               <span className="report-detail-page__file-date">
                 Uploaded ({format(new Date(reportData.createdAt), 'MM/dd/yyyy')})

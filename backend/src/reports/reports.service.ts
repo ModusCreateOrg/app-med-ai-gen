@@ -282,7 +282,20 @@ export class ReportsService {
     }
   }
 
-  async saveReport(filePath: string, userId: string): Promise<Report> {
+  /**
+   * Save a new report to DynamoDB
+   * @param filePath S3 object path of the uploaded file
+   * @param userId User ID of the report owner
+   * @param originalFilename Original filename of the uploaded file
+   * @param fileSize Size of the file in bytes
+   * @returns The saved report
+   */
+  async saveReport(
+    filePath: string,
+    userId: string,
+    originalFilename: string = 'Unknown filename',
+    fileSize: number = 0,
+  ): Promise<Report> {
     if (!filePath) {
       throw new NotFoundException('File URL is required');
     }
@@ -296,6 +309,8 @@ export class ReportsService {
         id: uuidv4(),
         userId,
         filePath,
+        originalFilename,
+        fileSize,
         title: 'New Report',
         bookmarked: false,
         category: '',

@@ -551,28 +551,28 @@
   }
 
   &__comments-section {
-    background-color: #ebecfd;
-    opacity: 0.9;
+    background-color: #F0F2FF;
     border-radius: 16px;
-    padding: 16px;
+    padding: 24px;
     margin-bottom: 16px;
   }
 
   &__comments-title {
     font-family: 'Inter', sans-serif;
-    font-size: 13px;
+    font-size: 18px;
     font-weight: 600;
-    color: #313e4c;
-    margin: 0 0 8px 0;
+    color: #313E4C;
+    margin: 0 0 12px 0;
     letter-spacing: 0.26px;
   }
 
   &__comments-text {
     font-family: 'Inter', sans-serif;
-    font-size: 13px;
-    color: #313e4c;
-    line-height: 20px;
+    font-size: 16px;
+    color: #313E4C;
+    line-height: 24px;
     margin: 0;
+    font-weight: 400;
   }
 
   &__uploaded-file {

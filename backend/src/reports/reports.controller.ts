@@ -157,18 +157,28 @@ export class ReportsController {
           type: 'string',
           description: 'S3 file path for the report',
         },
+        originalFilename: {
+          type: 'string',
+          description: 'Original filename of the uploaded file',
+        },
+        fileSize: {
+          type: 'number',
+          description: 'Size of the file in bytes',
+        },
       },
       required: ['filePath'],
     },
-    description: 'S3 file path for the report',
+    description: 'S3 file path and metadata for the report',
   })
   @Post()
   async createReport(
     @Body('filePath') filePath: string,
+    @Body('originalFilename') originalFilename: string,
+    @Body('fileSize') fileSize: number,
     @Req() request: RequestWithUser,
   ): Promise<Report> {
     const userId = this.extractUserId(request);
-    return this.reportsService.saveReport(filePath, userId);
+    return this.reportsService.saveReport(filePath, userId, originalFilename, fileSize);
   }
 
   private extractUserId(request: RequestWithUser): string {

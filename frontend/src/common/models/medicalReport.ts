@@ -53,6 +53,8 @@ export interface MedicalReport {
   summary: string;
   status: ReportStatus;
   filePath: string;
+  originalFilename: string;
+  fileSize: number;
   createdAt: string; // ISO date string
   updatedAt: string; // ISO date string
 }

@@ -75,6 +75,8 @@ export const uploadReport = async (
       `${API_URL}/api/reports`,
       {
         filePath: s3Key,
+        originalFilename: file.name,
+        fileSize: file.size,
       },
       config,
     );

@@ -60,6 +60,12 @@ export class Report {
   @ApiProperty({ description: 'File path of the report' })
   filePath: string;
 
+  @ApiProperty({ description: 'Original filename of the uploaded file' })
+  originalFilename: string;
+
+  @ApiProperty({ description: 'File size in bytes' })
+  fileSize: number;
+
   @ApiProperty({ description: 'Creation timestamp' })
   createdAt: string;
 
