@@ -88,7 +88,12 @@ const HomePage: React.FC = () => {
     }
 
     return reports.map((report) => (
-      <ReportItem key={report.id} report={report} onClick={() => handleReportClick(report.id)} />
+      <ReportItem
+        key={report.id}
+        report={report}
+        onClick={() => handleReportClick(report.id)}
+        showBookmarkButton={true}
+      />
     ));
   };
 
