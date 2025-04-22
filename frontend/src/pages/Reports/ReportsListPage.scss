@@ -1,8 +1,7 @@
 .reports-list-page {
-  --background: white;
+  --background: url('../../../assets/Reports_bg.png') no-repeat center center;
 
   &__header {
-    background: white;
     box-shadow: none;
 
     ion-toolbar {
