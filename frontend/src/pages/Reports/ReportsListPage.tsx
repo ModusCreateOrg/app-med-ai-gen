@@ -12,6 +12,7 @@ import {
   IonIcon,
   IonButton,
   IonToast,
+  IonModal,
 } from '@ionic/react';
 import { useTranslation } from 'react-i18next';
 import { useHistory } from 'react-router-dom';
@@ -20,11 +21,13 @@ import { fetchAllReports, toggleReportBookmark } from 'common/api/reportService'
 import { useMarkReportAsRead } from 'common/hooks/useReports';
 import ReportItem from 'pages/Home/components/ReportItem/ReportItem';
 import NoReportsMessage from 'pages/Home/components/NoReportsMessage/NoReportsMessage';
-import { useState, useMemo, useEffect } from 'react';
+import { useState, useMemo, useEffect, useRef } from 'react';
 import { MedicalReport } from 'common/models/medicalReport';
 import { documentTextOutline } from 'ionicons/icons';
 import sortSvg from 'assets/icons/sort.svg';
 import filterOutlineIcon from 'assets/icons/filter-outline.svg';
+import FilterPanel, { CategoryOption } from './components/FilterPanel/FilterPanel';
+import CategoryTag from './components/CategoryTag/CategoryTag';
 
 import './ReportsListPage.scss';
 
@@ -41,7 +44,18 @@ const ReportsListPage: React.FC = () => {
   const [filter, setFilter] = useState<FilterOption>('all');
   const [sortDirection, setSortDirection] = useState<SortDirection>('desc'); // Default sort by newest first
   const [showToast, setShowToast] = useState(false);
-  const [toastMessage, setToastMessage] = useState('');
+  const [toastMessage] = useState('');
+  const [showFilterModal, setShowFilterModal] = useState(false);
+  const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
+  const filterModalRef = useRef<HTMLIonModalElement>(null);
+
+  // Define available categories
+  const categories: CategoryOption[] = [
+    { id: 'general', label: t('category.general', { ns: 'report' }) },
+    { id: 'heart', label: t('category.heart', { ns: 'report' }) },
+    { id: 'brain', label: t('category.brain', { ns: 'report' }) },
+    // Add more categories as needed
+  ];
 
   const { data: reports = [], isLoading, isError } = useQuery({
     queryKey: ['reports'],
@@ -50,18 +64,25 @@ const ReportsListPage: React.FC = () => {
 
   const { mutate: markAsRead } = useMarkReportAsRead();
 
-  // Filter and sort reports based on selected filter and sort direction
+  // Filter and sort reports based on selected filter, categories, and sort direction
   const filteredReports = useMemo(() => {
-    // First, filter the reports
-    const filtered = filter === 'all' ? reports : reports.filter(report => report.bookmarked);
+    // First, filter the reports by bookmark status
+    let filtered = filter === 'all' ? reports : reports.filter(report => report.bookmarked);
 
-    // Then, sort the filtered reports by date
+    // Then, filter by selected categories if any are selected
+    if (selectedCategories.length > 0) {
+      filtered = filtered.filter(report =>
+        selectedCategories.includes(report.category.toLowerCase())
+      );
+    }
+
+    // Finally, sort the filtered reports by date
     return [...filtered].sort((a, b) => {
       const dateA = new Date(a.createdAt).getTime();
       const dateB = new Date(b.createdAt).getTime();
       return sortDirection === 'desc' ? dateB - dateA : dateA - dateB;
     });
-  }, [reports, filter, sortDirection]);
+  }, [reports, filter, sortDirection, selectedCategories]);
 
   // Check if there are any bookmarked reports
   const hasBookmarkedReports = useMemo(() => {
@@ -118,8 +139,44 @@ const ReportsListPage: React.FC = () => {
   };
 
   const handleFilterClick = () => {
-    setToastMessage(t('list.filterButton', { ns: 'report' }));
-    setShowToast(true);
+    setShowFilterModal(true);
+  };
+
+  const handleCloseFilterModal = () => {
+    filterModalRef.current?.dismiss();
+  };
+
+  const handleApplyFilters = (categories: string[]) => {
+    setSelectedCategories(categories);
+  };
+
+  const handleRemoveCategory = (categoryId: string) => {
+    setSelectedCategories(prev => prev.filter(id => id !== categoryId));
+  };
+
+  const handleClearAllCategories = () => {
+    setSelectedCategories([]);
+  };
+
+  const getCategoryLabel = (categoryId: string): string => {
+    const category = categories.find(cat => cat.id === categoryId);
+    return category ? category.label : categoryId;
+  };
+
+  const renderCategoryTags = () => {
+    if (selectedCategories.length === 0) return null;
+
+    return (
+      <div className="reports-list-page__category-tags">
+        {selectedCategories.map(categoryId => (
+          <CategoryTag
+            key={categoryId}
+            label={getCategoryLabel(categoryId)}
+            onRemove={() => handleRemoveCategory(categoryId)}
+          />
+        ))}
+      </div>
+    );
   };
 
   const renderReportsList = () => {
@@ -156,6 +213,14 @@ const ReportsListPage: React.FC = () => {
             <div className="reports-list-page__no-bookmarks">
               <h3>{t('list.noBookmarksTitle', { ns: 'report' })}</h3>
               <p>{t('list.noBookmarksMessage', { ns: 'report' })}</p>
+            </div>
+          ) : selectedCategories.length > 0 ? (
+            <div className="reports-list-page__no-matches">
+              <h3>{t('list.noMatchesTitle', { ns: 'report' })}</h3>
+              <p>{t('list.noMatchesMessage', { ns: 'report' })}</p>
+              <IonButton onClick={handleClearAllCategories}>
+                {t('list.clearFilters', { ns: 'report' })}
+              </IonButton>
             </div>
           ) : (
             <NoReportsMessage
@@ -235,12 +300,31 @@ const ReportsListPage: React.FC = () => {
             </div>
           </div>
         )}
+
+        {/* Display selected category tags */}
+        {renderCategoryTags()}
+
         <div className="reports-list-page__content">
           <IonList className="reports-list-page__list" lines="none">
             {renderReportsList()}
           </IonList>
         </div>
       </IonContent>
+
+      {/* Filter Modal */}
+      <IonModal
+        ref={filterModalRef}
+        isOpen={showFilterModal}
+        onDidDismiss={() => setShowFilterModal(false)}
+        className="reports-list-page__filter-modal"
+      >
+        <FilterPanel
+          categories={categories}
+          selectedCategories={selectedCategories}
+          onApply={handleApplyFilters}
+          onClose={handleCloseFilterModal}
+        />
+      </IonModal>
 
       <IonToast
         isOpen={showToast}

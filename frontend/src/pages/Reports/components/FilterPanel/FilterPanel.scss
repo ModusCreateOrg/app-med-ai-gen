@@ -1,0 +1,50 @@
+.filter-panel {
+  padding: 1rem;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  background-color: var(--ion-background-color);
+
+  &__title {
+    font-size: 1.5rem;
+    font-weight: 600;
+    margin-bottom: 1.5rem;
+    color: var(--ion-text-color);
+  }
+
+  &__category-section {
+    flex: 1;
+    margin-bottom: 1rem;
+  }
+
+  &__category-title {
+    font-size: 1.1rem;
+    font-weight: 500;
+    margin-bottom: 1rem;
+    color: var(--ion-text-color);
+  }
+
+  &__category-list {
+    background: transparent;
+  }
+
+  &__category-item {
+    --padding-start: 0;
+    --inner-padding-end: 0;
+    --background: transparent;
+    margin-bottom: 0.5rem;
+  }
+
+  &__actions {
+    padding-bottom: env(safe-area-inset-bottom);
+  }
+
+  &__apply-button {
+    --background: var(--ion-color-primary);
+    --color: white;
+    height: 44px;
+    font-weight: 600;
+    margin: 0;
+    --border-radius: 8px;
+  }
+}
