@@ -6,6 +6,9 @@ import { useEffect, useState, useRef } from 'react';
 import { useAxios } from '../../common/hooks/useAxios';
 import './ProcessingPage.scss';
 import { getAuthConfig } from 'common/api/reportService';
+import ProcessingError from './components/ProcessingError';
+import ProcessingAnimation from './components/ProcessingAnimation';
+
 const API_URL = import.meta.env.VITE_BASE_URL_API || '';
 
 /**
@@ -28,6 +31,13 @@ const ProcessingPage: React.FC = () => {
   const location = useLocation<{ reportId: string }>();
   const reportId = location.state?.reportId;
 
+  const clearStatusCheckInterval = () => {
+    if (statusCheckIntervalRef.current) {
+      window.clearInterval(statusCheckIntervalRef.current);
+      statusCheckIntervalRef.current = null;
+    }
+  };
+
   // Check the status of the report processing
   const checkReportStatus = async () => {
     if (!reportId) return;
@@ -38,34 +48,62 @@ const ProcessingPage: React.FC = () => {
         await getAuthConfig(),
       );
 
-      console.log('Report status:', response.data);
+      const data = response.data;
 
       // If processing is complete, clear the interval and redirect to the report page
-      if (response.data.isComplete) {
+      if (data.isComplete) {
         setIsProcessing(false);
 
         // Clear the interval
-        if (statusCheckIntervalRef.current) {
-          window.clearInterval(statusCheckIntervalRef.current);
-          statusCheckIntervalRef.current = null;
-        }
+        clearStatusCheckInterval();
 
         console.log('Processing complete');
 
         // Redirect to report detail page
         history.push(`/tabs/reports/${reportId}`);
+      } else if (data.status === 'failed') {
+        throw new Error('Processing failed');
       }
     } catch (error) {
-      console.error('Error checking report status:', error);
-      setProcessingError('Failed to check the status of the report. Please try again.');
-      setIsProcessing(false);
-
       // Clear the interval on error
-      if (statusCheckIntervalRef.current) {
-        window.clearInterval(statusCheckIntervalRef.current);
-        statusCheckIntervalRef.current = null;
-      }
+      clearStatusCheckInterval();
+
+      console.error('Error checking report status:', error);
+      setProcessingError('An error occurred while processing the report. Please try again.');
+      setIsProcessing(false);
     }
+  };
+
+  // Process file function - moved outside useEffect to make it callable from buttons
+  const processFile = async () => {
+    if (!reportId) {
+      return;
+    }
+
+    try {
+      // Send POST request to backend API
+      await axios.post(
+        `${API_URL}/api/document-processor/process-file`,
+        { reportId },
+        await getAuthConfig(),
+      );
+
+      // Start checking the status every 2 seconds
+      statusCheckIntervalRef.current = window.setInterval(checkReportStatus, 2000);
+    } catch (error) {
+      console.error('Error processing file:', error);
+      setProcessingError('Failed to process the file. Please try again.');
+      setIsProcessing(false);
+    }
+  };
+
+  // Handle retry attempt
+  const handleRetry = () => {
+    // Reset error state and try processing the same file again
+    setProcessingError(null);
+    setIsProcessing(true);
+    hasInitiatedProcessing.current = false;
+    processFile();
   };
 
   // Send the API request when component mounts
@@ -75,48 +113,13 @@ const ProcessingPage: React.FC = () => {
       return;
     }
 
-    if (!reportId) {
-      setProcessingError('No report ID provided');
-      setIsProcessing(false);
-      hasInitiatedProcessing.current = true; // Mark as initiated even on error
-      return;
-    }
-
     hasInitiatedProcessing.current = true; // Mark as initiated before fetching
-
-    const processFile = async () => {
-      try {
-        // Send POST request to backend API
-        const response = await axios.post(
-          `${API_URL}/api/document-processor/process-file`,
-          { reportId },
-          await getAuthConfig(),
-        );
-
-        console.log('File processing started:', response.data);
-
-        // Start checking the status every 2 seconds
-        statusCheckIntervalRef.current = window.setInterval(checkReportStatus, 2000);
-
-        // Run the first status check immediately
-        checkReportStatus();
-      } catch (error) {
-        console.error('Error processing file:', error);
-        setProcessingError('Failed to process the file. Please try again.');
-        setIsProcessing(false);
-      }
-    };
 
     processFile();
 
     // Clean up the interval when the component unmounts
-    return () => {
-      if (statusCheckIntervalRef.current) {
-        window.clearInterval(statusCheckIntervalRef.current);
-      }
-    };
+    return clearStatusCheckInterval;
   }, [reportId, location, history]);
-
 
   return (
     <IonPage className="processing-page">
@@ -132,36 +135,14 @@ const ProcessingPage: React.FC = () => {
                 testid="processing-user-avatar"
               />
             </div>
-
-            {/* Title section */}
-            <div className="processing-page__title">
-              <p className="processing-page__subtitle">
-                Just a few seconds{firstName && ', ' + firstName}!
-              </p>
-              <h1 className="processing-page__heading">
-                {processingError ? 'Processing Error' : 'Processing Data...'}
-              </h1>
-              {processingError && <p className="processing-page__error">{processingError}</p>}
-            </div>
           </div>
 
-          {/* Animation circle */}
-          {isProcessing && (
-            <div className="processing-page__animation">
-              <div className="processing-page__animation-circle"></div>
-            </div>
-          )}
+          {/* Processing animation */}
+          {isProcessing && <ProcessingAnimation firstName={firstName} />}
 
-          {/* Error state - show retry button */}
+          {/* Error state - shows when processing fails */}
           {processingError && (
-            <div className="processing-page__error-actions">
-              <button
-                className="processing-page__retry-btn"
-                onClick={() => history.push('/tabs/upload')}
-              >
-                Try Again
-              </button>
-            </div>
+            <ProcessingError errorMessage={processingError} onRetry={handleRetry} />
           )}
         </div>
       </IonContent>
