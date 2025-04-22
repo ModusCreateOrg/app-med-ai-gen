@@ -52,9 +52,19 @@
     &-icon {
       font-size: 22px;
       color: #aaa;
+      transition: all 0.2s ease;
+      width: 1em;
+      height: 1em;
+      display: flex;
+      align-items: center;
+      justify-content: center;
 
       &--active {
-        color: #4355b9;
+        color: white;
+        background-color: #4355b9;
+        border-radius: 50%;
+        padding: 8px;
+        box-sizing: content-box;
       }
     }
   }

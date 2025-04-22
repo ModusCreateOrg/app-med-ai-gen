@@ -2,7 +2,7 @@ import { IonIcon } from '@ionic/react';
 import { format } from 'date-fns';
 import { useTranslation } from 'react-i18next';
 import { MedicalReport, ReportCategory } from 'common/models/medicalReport';
-import { bookmark, bookmarkOutline } from 'ionicons/icons';
+import { bookmarkOutline } from 'ionicons/icons';
 import './ReportItem.scss';
 
 // Import SVG icons
@@ -99,7 +99,7 @@ const ReportItem: React.FC<ReportItemProps> = ({
       {showBookmarkButton && (
         <div className="report-item__bookmark" onClick={handleBookmarkClick}>
           <IonIcon
-            icon={bookmarked ? bookmark : bookmarkOutline}
+            icon={bookmarkOutline}
             className={`report-item__bookmark-icon ${
               bookmarked ? 'report-item__bookmark-icon--active' : ''
             }`}
