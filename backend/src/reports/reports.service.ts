@@ -13,6 +13,7 @@ import {
   DynamoDBServiceException,
   PutItemCommand,
   QueryCommand,
+  DeleteItemCommand,
 } from '@aws-sdk/client-dynamodb';
 import { marshall, unmarshall } from '@aws-sdk/util-dynamodb';
 import { Report, ReportStatus, ProcessingStatus } from './models/report.model';
@@ -54,19 +55,24 @@ export class ReportsService {
     this.tableName = this.configService.get<string>('dynamodbReportsTable')!;
   }
 
-  async findAll(userId: string): Promise<Report[]> {
+  async findAll(userId: string, withFailed = false): Promise<Report[]> {
     if (!userId) {
       throw new ForbiddenException('User ID is required');
     }
 
     try {
-      // Use QueryCommand instead of ScanCommand since userId is the partition key
+      const expressionAttributeValues: any = { ':userId': userId };
+      let filterExpression = '';
+
+      if (!withFailed) {
+        filterExpression = ' AND processingStatus <> :failedStatus';
+        expressionAttributeValues[':failedStatus'] = ProcessingStatus.FAILED;
+      }
+
       const command = new QueryCommand({
         TableName: this.tableName,
-        KeyConditionExpression: 'userId = :userId',
-        ExpressionAttributeValues: marshall({
-          ':userId': userId,
-        }),
+        KeyConditionExpression: 'userId = :userId' + filterExpression,
+        ExpressionAttributeValues: marshall(expressionAttributeValues),
       });
 
       const response = await this.dynamoClient.send(command);
@@ -91,7 +97,11 @@ export class ReportsService {
     }
   }
 
-  async findLatest(queryDto: GetReportsQueryDto, userId: string): Promise<Report[]> {
+  async findLatest(
+    queryDto: GetReportsQueryDto,
+    userId: string,
+    withFailed = false,
+  ): Promise<Report[]> {
     this.logger.log(
       `Running findLatest with params: ${JSON.stringify(queryDto)} for user ${userId}`,
     );
@@ -100,22 +110,26 @@ export class ReportsService {
       throw new ForbiddenException('User ID is required');
     }
 
-    // Convert limit to a number to avoid serialization errors
     const limit =
       typeof queryDto.limit === 'string' ? parseInt(queryDto.limit, 10) : queryDto.limit || 10;
 
+    const expressionAttributeValues: any = { ':userId': userId };
+
     try {
-      // Use the GSI userIdCreatedAtIndex with QueryCommand for efficient retrieval
-      // This is much more efficient than a ScanCommand
+      let filterExpression = '';
+
+      if (!withFailed) {
+        filterExpression = ' AND processingStatus <> :failedStatus';
+        expressionAttributeValues[':failedStatus'] = ProcessingStatus.FAILED;
+      }
+
       const command = new QueryCommand({
         TableName: this.tableName,
-        IndexName: 'userIdCreatedAtIndex', // Use the GSI for efficient queries
-        KeyConditionExpression: 'userId = :userId',
-        ExpressionAttributeValues: marshall({
-          ':userId': userId,
-        }),
-        ScanIndexForward: false, // Get items in descending order (newest first)
-        Limit: limit, // Only fetch the number of items we need
+        IndexName: 'userIdCreatedAtIndex',
+        KeyConditionExpression: 'userId = :userId' + filterExpression,
+        ExpressionAttributeValues: marshall(expressionAttributeValues),
+        ScanIndexForward: false,
+        Limit: limit,
       });
 
       const response = await this.dynamoClient.send(command);
@@ -130,22 +144,17 @@ export class ReportsService {
             `Table "${this.tableName}" not found. Please check your database configuration.`,
           );
         } else if (error.name === 'ValidationException') {
-          // This could happen if the GSI doesn't exist
           this.logger.warn('GSI validation error, falling back to standard query');
 
-          // Fallback to standard query and sort in memory if GSI has issues
           const fallbackCommand = new QueryCommand({
             TableName: this.tableName,
             KeyConditionExpression: 'userId = :userId',
-            ExpressionAttributeValues: marshall({
-              ':userId': userId,
-            }),
+            ExpressionAttributeValues: marshall(expressionAttributeValues),
           });
 
           const fallbackResponse = await this.dynamoClient.send(fallbackCommand);
           const reports = (fallbackResponse.Items || []).map(item => unmarshall(item) as Report);
 
-          // Sort by createdAt in descending order
           return reports
             .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
             .slice(0, limit);
@@ -467,6 +476,56 @@ export class ReportsService {
       }
 
       throw new InternalServerErrorException(`Failed to toggle bookmark for report ID ${id}`);
+    }
+  }
+
+  /**
+   * Delete a report by ID
+   * @param reportId Report ID
+   * @param userId User ID
+   * @returns A confirmation message
+   */
+  async deleteReport(reportId: string, userId: string): Promise<string> {
+    if (!reportId) {
+      throw new NotFoundException('Report ID is required');
+    }
+
+    if (!userId) {
+      throw new ForbiddenException('User ID is required');
+    }
+
+    try {
+      const command = new DeleteItemCommand({
+        TableName: this.tableName,
+        Key: marshall({
+          userId,
+          id: reportId,
+        }),
+        ConditionExpression: 'userId = :userId',
+        ExpressionAttributeValues: marshall({
+          ':userId': userId,
+        }),
+      });
+
+      await this.dynamoClient.send(command);
+      this.logger.log(`Successfully deleted report with ID ${reportId} for user ${userId}`);
+
+      return `Report with ID ${reportId} successfully deleted`;
+    } catch (error: unknown) {
+      this.logger.error(`Error deleting report with ID ${reportId}:`);
+      this.logger.error(error);
+
+      if (error instanceof DynamoDBServiceException) {
+        if (error.name === 'ConditionalCheckFailedException') {
+          throw new ForbiddenException('You do not have permission to delete this report');
+        } else if (error.name === 'ResourceNotFoundException') {
+          throw new InternalServerErrorException(
+            `Table "${this.tableName}" not found. Please check your database configuration.`,
+          );
+        }
+      }
+
+      throw new InternalServerErrorException(`Failed to delete report with ID ${reportId}`);
     }
   }
 }

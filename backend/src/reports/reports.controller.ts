@@ -20,7 +20,7 @@ import {
   ApiBody,
 } from '@nestjs/swagger';
 import { ReportsService } from './reports.service';
-import { Report } from './models/report.model';
+import { ProcessingStatus, Report } from './models/report.model';
 import { GetReportsQueryDto } from './dto/get-reports.dto';
 import { UpdateReportStatusDto } from './dto/update-report-status.dto';
 import { RequestWithUser } from '../auth/auth.middleware';
@@ -80,7 +80,17 @@ export class ReportsController {
   @Get(':id')
   async getReport(@Param('id') id: string, @Req() request: RequestWithUser): Promise<Report> {
     const userId = this.extractUserId(request);
-    return this.reportsService.findOne(id, userId);
+    const report = await this.reportsService.findOne(id, userId);
+
+    if (!report) {
+      throw new UnauthorizedException('Report not found');
+    }
+
+    if (report.processingStatus === ProcessingStatus.FAILED) {
+      throw new UnauthorizedException('Processing failed');
+    }
+
+    return report;
   }
 
   @ApiOperation({ summary: 'Update report status' })

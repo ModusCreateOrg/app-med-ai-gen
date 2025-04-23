@@ -25,7 +25,7 @@ const ReportHeader: React.FC<ReportHeaderProps> = ({ reportData, onClose }) => {
       {/* Category & Title */}
       <div className="report-detail-page__category-wrapper">
         <span className="report-detail-page__category">
-          {reportData.category && t(`list.${reportData.category}Category`, { ns: 'report' })}
+          {reportData.category && t(`list.${reportData.category}Category`, { ns: 'reportDetail' })}
         </span>
         <button className="report-detail-page__bookmark-button">
           {reportData.bookmarked ? (
