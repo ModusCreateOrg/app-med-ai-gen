@@ -538,6 +538,9 @@
       }
 
       &--value {
+        display: flex;
+        justify-content: end;
+        align-items: center;
         width: 100px;
         text-align: right;
         font-family: 'Inter', sans-serif;
