@@ -56,7 +56,7 @@ const ReportDetailPage: React.FC = () => {
       <IonPage>
         <IonContent className="ion-padding">
           <div>
-            {t('error.loading.report', { ns: 'errors', errorMessage: (error as Error).message })}
+            {t('loading.report', { ns: 'errors', errorMessage: (error as Error).message })}
           </div>
         </IonContent>
       </IonPage>
@@ -67,7 +67,7 @@ const ReportDetailPage: React.FC = () => {
     return (
       <IonPage>
         <IonContent className="ion-padding">
-          <div>{t('error.no-report-data', { ns: 'errors' })}</div>
+          <div>{t('no-report-data', { ns: 'errors' })}</div>
         </IonContent>
       </IonPage>
     );
