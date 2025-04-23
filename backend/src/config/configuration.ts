@@ -11,9 +11,7 @@ export default () => ({
       clientId: process.env.AWS_COGNITO_CLIENT_ID,
     },
     secretsManager: {
-      perplexityApiKeySecret:
-        process.env.PERPLEXITY_API_KEY_SECRET_NAME ||
-        'medical-reports-explainer/perplexity-api-key',
+      perplexityApiKeySecret: process.env.PERPLEXITY_API_KEY_SECRET_NAME || 'med-ai-perplexity-key',
     },
     aws: {
       accessKeyId: process.env.AWS_ACCESS_KEY_ID,

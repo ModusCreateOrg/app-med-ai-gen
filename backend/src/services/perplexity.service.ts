@@ -79,9 +79,7 @@ export class PerplexityService {
       return this.apiKey;
     }
 
-    const secretName =
-      this.configService.get<string>('aws.secretsManager.perplexityApiKeySecret') ||
-      'medical-reports-explainer/perplexity-api-key';
+    const secretName = this.configService.get<string>('aws.secretsManager.perplexityApiKeySecret');
 
     if (!secretName) {
       throw new Error('Perplexity API key secret name is not configured');
