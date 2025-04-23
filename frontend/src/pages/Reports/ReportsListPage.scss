@@ -1,11 +1,9 @@
 .reports-list-page {
-  --background: url('../../../assets/Reports_bg.png') no-repeat center center;
-
   &__header {
     box-shadow: none;
 
     ion-toolbar {
-      --border-width: 0;
+      --border-width: 0 !important;
       --min-height: 60px;
       padding: 10px 16px;
       display: flex;
@@ -104,7 +102,6 @@
 
   &__content-container {
     --padding-top: 0;
-    --background: var(--ion-background-color);
   }
 
   &__content {
