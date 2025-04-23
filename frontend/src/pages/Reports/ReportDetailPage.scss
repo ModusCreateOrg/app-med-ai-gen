@@ -191,6 +191,52 @@
     align-items: center;
   }
 
+  &__section-empty {
+    padding: 24px 16px 32px;
+    background-color: #fff;
+  }
+
+  &__section-empty-content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+  }
+
+  &__section-empty-icon {
+    background-color: #EEF1FF;
+    border-radius: 50%;
+    width: 90px;
+    height: 90px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 32px;
+
+    img {
+      width: 48px;
+      height: 48px;
+    }
+  }
+
+  &__section-empty-title {
+    font-family: 'Inter', sans-serif;
+    font-size: 18px;
+    font-weight: 600;
+    color: #313e4c;
+    margin: 0 0 16px;
+  }
+
+  &__section-empty-description {
+    font-family: 'Inter', sans-serif;
+    font-size: 14px;
+    font-weight: 400;
+    color: #313e4c;
+    margin: 0;
+    max-width: 286px;
+    line-height: 22px;
+  }
+
   &__item {
     background-color: #ffffff;
     border-radius: 8px;
