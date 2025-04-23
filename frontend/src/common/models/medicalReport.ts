@@ -58,4 +58,5 @@ export interface MedicalReport {
   fileSize: number;
   createdAt: string; // ISO date string
   updatedAt: string; // ISO date string
+  debugMessage?: string; // Optional debug message for the report
 }
