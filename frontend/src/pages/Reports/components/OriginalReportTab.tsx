@@ -2,6 +2,8 @@ import React from 'react';
 import { format } from 'date-fns';
 import Icon from '../../../common/components/Icon/Icon';
 import { MedicalReport } from '../../../common/models/medicalReport';
+import orangeAlertIcon from '../../../assets/icons/orange-alert.svg';
+import redAlertIcon from '../../../assets/icons/red-alert.svg';
 
 interface OriginalReportTabProps {
   reportData: MedicalReport;
@@ -40,20 +42,24 @@ const OriginalReportTab: React.FC<OriginalReportTabProps> = ({ reportData }) => 
 
         {/* Test Results Rows */}
         {reportData.labValues.map((labValue, index) => (
-          <div
-            key={index}
-            className={`report-detail-page__results-row ${
-              labValue.status !== 'normal' ? 'report-detail-page__results-row--flagged' : ''
-            }`}
-          >
+          <div key={index} className="report-detail-page__results-row">
             <div className="report-detail-page__results-cell report-detail-page__results-cell--test">
-              {labValue.name}
+              <p>{labValue.name}</p>
             </div>
             <div className="report-detail-page__results-cell report-detail-page__results-cell--value">
-              {labValue.value} {labValue.unit}
+              {labValue.status !== 'normal' && (
+                <img
+                  src={labValue.status === 'low' ? orangeAlertIcon : redAlertIcon}
+                  style={{ display: 'block', marginRight: '1rem' }}
+                />
+              )}
+
+              <p>
+                {labValue.value} {labValue.unit}
+              </p>
             </div>
             <div className="report-detail-page__results-cell report-detail-page__results-cell--ref">
-              {labValue.normalRange}
+              <p>{labValue.normalRange}</p>
             </div>
           </div>
         ))}

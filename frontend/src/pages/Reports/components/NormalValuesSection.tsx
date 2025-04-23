@@ -4,6 +4,7 @@ import Icon from '../../../common/components/Icon/Icon';
 import { LabValue } from '../../../common/models/medicalReport';
 import LabValueItem from './LabValueItem';
 import normalValuesIcon from '../../../assets/icons/normal-values.svg';
+import noValuesIcon from '../../../assets/icons/no-values.svg';
 
 interface NormalValuesSectionProps {
   normalValues: LabValue[];
@@ -35,7 +36,23 @@ const NormalValuesSection: React.FC<NormalValuesSectionProps> = ({
         </div>
       </div>
 
-      {isExpanded && normalValues.map((item, index) => <LabValueItem key={index} item={item} />)}
+      {isExpanded && normalValues.length === 0 && (
+        <div className="report-detail-page__section-empty">
+          <div className="report-detail-page__section-empty-content">
+            <img src={noValuesIcon} alt="No Values Icon" style={{ marginBottom: '2rem' }} />
+            <h3 className="report-detail-page__section-empty-title">
+              {t('report.normal-values.empty', { ns: 'reportDetail' })}
+            </h3>
+            <p className="report-detail-page__section-empty-description">
+              {t('report.normal-values.empty-description', { ns: 'reportDetail' })}
+            </p>
+          </div>
+        </div>
+      )}
+
+      {isExpanded &&
+        normalValues.length > 0 &&
+        normalValues.map((item, index) => <LabValueItem key={index} item={item} />)}
     </div>
   );
 };

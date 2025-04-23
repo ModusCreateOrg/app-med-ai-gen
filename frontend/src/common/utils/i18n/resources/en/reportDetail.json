@@ -66,7 +66,9 @@
       "title": "Flagged values"
     },
     "normal-values": {
-      "title": "Normal values"
+      "title": "Normal values",
+      "empty": "No values available.",
+      "empty-description": "No normal values within the normal range were detected."
     },
     "conclusion": {
       "title": "Conclusion"

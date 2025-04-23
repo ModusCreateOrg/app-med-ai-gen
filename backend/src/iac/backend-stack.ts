@@ -255,7 +255,7 @@ export class BackendStack extends cdk.Stack {
         DYNAMODB_REPORTS_TABLE: reportsTable.tableName,
 
         // Perplexity related
-        PERPLEXITY_API_KEY_SECRET_NAME: `medical-reports-explainer/${props.environment}/perplexity-api-key`,
+        PERPLEXITY_API_KEY_SECRET_NAME: `med-ai-perplexity-key`,
         PERPLEXITY_MODEL: 'sonar',
         PERPLEXITY_MAX_TOKENS: '2048',
 

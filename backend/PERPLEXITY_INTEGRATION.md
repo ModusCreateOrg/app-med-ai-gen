@@ -28,7 +28,7 @@ export default () => ({
   aws: {
     // ... existing aws config
     secretsManager: {
-      perplexityApiKeySecret: process.env.PERPLEXITY_API_KEY_SECRET_NAME || 'medical-reports-explainer/perplexity-api-key',
+      perplexityApiKeySecret: process.env.PERPLEXITY_API_KEY_SECRET_NAME || 'med-ai-perplexity-key',
     },
   },
   perplexity: {
@@ -68,7 +68,7 @@ The `PerplexityController` exposes the following endpoints:
 1. Create a secret in AWS Secrets Manager:
    ```
    aws secretsmanager create-secret \
-     --name medical-reports-explainer/perplexity-api-key \
+     --name med-ai-perplexity-key \
      --description "Perplexity API Key for Medical Reports Explainer" \
      --secret-string "your-perplexity-api-key"
    ```
@@ -83,7 +83,7 @@ The `PerplexityController` exposes the following endpoints:
          "Action": [
            "secretsmanager:GetSecretValue"
          ],
-         "Resource": "arn:aws:secretsmanager:region:account-id:secret:medical-reports-explainer/perplexity-api-key-*"
+         "Resource": "arn:aws:secretsmanager:region:account-id:secret:med-ai-perplexity-key-*"
        }
      ]
    }
@@ -95,7 +95,7 @@ Configure the following environment variables:
 
 | Variable | Description | Default Value |
 |----------|-------------|---------------|
-| `PERPLEXITY_API_KEY_SECRET_NAME` | Name of the secret in AWS Secrets Manager | `medical-reports-explainer/perplexity-api-key` |
+| `PERPLEXITY_API_KEY_SECRET_NAME` | Name of the secret in AWS Secrets Manager | `med-ai-perplexity-key` |
 | `PERPLEXITY_MODEL` | Perplexity model to use | `mixtral-8x7b-instruct` |
 | `PERPLEXITY_MAX_TOKENS` | Maximum tokens to generate | `2048` |
 | `AWS_REGION` | AWS region for Secrets Manager | `us-east-1` |

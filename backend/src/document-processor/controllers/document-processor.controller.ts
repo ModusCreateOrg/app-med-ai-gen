@@ -182,20 +182,39 @@ export class DocumentProcessorController {
       this.logger.log(`Started async processing for report: ${reportId}`);
 
       // Get the file from S3
-      const fileBuffer = await this.getFileFromS3(filePath);
+      let fileBuffer;
+      try {
+        fileBuffer = await this.getFileFromS3(filePath);
+        this.logger.log(`Successfully retrieved file from S3 for report: ${reportId}`);
+      } catch (error) {
+        const errorMessage = `Failed to retrieve file from S3 for report ${reportId}: ${error instanceof Error ? error.message : 'Unknown error'}`;
+        this.logger.error(errorMessage);
+        await this.failReport(reportId, userId, errorMessage);
+        return;
+      }
 
       // Process the document
-      const result = await this.documentProcessorService.processDocument(fileBuffer, userId);
+      let result;
+      try {
+        result = await this.documentProcessorService.processDocument(fileBuffer, userId);
+        this.logger.log(`Successfully processed document for report: ${reportId}`);
+      } catch (error) {
+        const errorMessage = `Failed to process document for report ${reportId}: ${error instanceof Error ? error.message : 'Unknown error'}`;
+        this.logger.error(errorMessage);
+        await this.failReport(reportId, userId, errorMessage);
+        return;
+      }
 
       // Fetch the report again to ensure we have the latest version
       const report = await this.reportsService.findOne(reportId, userId);
       if (!report) {
-        throw new Error(`Report ${reportId} not found during async processing`);
+        this.logger.error(`Report ${reportId} not found during async processing`);
+        return;
       }
 
       // Update the report with analysis results
-      report.title = result.analysis.title || 'Untitled Report';
-      report.category = result.analysis.category || 'general';
+      report.title = result.analysis.title;
+      report.category = result.analysis.category;
       report.processingStatus = ProcessingStatus.PROCESSED;
 
       // Extract lab values
@@ -214,25 +233,38 @@ export class DocumentProcessorController {
       this.logger.log(`Completed async processing for report: ${reportId}`);
     } catch (error) {
       // If processing fails, update the report status to indicate failure
-      try {
-        const report = await this.reportsService.findOne(reportId, userId);
-        if (report) {
-          report.processingStatus = ProcessingStatus.FAILED;
-          report.updatedAt = new Date().toISOString();
-          await this.reportsService.updateReport(report);
-        }
-      } catch (updateError: unknown) {
-        this.logger.error(
-          `Failed to update report status after processing error: ${
-            updateError instanceof Error ? updateError.message : 'Unknown error'
-          }`,
-        );
-      }
+      const errorMessage = `Error during async processing for report ${reportId}: ${error instanceof Error ? error.message : 'Unknown error'}`;
+      this.logger.error(errorMessage);
+      await this.failReport(reportId, userId, errorMessage);
+    }
+  }
 
+  /**
+   * Updates a report's processing status to FAILED and logs a debug message
+   * @param reportId - ID of the report to update
+   * @param userId - ID of the user who owns the report
+   * @param debugMessage - Optional debug message describing the failure
+   */
+  private async failReport(
+    reportId: string,
+    userId: string,
+    debugMessage: string | undefined = undefined,
+  ): Promise<void> {
+    try {
+      const report = await this.reportsService.findOne(reportId, userId);
+      if (report) {
+        report.processingStatus = ProcessingStatus.FAILED;
+        report.updatedAt = new Date().toISOString();
+        report.debugMessage = debugMessage;
+        await this.reportsService.updateReport(report);
+        this.logger.log(`Updated status of report ${reportId} to FAILED`);
+      }
+    } catch (updateError: unknown) {
       this.logger.error(
-        `Error during async processing for report ${reportId}: ${error instanceof Error ? error.message : 'Unknown error'}`,
+        `Failed to update report status after processing error: ${
+          updateError instanceof Error ? updateError.message : 'Unknown error'
+        }`,
       );
-      throw error;
     }
   }
 
