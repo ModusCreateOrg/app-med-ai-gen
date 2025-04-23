@@ -240,10 +240,10 @@ export class DocumentProcessorController {
   }
 
   /**
-   * Updates a report's processing status
+   * Updates a report's processing status to FAILED and logs a debug message
    * @param reportId - ID of the report to update
    * @param userId - ID of the user who owns the report
-   * @param status - The new processing status
+   * @param debugMessage - Optional debug message describing the failure
    */
   private async failReport(
     reportId: string,
