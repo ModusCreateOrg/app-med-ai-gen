@@ -9,6 +9,7 @@ import {
   Req,
   UnauthorizedException,
   Post,
+  NotFoundException,
 } from '@nestjs/common';
 import {
   ApiTags,
@@ -83,11 +84,11 @@ export class ReportsController {
     const report = await this.reportsService.findOne(id, userId);
 
     if (!report) {
-      throw new UnauthorizedException('Report not found');
+      throw new NotFoundException('Report not found');
     }
 
     if (report.processingStatus === ProcessingStatus.FAILED) {
-      throw new UnauthorizedException('Processing failed');
+      throw new NotFoundException('Processing failed');
     }
 
     return report;
