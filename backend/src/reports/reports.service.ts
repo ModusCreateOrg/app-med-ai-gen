@@ -62,16 +62,16 @@ export class ReportsService {
 
     try {
       const expressionAttributeValues: any = { ':userId': userId };
-      let filterExpression = '';
+      const processingStatusFilter = 'processingStatus <> :failedStatus';
 
       if (!withFailed) {
-        filterExpression = ' AND processingStatus <> :failedStatus';
         expressionAttributeValues[':failedStatus'] = ProcessingStatus.FAILED;
       }
 
       const command = new QueryCommand({
         TableName: this.tableName,
-        KeyConditionExpression: 'userId = :userId' + filterExpression,
+        KeyConditionExpression: 'userId = :userId',
+        FilterExpression: !withFailed ? processingStatusFilter : undefined,
         ExpressionAttributeValues: marshall(expressionAttributeValues),
       });
 
@@ -116,17 +116,17 @@ export class ReportsService {
     const expressionAttributeValues: any = { ':userId': userId };
 
     try {
-      let filterExpression = '';
+      const processingStatusFilter = 'processingStatus <> :failedStatus';
 
       if (!withFailed) {
-        filterExpression = ' AND processingStatus <> :failedStatus';
         expressionAttributeValues[':failedStatus'] = ProcessingStatus.FAILED;
       }
 
       const command = new QueryCommand({
         TableName: this.tableName,
         IndexName: 'userIdCreatedAtIndex',
-        KeyConditionExpression: 'userId = :userId' + filterExpression,
+        KeyConditionExpression: 'userId = :userId',
+        FilterExpression: !withFailed ? processingStatusFilter : undefined,
         ExpressionAttributeValues: marshall(expressionAttributeValues),
         ScanIndexForward: false,
         Limit: limit,
