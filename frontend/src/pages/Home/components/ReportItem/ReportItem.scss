@@ -47,19 +47,21 @@
     display: flex;
     align-items: center;
     justify-content: center;
+    align-self: center;
+    margin-right: 6px;
 
     &-icon {
-      font-size: 22px;
+      font-size: 12px;
       color: #aaa;
       transition: all 0.2s ease;
-      width: 1em;
-      height: 1em;
+      width: 12px;
+      height: 12px;
       display: flex;
       align-items: center;
       justify-content: center;
       background-color: white;
       border-radius: 50%;
-      padding: 8px;
+      padding: 11px;
       box-sizing: content-box;
       box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
 
@@ -72,8 +74,8 @@
   }
 
   &__icon {
-    width: 40px;
-    height: 40px;
+    width: 56px;
+    height: 56px;
     border-radius: 50%;
     display: flex;
     align-items: center;
@@ -89,8 +91,8 @@
     }
 
     img {
-      width: 24px;
-      height: 24px;
+      width: 28px;
+      height: 28px;
       filter: none; /* Remove previous filter that made the SVG white */
     }
   }
