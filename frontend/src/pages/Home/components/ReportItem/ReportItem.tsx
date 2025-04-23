@@ -39,13 +39,13 @@ const ReportItem: React.FC<ReportItemProps> = ({
   // Get category translation key based on category value
   const getCategoryTranslationKey = () => {
     if (categoryStr === ReportCategory.GENERAL.toLowerCase()) {
-      return 'list.generalCategory';
+      return 'category.general';
     } else if (categoryStr === ReportCategory.BRAIN.toLowerCase()) {
-      return 'list.brainCategory';
+      return 'category.brain';
     } else if (categoryStr === ReportCategory.HEART.toLowerCase()) {
-      return 'list.heartCategory';
+      return 'category.heart';
     }
-    return 'list.generalCategory'; // Default to general if not found
+    return 'category.general'; // Default to general if not found
   };
 
   // Get the appropriate icon for the category

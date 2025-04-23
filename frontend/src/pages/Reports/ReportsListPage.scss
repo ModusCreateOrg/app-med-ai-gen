@@ -19,150 +19,116 @@
   }
 
   &__title-icon {
-    margin-right: 12px;
-    color: #333;
-    padding: 8px;
-    background-color: #f0f2f5;
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    width: 18px;
-    height: 18px;
+    font-size: 1.5rem;
+    margin-right: 0.5rem;
+    color: var(--ion-color-primary);
   }
 
   &__title {
-    font-size: 18px;
+    font-size: 1.25rem;
     font-weight: 600;
     margin: 0;
-    color: #333;
   }
 
   &__actions {
     display: flex;
     align-items: center;
-    justify-content: flex-end;
   }
 
   &__sort-button,
   &__filter-button {
-    --padding-start: 0;
-    --padding-end: 0;
+    --padding-start: 0.5rem;
+    --padding-end: 0.5rem;
+    margin: 0;
     height: 36px;
-    width: 36px;
-    --background: transparent;
-    --color: #4355b9;
-    --box-shadow: none;
-    --ripple-color: transparent;
-    margin-left: 10px;
+  }
 
-    .custom-icon-wrapper {
-      width: 36px;
-      height: 36px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      border-radius: 50%;
-      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
-      border: 1px solid rgba(0, 0, 0, 0.03);
-    }
+  .custom-icon-wrapper {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
 
-    .custom-icon {
-      width: 22px;
-      height: 22px;
-    }
+  .custom-icon {
+    width: 20px;
+    height: 20px;
+  }
+
+  &__filter {
+    margin-bottom: 1rem;
+  }
+
+  &__segment-wrapper {
+    padding: 0 1rem;
+  }
+
+  &__category-tags {
+    display: flex;
+    flex-wrap: wrap;
+    padding: 0.75rem 1rem;
+    margin-bottom: 0.5rem;
+    background-color: #f9f9f9;
+    border-bottom: 1px solid var(--ion-color-light);
   }
 
   &__content-container {
     --padding-top: 0;
-  }
-
-  &__filter {
-    padding: 8px 16px;
-  }
-
-  &__segment-wrapper {
-    ion-segment {
-      --background: #ebeef9;
-      border-radius: 50px;
-      height: 40px;
-      overflow: hidden;
-      --border-radius: 50px;
-
-      ion-segment-button {
-        --color: #777;
-        --color-checked: #000;
-        --indicator-color: white;
-        --background-checked: white;
-        --border-radius: 50px;
-        --border-color: transparent;
-        text-transform: none;
-        font-weight: 500;
-        letter-spacing: normal;
-        font-size: 14px;
-        min-height: 36px;
-
-        &::part(indicator) {
-          border-radius: 50px;
-          box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-        }
-      }
-    }
+    --background: var(--ion-background-color);
   }
 
   &__content {
-    padding: 0;
+    padding-bottom: 1rem;
   }
 
   &__list {
-    background-color: transparent;
-    padding: 12px;
-    margin: 0;
-
-    ion-item {
-      --padding-start: 0;
-      --inner-padding-end: 0;
-      --background: transparent;
-    }
+    padding: 0;
+    background: transparent;
   }
 
   &__empty-state {
-    padding: 2rem;
+    height: 100%;
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
+    padding: 2rem;
     text-align: center;
   }
 
-  &__no-bookmarks {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
+  &__no-bookmarks,
+  &__no-matches {
     text-align: center;
-    padding: 2rem 1rem;
+    padding: 2rem;
 
     h3 {
       font-size: 1.2rem;
-      margin-bottom: 0.5rem;
-      color: #333;
       font-weight: 600;
+      margin-bottom: 0.5rem;
     }
 
     p {
-      font-size: 0.9rem;
-      color: #666;
-      margin: 0;
+      color: var(--ion-color-medium);
+      margin-bottom: 1.5rem;
     }
   }
 
-  // Skeleton loading styles
+  &__filter-modal {
+    --height: auto;
+    --width: 100%;
+    --border-radius: 20px 20px 0 0;
+    --box-shadow: 0 -4px 16px rgba(0, 0, 0, 0.1);
+
+    &::part(content) {
+      border-radius: 20px 20px 0 0;
+    }
+  }
+
   .skeleton {
-    width: 48px;
-    height: 48px;
-    border-radius: 50%;
-    background-color: #ebeef9;
-    margin-right: 16px;
+    background-color: rgba(var(--ion-color-medium-rgb), 0.2);
+    border-radius: 4px;
+    height: 40px;
+    width: 40px;
+    margin-right: 1rem;
   }
 }
+
