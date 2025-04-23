@@ -158,7 +158,7 @@ export class PerplexityService {
       'Your goal is to help patients understand their medical reports by translating medical jargon into plain language.\n' +
       'You must be accurate, concise, comprehensive, and easy to understand. Use everyday analogies when helpful.\n';
 
-    const userPrompt = `Please explain the following medical text in simple terms, in a single paragraph that's between 100 to 500 characters:\n\n${medicalText}`;
+    const userPrompt = `Please explain the following medical text in simple terms, in a single paragraph that's between 10 to 200 words, all in normal text NOT .md style, the more concise the better:\n\n${medicalText}`;
 
     const messages: PerplexityMessage[] = [
       { role: 'system', content: systemPrompt },
