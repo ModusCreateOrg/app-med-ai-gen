@@ -187,10 +187,9 @@ export class DocumentProcessorController {
         fileBuffer = await this.getFileFromS3(filePath);
         this.logger.log(`Successfully retrieved file from S3 for report: ${reportId}`);
       } catch (error) {
-        this.logger.error(
-          `Failed to retrieve file from S3 for report ${reportId}: ${error instanceof Error ? error.message : 'Unknown error'}`,
-        );
-        await this.updateReportStatus(reportId, userId, ProcessingStatus.FAILED);
+        const errorMessage = `Failed to retrieve file from S3 for report ${reportId}: ${error instanceof Error ? error.message : 'Unknown error'}`;
+        this.logger.error(errorMessage);
+        await this.failReport(reportId, userId, errorMessage);
         return;
       }
 
@@ -200,10 +199,9 @@ export class DocumentProcessorController {
         result = await this.documentProcessorService.processDocument(fileBuffer, userId);
         this.logger.log(`Successfully processed document for report: ${reportId}`);
       } catch (error) {
-        this.logger.error(
-          `Failed to process document for report ${reportId}: ${error instanceof Error ? error.message : 'Unknown error'}`,
-        );
-        await this.updateReportStatus(reportId, userId, ProcessingStatus.FAILED);
+        const errorMessage = `Failed to process document for report ${reportId}: ${error instanceof Error ? error.message : 'Unknown error'}`;
+        this.logger.error(errorMessage);
+        await this.failReport(reportId, userId, errorMessage);
         return;
       }
 
@@ -235,10 +233,9 @@ export class DocumentProcessorController {
       this.logger.log(`Completed async processing for report: ${reportId}`);
     } catch (error) {
       // If processing fails, update the report status to indicate failure
-      this.logger.error(
-        `Error during async processing for report ${reportId}: ${error instanceof Error ? error.message : 'Unknown error'}`,
-      );
-      await this.updateReportStatus(reportId, userId, ProcessingStatus.FAILED);
+      const errorMessage = `Error during async processing for report ${reportId}: ${error instanceof Error ? error.message : 'Unknown error'}`;
+      this.logger.error(errorMessage);
+      await this.failReport(reportId, userId, errorMessage);
     }
   }
 
@@ -248,20 +245,19 @@ export class DocumentProcessorController {
    * @param userId - ID of the user who owns the report
    * @param status - The new processing status
    */
-  private async updateReportStatus(
+  private async failReport(
     reportId: string,
     userId: string,
-    status: ProcessingStatus,
     debugMessage: string | undefined = undefined,
   ): Promise<void> {
     try {
       const report = await this.reportsService.findOne(reportId, userId);
       if (report) {
-        report.processingStatus = status;
+        report.processingStatus = ProcessingStatus.FAILED;
         report.updatedAt = new Date().toISOString();
         report.debugMessage = debugMessage;
         await this.reportsService.updateReport(report);
-        this.logger.log(`Updated status of report ${reportId} to ${status}`);
+        this.logger.log(`Updated status of report ${reportId} to FAILED`);
       }
     } catch (updateError: unknown) {
       this.logger.error(
