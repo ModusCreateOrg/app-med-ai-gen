@@ -1,11 +1,9 @@
 .reports-list-page {
-  --background: url('../../../assets/Reports_bg.png') no-repeat center center;
-
   &__header {
     box-shadow: none;
 
     ion-toolbar {
-      --border-width: 0;
+      --border-width: 0 !important;
       --min-height: 60px;
       padding: 10px 16px;
       display: flex;
@@ -60,6 +58,37 @@
 
   &__segment-wrapper {
     padding: 0 1rem;
+    margin-top: 4px;
+
+    ion-segment {
+      --background: #EBEEF8;
+      border-radius: 9999px;
+      overflow: hidden;
+      padding: 4px;
+
+      ion-segment-button {
+        --background: #EBEEF8;
+        --background-checked: #FFFFFF;
+        --color: #313E4C;
+        --color-checked: #313E4C;
+        --indicator-color: transparent;
+        --border-radius: 9999px;
+        --border-style: none;
+        font-weight: 500;
+        text-transform: none;
+        min-height: 36px;
+        margin: 0;
+        transition: background-color 0.3s ease;
+
+        &::part(indicator) {
+          display: none;
+        }
+
+        &::part(native) {
+          padding: 6px 16px;
+        }
+      }
+    }
   }
 
   &__category-tags {
@@ -73,7 +102,6 @@
 
   &__content-container {
     --padding-top: 0;
-    --background: var(--ion-background-color);
   }
 
   &__content {

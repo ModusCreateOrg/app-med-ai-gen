@@ -1,4 +1,4 @@
-/* 
+/*
  * Theme overrides for Ionic
  * This file contains overrides for Ionic's default theme variables
  */
@@ -56,6 +56,11 @@
 /* Global safe area padding for all pages */
 ion-content {
   --padding-top: var(--ion-safe-area-top, 1rem);
+}
+
+/* Background for the entire app */
+body, ion-app, ion-content {
+  background: url('../../assets/Reports_bg.png') no-repeat center center !important;
 }
 
 /* Remove left padding from router outlet to avoid double padding */

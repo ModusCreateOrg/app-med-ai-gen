@@ -55,8 +55,8 @@ const ReportItem: React.FC<ReportItemProps> = ({
         <img
           src={getCategoryIconSrc(categoryStr)}
           alt={t(getCategoryTranslationKey(), { ns: 'report' })}
-          width="24"
-          height="24"
+          width="28"
+          height="28"
         />
       </div>
     );
