@@ -171,18 +171,7 @@ export class BackendStack extends cdk.Stack {
         effect: iam.Effect.ALLOW,
         actions: ['secretsmanager:GetSecretValue', 'secretsmanager:DescribeSecret'],
         resources: [
-          `arn:aws:secretsmanager:${this.region}:${this.account}:secret:medical-reports-explainer/${props.environment}/perplexity-api-key-*`,
-        ],
-      }),
-    );
-
-    // Add permission to read Perplexity API key from Secrets Manager
-    taskRole.addToPolicy(
-      new iam.PolicyStatement({
-        effect: iam.Effect.ALLOW,
-        actions: ['secretsmanager:GetSecretValue', 'secretsmanager:DescribeSecret'],
-        resources: [
-          `arn:aws:secretsmanager:${this.region}:${this.account}:secret:med-ai-perplexity-key`,
+          `arn:aws:secretsmanager:${this.region}:${this.account}:secret:med-ai-perplexity-key-*`,
         ],
       }),
     );
