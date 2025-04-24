@@ -15,6 +15,9 @@ export const useGetLatestReports = (limit = 3) => {
   return useQuery({
     queryKey: [LATEST_REPORTS_KEY, limit],
     queryFn: () => fetchLatestReports(limit),
+    refetchOnMount: true,
+    refetchOnWindowFocus: true,
+    staleTime: 0, // Consider data immediately stale so it always refreshes
   });
 };
 

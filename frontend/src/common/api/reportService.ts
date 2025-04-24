@@ -141,14 +141,18 @@ export const fetchAllReports = async (): Promise<MedicalReport[]> => {
  */
 export const markReportAsRead = async (reportId: string): Promise<MedicalReport> => {
   try {
-    const response = await axios.patch(`${API_URL}/api/reports/${reportId}`, {
-      status: 'READ',
-    });
+    const response = await axios.patch(
+      `${API_URL}/api/reports/${reportId}`,
+      {
+        status: 'READ',
+      },
+      await getAuthConfig(),
+    );
 
     return response.data;
   } catch (error) {
     if (axios.isAxiosError(error)) {
-      throw new ReportError(`Failed to mark report as read: ${error.message}`);
+      throw new ReportError(`Failed to mark report as read: ${error.message || 'Unknown error'}`);
     }
     throw new ReportError('Failed to mark report as read');
   }
@@ -176,7 +180,9 @@ export const toggleReportBookmark = async (
     return response.data;
   } catch (error) {
     if (axios.isAxiosError(error)) {
-      throw new ReportError(`Failed to toggle bookmark status: ${error.message}`);
+      throw new ReportError(
+        `Failed to toggle bookmark status: ${error.message || 'Unknown error'}`,
+      );
     }
     throw new ReportError('Failed to toggle bookmark status');
   }

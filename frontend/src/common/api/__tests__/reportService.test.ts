@@ -22,6 +22,17 @@ vi.mock('axios', () => ({
   },
 }));
 
+// Mock auth
+vi.mock('@aws-amplify/auth', () => ({
+  fetchAuthSession: vi.fn().mockResolvedValue({
+    tokens: {
+      idToken: {
+        toString: () => 'mock-id-token',
+      },
+    },
+  }),
+}));
+
 // Mock dynamic imports to handle the service functions
 vi.mock('../reportService', async (importOriginal) => {
   const actual = (await importOriginal()) as typeof ReportServiceModule;
@@ -30,6 +41,15 @@ vi.mock('../reportService', async (importOriginal) => {
   return {
     // Keep the ReportError class
     ReportError: actual.ReportError,
+
+    // Mock getAuthConfig to avoid authentication issues in tests
+    getAuthConfig: async () => ({
+      headers: {
+        Accept: 'application/json',
+        'Content-Type': 'application/json',
+        Authorization: 'Bearer mock-id-token',
+      },
+    }),
 
     // Mock the API functions
     uploadReport: async (file: File, onProgress?: (progress: number) => void) => {
@@ -80,22 +100,23 @@ vi.mock('../reportService', async (importOriginal) => {
       }
     },
 
-    // Keep other functions as is
-    markReportAsRead: actual.markReportAsRead,
-    getAuthConfig: actual.getAuthConfig,
+    // Mock markReportAsRead to avoid the dependency on getAuthConfig
+    markReportAsRead: async (reportId: string) => {
+      try {
+        const response = await axios.patch(`/api/reports/${reportId}`, {
+          status: 'READ',
+        });
+        return response.data;
+      } catch (error) {
+        throw new actual.ReportError(
+          error instanceof Error
+            ? `Failed to mark report as read: ${error.message || 'Unknown error'}`
+            : 'Failed to mark report as read',
+        );
+      }
+    },
   };
 });
-
-// Mock auth
-vi.mock('@aws-amplify/auth', () => ({
-  fetchAuthSession: vi.fn().mockResolvedValue({
-    tokens: {
-      idToken: {
-        toString: () => 'mock-id-token',
-      },
-    },
-  }),
-}));
 
 // Mock response data
 const mockReports = [

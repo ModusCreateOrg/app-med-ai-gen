@@ -59,10 +59,11 @@ const UploadModal = ({ isOpen, onClose, onUploadComplete }: UploadModalProps): J
       // Automatically redirect to processing screen after 2 seconds
       setTimeout(() => {
         reset();
-        onClose();
+
         if (onUploadComplete) {
           onUploadComplete(result);
         }
+
         // Navigate to the processing tab with reportId in state
         if (file) {
           history.push('/tabs/processing', {
@@ -115,6 +116,7 @@ const UploadModal = ({ isOpen, onClose, onUploadComplete }: UploadModalProps): J
     // call onUploadComplete now before closing the modal
     if (status === UploadStatus.SUCCESS && uploadResult && onUploadComplete) {
       onUploadComplete(uploadResult);
+      return;
     }
 
     // Reset state

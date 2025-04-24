@@ -92,6 +92,14 @@ export class ReportsController {
       throw new NotFoundException('Processing failed');
     }
 
+    if (report.processingStatus === ProcessingStatus.IN_PROGRESS) {
+      throw new NotFoundException('Processing in progress');
+    }
+
+    if (report.processingStatus === ProcessingStatus.UNPROCESSED) {
+      throw new NotFoundException('Processing pending');
+    }
+
     return report;
   }
 
