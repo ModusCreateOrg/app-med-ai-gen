@@ -1,6 +1,6 @@
-import { IonContent, IonHeader, IonPage, IonTitle, IonToolbar, IonButton } from '@ionic/react';
+import { IonContent, IonHeader, IonPage, IonTitle, IonToolbar } from '@ionic/react';
 import { useTranslation } from 'react-i18next';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useHistory } from 'react-router-dom';
 import UploadModal from 'common/components/Upload/UploadModal';
 
@@ -10,7 +10,7 @@ import UploadModal from 'common/components/Upload/UploadModal';
  */
 const UploadPage = (): JSX.Element => {
   const { t } = useTranslation();
-  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isModalOpen, setIsModalOpen] = useState(true);
   const history = useHistory();
 
   const handleUploadComplete = () => {
@@ -21,6 +21,16 @@ const UploadPage = (): JSX.Element => {
     history.push('/tabs/home');
   };
 
+  useEffect(() => {
+    // Automatically open the upload modal when the component mounts
+    setIsModalOpen(true);
+
+    // Cleanup function to close the modal when the component unmounts
+    return () => {
+      setIsModalOpen(false);
+    };
+  }, []);
+
   return (
     <IonPage>
       <IonHeader>
@@ -29,15 +39,6 @@ const UploadPage = (): JSX.Element => {
         </IonToolbar>
       </IonHeader>
       <IonContent>
-        <div className="ion-padding">
-          <h1>{t('pages.upload.subtitle')}</h1>
-          <p>{t('pages.upload.description')}</p>
-
-          <IonButton expand="block" className="ion-margin-top" onClick={() => setIsModalOpen(true)}>
-            {t('upload.selectFile')}
-          </IonButton>
-        </div>
-
         <UploadModal
           isOpen={isModalOpen}
           onClose={() => setIsModalOpen(false)}
