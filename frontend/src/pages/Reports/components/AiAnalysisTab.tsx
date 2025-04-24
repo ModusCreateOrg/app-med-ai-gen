@@ -45,11 +45,13 @@ const AiAnalysisTab: React.FC<AiAnalysisTabProps> = ({
       {isLowConfidence && <LowConfidenceNotice />}
 
       {/* Flagged values section */}
-      <FlaggedValuesSection
-        flaggedValues={flaggedValues}
-        isExpanded={flaggedValuesExpanded}
-        onToggle={toggleFlaggedValues}
-      />
+      {flaggedValues.length > 0 && (
+        <FlaggedValuesSection
+          flaggedValues={flaggedValues}
+          isExpanded={flaggedValuesExpanded}
+          onToggle={toggleFlaggedValues}
+        />
+      )}
 
       {/* Normal values section */}
       <NormalValuesSection

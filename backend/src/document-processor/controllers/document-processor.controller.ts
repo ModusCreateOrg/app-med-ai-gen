@@ -143,21 +143,31 @@ export class DocumentProcessorController {
         throw new BadRequestException(`Report with ID ${reportId} has no associated file`);
       }
 
-      // Update report status to IN_PROGRESS before starting async processing
-      report.processingStatus = ProcessingStatus.IN_PROGRESS;
-      report.updatedAt = new Date().toISOString();
-      await this.reportsService.updateReport(report);
+      let message = '';
 
-      // Start async processing in background
-      this.processReportAsync(reportId, userId, report.filePath).catch(error => {
-        this.logger.error(`Async processing failed for report ${reportId}: ${error.message}`);
-      });
+      if (report.processingStatus === ProcessingStatus.IN_PROGRESS) {
+        message = 'Document processing is already in progress. Please check the report status.';
+      } else if (report.processingStatus === ProcessingStatus.PROCESSED) {
+        message = 'Document has already been processed. No further action is needed.';
+      } else {
+        message = 'Document processing started. Check the report status to know when it completes.';
+
+        // Update report status to IN_PROGRESS before starting async processing
+        report.processingStatus = ProcessingStatus.IN_PROGRESS;
+        report.updatedAt = new Date().toISOString();
+        await this.reportsService.updateReport(report);
+
+        // Start async processing in background
+        this.processReportAsync(reportId, userId, report.filePath).catch(error => {
+          this.logger.error(`Async processing failed for report ${reportId}: ${error.message}`);
+        });
+      }
 
       return {
         success: true,
         reportId: report.id,
-        status: ProcessingStatus.IN_PROGRESS,
-        message: 'Document processing started. Check the report status to know when it completes.',
+        status: report.processingStatus,
+        message,
       };
     } catch (error: unknown) {
       this.logger.error(

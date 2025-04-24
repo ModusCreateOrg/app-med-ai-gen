@@ -10,6 +10,7 @@ import {
   UnauthorizedException,
   Post,
   NotFoundException,
+  Delete,
 } from '@nestjs/common';
 import {
   ApiTags,
@@ -190,6 +191,25 @@ export class ReportsController {
   ): Promise<Report> {
     const userId = this.extractUserId(request);
     return this.reportsService.saveReport(filePath, userId, originalFilename, fileSize);
+  }
+
+  @ApiOperation({ summary: 'Delete a report' })
+  @ApiResponse({
+    status: 200,
+    description: 'Report deleted successfully',
+  })
+  @ApiResponse({
+    status: 404,
+    description: 'Report not found',
+  })
+  @ApiParam({
+    name: 'id',
+    description: 'Report ID',
+  })
+  @Delete(':id')
+  async deleteReport(@Param('id') id: string, @Req() request: RequestWithUser): Promise<void> {
+    const userId = this.extractUserId(request);
+    await this.reportsService.deleteReport(id, userId);
   }
 
   private extractUserId(request: RequestWithUser): string {

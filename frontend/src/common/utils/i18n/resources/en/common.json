@@ -80,6 +80,9 @@
   "pages": {
     "chat": {
       "title": "AI Assistant"
+    },
+    "upload": {
+      "title": "Upload Report"
     }
   }
 }
