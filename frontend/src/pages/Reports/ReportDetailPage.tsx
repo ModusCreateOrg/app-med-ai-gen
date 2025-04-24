@@ -80,12 +80,13 @@ const ReportDetailPage: React.FC = () => {
 
   // Handle close button
   const handleClose = () => {
-    history.goBack();
+    history.push('/tabs/home');
   };
 
   // Handle action buttons
-  const handleDiscard = () => {
-    history.goBack();
+  const handleDiscard = async () => {
+    await axios.delete(`${API_URL}/api/reports/${reportId}`, await getAuthConfig());
+    history.push('/tabs/home');
   };
 
   const handleNewUpload = () => {

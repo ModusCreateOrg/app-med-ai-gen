@@ -454,6 +454,18 @@ export class BackendStack extends cdk.Stack {
       },
     });
 
+    const deleteReportIntegration = new apigateway.Integration({
+      type: apigateway.IntegrationType.HTTP_PROXY,
+      integrationHttpMethod: 'DELETE',
+      uri: `${serviceUrl}/api/reports/{id}`,
+      options: {
+        ...integrationOptions,
+        requestParameters: {
+          'integration.request.path.id': 'method.request.path.id',
+        },
+      },
+    });
+
     const patchReportStatusIntegration = new apigateway.Integration({
       type: apigateway.IntegrationType.HTTP_PROXY,
       integrationHttpMethod: 'PATCH',
@@ -511,6 +523,13 @@ export class BackendStack extends cdk.Stack {
     docsResource.addMethod('GET', getDocsIntegration, methodOptions);
     // For path parameter methods, add the request parameter configuration
     reportIdResource.addMethod('GET', getReportByIdIntegration, {
+      ...methodOptions,
+      requestParameters: {
+        'method.request.path.id': true,
+      },
+    });
+
+    reportIdResource.addMethod('DELETE', deleteReportIntegration, {
       ...methodOptions,
       requestParameters: {
         'method.request.path.id': true,
