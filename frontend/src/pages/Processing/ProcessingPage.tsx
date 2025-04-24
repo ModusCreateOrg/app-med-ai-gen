@@ -82,11 +82,20 @@ const ProcessingPage: React.FC = () => {
 
     try {
       // Send POST request to backend API
-      await axios.post(
+      const response = await axios.post(
         `${API_URL}/api/document-processor/process-file`,
         { reportId },
         await getAuthConfig(),
       );
+
+      const data = response.data;
+
+      if (data.status === 'processed') {
+        setIsProcessing(false);
+
+        // Redirect to report detail page
+        history.push(`/tabs/reports/${reportId}`);
+      }
 
       // Start checking the status every 2 seconds
       statusCheckIntervalRef.current = window.setInterval(checkReportStatus, 2000);

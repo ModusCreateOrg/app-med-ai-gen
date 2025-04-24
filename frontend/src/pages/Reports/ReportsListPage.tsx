@@ -15,7 +15,7 @@ import {
   IonModal,
 } from '@ionic/react';
 import { useTranslation } from 'react-i18next';
-import { useHistory } from 'react-router-dom';
+import { useHistory, useLocation } from 'react-router-dom';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { fetchAllReports, toggleReportBookmark } from 'common/api/reportService';
 import { useMarkReportAsRead } from 'common/hooks/useReports';
@@ -40,6 +40,7 @@ type SortDirection = 'desc' | 'asc';
 const ReportsListPage: React.FC = () => {
   const { t } = useTranslation(['report', 'common']);
   const history = useHistory();
+  const location = useLocation();
   const queryClient = useQueryClient();
   const [filter, setFilter] = useState<FilterOption>('all');
   const [sortDirection, setSortDirection] = useState<SortDirection>('desc'); // Default sort by newest first
@@ -61,10 +62,18 @@ const ReportsListPage: React.FC = () => {
     data: reports = [],
     isLoading,
     isError,
+    refetch,
   } = useQuery({
     queryKey: ['reports'],
     queryFn: fetchAllReports,
+    refetchOnMount: true,
   });
+
+  // Refetch reports when navigating to this page
+  useEffect(() => {
+    // This will run when the component mounts or when the location changes
+    refetch();
+  }, [location.pathname, refetch]);
 
   const { mutate: markAsRead } = useMarkReportAsRead();
 
