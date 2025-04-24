@@ -176,6 +176,17 @@ export class BackendStack extends cdk.Stack {
       }),
     );
 
+    // Add permission to read Perplexity API key from Secrets Manager
+    taskRole.addToPolicy(
+      new iam.PolicyStatement({
+        effect: iam.Effect.ALLOW,
+        actions: ['secretsmanager:GetSecretValue', 'secretsmanager:DescribeSecret'],
+        resources: [
+          `arn:aws:secretsmanager:${this.region}:${this.account}:secret:med-ai-perplexity-key`,
+        ],
+      }),
+    );
+
     // Add Amazon Textract permissions for document analysis
     taskRole.addToPolicy(
       new iam.PolicyStatement({
