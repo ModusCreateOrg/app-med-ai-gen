@@ -55,23 +55,23 @@ export class ReportsService {
     this.tableName = this.configService.get<string>('dynamodbReportsTable')!;
   }
 
-  async findAll(userId: string, withFailed = false): Promise<Report[]> {
+  async findAll(userId: string, onlyProcessed = true): Promise<Report[]> {
     if (!userId) {
       throw new ForbiddenException('User ID is required');
     }
 
     try {
       const expressionAttributeValues: any = { ':userId': userId };
-      const processingStatusFilter = 'processingStatus <> :failedStatus';
+      const processingStatusFilter = 'processingStatus = :processedStatus';
 
-      if (!withFailed) {
-        expressionAttributeValues[':failedStatus'] = ProcessingStatus.FAILED;
+      if (onlyProcessed) {
+        expressionAttributeValues[':processedStatus'] = ProcessingStatus.PROCESSED;
       }
 
       const command = new QueryCommand({
         TableName: this.tableName,
         KeyConditionExpression: 'userId = :userId',
-        FilterExpression: !withFailed ? processingStatusFilter : undefined,
+        FilterExpression: onlyProcessed ? processingStatusFilter : undefined,
         ExpressionAttributeValues: marshall(expressionAttributeValues),
       });
 
@@ -100,7 +100,7 @@ export class ReportsService {
   async findLatest(
     queryDto: GetReportsQueryDto,
     userId: string,
-    withFailed = false,
+    onlyProcessed = true,
   ): Promise<Report[]> {
     this.logger.log(
       `Running findLatest with params: ${JSON.stringify(queryDto)} for user ${userId}`,
@@ -116,17 +116,17 @@ export class ReportsService {
     const expressionAttributeValues: any = { ':userId': userId };
 
     try {
-      const processingStatusFilter = 'processingStatus <> :failedStatus';
+      const processingStatusFilter = 'processingStatus = :processedStatus';
 
-      if (!withFailed) {
-        expressionAttributeValues[':failedStatus'] = ProcessingStatus.FAILED;
+      if (onlyProcessed) {
+        expressionAttributeValues[':processedStatus'] = ProcessingStatus.PROCESSED;
       }
 
       const command = new QueryCommand({
         TableName: this.tableName,
         IndexName: 'userIdCreatedAtIndex',
         KeyConditionExpression: 'userId = :userId',
-        FilterExpression: !withFailed ? processingStatusFilter : undefined,
+        FilterExpression: onlyProcessed ? processingStatusFilter : undefined,
         ExpressionAttributeValues: marshall(expressionAttributeValues),
         ScanIndexForward: false,
         Limit: limit,

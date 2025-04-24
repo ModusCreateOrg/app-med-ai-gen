@@ -53,25 +53,27 @@ const UploadModal = ({ isOpen, onClose, onUploadComplete }: UploadModalProps): J
   } = useFileUpload({
     // Override onUploadComplete to store the result and not call the parent immediately
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    onUploadComplete: (result: any) => {
+    onUploadComplete: async (result: any) => {
       setUploadResult(result);
 
-      // Automatically redirect to processing screen after 2 seconds
-      setTimeout(() => {
-        reset();
-        onClose();
-        if (onUploadComplete) {
-          onUploadComplete(result);
-        }
-        // Navigate to the processing tab with reportId in state
-        if (file) {
-          history.push('/tabs/processing', {
-            reportId: result.id,
-          });
-        } else {
-          history.push('/tabs/processing');
-        }
-      }, 2000);
+      // sleep for two seconds
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      await new Promise((resolve: any) => setTimeout(resolve, 2000));
+
+      reset();
+      if (onUploadComplete) {
+        onUploadComplete(result);
+      }
+
+      // Automatically redirect to processing screen
+      // Navigate to the processing tab with reportId in state
+      if (file) {
+        history.push('/tabs/processing', {
+          reportId: result.id,
+        });
+      } else {
+        history.push('/tabs/processing');
+      }
     },
   });
 

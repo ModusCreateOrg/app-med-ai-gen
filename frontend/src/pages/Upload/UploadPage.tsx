@@ -1,7 +1,7 @@
 import { IonContent, IonHeader, IonPage, IonTitle, IonToolbar } from '@ionic/react';
 import { useTranslation } from 'react-i18next';
 import { useEffect, useState } from 'react';
-import { useHistory } from 'react-router-dom';
+import { useHistory, useLocation } from 'react-router-dom';
 import UploadModal from 'common/components/Upload/UploadModal';
 
 /**
@@ -10,26 +10,25 @@ import UploadModal from 'common/components/Upload/UploadModal';
  */
 const UploadPage = (): JSX.Element => {
   const { t } = useTranslation();
-  const [isModalOpen, setIsModalOpen] = useState(true);
+  const [isModalOpen, setIsModalOpen] = useState(false);
   const history = useHistory();
+  const location = useLocation();
 
-  const handleUploadComplete = () => {
-    // Close the modal
+  const handleUploadComplete = () => setIsModalOpen(false);
+
+  const handleCloseComplete = () => {
     setIsModalOpen(false);
-
-    // Navigate to home page to see the newly uploaded report
     history.push('/tabs/home');
   };
 
   useEffect(() => {
-    // Automatically open the upload modal when the component mounts
     setIsModalOpen(true);
 
     // Cleanup function to close the modal when the component unmounts
     return () => {
       setIsModalOpen(false);
     };
-  }, []);
+  }, [location.pathname]);
 
   return (
     <IonPage>
@@ -41,7 +40,7 @@ const UploadPage = (): JSX.Element => {
       <IonContent>
         <UploadModal
           isOpen={isModalOpen}
-          onClose={() => setIsModalOpen(false)}
+          onClose={handleCloseComplete}
           onUploadComplete={handleUploadComplete}
         />
       </IonContent>
