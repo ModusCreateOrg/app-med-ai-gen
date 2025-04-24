@@ -20,7 +20,7 @@ export enum UploadStatus {
 }
 
 interface UseFileUploadOptions {
-  onUploadComplete?: (result: MedicalReport) => Promise<void>;
+  onUploadComplete?: (result: MedicalReport) => void;
 }
 
 interface UseFileUploadResult {
@@ -183,7 +183,7 @@ export const useFileUpload = ({
       setStatus(UploadStatus.SUCCESS);
 
       if (onUploadComplete) {
-        await onUploadComplete(result);
+        onUploadComplete(result);
       }
     } catch (error) {
       handleUploadError(error as Error, signal);
