@@ -103,7 +103,7 @@ vi.mock('../reportService', async (importOriginal) => {
     // Mock markReportAsRead to avoid the dependency on getAuthConfig
     markReportAsRead: async (reportId: string) => {
       try {
-        const response = await axios.patch(`/api/reports/${reportId}`, {
+        const response = await axios.patch(`/api/reports/${reportId}/status`, {
           status: 'READ',
         });
         return response.data;
