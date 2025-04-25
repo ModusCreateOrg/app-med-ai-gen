@@ -8,6 +8,21 @@ export interface PerplexityMessage {
   content: string;
 }
 
+export interface PerplexityToolFunction {
+  name: string;
+  description?: string;
+  parameters: Record<string, any>;
+}
+
+export interface PerplexityTool {
+  type: 'function';
+  function: PerplexityToolFunction;
+}
+
+export interface PerplexityResponseFormat {
+  type: 'text' | 'json_object';
+}
+
 export interface PerplexityRequest {
   model: string;
   messages: PerplexityMessage[];
@@ -18,6 +33,17 @@ export interface PerplexityRequest {
   presence_penalty?: number;
   frequency_penalty?: number;
   stream?: boolean;
+  tools?: PerplexityTool[];
+  response_format?: PerplexityResponseFormat;
+}
+
+export interface PerplexityToolCall {
+  id: string;
+  type: string;
+  function: {
+    name: string;
+    arguments: string;
+  };
 }
 
 export interface PerplexityResponse {
@@ -32,6 +58,7 @@ export interface PerplexityResponse {
     completion_tokens: number;
     total_tokens: number;
   };
+  tool_calls?: PerplexityToolCall[];
 }
 
 /**
@@ -104,6 +131,12 @@ export class PerplexityService {
       model?: string;
       maxTokens?: number;
       temperature?: number;
+      topP?: number;
+      topK?: number;
+      presencePenalty?: number;
+      frequencyPenalty?: number;
+      tools?: PerplexityTool[];
+      responseFormat?: PerplexityResponseFormat;
     },
   ): Promise<PerplexityResponse> {
     try {
@@ -115,6 +148,16 @@ export class PerplexityService {
         max_tokens: options?.maxTokens || this.defaultMaxTokens,
         temperature: options?.temperature || 0.7,
       };
+
+      // Add optional parameters if provided
+      if (options?.topP !== undefined) request.top_p = options.topP;
+      if (options?.topK !== undefined) request.top_k = options.topK;
+      if (options?.presencePenalty !== undefined)
+        request.presence_penalty = options.presencePenalty;
+      if (options?.frequencyPenalty !== undefined)
+        request.frequency_penalty = options.frequencyPenalty;
+      if (options?.tools) request.tools = options.tools;
+      if (options?.responseFormat) request.response_format = options.responseFormat;
 
       const response = await axios.post<PerplexityResponse>(
         `${this.baseUrl}/chat/completions`,
@@ -137,6 +180,68 @@ export class PerplexityService {
       const errorMessage = error instanceof Error ? error.message : 'Unknown error';
       this.logger.error(`Failed to create chat completion: ${errorMessage}`);
       throw new Error('Failed to create chat completion');
+    }
+  }
+
+  /**
+   * Queries the Perplexity AI API with streaming responses
+   * @returns A readable stream of the response
+   */
+  async createStreamingChatCompletion(
+    messages: PerplexityMessage[],
+    options?: {
+      model?: string;
+      maxTokens?: number;
+      temperature?: number;
+      topP?: number;
+      topK?: number;
+      presencePenalty?: number;
+      frequencyPenalty?: number;
+      tools?: PerplexityTool[];
+      responseFormat?: PerplexityResponseFormat;
+    },
+  ): Promise<ReadableStream> {
+    try {
+      const apiKey = await this.getApiKey();
+
+      const request: PerplexityRequest = {
+        model: options?.model || this.defaultModel,
+        messages,
+        max_tokens: options?.maxTokens || this.defaultMaxTokens,
+        temperature: options?.temperature || 0.7,
+        stream: true,
+      };
+
+      // Add optional parameters if provided
+      if (options?.topP !== undefined) request.top_p = options.topP;
+      if (options?.topK !== undefined) request.top_k = options.topK;
+      if (options?.presencePenalty !== undefined)
+        request.presence_penalty = options.presencePenalty;
+      if (options?.frequencyPenalty !== undefined)
+        request.frequency_penalty = options.frequencyPenalty;
+      if (options?.tools) request.tools = options.tools;
+      if (options?.responseFormat) request.response_format = options.responseFormat;
+
+      const response = await axios.post(`${this.baseUrl}/chat/completions`, request, {
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${apiKey}`,
+        },
+        responseType: 'stream',
+      });
+
+      return response.data;
+    } catch (error: unknown) {
+      if (axios.isAxiosError(error)) {
+        this.logger.error(
+          `Perplexity API streaming error: ${error.response?.status} - ${error.message}`,
+        );
+        throw new Error(`Perplexity API streaming error: ${error.message}`);
+      }
+
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+      this.logger.error(`Failed to create streaming chat completion: ${errorMessage}`);
+      throw new Error('Failed to create streaming chat completion');
     }
   }
 
@@ -174,25 +279,19 @@ export class PerplexityService {
     this.logger.log('Reviewing medical document analysis with Perplexity');
 
     const systemPrompt =
-      'You are an AI assistant specializing in medical information verification.\n' +
-      'Your task is to review a medical document analysis and verify it against trusted medical sources.\n' +
-      'You must ensure all information is accurate, especially lab value reference ranges and interpretations.\n' +
-      'Use authoritative medical sources like Mayo Clinic, Cleveland Clinic, CDC, NIH, WHO, and medical journals.\n';
+      'Medical information verification specialist. Verify analysis against trusted sources (Mayo Clinic, Cleveland Clinic, CDC, NIH, WHO, medical journals). Ensure accuracy of lab ranges, interpretations, and recommendations. Return only corrected JSON.';
 
     const analysisJson = JSON.stringify(analysis, null, 2);
 
     const userPrompt =
-      `Please review the following medical document analysis for accuracy and completeness. ` +
-      `Check if the lab value reference ranges, interpretations, and recommendations align with trusted medical sources. ` +
-      `Focus on these key aspects:\n` +
-      `1. Verify lab value reference ranges\n` +
-      `2. Confirm interpretations of abnormal values\n` +
-      `3. Validate medical conclusions and recommendations\n` +
-      `4. Ensure all lab values are correctly categorized\n\n` +
-      `If you find any discrepancies, provide corrections in your response by returning the corrected JSON directly.\n\n` +
-      `Medical Document Analysis:\n${analysisJson}\n\n` +
-      `Original Medical Document Text:\n${originalText}\n\n` +
-      `Return the corrected JSON analysis with the same structure, no preamble or explanation needed.`;
+      `Review this medical analysis for accuracy. Verify:\n` +
+      `1. Lab value reference ranges\n` +
+      `2. Interpretations of abnormal values\n` +
+      `3. Medical conclusions and recommendations\n` +
+      `4. Lab value categorizations\n\n` +
+      `Analysis JSON:\n${analysisJson}\n\n` +
+      `Original Text:\n${originalText}\n\n` +
+      `Return ONLY corrected JSON with identical structure. No preamble, explanation, or text before/after JSON.`;
 
     const messages: PerplexityMessage[] = [
       { role: 'system', content: systemPrompt },
@@ -203,6 +302,7 @@ export class PerplexityService {
       const response = await this.createChatCompletion(messages, {
         temperature: 0.3, // Lower temperature for more accurate/factual responses
         maxTokens: 4000, // Ensure there's enough space for the full corrected analysis
+        responseFormat: { type: 'json_object' }, // Use JSON mode for reliable JSON response
       });
 
       // Parse the response to get the corrected analysis

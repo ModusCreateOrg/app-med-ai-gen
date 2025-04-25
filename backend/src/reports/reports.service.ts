@@ -376,21 +376,51 @@ export class ReportsService {
     }
 
     try {
+      // First check if the report exists and belongs to the user
+      await this.findOne(report.id, report.userId);
+
+      // Set the updatedAt timestamp
+      report.updatedAt = new Date().toISOString();
+
       // Update report in DynamoDB
-      const command = new PutItemCommand({
+      const command = new UpdateItemCommand({
         TableName: this.tableName,
-        Item: marshall(report),
-        ConditionExpression: 'userId = :userId',
+        Key: marshall({
+          userId: report.userId, // Partition key
+          id: report.id, // Sort key
+        }),
+        UpdateExpression:
+          'SET title = :title, bookmarked = :bookmarked, category = :category, ' +
+          'processingStatus = :processingStatus, labValues = :labValues, summary = :summary, ' +
+          'confidence = :confidence, status = :status, updatedAt = :updatedAt',
+        ConditionExpression: 'userId = :userId', // Ensure the report belongs to the user
         ExpressionAttributeValues: marshall({
+          ':title': report.title,
+          ':bookmarked': report.bookmarked,
+          ':category': report.category,
+          ':processingStatus': report.processingStatus,
+          ':labValues': report.labValues,
+          ':summary': report.summary,
+          ':confidence': report.confidence,
+          ':status': report.status,
+          ':updatedAt': report.updatedAt,
           ':userId': report.userId,
         }),
+        ReturnValues: 'ALL_NEW',
       });
 
-      await this.dynamoClient.send(command);
-      this.logger.log(`Successfully updated report with ID ${report.id}`);
+      const response = await this.dynamoClient.send(command);
 
-      return report;
+      if (!response.Attributes) {
+        return report; // Return the updated report if no Attributes returned
+      }
+
+      return unmarshall(response.Attributes) as Report;
     } catch (error: unknown) {
+      if (error instanceof NotFoundException) {
+        throw error;
+      }
+
       this.logger.error(`Error updating report with ID ${report.id}:`);
       this.logger.error(error);
 

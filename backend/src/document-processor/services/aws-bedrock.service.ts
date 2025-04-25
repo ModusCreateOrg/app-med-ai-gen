@@ -45,30 +45,17 @@ export class AwsBedrockService {
   private readonly inferenceProfileArn?: string;
 
   // Medical document analysis prompt
-  private readonly medicalAnalysisPrompt = `Please analyze this medical document carefully, with specific attention to medical lab reports.
+  private readonly medicalAnalysisPrompt = `Analyze this medical document with focus on lab reports. Extract:
 
-Look for and extract the following information:
-1. Document title or main subject based on content
-2. Document category based on organ system focus
-3. Lab test values with their normal ranges and whether they are normal, high, or low (particularly important for blood work, metabolic panels, etc.)
-4. Any diagnoses, findings, or medical observations with details and recommendations
-5. Analyze if this is a medical document (lab report, test result, medical chart, prescription, etc.) and provide confidence level
+1. Title/subject from content
+2. Category: "heart" (cardiac focus), "brain" (neurological focus), or "general" (all else)
+3. Lab values with ranges and status (normal/high/low)
+4. Diagnoses, findings, and recommendations
+5. Medical document verification with confidence level
 
-This document may be a lab report showing blood work or other test results, so please pay special attention to tables, numeric values, reference ranges, and medical terminology.
+Reference trusted sources: Mayo Clinic, Cleveland Clinic, CDC, NIH, WHO, AMA, etc.
 
-IMPORTANT: Base your analysis on information from multiple trusted medical sources and authorities, including but not limited to:
-- Mayo Clinic
-- Cleveland Clinic
-- CDC (Centers for Disease Control and Prevention)
-- NIH (National Institutes of Health)
-- WHO (World Health Organization)
-- American Medical Association
-- American Heart Association
-- American Academy of Pediatrics
-- UpToDate
-- MedlinePlus
-
-Format the response as a JSON object with the following structure:
+Return ONLY a JSON object with this structure:
 {
   "title": string,
   "category": string,
@@ -81,89 +68,25 @@ Format the response as a JSON object with the following structure:
   }
 }
 
-For the title field, create a concise title that summarizes what the document is about (e.g., "Complete Blood Count Results", "Liver Function Test", "MRI Report").
-For the category field, you MUST choose exactly one of these three values:
-- "heart" - if the document focuses primarily on cardiac/cardiovascular issues or tests
-- "brain" - if the document focuses primarily on neurological issues or brain-related tests
-- "general" - for all other medical documents, or when the focus spans multiple systems
+For lab values:
+- Set "isCritical" to true for urgent medical situations
+- Provide brief "conclusion" about what the value means for health
+- Add brief "suggestions" based on the value
+- If reference ranges are missing, add "reference-ranges-missing" to missingInformation and use standard ranges
 
-Set isMedicalReport to true if you see ANY medical content such as lab values, medical terminology, doctor's notes, or prescription information.
-Set confidence between 0 and 1 based on document clarity and how confident you are about the medical nature of the document.
+CRITICAL FORMATTING RULES:
+- Begin immediately with { and end with }
+- No text before/after the JSON
+- No introduction, explanations, code blocks, or comments
+- No nested JSON or definition fields
+- Empty arrays ([]) for null fields
+- No "term" fields with phrases like "Here is the information extracted"
 
-
-This is extremely important: If you see ANY lab values, numbers with units, or medical terminology, please consider this a medical document even if you're not 100% certain. 
-
-When extracting lab values:
-1. Look for tables with numeric values and reference ranges
-2. Include any values even if you're not sure of the meaning
-3. For each lab value, use "status" field with values "normal", "high", or "low" based on whether the value falls within, above, or below the normal range
-4. Set "isCritical" to true when the value indicates an urgent medical situation. Set it to false for values that are normal or only slightly abnormal.
-5. Include a "conclusion" field that provides a brief interpretation of what this value indicates about the patient's health
-6. Include a "suggestions" field that provides brief recommendations based on this value
-7. IMPORTANT: If reference ranges are missing from the document, add "reference-ranges-missing" to the missingInformation array in metadata, and use standard reference ranges from trusted medical sources to determine the status.
-
-EXTREMELY IMPORTANT FORMATTING INSTRUCTIONS:
-1. ABSOLUTELY DO NOT START YOUR RESPONSE WITH ANY TEXT. Begin immediately with the JSON object.
-2. Return ONLY the JSON object without any introduction, explanation, or text like "This appears to be a medical report..." 
-3. Do NOT include phrases like "Here is the information" or "formatted in the requested JSON structure"
-4. Do NOT write any text before the opening brace { or after the closing brace }
-5. Do NOT wrap the JSON in code blocks or add comments
-6. Do NOT nest JSON inside other JSON fields
-7. Start your response with the opening brace { and end with the closing brace }
-8. CRITICAL: Do NOT place JSON data inside a definition field or any other field. Return only the direct JSON format requested.
-9. Do NOT put explanatory text about how you structured the analysis inside the JSON.
-10. Always provide empty arrays ([]) rather than null for empty fields.
-11. YOU MUST NOT create a "term" called "Here is the information extracted" or similar phrases.
-12. NEVER put actual data inside a "definition" field of a medical term.
-
-YOU REPEATEDLY MAKE THESE MISTAKES:
-- You create a "term" field with text like "Here is the information extracted"
-- You start your response with "This appears to be a medical report..."
-- You write "Here is the information extracted in the requested JSON format:" before the JSON
-- THESE ARE WRONG and cause our system to fail
-
-INCORRECT RESPONSE FORMATS (DO NOT DO THESE):
-
-1) DO NOT DO THIS - Adding explanatory text before JSON:
-"This appears to be a medical report. Here is the information extracted in the requested JSON format:
-
-{
-  \"category\": \"heart\",
-  ...
-}"
-
-2) DO NOT DO THIS - Nested JSON:
-{
-  "labValues": [
-    {
-      "name": "Here is the information extracted",
-      "value": "{\"labValues\": [{\"name\": \"RBC\", \"value\": \"14.2\"}]}"
-    }
-  ]
-}
-
-CORRECT FORMAT (DO THIS):
-{
-  "title": "Complete Blood Count Results",
-  "category": "heart",
-  "labValues": [
-    {
-      "name": "Hemoglobin", 
-      "value": "14.2", 
-      "unit": "g/dL", 
-      "normalRange": "13.5-17.5", 
-      "status": "normal",
-      "isCritical": false,
-      "conclusion": "Normal hemoglobin levels indicate adequate oxygen-carrying capacity.",
-      "suggestions": "Continue regular health maintenance."
-    }
-  ],
-  "diagnoses": [...],
-  "metadata": {...}
-}
-
-If any information is not visible or unclear in the document, list those items in the missingInformation array.
-Ensure all visible medical terms are explained in plain language. Mark lab values as abnormal if they fall outside the normal range.
+Common errors to avoid:
+- Adding explanatory text before JSON
+- Starting with "This appears to be a medical report..."
+- Creating nested JSON structures
+- Placing data inside definition fields
 
 Document text:
 `;
