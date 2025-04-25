@@ -39,6 +39,12 @@ const ProcessingPage: React.FC = () => {
     }
   };
 
+  const setError = (heading: string | null, message: string | null) => {
+    setErrorHeading(heading);
+    setProcessingError(message);
+    setIsProcessing(false);
+  };
+
   // Check the status of the report processing
   const checkReportStatus = async () => {
     if (!reportId) return;
@@ -69,17 +75,14 @@ const ProcessingPage: React.FC = () => {
       } else if (data.isMedicalReport === false) {
         setIsProcessing(false);
         clearStatusCheckInterval();
-        setErrorHeading(missingDataHeading);
-        setProcessingError(missingDataMessage);
+        setError(missingDataHeading, missingDataMessage);
       } else if (data.status === 'failed') {
         throw new Error(failedMessage);
       }
     } catch (error) {
       setIsProcessing(false);
       clearStatusCheckInterval();
-
-      setErrorHeading(failedHeading);
-      setProcessingError(error instanceof Error ? error.message : failedMessage);
+      setError(failedHeading, error instanceof Error ? error.message : failedMessage);
     }
   };
 
@@ -110,7 +113,7 @@ const ProcessingPage: React.FC = () => {
       statusCheckIntervalRef.current = window.setInterval(checkReportStatus, 2000);
     } catch (error) {
       console.error('Error processing file:', error);
-      setProcessingError('Failed to process the file. Please try again.');
+      setError('Processing Error', 'Failed to process the file. Please try again.');
       setIsProcessing(false);
     }
   };
@@ -118,7 +121,7 @@ const ProcessingPage: React.FC = () => {
   // Handle retry attempt
   const execute = () => {
     // Reset error state and try processing the same file again
-    setProcessingError(null);
+    setError(null, null);
     setIsProcessing(true);
     lastTriggeredTime.current = Date.now();
     processFile();
