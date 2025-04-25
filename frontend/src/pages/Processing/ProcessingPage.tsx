@@ -77,12 +77,12 @@ const ProcessingPage: React.FC = () => {
         clearStatusCheckInterval();
         setError(missingDataHeading, missingDataMessage);
       } else if (data.status === 'failed') {
-        throw new Error(failedMessage);
+        throw new Error();
       }
-    } catch (error) {
+    } catch {
       setIsProcessing(false);
       clearStatusCheckInterval();
-      setError(failedHeading, error instanceof Error ? error.message : failedMessage);
+      setError(failedHeading, failedMessage);
     }
   };
 
