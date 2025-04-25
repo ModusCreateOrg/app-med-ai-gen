@@ -98,7 +98,7 @@ export class PerplexityService {
   /**
    * Queries the Perplexity AI API
    */
-  async queryPerplexityAI(
+  async createChatCompletion(
     messages: PerplexityMessage[],
     options?: {
       model?: string;
@@ -159,7 +159,7 @@ export class PerplexityService {
       { role: 'user', content: userPrompt },
     ];
 
-    const response = await this.queryPerplexityAI(messages);
+    const response = await this.createChatCompletion(messages);
     return response.choices[0].message.content.trim();
   }
 
@@ -200,7 +200,7 @@ export class PerplexityService {
     ];
 
     try {
-      const response = await this.queryPerplexityAI(messages, {
+      const response = await this.createChatCompletion(messages, {
         temperature: 0.3, // Lower temperature for more accurate/factual responses
         maxTokens: 4000, // Ensure there's enough space for the full corrected analysis
       });
