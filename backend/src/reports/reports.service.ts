@@ -287,6 +287,18 @@ export class ReportsService {
           throw new InternalServerErrorException(
             `Table "${this.tableName}" not found. Please check your database configuration.`,
           );
+        } else if (error.name === 'ValidationException') {
+          this.logger.error(
+            `DynamoDB validation error updating status for report ID ${id}: ${error.message}`,
+          );
+          throw new InternalServerErrorException(
+            `Validation error updating report status: ${error.message}`,
+          );
+        } else if (error.name === 'ProvisionedThroughputExceededException') {
+          this.logger.warn(`DynamoDB throughput exceeded for report ID ${id}`);
+          throw new InternalServerErrorException(
+            'Database capacity limit reached, please try again later',
+          );
         }
       }
 
@@ -390,10 +402,21 @@ export class ReportsService {
           id: report.id, // Sort key
         }),
         UpdateExpression:
-          'SET title = :title, bookmarked = :bookmarked, category = :category, ' +
-          'processingStatus = :processingStatus, labValues = :labValues, summary = :summary, ' +
-          'confidence = :confidence, status = :status, updatedAt = :updatedAt',
+          'SET #title = :title, #bookmarked = :bookmarked, #category = :category, ' +
+          '#processingStatus = :processingStatus, #labValues = :labValues, #summary = :summary, ' +
+          '#confidence = :confidence, #status = :status, #updatedAt = :updatedAt',
         ConditionExpression: 'userId = :userId', // Ensure the report belongs to the user
+        ExpressionAttributeNames: {
+          '#title': 'title',
+          '#bookmarked': 'bookmarked',
+          '#category': 'category',
+          '#processingStatus': 'processingStatus',
+          '#labValues': 'labValues',
+          '#summary': 'summary',
+          '#confidence': 'confidence',
+          '#status': 'status',
+          '#updatedAt': 'updatedAt',
+        },
         ExpressionAttributeValues: marshall({
           ':title': report.title,
           ':bookmarked': report.bookmarked,
@@ -430,6 +453,18 @@ export class ReportsService {
         } else if (error.name === 'ResourceNotFoundException') {
           throw new InternalServerErrorException(
             `Table "${this.tableName}" not found. Please check your database configuration.`,
+          );
+        } else if (error.name === 'ValidationException') {
+          this.logger.error(
+            `DynamoDB validation error for report ID ${report.id}: ${error.message}`,
+          );
+          throw new InternalServerErrorException(
+            `Validation error updating report: ${error.message}`,
+          );
+        } else if (error.name === 'ProvisionedThroughputExceededException') {
+          this.logger.warn(`DynamoDB throughput exceeded for report ID ${report.id}`);
+          throw new InternalServerErrorException(
+            'Database capacity limit reached, please try again later',
           );
         }
       }
@@ -504,6 +539,18 @@ export class ReportsService {
         } else if (error.name === 'ResourceNotFoundException') {
           throw new InternalServerErrorException(
             `Table "${this.tableName}" not found. Please check your database configuration.`,
+          );
+        } else if (error.name === 'ValidationException') {
+          this.logger.error(
+            `DynamoDB validation error toggling bookmark for report ID ${id}: ${error.message}`,
+          );
+          throw new InternalServerErrorException(
+            `Validation error toggling bookmark: ${error.message}`,
+          );
+        } else if (error.name === 'ProvisionedThroughputExceededException') {
+          this.logger.warn(`DynamoDB throughput exceeded for report ID ${id}`);
+          throw new InternalServerErrorException(
+            'Database capacity limit reached, please try again later',
           );
         }
       }
