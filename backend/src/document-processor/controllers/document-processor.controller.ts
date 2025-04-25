@@ -38,10 +38,7 @@ export class DocumentProcessorController {
     }
 
     // Extract userId from the request (attached by auth middleware)
-    const userId = request.user?.sub;
-    if (!userId) {
-      throw new UnauthorizedException('User ID not found in request');
-    }
+    const userId = this.extractUserId(request);
 
     this.logger.log(`Queueing document for processing, report ID: ${reportId}`);
 
@@ -138,11 +135,9 @@ export class DocumentProcessorController {
       }
 
       if (!result.analysis.metadata.isMedicalReport) {
-        this.logger.log(`Report ${reportId} is not a medical report.`);
-        report.processingStatus = ProcessingStatus.FAILED;
-        report.errorMessage = 'Document is not a medical report';
-        report.updatedAt = new Date().toISOString();
-        await this.reportsService.updateReport(report);
+        const errorMessage = `Report ${reportId} is not a medical report.`;
+        this.logger.log(errorMessage);
+        await this.failReport(reportId, userId, errorMessage, false);
 
         return;
       }
@@ -151,7 +146,7 @@ export class DocumentProcessorController {
       report.title = result.analysis.title;
       report.category = result.analysis.category;
       report.processingStatus = ProcessingStatus.PROCESSED;
-
+      report.isMedicalReport = true;
       // Extract lab values
       report.labValues = result.analysis.labValues || [];
 
@@ -184,6 +179,7 @@ export class DocumentProcessorController {
     reportId: string,
     userId: string,
     errorMessage: string | undefined = undefined,
+    isMedicalReport: boolean | undefined = undefined,
   ): Promise<void> {
     try {
       const report = await this.reportsService.findOne(reportId, userId);
@@ -191,6 +187,7 @@ export class DocumentProcessorController {
         report.processingStatus = ProcessingStatus.FAILED;
         report.updatedAt = new Date().toISOString();
         report.errorMessage = errorMessage;
+        report.isMedicalReport = isMedicalReport;
         await this.reportsService.updateReport(report);
         this.logger.log(`Updated status of report ${reportId} to FAILED`);
       }
@@ -283,10 +280,7 @@ export class DocumentProcessorController {
     }
 
     // Extract userId from the request (attached by auth middleware)
-    const userId = request.user?.sub;
-    if (!userId) {
-      throw new UnauthorizedException('User ID not found in request');
-    }
+    const userId = this.extractUserId(request);
 
     try {
       // Fetch the associated report record from DynamoDB
@@ -299,6 +293,7 @@ export class DocumentProcessorController {
         reportId: report.id,
         status: report.processingStatus,
         isComplete: report.processingStatus === ProcessingStatus.PROCESSED,
+        isMedicalReport: report.isMedicalReport,
       };
     } catch (error: unknown) {
       this.logger.error(
@@ -306,5 +301,13 @@ export class DocumentProcessorController {
       );
       throw error;
     }
+  }
+
+  private extractUserId(request: RequestWithUser): string {
+    const userId = request.user?.sub;
+    if (!userId) {
+      throw new UnauthorizedException('User ID not found in request');
+    }
+    return userId;
   }
 }

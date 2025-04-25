@@ -5,6 +5,7 @@ import warning from '../../../assets/icons/warning.svg';
 
 interface ProcessingErrorProps {
   errorMessage: string;
+  errorHeading: string;
   onRetry: () => void;
 }
 
@@ -12,7 +13,11 @@ interface ProcessingErrorProps {
  * Component that displays processing error information and actions
  * Exactly matches the design from the provided screenshot
  */
-const ProcessingError: React.FC<ProcessingErrorProps> = ({ errorMessage, onRetry }) => {
+const ProcessingError: React.FC<ProcessingErrorProps> = ({
+  errorMessage,
+  errorHeading,
+  onRetry,
+}) => {
   const history = useHistory();
 
   return (
@@ -27,7 +32,7 @@ const ProcessingError: React.FC<ProcessingErrorProps> = ({ errorMessage, onRetry
           <img src={warning} alt="Warning Icon" className="processing-page__error-icon-img" />
         </div>
 
-        <h3 className="processing-page__error-subheading">Processing Error</h3>
+        <h3 className="processing-page__error-subheading">{errorHeading}</h3>
 
         <p className="processing-page__error-message">{errorMessage}</p>
       </div>

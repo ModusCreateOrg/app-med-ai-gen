@@ -35,6 +35,9 @@ export class Report {
   })
   processingStatus: ProcessingStatus;
 
+  @ApiProperty({ description: 'Optional flag to indicate if the report is a medical report' })
+  isMedicalReport?: boolean;
+
   @ApiProperty({ description: 'List of lab values' })
   labValues: Array<{
     name: string;

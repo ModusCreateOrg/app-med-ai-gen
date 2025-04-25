@@ -24,6 +24,7 @@ const ProcessingPage: React.FC = () => {
   // States to track processing
   const [isProcessing, setIsProcessing] = useState(true);
   const [processingError, setProcessingError] = useState<string | null>(null);
+  const [errorHeading, setErrorHeading] = useState<string | null>(null);
   const statusCheckIntervalRef = useRef<number | null>(null);
   const lastTriggeredTime = useRef<number | null>(null);
 
@@ -42,6 +43,14 @@ const ProcessingPage: React.FC = () => {
   const checkReportStatus = async () => {
     if (!reportId) return;
 
+    const failedHeading = 'Processing Error';
+    const failedMessage =
+      'There was a problem processing your uploaded file. Please try again or upload another.';
+
+    const missingDataHeading = 'Missing Data';
+    const missingDataMessage =
+      'The system was unable to extract meaningful health data from your uploaded file. Please try again or upload another.';
+
     try {
       const response = await axios.get(
         `${API_URL}/api/document-processor/report-status/${reportId}`,
@@ -50,27 +59,27 @@ const ProcessingPage: React.FC = () => {
 
       const data = response.data;
 
-      // If processing is complete, clear the interval and redirect to the report page
       if (data.isComplete) {
         setIsProcessing(false);
-
-        // Clear the interval
         clearStatusCheckInterval();
 
         console.log('Processing complete');
 
-        // Redirect to report detail page
         history.push(`/tabs/reports/${reportId}`);
+      } else if (data.isMedicalReport === false) {
+        setIsProcessing(false);
+        clearStatusCheckInterval();
+        setErrorHeading(missingDataHeading);
+        setProcessingError(missingDataMessage);
       } else if (data.status === 'failed') {
-        throw new Error('Processing failed');
+        throw new Error(failedMessage);
       }
     } catch (error) {
-      // Clear the interval on error
+      setIsProcessing(false);
       clearStatusCheckInterval();
 
-      console.error('Error checking report status:', error);
-      setProcessingError('An error occurred while processing the report. Please try again.');
-      setIsProcessing(false);
+      setErrorHeading(failedHeading);
+      setProcessingError(error instanceof Error ? error.message : failedMessage);
     }
   };
 
@@ -148,7 +157,13 @@ const ProcessingPage: React.FC = () => {
           {isProcessing && <ProcessingAnimation firstName={firstName} />}
 
           {/* Error state - shows when processing fails */}
-          {processingError && <ProcessingError errorMessage={processingError} onRetry={execute} />}
+          {processingError && errorHeading && (
+            <ProcessingError
+              errorHeading={errorHeading}
+              errorMessage={processingError}
+              onRetry={execute}
+            />
+          )}
         </div>
       </IonContent>
     </IonPage>
