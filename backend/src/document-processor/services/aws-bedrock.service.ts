@@ -56,6 +56,18 @@ Look for and extract the following information:
 
 This document may be a lab report showing blood work or other test results, so please pay special attention to tables, numeric values, reference ranges, and medical terminology.
 
+IMPORTANT: Base your analysis on information from multiple trusted medical sources and authorities, including but not limited to:
+- Mayo Clinic
+- Cleveland Clinic
+- CDC (Centers for Disease Control and Prevention)
+- NIH (National Institutes of Health)
+- WHO (World Health Organization)
+- American Medical Association
+- American Heart Association
+- American Academy of Pediatrics
+- UpToDate
+- MedlinePlus
+
 Format the response as a JSON object with the following structure:
 {
   "title": string,
@@ -88,6 +100,7 @@ When extracting lab values:
 4. Set "isCritical" to true when the value indicates an urgent medical situation. Set it to false for values that are normal or only slightly abnormal.
 5. Include a "conclusion" field that provides a brief interpretation of what this value indicates about the patient's health
 6. Include a "suggestions" field that provides brief recommendations based on this value
+7. IMPORTANT: If reference ranges are missing from the document, add "reference-ranges-missing" to the missingInformation array in metadata, and use standard reference ranges from trusted medical sources to determine the status.
 
 EXTREMELY IMPORTANT FORMATTING INSTRUCTIONS:
 1. ABSOLUTELY DO NOT START YOUR RESPONSE WITH ANY TEXT. Begin immediately with the JSON object.

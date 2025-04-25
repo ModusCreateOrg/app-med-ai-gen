@@ -55,12 +55,31 @@ export class DocumentProcessorService {
       });
 
       // Step 2: Analyze extracted text using AWS Bedrock
-      const analysis = await this.bedrockService.analyzeMedicalDocument(
+      const initialAnalysis = await this.bedrockService.analyzeMedicalDocument(
         extractedText.rawText,
         userId,
       );
 
-      // Step 3: Generate simplified explanation using Perplexity
+      // Step 3: Review and verify analysis using Perplexity
+      this.logger.log('Reviewing medical analysis with Perplexity');
+      let analysis: MedicalDocumentAnalysis;
+
+      try {
+        const verifiedAnalysis = await this.perplexityService.reviewMedicalAnalysis(
+          initialAnalysis,
+          extractedText.rawText,
+        );
+        analysis = verifiedAnalysis;
+        this.logger.log('Analysis verified and possibly corrected by Perplexity');
+      } catch (reviewError) {
+        this.logger.error('Error reviewing analysis with Perplexity', {
+          error: reviewError instanceof Error ? reviewError.message : 'Unknown error',
+        });
+        // Fall back to initial analysis if review fails
+        analysis = initialAnalysis;
+      }
+
+      // Step 4: Generate simplified explanation using Perplexity
       let simplifiedExplanation: string | undefined;
 
       try {

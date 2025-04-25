@@ -96,11 +96,7 @@ export class PerplexityService {
   }
 
   /**
-   * Sends a chat completion request to the Perplexity API
-   *
-   * @param messages Array of messages for the conversation
-   * @param options Additional options for the request
-   * @returns The chat completion response
+   * Queries the Perplexity AI API
    */
   async createChatCompletion(
     messages: PerplexityMessage[],
@@ -165,5 +161,70 @@ export class PerplexityService {
 
     const response = await this.createChatCompletion(messages);
     return response.choices[0].message.content.trim();
+  }
+
+  /**
+   * Reviews and verifies a medical document analysis against trusted medical sources
+   *
+   * @param analysis The medical document analysis to review
+   * @param originalText The original text of the medical document
+   * @returns The corrected medical document analysis
+   */
+  async reviewMedicalAnalysis(analysis: any, originalText: string): Promise<any> {
+    this.logger.log('Reviewing medical document analysis with Perplexity');
+
+    const systemPrompt =
+      'You are an AI assistant specializing in medical information verification.\n' +
+      'Your task is to review a medical document analysis and verify it against trusted medical sources.\n' +
+      'You must ensure all information is accurate, especially lab value reference ranges and interpretations.\n' +
+      'Use authoritative medical sources like Mayo Clinic, Cleveland Clinic, CDC, NIH, WHO, and medical journals.\n';
+
+    const analysisJson = JSON.stringify(analysis, null, 2);
+
+    const userPrompt =
+      `Please review the following medical document analysis for accuracy and completeness. ` +
+      `Check if the lab value reference ranges, interpretations, and recommendations align with trusted medical sources. ` +
+      `Focus on these key aspects:\n` +
+      `1. Verify lab value reference ranges\n` +
+      `2. Confirm interpretations of abnormal values\n` +
+      `3. Validate medical conclusions and recommendations\n` +
+      `4. Ensure all lab values are correctly categorized\n\n` +
+      `If you find any discrepancies, provide corrections in your response by returning the corrected JSON directly.\n\n` +
+      `Medical Document Analysis:\n${analysisJson}\n\n` +
+      `Original Medical Document Text:\n${originalText}\n\n` +
+      `Return the corrected JSON analysis with the same structure, no preamble or explanation needed.`;
+
+    const messages: PerplexityMessage[] = [
+      { role: 'system', content: systemPrompt },
+      { role: 'user', content: userPrompt },
+    ];
+
+    try {
+      const response = await this.createChatCompletion(messages, {
+        temperature: 0.3, // Lower temperature for more accurate/factual responses
+        maxTokens: 4000, // Ensure there's enough space for the full corrected analysis
+      });
+
+      // Parse the response to get the corrected analysis
+      const responseText = response.choices[0].message.content.trim();
+
+      try {
+        // Try to parse as JSON - Perplexity should return the corrected JSON
+        const correctedAnalysis = JSON.parse(responseText);
+        return correctedAnalysis;
+      } catch (jsonParseError) {
+        // If parsing fails, log the error but return the original analysis
+        this.logger.error(
+          `Failed to parse Perplexity review response as JSON: ${jsonParseError instanceof Error ? jsonParseError.message : 'Unknown error'}`,
+        );
+        return analysis;
+      }
+    } catch (error) {
+      // If the API call fails, log the error but return the original analysis
+      this.logger.error(
+        `Error during medical analysis review: ${error instanceof Error ? error.message : 'Unknown error'}`,
+      );
+      return analysis;
+    }
   }
 }
