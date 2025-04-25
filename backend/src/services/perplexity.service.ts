@@ -174,25 +174,19 @@ export class PerplexityService {
     this.logger.log('Reviewing medical document analysis with Perplexity');
 
     const systemPrompt =
-      'You are an AI assistant specializing in medical information verification.\n' +
-      'Your task is to review a medical document analysis and verify it against trusted medical sources.\n' +
-      'You must ensure all information is accurate, especially lab value reference ranges and interpretations.\n' +
-      'Use authoritative medical sources like Mayo Clinic, Cleveland Clinic, CDC, NIH, WHO, and medical journals.\n';
+      'Medical information verification specialist. Verify analysis against trusted sources (Mayo Clinic, Cleveland Clinic, CDC, NIH, WHO, medical journals). Ensure accuracy of lab ranges, interpretations, and recommendations. Return only corrected JSON.';
 
     const analysisJson = JSON.stringify(analysis, null, 2);
 
     const userPrompt =
-      `Please review the following medical document analysis for accuracy and completeness. ` +
-      `Check if the lab value reference ranges, interpretations, and recommendations align with trusted medical sources. ` +
-      `Focus on these key aspects:\n` +
-      `1. Verify lab value reference ranges\n` +
-      `2. Confirm interpretations of abnormal values\n` +
-      `3. Validate medical conclusions and recommendations\n` +
-      `4. Ensure all lab values are correctly categorized\n\n` +
-      `If you find any discrepancies, provide corrections in your response by returning the corrected JSON directly.\n\n` +
-      `Medical Document Analysis:\n${analysisJson}\n\n` +
-      `Original Medical Document Text:\n${originalText}\n\n` +
-      `Return the corrected JSON analysis with the same structure, no preamble or explanation needed.`;
+      `Review this medical analysis for accuracy. Verify:\n` +
+      `1. Lab value reference ranges\n` +
+      `2. Interpretations of abnormal values\n` +
+      `3. Medical conclusions and recommendations\n` +
+      `4. Lab value categorizations\n\n` +
+      `Analysis JSON:\n${analysisJson}\n\n` +
+      `Original Text:\n${originalText}\n\n` +
+      `Return ONLY corrected JSON with identical structure. No preamble, explanation, or text before/after JSON.`;
 
     const messages: PerplexityMessage[] = [
       { role: 'system', content: systemPrompt },
