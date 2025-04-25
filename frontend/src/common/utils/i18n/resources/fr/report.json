@@ -64,5 +64,8 @@
     "general": "Général",
     "heart": "Cœur",
     "brain": "Cerveau"
+  },
+  "reports": {
+    "missingReferenceRanges": "Les plages de référence n'étaient pas disponibles dans ce rapport. L'analyse peut être limitée sans cette information. Veuillez consulter votre professionnel de la santé pour une interprétation complète."
   }
 }
