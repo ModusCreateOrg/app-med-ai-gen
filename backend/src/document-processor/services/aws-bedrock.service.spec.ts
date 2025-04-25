@@ -219,7 +219,7 @@ describe('AwsBedrockService', () => {
       // Verify the invokeBedrock was called with the correct prompt
       expect(service['invokeBedrock']).toHaveBeenCalled();
       const prompt = (service['invokeBedrock'] as any).mock.calls[0][0];
-      expect(prompt).toContain('Please analyze this medical document carefully');
+      expect(prompt).toContain('Analyze this medical document with focus on lab reports');
     });
 
     it('should correctly format the request for Claude models', async () => {
@@ -242,7 +242,7 @@ describe('AwsBedrockService', () => {
       // Verify the invokeBedrock was called with the correct prompt
       expect(service['invokeBedrock']).toHaveBeenCalled();
       const prompt = (service['invokeBedrock'] as any).mock.calls[0][0];
-      expect(prompt).toContain('Please analyze this medical document carefully');
+      expect(prompt).toContain('Analyze this medical document with focus on lab reports');
     });
 
     it('should throw an error for invalid input', async () => {
