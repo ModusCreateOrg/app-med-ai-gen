@@ -243,7 +243,10 @@ export class ReportsService {
 
       const command = new UpdateItemCommand({
         TableName: this.tableName,
-        Key: marshall({ id }),
+        Key: marshall({
+          userId, // Partition key
+          id, // Sort key
+        }),
         UpdateExpression: 'SET #status = :status, updatedAt = :updatedAt',
         ConditionExpression: 'userId = :userId', // Ensure the report belongs to the user
         ExpressionAttributeNames: {

@@ -142,7 +142,7 @@ export const fetchAllReports = async (): Promise<MedicalReport[]> => {
 export const markReportAsRead = async (reportId: string): Promise<MedicalReport> => {
   try {
     const response = await axios.patch(
-      `${API_URL}/api/reports/${reportId}`,
+      `${API_URL}/api/reports/${reportId}/status`,
       {
         status: 'READ',
       },
