@@ -75,6 +75,6 @@ export class Report {
   @ApiProperty({ description: 'Last update timestamp' })
   updatedAt: string;
 
-  @ApiProperty({ description: 'Optional debug message for the report' })
-  debugMessage?: string;
+  @ApiProperty({ description: 'Optional error message for the report' })
+  errorMessage?: string;
 }

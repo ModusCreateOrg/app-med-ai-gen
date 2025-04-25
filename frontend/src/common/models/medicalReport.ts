@@ -52,11 +52,11 @@ export interface MedicalReport {
   labValues: LabValue[];
   summary: string;
   confidence: number;
-  status: ReportStatus;
   filePath: string;
   originalFilename: string;
   fileSize: number;
+  status: ReportStatus;
+  errorMessage?: string; // Optional error message for the report
   createdAt: string; // ISO date string
   updatedAt: string; // ISO date string
-  debugMessage?: string; // Optional debug message for the report
 }
