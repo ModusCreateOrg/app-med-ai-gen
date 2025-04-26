@@ -22,6 +22,9 @@ window.matchMedia =
     };
   };
 
+// Mock scrollIntoView - not implemented in JSDOM but used by Ionic components
+Element.prototype.scrollIntoView = function() {};
+
 // Run before each test SUITE
 beforeAll(() => {
   // mock service worker start up
