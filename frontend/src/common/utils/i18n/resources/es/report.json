@@ -49,9 +49,10 @@
     "filterBookmarked": "Guardados",
     "noBookmarksTitle": "No Hay Informes Guardados",
     "noBookmarksMessage": "Guarda informes como favoritos para encontrarlos rápidamente aquí",
-    "noMatchesTitle": "No Hay Informes Coincidentes",
-    "noMatchesMessage": "Ningún informe coincide con los filtros actuales. Intenta cambiar o eliminar los filtros.",
+    "noMatchesTitle": "No se encontraron informes coincidentes",
+    "noMatchesMessage": "Intente borrar o ajustar sus filtros para ver los resultados disponibles.",
     "clearFilters": "Eliminar Filtros",
+    "changeFilters": "Cambiar Filtros",
     "sortButton": "Ordenar informes",
     "filterButton": "Filtrar informes"
   },
