@@ -72,11 +72,15 @@ const ProcessingPage: React.FC = () => {
         console.log('Processing complete');
 
         history.push(`/tabs/reports/${reportId}`);
-      } else if (data.isMedicalReport === false) {
-        setIsProcessing(false);
-        clearStatusCheckInterval();
-        setError(missingDataHeading, missingDataMessage);
       } else if (data.status === 'failed') {
+        if (data.isMedicalReport === false) {
+          setIsProcessing(false);
+          clearStatusCheckInterval();
+          setError(missingDataHeading, missingDataMessage);
+
+          return;
+        }
+
         throw new Error();
       }
     } catch {
