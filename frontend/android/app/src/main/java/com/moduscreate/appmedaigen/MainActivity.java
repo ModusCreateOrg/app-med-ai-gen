@@ -1,4 +1,4 @@
-package net.leanstacks.ionic8;
+package com.moduscreate.appmedaigen;
 
 import com.getcapacitor.BridgeActivity;
 
