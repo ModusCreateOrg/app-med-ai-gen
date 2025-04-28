@@ -151,6 +151,9 @@ export class DocumentProcessorController {
       report.labValues = result.analysis.labValues || [];
 
       report.confidence = result.analysis.metadata.confidence || 0;
+      if (result.analysis.metadata.missingInformation) {
+        report.missingInformation = result.analysis.metadata.missingInformation;
+      }
 
       // Create summary from simplified explanation or diagnoses
       report.summary = result.simplifiedExplanation!;

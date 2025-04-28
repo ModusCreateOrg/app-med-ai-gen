@@ -72,6 +72,9 @@ export class Report {
   @ApiProperty({ description: 'File size in bytes' })
   fileSize: number;
 
+  @ApiProperty({ description: 'Missing information in the report' })
+  missingInformation?: string[];
+
   @ApiProperty({ description: 'Creation timestamp' })
   createdAt: string;
 

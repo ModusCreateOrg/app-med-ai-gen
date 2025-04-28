@@ -36,9 +36,11 @@ const AiAnalysisTab: React.FC<AiAnalysisTabProps> = ({
   const confidenceScore = reportData.confidence;
 
   const isLowConfidence = confidenceScore < 0.75;
-  
+
   // Check if reference ranges are missing
-  const hasReferenceRangesMissing = reportData.metadata?.missingInformation?.includes('reference-ranges-missing');
+  const hasReferenceRangesMissing = !!reportData.missingInformation?.includes(
+    'reference-ranges-missing',
+  );
 
   return (
     <div className="ai-analysis-tab">
@@ -47,7 +49,7 @@ const AiAnalysisTab: React.FC<AiAnalysisTabProps> = ({
 
       {/* Low confidence notice */}
       {isLowConfidence && <LowConfidenceNotice />}
-      
+
       {/* Missing reference ranges notice */}
       {hasReferenceRangesMissing && <MissingReferenceRangesNotice />}
 
