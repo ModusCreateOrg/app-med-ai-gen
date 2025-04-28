@@ -404,7 +404,7 @@ export class ReportsService {
         UpdateExpression:
           'SET #title = :title, #bookmarked = :bookmarked, #category = :category, ' +
           '#processingStatus = :processingStatus, #labValues = :labValues, #summary = :summary, ' +
-          '#confidence = :confidence, #status = :status, #updatedAt = :updatedAt',
+          '#confidence = :confidence, #status = :status, #missingInformation = :missingInformation, #isMedicalReport = :isMedicalReport, #updatedAt = :updatedAt',
         ConditionExpression: 'userId = :userId', // Ensure the report belongs to the user
         ExpressionAttributeNames: {
           '#title': 'title',
@@ -415,6 +415,8 @@ export class ReportsService {
           '#summary': 'summary',
           '#confidence': 'confidence',
           '#status': 'status',
+          '#missingInformation': 'missingInformation',
+          '#isMedicalReport': 'isMedicalReport',
           '#updatedAt': 'updatedAt',
         },
         ExpressionAttributeValues: marshall({
@@ -426,6 +428,8 @@ export class ReportsService {
           ':summary': report.summary,
           ':confidence': report.confidence,
           ':status': report.status,
+          ':missingInformation': report.missingInformation,
+          ':isMedicalReport': report.isMedicalReport,
           ':updatedAt': report.updatedAt,
           ':userId': report.userId,
         }),
