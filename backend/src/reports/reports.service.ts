@@ -496,8 +496,8 @@ export class ReportsService {
       }
 
       throw new InternalServerErrorException(
-        `Failed to update report with ID ${report.id} ${
-          error instanceof Error ? error.message : ''
+        `Failed to update report with ID ${report.id}${
+          error instanceof Error && error.message ? ` ${error.message}` : ''
         }`,
       );
     }
