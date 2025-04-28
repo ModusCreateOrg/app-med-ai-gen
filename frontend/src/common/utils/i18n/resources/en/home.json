@@ -13,7 +13,7 @@
       "greeting": "Welcome, {{name}}!",
       "howAreYou": "How Are You Today?",
       "aiAssistant": {
-        "title": "MedReport AI is with you!",
+        "title": "MedReport AI\nis with you!",
         "description": "Ask questions about your medical reports and get instant answers.",
         "button": "Ask Questions"
       }
