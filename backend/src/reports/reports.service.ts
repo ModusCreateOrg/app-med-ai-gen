@@ -241,22 +241,39 @@ export class ReportsService {
       // First check if the report exists and belongs to the user
       const existingReport = await this.findOne(id, userId);
 
+      // Create objects to hold UpdateExpression parts and attributes
+      const updateFields = [
+        { field: 'status', value: updateDto.status },
+        { field: 'updatedAt', value: new Date().toISOString() },
+      ];
+
+      // Dynamically build UpdateExpression, ExpressionAttributeNames, and ExpressionAttributeValues
+      const expressionAttributeNames: Record<string, string> = {};
+      const expressionAttributeValues: Record<string, any> = {
+        ':userId': userId,
+      };
+
+      const setExpressions = updateFields.map(({ field }) => `#${field} = :${field}`);
+
+      // Build expression attribute names and values
+      updateFields.forEach(({ field, value }) => {
+        expressionAttributeNames[`#${field}`] = field;
+        expressionAttributeValues[`:${field}`] = value;
+      });
+
+      // Create the UpdateExpression
+      const updateExpression = `SET ${setExpressions.join(', ')}`;
+
       const command = new UpdateItemCommand({
         TableName: this.tableName,
         Key: marshall({
           userId, // Partition key
           id, // Sort key
         }),
-        UpdateExpression: 'SET #status = :status, updatedAt = :updatedAt',
+        UpdateExpression: updateExpression,
         ConditionExpression: 'userId = :userId', // Ensure the report belongs to the user
-        ExpressionAttributeNames: {
-          '#status': 'status',
-        },
-        ExpressionAttributeValues: marshall({
-          ':status': updateDto.status,
-          ':updatedAt': new Date().toISOString(),
-          ':userId': userId,
-        }),
+        ExpressionAttributeNames: expressionAttributeNames,
+        ExpressionAttributeValues: marshall(expressionAttributeValues),
         ReturnValues: 'ALL_NEW',
       });
 
@@ -394,6 +411,38 @@ export class ReportsService {
       // Set the updatedAt timestamp
       report.updatedAt = new Date().toISOString();
 
+      // Create objects to hold UpdateExpression parts and attributes
+      const updateFields = [
+        { field: 'title', value: report.title },
+        { field: 'bookmarked', value: report.bookmarked },
+        { field: 'category', value: report.category },
+        { field: 'processingStatus', value: report.processingStatus },
+        { field: 'labValues', value: report.labValues },
+        { field: 'summary', value: report.summary },
+        { field: 'confidence', value: report.confidence },
+        { field: 'status', value: report.status },
+        { field: 'missingInformation', value: report.missingInformation },
+        { field: 'isMedicalReport', value: report.isMedicalReport },
+        { field: 'updatedAt', value: report.updatedAt },
+      ];
+
+      // Dynamically build UpdateExpression, ExpressionAttributeNames, and ExpressionAttributeValues
+      const expressionAttributeNames: Record<string, string> = {};
+      const expressionAttributeValues: Record<string, any> = {
+        ':userId': report.userId,
+      };
+
+      const setExpressions = updateFields.map(({ field }) => `#${field} = :${field}`);
+
+      // Build expression attribute names and values
+      updateFields.forEach(({ field, value }) => {
+        expressionAttributeNames[`#${field}`] = field;
+        expressionAttributeValues[`:${field}`] = value;
+      });
+
+      // Create the UpdateExpression
+      const updateExpression = `SET ${setExpressions.join(', ')}`;
+
       // Update report in DynamoDB
       const command = new UpdateItemCommand({
         TableName: this.tableName,
@@ -401,34 +450,10 @@ export class ReportsService {
           userId: report.userId, // Partition key
           id: report.id, // Sort key
         }),
-        UpdateExpression:
-          'SET #title = :title, #bookmarked = :bookmarked, #category = :category, ' +
-          '#processingStatus = :processingStatus, #labValues = :labValues, #summary = :summary, ' +
-          '#confidence = :confidence, #status = :status, #updatedAt = :updatedAt',
+        UpdateExpression: updateExpression,
         ConditionExpression: 'userId = :userId', // Ensure the report belongs to the user
-        ExpressionAttributeNames: {
-          '#title': 'title',
-          '#bookmarked': 'bookmarked',
-          '#category': 'category',
-          '#processingStatus': 'processingStatus',
-          '#labValues': 'labValues',
-          '#summary': 'summary',
-          '#confidence': 'confidence',
-          '#status': 'status',
-          '#updatedAt': 'updatedAt',
-        },
-        ExpressionAttributeValues: marshall({
-          ':title': report.title,
-          ':bookmarked': report.bookmarked,
-          ':category': report.category,
-          ':processingStatus': report.processingStatus,
-          ':labValues': report.labValues,
-          ':summary': report.summary,
-          ':confidence': report.confidence,
-          ':status': report.status,
-          ':updatedAt': report.updatedAt,
-          ':userId': report.userId,
-        }),
+        ExpressionAttributeNames: expressionAttributeNames,
+        ExpressionAttributeValues: marshall(expressionAttributeValues),
         ReturnValues: 'ALL_NEW',
       });
 
@@ -497,19 +522,39 @@ export class ReportsService {
       // First check if the report exists and belongs to the user
       const existingReport = await this.findOne(id, userId);
 
+      // Create objects to hold UpdateExpression parts and attributes
+      const updateFields = [
+        { field: 'bookmarked', value: bookmarked },
+        { field: 'updatedAt', value: new Date().toISOString() },
+      ];
+
+      // Dynamically build UpdateExpression, ExpressionAttributeNames, and ExpressionAttributeValues
+      const expressionAttributeNames: Record<string, string> = {};
+      const expressionAttributeValues: Record<string, any> = {
+        ':userId': userId,
+      };
+
+      const setExpressions = updateFields.map(({ field }) => `#${field} = :${field}`);
+
+      // Build expression attribute names and values
+      updateFields.forEach(({ field, value }) => {
+        expressionAttributeNames[`#${field}`] = field;
+        expressionAttributeValues[`:${field}`] = value;
+      });
+
+      // Create the UpdateExpression
+      const updateExpression = `SET ${setExpressions.join(', ')}`;
+
       const command = new UpdateItemCommand({
         TableName: this.tableName,
         Key: marshall({
           userId,
           id,
         }),
-        UpdateExpression: 'SET bookmarked = :bookmarked, updatedAt = :updatedAt',
+        UpdateExpression: updateExpression,
         ConditionExpression: 'userId = :userId', // Add condition to ensure we're updating the right user's report
-        ExpressionAttributeValues: marshall({
-          ':bookmarked': bookmarked,
-          ':updatedAt': new Date().toISOString(),
-          ':userId': userId,
-        }),
+        ExpressionAttributeNames: expressionAttributeNames,
+        ExpressionAttributeValues: marshall(expressionAttributeValues),
         ReturnValues: 'ALL_NEW',
       });
 
