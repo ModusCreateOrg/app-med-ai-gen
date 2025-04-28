@@ -421,8 +421,9 @@ export class ReportsService {
         { field: 'summary', value: report.summary },
         { field: 'confidence', value: report.confidence },
         { field: 'status', value: report.status },
-        { field: 'missingInformation', value: report.missingInformation },
-        { field: 'isMedicalReport', value: report.isMedicalReport },
+        { field: 'missingInformation', value: report.missingInformation || [] },
+        { field: 'isMedicalReport', value: report.isMedicalReport || false },
+        { field: 'errorMessage', value: report.errorMessage || '' },
         { field: 'updatedAt', value: report.updatedAt },
       ];
 
@@ -494,7 +495,11 @@ export class ReportsService {
         }
       }
 
-      throw new InternalServerErrorException(`Failed to update report with ID ${report.id}`);
+      throw new InternalServerErrorException(
+        `Failed to update report with ID ${report.id}${
+          error instanceof Error && error.message ? ` ${error.message}` : ''
+        }`,
+      );
     }
   }
 
