@@ -8,7 +8,6 @@
 # testing
 /coverage
 /coverage/ios
-/cypress/screenshots
 
 # production
 /dist

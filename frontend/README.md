@@ -3,8 +3,9 @@
 ## Core Technologies
 
 ### Ionic + React
+
 - **Purpose**: Cross-platform user interface core that enables building high-quality native and web app experiences
-- **Benefits**: 
+- **Benefits**:
   - Single codebase for iOS, Android, and web
   - Extensive library of UI components
   - Native device functionality access
@@ -15,6 +16,7 @@
   - Platform-specific styling
 
 ### React
+
 - **Version**: Latest stable (18+)
 - **Features Used**:
   - Functional components
@@ -25,6 +27,7 @@
 ## Data Management
 
 ### Axios
+
 - **Purpose**: HTTP client for making API requests
 - **Implementation**:
   - Centralized API instance with interceptors
@@ -33,6 +36,7 @@
   - Request cancellation support
 
 ### TanStack Query (React Query)
+
 - **Purpose**: Asynchronous state management, caching, and data fetching
 - **Key Features**:
   - Automatic caching and background refetching
@@ -44,12 +48,14 @@
 ## UI Components & Styling
 
 ### Font Awesome
+
 - **Purpose**: Comprehensive icon library
 - **Implementation**:
   - Specific icon subset import to reduce bundle size
   - Standard usage pattern for consistent icon presentation
 
 ### Google Fonts
+
 - **Purpose**: Rich typography
 - **Fonts Used**:
   - Primary: [Specify primary font]
@@ -57,6 +63,7 @@
   - Loading strategy: Web Font Loader with fallbacks
 
 ### Remark Markdown
+
 - **Purpose**: Markdown renderer for content display
 - **Features**:
   - Custom renderers for application-specific components
@@ -64,6 +71,7 @@
   - Security measures for user-generated content
 
 ### Tailwind CSS
+
 - **Purpose**: Utility-first CSS framework
 - **Configuration**:
   - Custom theme extending Tailwind defaults
@@ -74,6 +82,7 @@
 ## Testing Infrastructure
 
 ### Vitest
+
 - **Purpose**: Core test framework
 - **Configuration**:
   - Component testing setup
@@ -81,6 +90,7 @@
   - Coverage reporting
 
 ### React Testing Library
+
 - **Purpose**: User-centric approach for UI component tests
 - **Practices**:
   - Testing user interactions over implementation details
@@ -88,6 +98,7 @@
   - Common testing patterns and utilities
 
 ### Mock Service Worker
+
 - **Purpose**: API mocking for tests and development
 - **Implementation**:
   - Request interception
@@ -97,12 +108,14 @@
 ## Cursor Rules & Code Style Guidelines
 
 ### General Formatting
+
 - Indent using 2 spaces
 - Maximum line length: 100 characters
 - UTF-8 encoding for all files
 - LF line endings
 
 ### React Component Structure
+
 ```jsx
 // Imports grouped by:
 // 1. React/framework imports
@@ -120,17 +133,17 @@ interface ComponentProps {
 const ComponentName: React.FC<ComponentProps> = ({ prop1, prop2 }) => {
   // Hooks at the top
   const [state, setState] = useState<StateType>(initialState);
-  
+
   // Effects after hooks
   useEffect(() => {
     // Effect content
   }, [dependencies]);
-  
+
   // Event handlers and other functions
   const handleEvent = () => {
     // ...
   };
-  
+
   // Return JSX with consistent formatting
   return (
     <div className="tailwind-classes">
@@ -149,8 +162,9 @@ export default ComponentName;
 ```
 
 ### Naming Conventions
+
 - **Components**: PascalCase (e.g., `UserProfile`)
-- **Files**: 
+- **Files**:
   - Component files: PascalCase matching component name (e.g., `UserProfile.tsx`)
   - Utility files: camelCase (e.g., `formatDate.ts`)
 - **Functions**: camelCase (e.g., `handleSubmit`)
@@ -159,30 +173,35 @@ export default ComponentName;
 - **CSS Classes**: kebab-case (e.g., `user-profile-container`)
 
 ### API and Data Fetching
+
 - Use TanStack Query hooks for all data fetching
 - Centralize API calls in dedicated service files
 - Implement proper error handling for all requests
 - Use consistent data transformation patterns
 
 ### State Management
+
 - Prefer local component state for component-specific state
 - Use Context API for shared state across multiple components
 - Implement TanStack Query for server state
 - Document all context providers and their purpose
 
 ### Testing Standards
+
 - Minimum test coverage: 80%
 - Test user interactions, not implementation details
 - One test file per component/utility (e.g., `Component.test.tsx`)
 - Use meaningful test descriptions that explain expected behavior
 
 ### Performance Considerations
+
 - Memoize expensive calculations with useMemo
 - Optimize renders with React.memo for pure components
 - Use useCallback for function references passed as props
 - Implement virtualization for long lists
 
 ### Accessibility Standards
+
 - All interactive elements must be keyboard accessible
 - Proper ARIA roles and attributes where applicable
 - Maintain proper heading hierarchy
@@ -190,10 +209,11 @@ export default ComponentName;
 - Support screen readers with appropriate alt text and aria labels
 
 ## Version Control Guidelines
+
 - Use feature branches for all new development
 - Conventional commit messages (feat, fix, docs, style, refactor, test, chore)
 - Pull request templates must be followed
-- Code must pass all automated checks before review 
+- Code must pass all automated checks before review
 
 ## Helpful Hints
 
@@ -228,7 +248,6 @@ Adjust the Prettier configuration as desired.
 ## Installation
 
 ### Prerequistes
-
 
 ### Clone the Repository
 
@@ -354,10 +373,6 @@ A detailed test coverage report is created in the `./coverage` directory.
 
 > **NOTE:** This is the command which should be utilized by CI/CD platforms.
 
-### `npm run test:e2e`
-
-Runs all end-to-end (e2e) tests using the Cypress framework. See the [Cypress CLI](https://docs.cypress.io/guides/guides/command-line) documentation for more information.
-
 ### `npm run build`
 
 Builds the app for production to the `dist` folder.
@@ -408,7 +423,6 @@ This project uses GitHub Actions to perform DevOps automation activities such as
 - [Yup][yup]
 - [Testing Library][testing-library]
 - [Vitest][vitest]
-- [Cypress][cypress]
 - [ESLint][eslint]
 - [GitHub Actions][ghactions]
 
@@ -425,4 +439,3 @@ This project uses GitHub Actions to perform DevOps automation activities such as
 [vitest]: https://vitest.dev/ 'Vitest Testing Framework'
 [ghactions]: https://docs.github.com/en/actions 'GitHub Actions'
 [eslint]: https://eslint.org/docs/latest/ 'ESLint'
-[cypress]: https://docs.cypress.io/guides/overview/why-cypress 'Cypress Testing Framework'
