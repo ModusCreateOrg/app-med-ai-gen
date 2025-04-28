@@ -1,14 +1,14 @@
 apply plugin: 'com.android.application'
 
 android {
-    namespace "net.leanstacks.ionic8"
+    namespace "com.moduscreate.appmedaigen"
     compileSdk rootProject.ext.compileSdkVersion
     defaultConfig {
-        applicationId "net.leanstacks.ionic8"
+        applicationId "com.moduscreate.appmedaigen"
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
-        versionCode 6
-        versionName "1.0.5"
+        versionCode 1
+        versionName "1.0"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         aaptOptions {
              // Files and dirs to omit from the packaged assets dir, modified to accommodate modern web apps.
