@@ -40,15 +40,6 @@ export interface LabValue {
 }
 
 /**
- * Interface for report metadata.
- */
-export interface ReportMetadata {
-  isMedicalReport: boolean;
-  confidence: number;
-  missingInformation: string[];
-}
-
-/**
  * Interface representing a medical report.
  */
 export interface MedicalReport {
@@ -64,10 +55,10 @@ export interface MedicalReport {
   filePath: string;
   originalFilename: string;
   fileSize: number;
+  missingInformation?: string[];
   status: ReportStatus;
   errorMessage?: string; // Optional error message for the report
   isMedicalReport?: boolean; // Optional flag to indicate if the report is a medical report
   createdAt: string; // ISO date string
   updatedAt: string; // ISO date string
-  metadata?: ReportMetadata; // Optional metadata for the report
 }

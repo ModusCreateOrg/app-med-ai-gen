@@ -1,4 +1,4 @@
-import { describe, expect, it } from 'vitest';
+import { describe, expect, it, beforeAll, vi } from 'vitest';
 import { IonSelectOption } from '@ionic/react';
 import { Form, Formik } from 'formik';
 import userEvent from '@testing-library/user-event';
@@ -6,6 +6,11 @@ import userEvent from '@testing-library/user-event';
 import { render, screen, waitFor } from 'test/test-utils';
 
 import SelectInput from '../SelectInput';
+
+// Mock scrollIntoView globally
+beforeAll(() => {
+  Element.prototype.scrollIntoView = vi.fn();
+});
 
 describe('SelectInput', () => {
   it('should render successfully', async () => {
