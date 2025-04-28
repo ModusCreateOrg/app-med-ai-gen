@@ -25,6 +25,6 @@
       "test/*": ["./src/test/*"]
     }
   },
-  "include": ["src", "src/types"],
+  "include": ["src", "src/types", "src/vitest.d.ts"],
   "references": [{ "path": "./tsconfig.node.json" }]
 }
