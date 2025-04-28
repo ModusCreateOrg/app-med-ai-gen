@@ -49,9 +49,10 @@
     "filterBookmarked": "Bookmarked",
     "noBookmarksTitle": "No Bookmarked Reports",
     "noBookmarksMessage": "Bookmark reports to find them quickly here",
-    "noMatchesTitle": "No Matching Reports",
-    "noMatchesMessage": "No reports match your current filters. Try changing or clearing your filters.",
+    "noMatchesTitle": "No matching reports found",
+    "noMatchesMessage": "Try clearing or adjusting your filters to see available results.",
     "clearFilters": "Clear Filters",
+    "changeFilters": "Change Filters",
     "sortButton": "Sort reports",
     "filterButton": "Filter reports"
   },

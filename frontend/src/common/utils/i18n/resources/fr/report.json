@@ -49,9 +49,10 @@
     "filterBookmarked": "Favoris",
     "noBookmarksTitle": "Aucun Rapport en Favoris",
     "noBookmarksMessage": "Marquez des rapports comme favoris pour les trouver rapidement ici",
-    "noMatchesTitle": "Aucun Rapport Correspondant",
-    "noMatchesMessage": "Aucun rapport ne correspond à vos filtres actuels. Essayez de modifier ou de supprimer vos filtres.",
+    "noMatchesTitle": "Aucun rapport correspondant trouvé",
+    "noMatchesMessage": "Essayez de supprimer ou d'ajuster vos filtres pour voir les résultats disponibles.",
     "clearFilters": "Effacer les Filtres",
+    "changeFilters": "Modifier les Filtres",
     "sortButton": "Trier les rapports",
     "filterButton": "Filtrer les rapports"
   },

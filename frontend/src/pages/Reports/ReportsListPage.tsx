@@ -28,6 +28,7 @@ import sortSvg from 'assets/icons/sort.svg';
 import filterOutlineIcon from 'assets/icons/filter-outline.svg';
 import FilterPanel, { CategoryOption } from './components/FilterPanel/FilterPanel';
 import CategoryTag from './components/CategoryTag/CategoryTag';
+import ReportsFilterEmpty from './components/ReportsFilterEmpty/ReportsFilterEmpty';
 
 import './ReportsListPage.scss';
 
@@ -225,13 +226,11 @@ const ReportsListPage: React.FC = () => {
               <p>{t('list.noBookmarksMessage', { ns: 'report' })}</p>
             </div>
           ) : selectedCategories.length > 0 ? (
-            <div className="reports-list-page__no-matches">
-              <h3>{t('list.noMatchesTitle', { ns: 'report' })}</h3>
-              <p>{t('list.noMatchesMessage', { ns: 'report' })}</p>
-              <IonButton onClick={handleClearAllCategories}>
-                {t('list.clearFilters', { ns: 'report' })}
-              </IonButton>
-            </div>
+            <ReportsFilterEmpty
+              onChangeFilters={handleFilterClick}
+              onClearFilters={handleClearAllCategories}
+              hasSelectedFilters={selectedCategories.length > 0}
+            />
           ) : (
             <NoReportsMessage onUpload={handleUpload} onRetry={handleRetry} />
           )}
