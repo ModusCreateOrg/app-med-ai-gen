@@ -46,19 +46,16 @@
   }
 
   &__bookmark {
-    padding: 8px;
+    width: 34px;
+    height: 34px;
     display: flex;
     align-items: center;
     justify-content: center;
-    align-self: center;
-    margin-right: 6px;
 
     &-icon {
-      font-size: 11px;
+      width: 15px;
       color: #aaa;
       transition: all 0.2s ease;
-      width: 34px;
-      height: 34px;
       display: flex;
       align-items: center;
       justify-content: center;
