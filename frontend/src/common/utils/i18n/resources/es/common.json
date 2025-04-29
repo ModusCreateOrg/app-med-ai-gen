@@ -70,10 +70,10 @@
   "loading": {
     "report": "Cargando informe..."
   },
-  "no": "no",
+  "no": "No",
   "updated": "actualizado",
   "welcome": "Bienvenido",
-  "yes": "sí",
+  "yes": "Sí",
   "pages": {
     "chat": {
       "title": "Asistente IA"
