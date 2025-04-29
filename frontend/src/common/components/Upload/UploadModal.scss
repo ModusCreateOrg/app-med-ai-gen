@@ -315,6 +315,8 @@
     margin: 1.5rem 0;
     width: 100%;
     box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+    max-width: 100%;
+    box-sizing: border-box;
   }
 
   &__file-icon {
@@ -333,6 +335,9 @@
 
   &__file-details {
     flex: 1;
+    text-align: left;
+    width: 100%;
+    overflow: hidden;
   }
 
   &__filename {
@@ -350,6 +355,10 @@
     font-size: 0.75rem;
     color: #666;
     margin-bottom: 0.5rem;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 100%;
   }
 
   &__progress {
@@ -358,6 +367,7 @@
     margin-top: 0.25rem;
     --background: rgba(0, 0, 0, 0.1);
     --progress-background: var(--ion-color-primary);
+    width: 100%;
   }
 
   // Fixing the cancel notice styles to match the design exactly
