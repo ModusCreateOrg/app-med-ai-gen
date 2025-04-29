@@ -73,10 +73,10 @@
   "loading": {
     "report": "Loading report..."
   },
-  "no": "no",
+  "no": "No",
   "updated": "updated",
   "welcome": "Welcome",
-  "yes": "yes",
+  "yes": "Yes",
   "pages": {
     "chat": {
       "title": "AI Assistant"
