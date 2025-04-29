@@ -15,7 +15,7 @@
 
   &__category-section {
     flex: 1;
-    margin-bottom: 1.5rem;
+    margin-bottom: 3rem;
   }
 
   &__category-title {
@@ -50,6 +50,7 @@
     justify-content: center;
 
     &--selected {
+      font-weight: 600;
       background-color: #313E4C;
       color: white;
       border-color: #313E4C;
@@ -62,6 +63,7 @@
   }
 
   &__apply-button {
+    font-family: 'Inter', serif;
     --background: #435FF0;
     --color: white;
     height: 48px;
