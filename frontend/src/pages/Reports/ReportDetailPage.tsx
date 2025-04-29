@@ -89,24 +89,24 @@ const ReportDetailPage: React.FC = () => {
   const handleDiscard = async () => {
     try {
       await axios.delete(`${API_URL}/api/reports/${reportId}`, await getAuthConfig());
-      
+
       // Show toast notification
       createToast({
-        message: t('report.discard.success', { 
-          ns: 'reportDetail', 
-          defaultValue: 'Report deleted successfully' 
+        message: t('report.discard.success', {
+          ns: 'reportDetail',
+          defaultValue: 'Report deleted successfully',
         }),
         duration: 2000,
       });
-      
+
       // Navigate back
       history.push('/tabs/home');
     } catch (error) {
       console.error('Error discarding report:', error);
       createToast({
-        message: t('report.discard.error', { 
-          ns: 'reportDetail', 
-          defaultValue: 'Failed to delete report' 
+        message: t('report.discard.error', {
+          ns: 'reportDetail',
+          defaultValue: 'Failed to delete report',
         }),
         duration: 2000,
         color: 'danger',
@@ -139,10 +139,11 @@ const ReportDetailPage: React.FC = () => {
         <InfoCard />
 
         {/* Action buttons at the bottom */}
-        <ActionButtons 
-          onDiscard={handleDiscard} 
+        <ActionButtons
+          onDiscard={handleDiscard}
           onNewUpload={handleNewUpload}
           reportTitle={reportData.title || reportData.category}
+          reportId={reportId}
         />
       </IonContent>
     </IonPage>
