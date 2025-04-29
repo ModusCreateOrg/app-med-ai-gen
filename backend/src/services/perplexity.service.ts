@@ -283,7 +283,7 @@ export class PerplexityService {
     this.logger.log('Reviewing medical document analysis with Perplexity');
 
     const systemPrompt =
-      'Medical information verification specialist. Verify analysis against trusted sources (Mayo Clinic, Cleveland Clinic, CDC, NIH, WHO, medical journals). Ensure accuracy of lab ranges, interpretations, and recommendations. Return only corrected JSON. IMPORTANT: Do not modify the metadata object, especially preserve the metadata.missingInformation array exactly as provided.';
+      'Medical information verification specialist. Verify analysis against trusted sources (Mayo Clinic, Cleveland Clinic, CDC, NIH, WHO, medical journals). Ensure accuracy of lab ranges, interpretations, and recommendations. Return only corrected JSON. IMPORTANT: Do not modify the metadata object.';
 
     const analysisJson = JSON.stringify(analysis, null, 2);
 
@@ -293,7 +293,7 @@ export class PerplexityService {
       `2. Interpretations of abnormal values\n` +
       `3. Medical conclusions and recommendations\n` +
       `4. Lab value categorizations\n\n` +
-      `CRITICAL INSTRUCTION: Do NOT modify the metadata object. The metadata.missingInformation array must remain exactly as provided without any additions, removals, or changes.\n\n` +
+      `CRITICAL INSTRUCTION: Do NOT modify the metadata object.\n\n` +
       `Analysis JSON:\n${analysisJson}\n\n` +
       `Original Text:\n${originalText}\n\n` +
       `Return ONLY corrected JSON with identical structure. No preamble, explanation, or text before/after JSON.`;

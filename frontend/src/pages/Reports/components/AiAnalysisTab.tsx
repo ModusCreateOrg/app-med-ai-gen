@@ -4,7 +4,6 @@ import EmergencyAlert from './EmergencyAlert';
 import FlaggedValuesSection from './FlaggedValuesSection';
 import NormalValuesSection from './NormalValuesSection';
 import LowConfidenceNotice from './LowConfidenceNotice';
-import MissingReferenceRangesNotice from './MissingReferenceRangesNotice';
 
 interface AiAnalysisTabProps {
   reportData: MedicalReport;
@@ -37,11 +36,6 @@ const AiAnalysisTab: React.FC<AiAnalysisTabProps> = ({
 
   const isLowConfidence = confidenceScore < 0.75;
 
-  // Check if reference ranges are missing
-  const hasReferenceRangesMissing = !!reportData.missingInformation?.includes(
-    'reference-ranges-missing',
-  );
-
   return (
     <div className="ai-analysis-tab">
       {/* Emergency alert if needed */}
@@ -49,9 +43,6 @@ const AiAnalysisTab: React.FC<AiAnalysisTabProps> = ({
 
       {/* Low confidence notice */}
       {isLowConfidence && <LowConfidenceNotice />}
-
-      {/* Missing reference ranges notice */}
-      {hasReferenceRangesMissing && <MissingReferenceRangesNotice />}
 
       {/* Flagged values section */}
       {flaggedValues.length > 0 && (
