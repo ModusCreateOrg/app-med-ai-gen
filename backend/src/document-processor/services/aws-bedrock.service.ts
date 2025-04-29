@@ -72,7 +72,6 @@ For lab values:
 - Set "isCritical" to true for urgent medical situations
 - Provide brief "conclusion" about what the value means for health
 - Add brief "suggestions" based on the value
-- IMPORTANT: For ANY lab value where reference/normal ranges are not explicitly stated in the document, you MUST add "reference-ranges-missing" to the missingInformation array and use standard medical ranges
 - If you use standard ranges because the document lacks them, clearly mark this in your response
 
 CRITICAL FORMATTING RULES:
@@ -88,7 +87,6 @@ Common errors to avoid:
 - Starting with "This appears to be a medical report..."
 - Creating nested JSON structures
 - Placing data inside definition fields
-- IMPORTANT: Failing to add "reference-ranges-missing" to missingInformation when ANY lab value lacks explicit ranges
 
 Document text:
 `;
