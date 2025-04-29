@@ -8,7 +8,18 @@
 
   &__content {
     flex: 1;
-    margin-left: 16px;
+    margin-left: 8px;
+    width: 60%;
+  }
+
+  &__status-bullet {
+      width: 8px;
+      height: 8px;
+      margin-top: 5px;
+      display: inline-block;
+      background-color: #fead7f;
+      border-radius: 50%;
+      vertical-align: middle;
   }
 
   &__category-label {
@@ -16,18 +27,6 @@
     color: #4355b9;
     margin-bottom: 4px;
     font-weight: 700;
-
-    // Add a small bullet before brain category
-    &:before {
-      content: '';
-      display: inline-block;
-      width: 6px;
-      height: 6px;
-      background-color: #fd6a6a;
-      border-radius: 50%;
-      margin-right: 8px;
-      vertical-align: middle;
-    }
   }
 
   &__title {
@@ -35,6 +34,10 @@
     font-size: 16px;
     color: #111;
     margin-bottom: 4px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 100%;
   }
 
   &__date {
@@ -51,11 +54,11 @@
     margin-right: 6px;
 
     &-icon {
-      font-size: 12px;
+      font-size: 11px;
       color: #aaa;
       transition: all 0.2s ease;
-      width: 12px;
-      height: 12px;
+      width: 34px;
+      height: 34px;
       display: flex;
       align-items: center;
       justify-content: center;
@@ -67,7 +70,8 @@
 
       &--active {
         color: white;
-        background-color: #4355b9;
+        /*background-color: #4355b9;*/
+        background-color: #4765ff;
         box-shadow: none;
       }
     }
