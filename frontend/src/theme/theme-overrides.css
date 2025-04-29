@@ -19,6 +19,9 @@
   /* Border colors */
   --ion-border-color: rgba(0, 0, 0, 0.1);
 
+  /* Font family override for Ionic components */
+  --ion-font-family: var(--font-family-base);
+
   /* Other light theme adjustments */
   --ion-color-step-50: #f2f2f2;
   --ion-color-step-100: #e6e6e6;
