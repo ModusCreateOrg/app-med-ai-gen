@@ -1,11 +1,12 @@
 import { IonRouterOutlet, IonTabBar, IonTabButton, IonTabs } from '@ionic/react';
 import { Redirect, Route } from 'react-router';
 import { useState } from 'react';
-import { useHistory } from 'react-router-dom';
+import { useHistory, useLocation } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 
 import './TabNavigation.scss';
 import AppMenu from '../Menu/AppMenu';
-import Icon from '../Icon/Icon';
+import SvgIcon from '../Icon/SvgIcon';
 import UploadModal from '../Upload/UploadModal';
 import HomePage from 'pages/Home/HomePage';
 import UserDetailPage from 'pages/Users/components/UserDetail/UserDetailPage';
@@ -19,6 +20,13 @@ import UploadPage from 'pages/Upload/UploadPage';
 import ReportsListPage from 'pages/Reports/ReportsListPage';
 import ReportDetailPage from 'pages/Reports/ReportDetailPage';
 import ProcessingPage from 'pages/Processing/ProcessingPage';
+
+// Import SVG icons
+import homeIcon from 'assets/icons/home.svg';
+import reportsIcon from 'assets/icons/reports.svg';
+import uploadIcon from 'assets/icons/upload.svg';
+import chatIcon from 'assets/icons/chat.svg';
+import profileIcon from 'assets/icons/profile.svg';
 
 /**
  * The `TabNavigation` component provides a router outlet for all of the
@@ -38,6 +46,13 @@ import ProcessingPage from 'pages/Processing/ProcessingPage';
 const TabNavigation = (): JSX.Element => {
   const [isUploadModalOpen, setIsUploadModalOpen] = useState(false);
   const history = useHistory();
+  const location = useLocation();
+  const { t } = useTranslation();
+
+  // Check if the current path starts with the tab path
+  const isTabActive = (tabPath: string) => {
+    return location.pathname.startsWith(tabPath);
+  };
 
   const handleUploadClick = () => {
     setIsUploadModalOpen(true);
@@ -101,19 +116,27 @@ const TabNavigation = (): JSX.Element => {
 
         <IonTabBar slot="bottom" className="ls-tab-navigation__bar ion-hide-md-up">
           <IonTabButton className="ls-tab-navigation__bar-button" tab="home" href="/tabs/home">
-            <Icon className="ls-tab-navigation__bar-button-icon" icon="home" size="xl" fixedWidth />
+            <SvgIcon
+              className="ls-tab-navigation__bar-button-icon"
+              src={homeIcon}
+              active={isTabActive('/tabs/home')}
+              alt={t('navigation.home', { ns: 'common', defaultValue: 'Home' })}
+              width={24}
+              height={24}
+            />
           </IonTabButton>
           <IonTabButton
             className="ls-tab-navigation__bar-button"
             tab="reports"
             href="/tabs/reports"
           >
-            <Icon
+            <SvgIcon
               className="ls-tab-navigation__bar-button-icon"
-              icon="fileLines"
-              iconStyle="regular"
-              size="xl"
-              fixedWidth
+              src={reportsIcon}
+              active={isTabActive('/tabs/reports')}
+              alt={t('navigation.reports', { ns: 'common', defaultValue: 'Reports' })}
+              width={24}
+              height={24}
             />
           </IonTabButton>
           <IonTabButton
@@ -122,21 +145,23 @@ const TabNavigation = (): JSX.Element => {
             onClick={handleUploadClick}
           >
             <div className="ls-tab-navigation__bar-button-upload-wrapper">
-              <Icon
+              <SvgIcon
                 className="ls-tab-navigation__bar-button-icon"
-                icon="arrowUpFromBracket"
-                size="xl"
-                fixedWidth
+                src={uploadIcon}
+                alt={t('navigation.upload', { ns: 'common', defaultValue: 'Upload' })}
+                width={24}
+                height={24}
               />
             </div>
           </IonTabButton>
           <IonTabButton className="ls-tab-navigation__bar-button" tab="chat" href="/tabs/chat">
-            <Icon
+            <SvgIcon
               className="ls-tab-navigation__bar-button-icon"
-              icon="comment"
-              iconStyle="regular"
-              size="xl"
-              fixedWidth
+              src={chatIcon}
+              active={isTabActive('/tabs/chat')}
+              alt={t('navigation.chat', { ns: 'common', defaultValue: 'Chat' })}
+              width={24}
+              height={24}
             />
           </IonTabButton>
           <IonTabButton
@@ -144,11 +169,13 @@ const TabNavigation = (): JSX.Element => {
             tab="account"
             href="/tabs/account"
           >
-            <Icon
+            <SvgIcon
               className="ls-tab-navigation__bar-button-icon"
-              icon="userCircle"
-              size="xl"
-              fixedWidth
+              src={profileIcon}
+              active={isTabActive('/tabs/account')}
+              alt={t('navigation.account', { ns: 'common', defaultValue: 'Account' })}
+              width={24}
+              height={24}
             />
           </IonTabButton>
         </IonTabBar>
