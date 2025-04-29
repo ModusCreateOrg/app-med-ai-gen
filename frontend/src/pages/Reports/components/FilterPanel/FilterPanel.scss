@@ -1,5 +1,5 @@
 .filter-panel {
-  font-family: 'Inter', serif;
+  font-family: var(--font-family-base);
   padding: 1.5rem 1rem;
   display: flex;
   flex-direction: column;
@@ -63,7 +63,7 @@
   }
 
   &__apply-button {
-    font-family: 'Inter', serif;
+    font-family: var(--font-family-base);
     --background: #435FF0;
     --color: white;
     height: 48px;

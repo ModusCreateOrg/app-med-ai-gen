@@ -11,7 +11,7 @@
   }
 
   &__title {
-    font-family: 'Inter', sans-serif;
+    font-family: var(--font-family-base);
     font-size: 22px;
     font-weight: 600;
     color: #313e4c;
@@ -20,7 +20,7 @@
   }
 
   &__message {
-    font-family: 'Inter', sans-serif;
+    font-family: var(--font-family-base);
     font-size: 16px;
     font-weight: 400;
     color: #313e4c;
@@ -42,7 +42,7 @@
     font-size: 20px;
     font-weight: 600;
     text-transform: none;
-    
+
     &--cancel {
       --background: #ffffff;
       --background-hover: rgba(67, 95, 240, 0.04);
@@ -53,7 +53,7 @@
       --border-style: solid;
       --box-shadow: none;
     }
-    
+
     &--confirm {
       --background: #ffffff; /* White background for Yes button */
       --background-hover: rgba(175, 27, 63, 0.04);

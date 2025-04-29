@@ -252,7 +252,7 @@
 
 // Add a more specific selector to override Ionic's default styles
 ion-card.home-page__ai-card ion-card-content h3.home-page__ai-card-title {
-  font-family: 'Inter', serif;
+  font-family: var(--font-family-base);
   color: white;
   font-size: 1.25rem;
   font-weight: 700;
@@ -263,7 +263,7 @@ ion-card.home-page__ai-card ion-card-content h3.home-page__ai-card-title {
 }
 
 ion-card.home-page__ai-card ion-card-content span.home-page__ai-card-button-inline {
-  font-family: 'Merriweather', serif;
+  font-family: var(--font-family-secondary);
   font-size: 0.875rem;
   color: #ffbe5b;
   font-weight: 500;
