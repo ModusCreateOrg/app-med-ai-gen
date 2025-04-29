@@ -422,7 +422,7 @@ export class ReportsService {
         { field: 'confidence', value: report.confidence },
         { field: 'status', value: report.status },
         { field: 'missingInformation', value: report.missingInformation || [] },
-        { field: 'isMedicalReport', value: report.isMedicalReport || undefined },
+        { field: 'isMedicalReport', value: report.isMedicalReport === false ? false : true },
         { field: 'errorMessage', value: report.errorMessage || '' },
         { field: 'updatedAt', value: report.updatedAt },
       ];
