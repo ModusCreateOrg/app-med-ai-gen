@@ -90,6 +90,7 @@ const ReportDetailPage: React.FC = () => {
     try {
       setIsProcessing(true);
       await axios.delete(`${API_URL}/api/reports/${reportId}`, await getAuthConfig());
+      setIsProcessing(false);
 
       // Show toast notification
       createToast({
@@ -103,6 +104,8 @@ const ReportDetailPage: React.FC = () => {
       // Navigate back
       history.push('/tabs/home');
     } catch (error) {
+      setIsProcessing(false);
+
       console.error('Error discarding report:', error);
       createToast({
         message: t('report.discard.error', {
@@ -112,8 +115,6 @@ const ReportDetailPage: React.FC = () => {
         duration: 2000,
         color: 'danger',
       });
-    } finally {
-      setIsProcessing(false);
     }
   };
 
@@ -121,12 +122,12 @@ const ReportDetailPage: React.FC = () => {
     try {
       setIsProcessing(true);
       await axios.delete(`${API_URL}/api/reports/${reportId}`, await getAuthConfig());
+      setIsProcessing(false);
 
       history.push('/tabs/upload');
     } catch (error) {
-      console.error('Error deleting report before new upload:', error);
-    } finally {
       setIsProcessing(false);
+      console.error('Error deleting report before new upload:', error);
     }
   };
 
