@@ -55,7 +55,7 @@ vi.mock('common/components/Upload/UploadModal', () => {
       bookmarked: false,
       processingStatus: ProcessingStatus.PROCESSED,
       labValues: [],
-      summary: 'Test report summary',
+      medicalComments: 'Test report medical comments',
       filePath: '/reports/test-report.pdf',
       originalFilename: 'test-report.pdf',
       fileSize: 1024,
