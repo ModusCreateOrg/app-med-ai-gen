@@ -26,7 +26,6 @@ const ProcessingPage: React.FC = () => {
   const [processingError, setProcessingError] = useState<string | null>(null);
   const [errorHeading, setErrorHeading] = useState<string | null>(null);
   const statusCheckIntervalRef = useRef<number | null>(null);
-  const lastTriggeredTime = useRef<number | null>(null);
 
   // Get the location state which may contain the reportId (previously filePath)
   const location = useLocation<{ reportId: string }>();
@@ -127,17 +126,12 @@ const ProcessingPage: React.FC = () => {
     // Reset error state and try processing the same file again
     setError(null, null);
     setIsProcessing(true);
-    lastTriggeredTime.current = Date.now();
     processFile();
   };
 
   // Send the API request when component mounts
   useEffect(() => {
-    // check last triggered time to prevent multiple calls, if it's within 100ms then ignore
-    if ((lastTriggeredTime.current && lastTriggeredTime.current > Date.now() - 100) || !reportId) {
-      return;
-    }
-
+    clearStatusCheckInterval();
     execute();
 
     // Clean up the interval when the component unmounts
