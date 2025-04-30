@@ -86,9 +86,11 @@ const ReportDetailPage: React.FC = () => {
   };
 
   // Handle action buttons
-  const handleDiscard = async () => {
+  const handleDiscard = async (setIsProcessing: (isProcessing: boolean) => void) => {
     try {
+      setIsProcessing(true);
       await axios.delete(`${API_URL}/api/reports/${reportId}`, await getAuthConfig());
+      setIsProcessing(false);
 
       // Show toast notification
       createToast({
@@ -102,6 +104,8 @@ const ReportDetailPage: React.FC = () => {
       // Navigate back
       history.push('/tabs/home');
     } catch (error) {
+      setIsProcessing(false);
+
       console.error('Error discarding report:', error);
       createToast({
         message: t('report.discard.error', {
@@ -114,8 +118,17 @@ const ReportDetailPage: React.FC = () => {
     }
   };
 
-  const handleNewUpload = () => {
-    history.push('/tabs/upload');
+  const handleNewUpload = async (setIsProcessing: (isProcessing: boolean) => void) => {
+    try {
+      setIsProcessing(true);
+      await axios.delete(`${API_URL}/api/reports/${reportId}`, await getAuthConfig());
+      setIsProcessing(false);
+
+      history.push('/tabs/upload');
+    } catch (error) {
+      setIsProcessing(false);
+      console.error('Error deleting report before new upload:', error);
+    }
   };
 
   return (
@@ -142,8 +155,7 @@ const ReportDetailPage: React.FC = () => {
         <ActionButtons
           onDiscard={handleDiscard}
           onNewUpload={handleNewUpload}
-          reportTitle={reportData.title || reportData.category}
-          reportId={reportId}
+          reportTitle={reportData.title}
         />
       </IonContent>
     </IonPage>
