@@ -86,9 +86,11 @@ const ReportDetailPage: React.FC = () => {
   };
 
   // Handle action buttons
-  const handleDiscard = async () => {
+  const handleDiscard = async (setIsProcessing: (isProcessing: boolean) => void) => {
     try {
+      setIsProcessing(true);
       await axios.delete(`${API_URL}/api/reports/${reportId}`, await getAuthConfig());
+      setIsProcessing(false);
 
       // Show toast notification
       createToast({
@@ -114,8 +116,16 @@ const ReportDetailPage: React.FC = () => {
     }
   };
 
-  const handleNewUpload = () => {
-    history.push('/tabs/upload');
+  const handleNewUpload = async (setIsProcessing: (isProcessing: boolean) => void) => {
+    try {
+      setIsProcessing(true);
+      await axios.delete(`${API_URL}/api/reports/${reportId}`, await getAuthConfig());
+      setIsProcessing(false);
+
+      history.push('/tabs/upload');
+    } catch (error) {
+      console.error('Error deleting report before new upload:', error);
+    }
   };
 
   return (

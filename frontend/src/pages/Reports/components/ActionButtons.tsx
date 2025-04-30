@@ -1,14 +1,10 @@
 import React, { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import axios from 'axios';
-import { getAuthConfig } from 'common/api/reportService';
 import ConfirmationModal from '../../../common/components/Modal/ConfirmationModal';
 
-const API_URL = import.meta.env.VITE_BASE_URL_API || '';
-
 interface ActionButtonsProps {
-  onDiscard: () => void;
-  onNewUpload: () => void;
+  onDiscard: (setIsProcessing: (isProcessing: boolean) => void) => Promise<void>;
+  onNewUpload: (setIsProcessing: (isProcessing: boolean) => void) => Promise<void>;
   reportTitle?: string;
   reportId?: string;
 }
@@ -17,20 +13,20 @@ const ActionButtons: React.FC<ActionButtonsProps> = ({
   onDiscard,
   onNewUpload,
   reportTitle = '',
-  reportId,
 }) => {
   const { t } = useTranslation();
   const [showConfirmDiscard, setShowConfirmDiscard] = useState(false);
   const [showConfirmNewUpload, setShowConfirmNewUpload] = useState(false);
-  const [isDeleting, setIsDeleting] = useState(false);
+  const [isProcessing, setIsProcessing] = useState(false);
 
   const handleDiscardClick = () => {
     setShowConfirmDiscard(true);
   };
 
-  const handleConfirmDiscard = () => {
+  const handleConfirmDiscard = async () => {
     setShowConfirmDiscard(false);
-    onDiscard();
+
+    await onDiscard(setIsProcessing);
   };
 
   const handleCancelDiscard = () => {
@@ -44,22 +40,7 @@ const ActionButtons: React.FC<ActionButtonsProps> = ({
   const handleConfirmNewUpload = async () => {
     setShowConfirmNewUpload(false);
 
-    // If we have a reportId, delete the current report before going to upload screen
-    if (reportId) {
-      try {
-        setIsDeleting(true);
-        await axios.delete(`${API_URL}/api/reports/${reportId}`, await getAuthConfig());
-      } catch (error) {
-        console.error('Error deleting report before new upload:', error);
-      } finally {
-        setIsDeleting(false);
-        // Even if delete failed, still go to upload screen
-        onNewUpload();
-      }
-    } else {
-      // If no reportId, just navigate to upload
-      onNewUpload();
-    }
+    await onNewUpload(setIsProcessing);
   };
 
   const handleCancelNewUpload = () => {
@@ -72,14 +53,14 @@ const ActionButtons: React.FC<ActionButtonsProps> = ({
         <button
           className="report-detail-page__action-button report-detail-page__action-button--discard"
           onClick={handleDiscardClick}
-          disabled={isDeleting}
+          disabled={isProcessing}
         >
           {t('report.action.discard', { ns: 'reportDetail' })}
         </button>
         <button
           className="report-detail-page__action-button report-detail-page__action-button--upload"
           onClick={handleNewUploadClick}
-          disabled={isDeleting}
+          disabled={isProcessing}
         >
           {t('report.action.new-upload', { ns: 'reportDetail' })}
         </button>
