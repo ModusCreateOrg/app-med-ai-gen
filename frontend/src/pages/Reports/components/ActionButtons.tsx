@@ -12,7 +12,7 @@ interface ActionButtonsProps {
 const ActionButtons: React.FC<ActionButtonsProps> = ({
   onDiscard,
   onNewUpload,
-  reportTitle = '',
+  reportTitle,
 }) => {
   const { t } = useTranslation();
   const [showConfirmDiscard, setShowConfirmDiscard] = useState(false);

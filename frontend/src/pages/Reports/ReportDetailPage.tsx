@@ -154,8 +154,7 @@ const ReportDetailPage: React.FC = () => {
         <ActionButtons
           onDiscard={handleDiscard}
           onNewUpload={handleNewUpload}
-          reportTitle={reportData.title || reportData.category}
-          reportId={reportId}
+          reportTitle={reportData.title}
         />
       </IonContent>
     </IonPage>
