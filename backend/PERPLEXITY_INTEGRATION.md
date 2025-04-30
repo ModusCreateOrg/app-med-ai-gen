@@ -5,6 +5,7 @@ This document describes the integration of the Perplexity API in the Medical Rep
 ## Overview
 
 The integration enables the backend to leverage Perplexity's AI capabilities to:
+
 1. Explain medical text in simpler terms
 2. Support custom chat completions for more flexible AI interactions
 
@@ -47,25 +48,12 @@ The API key is securely managed using AWS Secrets Manager:
 2. The application retrieves the key at runtime using the AWS SDK
 3. The key is cached for 15 minutes to minimize API calls to Secrets Manager
 
-### Service Functionality
-
-The `PerplexityService` provides the following methods:
-
-1. `createChatCompletion`: Sends a chat completion request to the Perplexity API
-2. `explainMedicalText`: Specializes in explaining medical text in simple terms
-
-### API Endpoints
-
-The `PerplexityController` exposes the following endpoints:
-
-1. `POST /api/perplexity/explain`: Explains medical text in simpler terms
-2. `POST /api/perplexity/chat/completions`: Creates a custom chat completion
-
 ## Setup Instructions
 
 ### AWS Secrets Manager Setup
 
 1. Create a secret in AWS Secrets Manager:
+
    ```
    aws secretsmanager create-secret \
      --name med-ai-perplexity-key \
@@ -80,9 +68,7 @@ The `PerplexityController` exposes the following endpoints:
      "Statement": [
        {
          "Effect": "Allow",
-         "Action": [
-           "secretsmanager:GetSecretValue"
-         ],
+         "Action": ["secretsmanager:GetSecretValue"],
          "Resource": "arn:aws:secretsmanager:region:account-id:secret:med-ai-perplexity-key-*"
        }
      ]
@@ -93,12 +79,12 @@ The `PerplexityController` exposes the following endpoints:
 
 Configure the following environment variables:
 
-| Variable | Description | Default Value |
-|----------|-------------|---------------|
+| Variable                         | Description                               | Default Value           |
+| -------------------------------- | ----------------------------------------- | ----------------------- |
 | `PERPLEXITY_API_KEY_SECRET_NAME` | Name of the secret in AWS Secrets Manager | `med-ai-perplexity-key` |
-| `PERPLEXITY_MODEL` | Perplexity model to use | `mixtral-8x7b-instruct` |
-| `PERPLEXITY_MAX_TOKENS` | Maximum tokens to generate | `2048` |
-| `AWS_REGION` | AWS region for Secrets Manager | `us-east-1` |
+| `PERPLEXITY_MODEL`               | Perplexity model to use                   | `mixtral-8x7b-instruct` |
+| `PERPLEXITY_MAX_TOKENS`          | Maximum tokens to generate                | `2048`                  |
+| `AWS_REGION`                     | AWS region for Secrets Manager            | `us-east-1`             |
 
 ## Local Development
 
@@ -114,18 +100,6 @@ Then modify the `getApiKey` method in `PerplexityService` to check for this envi
 
 The frontend can interact with the Perplexity API through the following endpoints:
 
-### Explain Medical Text
-
-```typescript
-// Example frontend code
-const explainMedicalText = async (text: string) => {
-  const response = await axios.post('/api/perplexity/explain', {
-    medicalText: text
-  });
-  return response.data.explanation;
-};
-```
-
 ### Custom Chat Completion
 
 ```typescript
@@ -133,8 +107,8 @@ const explainMedicalText = async (text: string) => {
 const createChatCompletion = async (messages: any[]) => {
   const response = await axios.post('/api/perplexity/chat/completions', {
     messages: messages,
-    temperature: 0.7
+    temperature: 0.7,
   });
   return response.data.explanation;
 };
-``` 
+```

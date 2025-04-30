@@ -37,7 +37,7 @@ describe('DocumentProcessorService', () => {
         title: 'Test Report',
         category: 'general',
         labValues: [],
-        diagnoses: [],
+        medicalComments: '',
         metadata: {
           isMedicalReport: true,
           confidence: 0.9,
@@ -45,17 +45,15 @@ describe('DocumentProcessorService', () => {
         },
       };
 
-      const simplifiedExplanation = 'This is a simple explanation of the medical document.';
-
       // Create a new test-specific instance with proper mocking
       const testTextractService = { extractText: vi.fn() };
       const testBedrockService = { analyzeMedicalDocument: vi.fn() };
-      const testPerplexityService = { explainMedicalText: vi.fn() };
+      const testPerplexityService = { reviewMedicalAnalysis: vi.fn() };
 
       // Set up mocks
       testTextractService.extractText.mockResolvedValue(extractedTextResult);
       testBedrockService.analyzeMedicalDocument.mockResolvedValue(medicalAnalysis);
-      testPerplexityService.explainMedicalText.mockResolvedValue(simplifiedExplanation);
+      testPerplexityService.reviewMedicalAnalysis.mockResolvedValue(medicalAnalysis);
 
       // Create a fresh service instance with our mocks
       const testService = new DocumentProcessorService(
@@ -73,13 +71,10 @@ describe('DocumentProcessorService', () => {
         extractedTextResult.rawText,
         userId,
       );
-      expect(testPerplexityService.explainMedicalText).toHaveBeenCalledWith(
-        extractedTextResult.rawText,
-      );
+      expect(testPerplexityService.reviewMedicalAnalysis).toHaveBeenCalled();
       expect(result).toEqual({
         extractedText: extractedTextResult,
         analysis: medicalAnalysis,
-        simplifiedExplanation,
         processingMetadata: expect.objectContaining({
           fileSize: fileBuffer.length,
         }),
@@ -94,7 +89,7 @@ describe('DocumentProcessorService', () => {
       // Create test-specific service with proper mocking
       const testTextractService = { extractText: vi.fn() };
       const testBedrockService = { analyzeMedicalDocument: vi.fn() };
-      const testPerplexityService = { explainMedicalText: vi.fn() };
+      const testPerplexityService = { reviewMedicalAnalysis: vi.fn() };
 
       // Make the mock reject with an error
       testTextractService.extractText.mockRejectedValue(new Error('Failed to extract text'));
@@ -125,7 +120,7 @@ describe('DocumentProcessorService', () => {
       // Create test-specific service with proper mocking
       const testTextractService = { extractText: vi.fn() };
       const testBedrockService = { analyzeMedicalDocument: vi.fn() };
-      const testPerplexityService = { explainMedicalText: vi.fn() };
+      const testPerplexityService = { reviewMedicalAnalysis: vi.fn() };
 
       // Create a fresh service instance with our mocks
       const testService = new DocumentProcessorService(
@@ -148,14 +143,13 @@ describe('DocumentProcessorService', () => {
           title: 'Document 1 Report',
           category: 'general',
           labValues: [],
-          diagnoses: [],
+          medicalComments: '',
           metadata: {
             isMedicalReport: true,
             confidence: 0.9,
             missingInformation: [],
           },
         },
-        simplifiedExplanation: 'Simple explanation for document 1',
         processingMetadata: {
           processingTimeMs: 100,
           fileSize: 4,
@@ -173,14 +167,13 @@ describe('DocumentProcessorService', () => {
           title: 'Document 2 Report',
           category: 'general',
           labValues: [],
-          diagnoses: [],
+          medicalComments: '',
           metadata: {
             isMedicalReport: true,
             confidence: 0.9,
             missingInformation: [],
           },
         },
-        simplifiedExplanation: 'Simple explanation for document 2',
         processingMetadata: {
           processingTimeMs: 100,
           fileSize: 4,

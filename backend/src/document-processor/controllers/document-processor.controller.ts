@@ -155,8 +155,7 @@ export class DocumentProcessorController {
         report.missingInformation = result.analysis.metadata.missingInformation;
       }
 
-      // Create summary from simplified explanation or diagnoses
-      report.summary = result.simplifiedExplanation!;
+      report.medicalComments = result.analysis.medicalComments!;
 
       report.updatedAt = new Date().toISOString();
 

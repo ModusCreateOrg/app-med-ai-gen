@@ -24,7 +24,7 @@ export interface MedicalDocumentAnalysis {
     conclusion: string;
     suggestions: string;
   }>;
-  diagnoses: Array<{ condition: string; details: string; recommendations: string }>;
+  medicalComments: string;
   metadata: {
     isMedicalReport: boolean;
     confidence: number;
@@ -50,7 +50,7 @@ export class AwsBedrockService {
 1. Title/subject from content
 2. Category: "heart" (cardiac focus), "brain" (neurological focus), or "general" (all else)
 3. Lab values with ranges and status (normal/high/low)
-4. Diagnoses, findings, and recommendations
+4. Medical comments, if there are any, if not, return empty string
 5. Medical document verification with confidence level
 
 Reference trusted sources: Mayo Clinic, Cleveland Clinic, CDC, NIH, WHO, AMA, etc.
@@ -60,7 +60,7 @@ Return ONLY a JSON object with this structure:
   "title": string,
   "category": string,
   "labValues": [{"name": string, "value": string, "unit": string, "normalRange": string, "status": "normal" | "high" | "low", "isCritical": boolean, "conclusion": string, "suggestions": string}],
-  "diagnoses": [{"condition": string, "details": string, "recommendations": string}],
+  "medicalComments": string,
   "metadata": {
     "isMedicalReport": boolean,
     "confidence": number,
@@ -365,7 +365,6 @@ Document text:
       typeof response.title !== 'string' ||
       typeof response.category !== 'string' ||
       !Array.isArray(response.labValues) ||
-      !Array.isArray(response.diagnoses) ||
       !response.metadata
     ) {
       throw new BadRequestException('Invalid medical analysis response structure');

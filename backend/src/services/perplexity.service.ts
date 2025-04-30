@@ -247,29 +247,6 @@ export class PerplexityService {
   }
 
   /**
-   * Generates a simplified explanation of medical text
-   *
-   * @param medicalText The medical text to explain
-   * @returns The simplified explanation
-   */
-  async explainMedicalText(medicalText: string): Promise<string> {
-    const systemPrompt =
-      'You are an AI assistant that specializes in explaining complex medical information in simple terms.\n' +
-      'Your goal is to help patients understand their medical reports by translating medical jargon into plain language.\n' +
-      'You must be accurate, concise, comprehensive, and easy to understand. Use everyday analogies when helpful.\n';
-
-    const userPrompt = `Please explain the following medical text in simple terms, in a single paragraph that's between 10 to 200 words, all in normal text NOT .md style, the more concise the better:\n\n${medicalText}`;
-
-    const messages: PerplexityMessage[] = [
-      { role: 'system', content: systemPrompt },
-      { role: 'user', content: userPrompt },
-    ];
-
-    const response = await this.createChatCompletion(messages);
-    return response.choices[0].message.content.trim();
-  }
-
-  /**
    * Reviews and verifies a medical document analysis against trusted medical sources
    *
    * @param analysis The medical document analysis to review

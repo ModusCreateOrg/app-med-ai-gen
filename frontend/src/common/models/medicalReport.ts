@@ -50,7 +50,7 @@ export interface MedicalReport {
   bookmarked: boolean;
   processingStatus: ProcessingStatus;
   labValues: LabValue[];
-  summary: string;
+  medicalComments: string;
   confidence: number;
   filePath: string;
   originalFilename: string;

@@ -50,8 +50,8 @@ export class Report {
     suggestions: string;
   }>;
 
-  @ApiProperty({ description: 'Summary of the report' })
-  summary: string;
+  @ApiProperty({ description: 'Medical comments related to the report' })
+  medicalComments: string;
 
   @ApiProperty({ description: 'Confidence score of the analysis (0-100)' })
   confidence: number;

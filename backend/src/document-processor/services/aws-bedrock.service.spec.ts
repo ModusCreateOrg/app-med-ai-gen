@@ -80,7 +80,6 @@ vi.mock('@aws-sdk/client-bedrock-runtime', () => {
                         suggestions: 'Continue regular health maintenance.',
                       },
                     ],
-                    diagnoses: [],
                     metadata: {
                       isMedicalReport: true,
                       confidence: 0.95,
@@ -142,7 +141,7 @@ describe('AwsBedrockService', () => {
         suggestions: 'Continue regular health maintenance.',
       },
     ],
-    diagnoses: [],
+    medicalComments: 'Patient hemoglobin levels are within normal range.',
     metadata: {
       isMedicalReport: true,
       confidence: 0.95,
@@ -293,10 +292,9 @@ describe('AwsBedrockService', () => {
       const invalidResponses = [
         null,
         {},
-        { labValues: [], diagnoses: [] }, // Missing metadata
+        { labValues: [] }, // Missing metadata
         {
           labValues: [],
-          diagnoses: [],
           metadata: { isMedicalReport: 'not a boolean', confidence: 0.5, missingInformation: [] },
         },
       ];
@@ -325,7 +323,7 @@ describe('AwsBedrockService', () => {
             suggestions: 'No action needed',
           },
         ],
-        diagnoses: [],
+        medicalComments: '',
         metadata: {
           isMedicalReport: true,
           confidence: 0.9,
