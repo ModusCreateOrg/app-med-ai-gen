@@ -10,7 +10,6 @@ import { PerplexityService } from '../../services/perplexity.service';
 export interface ProcessedDocumentResult {
   extractedText: ExtractedTextResult;
   analysis: MedicalDocumentAnalysis;
-  simplifiedExplanation?: string;
   processingMetadata: {
     processingTimeMs: number;
     fileSize: number;
@@ -62,6 +61,7 @@ export class DocumentProcessorService {
 
       // Step 3: Review and verify analysis using Perplexity
       this.logger.log('Reviewing medical analysis with Perplexity');
+
       let analysis: MedicalDocumentAnalysis;
 
       try {
@@ -79,39 +79,18 @@ export class DocumentProcessorService {
         analysis = initialAnalysis;
       }
 
-      // Step 4: Generate simplified explanation using Perplexity
-      let simplifiedExplanation: string | undefined;
-
-      try {
-        if (analysis.metadata.isMedicalReport && extractedText.rawText) {
-          this.logger.log('Generating simplified explanation');
-          simplifiedExplanation = await this.perplexityService.explainMedicalText(
-            extractedText.rawText,
-          );
-          this.logger.log('Simplified explanation generated successfully');
-        }
-      } catch (explanationError) {
-        this.logger.error('Error generating simplified explanation', {
-          error: explanationError instanceof Error ? explanationError.message : 'Unknown error',
-        });
-        // We don't want to fail the entire process if explanation fails
-        simplifiedExplanation = undefined;
-      }
-
       const processingTime = Date.now() - startTime;
 
       this.logger.log(`Document processing completed in ${processingTime}ms`, {
         isMedicalReport: analysis.metadata.isMedicalReport,
         confidence: analysis.metadata.confidence,
         labValueCount: analysis.labValues.length,
-        hasExplanation: !!simplifiedExplanation,
       });
 
       // Return combined result
       return {
         extractedText,
         analysis,
-        simplifiedExplanation,
         processingMetadata: {
           processingTimeMs: processingTime,
           fileSize: fileBuffer.length,
@@ -175,14 +154,13 @@ export class DocumentProcessorService {
             title: 'Failed Document',
             category: 'general',
             labValues: [],
-            diagnoses: [],
+            medicalComments: '',
             metadata: {
               isMedicalReport: false,
               confidence: 0,
               missingInformation: ['Document processing failed'],
             },
           },
-          simplifiedExplanation: undefined,
           processingMetadata: {
             processingTimeMs: 0,
             fileSize: doc.buffer.length,

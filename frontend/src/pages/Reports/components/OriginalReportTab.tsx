@@ -68,7 +68,7 @@ const OriginalReportTab: React.FC<OriginalReportTabProps> = ({ reportData }) => 
       {/* Medical Comments Section */}
       <div className="report-detail-page__comments-section">
         <h4 className="report-detail-page__comments-title">Medical Comments:</h4>
-        <div className="report-detail-page__comments-text">{reportData.summary}</div>
+        <div className="report-detail-page__comments-text">{reportData.medicalComments}</div>
       </div>
 
       {/* Uploaded File Section */}

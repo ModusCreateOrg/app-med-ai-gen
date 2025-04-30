@@ -1,6 +1,6 @@
 import { Body, Controller, Post, HttpException, HttpStatus, Logger } from '@nestjs/common';
 import { PerplexityService, PerplexityMessage } from '../../services/perplexity.service';
-import { ExplainMedicalTextDto, ChatCompletionDto, PerplexityResponseDto } from './perplexity.dto';
+import { ChatCompletionDto, PerplexityResponseDto } from './perplexity.dto';
 
 /**
  * Controller for Perplexity API endpoints
@@ -10,27 +10,6 @@ export class PerplexityController {
   private readonly logger = new Logger(PerplexityController.name);
 
   constructor(private readonly perplexityService: PerplexityService) {}
-
-  /**
-   * Explains medical text in simpler terms
-   *
-   * @param dto The DTO containing medical text to explain
-   * @returns The simplified explanation
-   */
-  @Post('explain')
-  async explainMedicalText(@Body() dto: ExplainMedicalTextDto): Promise<PerplexityResponseDto> {
-    try {
-      const explanation = await this.perplexityService.explainMedicalText(dto.medicalText);
-      return { explanation };
-    } catch (error: unknown) {
-      const errorMessage = error instanceof Error ? error.message : 'Unknown error';
-      this.logger.error(`Failed to explain medical text: ${errorMessage}`);
-      throw new HttpException(
-        'Failed to process medical text explanation',
-        HttpStatus.INTERNAL_SERVER_ERROR,
-      );
-    }
-  }
 
   /**
    * Creates a custom chat completion

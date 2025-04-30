@@ -50,7 +50,6 @@ describe('AppModule', () => {
         generateResponse: vi.fn().mockResolvedValue('test response'),
         analyzeMedicalDocument: vi.fn().mockResolvedValue({
           labValues: [],
-          diagnoses: [],
           metadata: {
             isMedicalReport: true,
             confidence: 0.9,
