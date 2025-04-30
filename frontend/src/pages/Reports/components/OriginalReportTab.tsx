@@ -66,10 +66,12 @@ const OriginalReportTab: React.FC<OriginalReportTabProps> = ({ reportData }) => 
       </div>
 
       {/* Medical Comments Section */}
-      <div className="report-detail-page__comments-section">
-        <h4 className="report-detail-page__comments-title">Medical Comments:</h4>
-        <div className="report-detail-page__comments-text">{reportData.medicalComments}</div>
-      </div>
+      {reportData.medicalComments.length > 0 && (
+        <div className="report-detail-page__comments-section">
+          <h4 className="report-detail-page__comments-title">Medical Comments:</h4>
+          <div className="report-detail-page__comments-text">{reportData.medicalComments}</div>
+        </div>
+      )}
 
       {/* Uploaded File Section */}
       <div className="report-detail-page__uploaded-file">
