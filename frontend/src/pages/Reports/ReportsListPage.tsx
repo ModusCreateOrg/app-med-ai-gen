@@ -23,9 +23,10 @@ import ReportItem from 'pages/Home/components/ReportItem/ReportItem';
 import NoReportsMessage from 'pages/Home/components/NoReportsMessage/NoReportsMessage';
 import { useState, useMemo, useEffect, useRef } from 'react';
 import { MedicalReport } from 'common/models/medicalReport';
-import { documentTextOutline } from 'ionicons/icons';
 import sortSvg from 'assets/icons/sort.svg';
 import filterOutlineIcon from 'assets/icons/filter-outline.svg';
+import reportsIcon from 'assets/icons/reports.svg';
+import SvgIcon from 'common/components/Icon/SvgIcon';
 import FilterPanel, { CategoryOption } from './components/FilterPanel/FilterPanel';
 import CategoryTag from './components/CategoryTag/CategoryTag';
 import ReportsFilterEmpty from './components/ReportsFilterEmpty/ReportsFilterEmpty';
@@ -262,7 +263,16 @@ const ReportsListPage: React.FC = () => {
             }}
           >
             <div className="reports-list-page__title-container">
-              <IonIcon icon={documentTextOutline} className="reports-list-page__title-icon" />
+              <div className="reports-list-page__icon-wrapper">
+                <SvgIcon
+                  src={reportsIcon}
+                  alt={t('list.icon', { ns: 'report' })}
+                  className="reports-list-page__title-icon"
+                  color="#313E4C"
+                  width={20}
+                  height={20}
+                />
+              </div>
               <h1 className="reports-list-page__title">{t('list.title', { ns: 'report' })}</h1>
             </div>
             <div className="reports-list-page__actions">

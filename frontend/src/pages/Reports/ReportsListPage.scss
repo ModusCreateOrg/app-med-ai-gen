@@ -17,10 +17,19 @@
     align-items: center;
   }
 
-  &__title-icon {
-    font-size: 1.5rem;
+  &__icon-wrapper {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: #EBECFD;
+    border-radius: 50%;
+    width: 36px;
+    height: 36px;
     margin-right: 0.5rem;
-    color: var(--ion-color-primary);
+  }
+
+  &__title-icon {
+    // No margin-right needed since it's handled by the wrapper
   }
 
   &__title {
