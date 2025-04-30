@@ -1,14 +1,14 @@
-import { IonIcon } from '@ionic/react';
 import { format } from 'date-fns';
 import { useTranslation } from 'react-i18next';
 import { MedicalReport, ReportCategory } from 'common/models/medicalReport';
-import { bookmarkOutline } from 'ionicons/icons';
 import './ReportItem.scss';
 
 // Import SVG icons
 import healthIcon from 'assets/icons/health.svg';
 import brainIcon from 'assets/icons/brain.svg';
 import heartIcon from 'assets/icons/heart.svg';
+import bookmarkIcon from 'assets/icons/bookmark.svg';
+import bookmarkFilledIcon from 'assets/icons/bookmark-filled.svg';
 
 interface ReportItemProps {
   report: MedicalReport;
@@ -100,12 +100,14 @@ const ReportItem: React.FC<ReportItemProps> = ({
       </div>
 
       {showBookmarkButton && (
-        <div className="report-item__bookmark" onClick={handleBookmarkClick}>
-          <IonIcon
-            icon={bookmarkOutline}
-            className={`report-item__bookmark-icon ${
-              bookmarked ? 'report-item__bookmark-icon--active' : ''
-            }`}
+        <div
+          className={`report-item__bookmark ${bookmarked ? 'report-item__bookmark--active' : ''}`}
+          onClick={handleBookmarkClick}
+        >
+          <img
+            src={bookmarked ? bookmarkFilledIcon : bookmarkIcon}
+            alt={t('actions.bookmark', { ns: 'common', defaultValue: 'Bookmark' })}
+            className="report-item__bookmark-icon"
           />
         </div>
       )}

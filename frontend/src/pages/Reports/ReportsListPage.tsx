@@ -9,7 +9,6 @@ import {
   IonLabel,
   IonSegment,
   IonSegmentButton,
-  IonIcon,
   IonButton,
   IonToast,
   IonModal,
