@@ -2,7 +2,7 @@ import { Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import axios from 'axios';
 import { AwsSecretsService } from './aws-secrets.service';
-import { MedicalDocumentAnalysis } from 'src/document-processor/services/aws-bedrock.service';
+import { LabValue } from 'src/document-processor/services/aws-bedrock.service';
 
 export interface PerplexityMessage {
   role: 'system' | 'user' | 'assistant';
@@ -247,32 +247,29 @@ export class PerplexityService {
   }
 
   /**
-   * Reviews and verifies a medical document analysis against trusted medical sources
+   * Reviews and verifies a medical document lab values against trusted medical sources
    *
-   * @param analysis The medical document analysis to review
+   * @param labValues The medical document lab values to review
    * @param originalText The original text of the medical document
-   * @returns The corrected medical document analysis
+   * @returns The corrected medical document lab values
    */
-  async reviewMedicalAnalysis(
-    analysis: MedicalDocumentAnalysis,
-    originalText: string,
-  ): Promise<any> {
-    this.logger.log('Reviewing medical document analysis with Perplexity');
+  async reviewLabValuesAnalysis(labValues: LabValue[], originalText: string): Promise<LabValue[]> {
+    this.logger.log('Reviewing medical document lab values with Perplexity');
 
     const systemPrompt =
-      'Medical information verification specialist. Verify analysis against trusted sources (Mayo Clinic, Cleveland Clinic, CDC, NIH, WHO, medical journals). Ensure accuracy of lab ranges, interpretations, and recommendations. Return only corrected JSON. IMPORTANT: Do not modify the metadata object.';
+      'Medical information verification specialist. Verify lab values against trusted sources (Mayo Clinic, Cleveland Clinic, CDC, NIH, WHO, medical journals). Ensure accuracy of lab ranges, interpretations, and recommendations. Return only corrected JSON. IMPORTANT: Do not modify the metadata object.';
 
-    const analysisJson = JSON.stringify(analysis, null, 2);
+    const labValuesJson = JSON.stringify(labValues, null, 2);
 
     const userPrompt =
-      `Review this medical analysis for accuracy. Verify:\n` +
+      `Review this medical lab values for accuracy. Verify:\n` +
       `1. Lab value reference ranges\n` +
       `2. Interpretations of abnormal values\n` +
       `3. Medical conclusions and recommendations\n` +
       `4. Lab value categorizations\n\n` +
       `CRITICAL INSTRUCTION: Do NOT modify {metadata}.\n\n` +
       `CRITICAL INSTRUCTION: Do NOT modify {medicalComments}.\n\n` +
-      `Analysis JSON:\n${analysisJson}\n\n` +
+      `Analysis JSON:\n${labValuesJson}\n\n` +
       `Original Text:\n${originalText}\n\n` +
       `Return ONLY corrected JSON with identical structure. No preamble, explanation, or text before/after JSON.`;
 
@@ -284,30 +281,30 @@ export class PerplexityService {
     try {
       const response = await this.createChatCompletion(messages, {
         temperature: 0.3, // Lower temperature for more accurate/factual responses
-        maxTokens: 4000, // Ensure there's enough space for the full corrected analysis
+        maxTokens: 4000, // Ensure there's enough space for the full corrected labValues
         responseFormat: { type: 'json_object' }, // Use JSON mode for reliable JSON response
       });
 
-      // Parse the response to get the corrected analysis
+      // Parse the response to get the corrected labValues
       const responseText = response.choices[0].message.content.trim();
 
       try {
         // Try to parse as JSON - Perplexity should return the corrected JSON
-        const correctedAnalysis = JSON.parse(responseText);
-        return correctedAnalysis;
+        const correctedLabValues = JSON.parse(responseText);
+        return correctedLabValues;
       } catch (jsonParseError) {
-        // If parsing fails, log the error but return the original analysis
+        // If parsing fails, log the error but return the original labValues
         this.logger.error(
           `Failed to parse Perplexity review response as JSON: ${jsonParseError instanceof Error ? jsonParseError.message : 'Unknown error'}`,
         );
-        return analysis;
+        return labValues;
       }
     } catch (error) {
-      // If the API call fails, log the error but return the original analysis
+      // If the API call fails, log the error but return the original labValues
       this.logger.error(
-        `Error during medical analysis review: ${error instanceof Error ? error.message : 'Unknown error'}`,
+        `Error during medical labValues review: ${error instanceof Error ? error.message : 'Unknown error'}`,
       );
-      return analysis;
+      return labValues;
     }
   }
 }

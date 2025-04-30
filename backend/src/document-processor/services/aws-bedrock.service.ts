@@ -8,22 +8,24 @@ import {
 import { RateLimiter } from '../../utils/security.utils';
 import { createHash } from 'crypto';
 
+export interface LabValue {
+  name: string;
+  value: string;
+  unit: string;
+  normalRange: string;
+  status: 'normal' | 'high' | 'low';
+  isCritical: boolean;
+  conclusion: string;
+  suggestions: string;
+}
+
 /**
  * Interface for medical document analysis result
  */
 export interface MedicalDocumentAnalysis {
   title: string;
   category: string;
-  labValues: Array<{
-    name: string;
-    value: string;
-    unit: string;
-    normalRange: string;
-    status: 'normal' | 'high' | 'low';
-    isCritical: boolean;
-    conclusion: string;
-    suggestions: string;
-  }>;
+  labValues: LabValue[];
   medicalComments: string;
   metadata: {
     isMedicalReport: boolean;

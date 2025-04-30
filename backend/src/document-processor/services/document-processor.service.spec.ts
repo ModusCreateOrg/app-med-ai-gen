@@ -48,12 +48,12 @@ describe('DocumentProcessorService', () => {
       // Create a new test-specific instance with proper mocking
       const testTextractService = { extractText: vi.fn() };
       const testBedrockService = { analyzeMedicalDocument: vi.fn() };
-      const testPerplexityService = { reviewMedicalAnalysis: vi.fn() };
+      const testPerplexityService = { reviewLabValuesAnalysis: vi.fn() };
 
       // Set up mocks
       testTextractService.extractText.mockResolvedValue(extractedTextResult);
       testBedrockService.analyzeMedicalDocument.mockResolvedValue(medicalAnalysis);
-      testPerplexityService.reviewMedicalAnalysis.mockResolvedValue(medicalAnalysis);
+      testPerplexityService.reviewLabValuesAnalysis.mockResolvedValue(medicalAnalysis);
 
       // Create a fresh service instance with our mocks
       const testService = new DocumentProcessorService(
@@ -71,7 +71,7 @@ describe('DocumentProcessorService', () => {
         extractedTextResult.rawText,
         userId,
       );
-      expect(testPerplexityService.reviewMedicalAnalysis).toHaveBeenCalled();
+      expect(testPerplexityService.reviewLabValuesAnalysis).toHaveBeenCalled();
       expect(result).toEqual({
         extractedText: extractedTextResult,
         analysis: medicalAnalysis,
@@ -89,7 +89,7 @@ describe('DocumentProcessorService', () => {
       // Create test-specific service with proper mocking
       const testTextractService = { extractText: vi.fn() };
       const testBedrockService = { analyzeMedicalDocument: vi.fn() };
-      const testPerplexityService = { reviewMedicalAnalysis: vi.fn() };
+      const testPerplexityService = { reviewLabValuesAnalysis: vi.fn() };
 
       // Make the mock reject with an error
       testTextractService.extractText.mockRejectedValue(new Error('Failed to extract text'));
@@ -120,7 +120,7 @@ describe('DocumentProcessorService', () => {
       // Create test-specific service with proper mocking
       const testTextractService = { extractText: vi.fn() };
       const testBedrockService = { analyzeMedicalDocument: vi.fn() };
-      const testPerplexityService = { reviewMedicalAnalysis: vi.fn() };
+      const testPerplexityService = { reviewLabValuesAnalysis: vi.fn() };
 
       // Create a fresh service instance with our mocks
       const testService = new DocumentProcessorService(
