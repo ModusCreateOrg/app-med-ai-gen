@@ -1,6 +1,7 @@
 .reports-list-page {
   &__header {
     box-shadow: none;
+    background: inherit;
 
     ion-toolbar {
       --border-width: 0 !important;
