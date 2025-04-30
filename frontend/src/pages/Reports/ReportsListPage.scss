@@ -1,9 +1,9 @@
 .reports-list-page {
   &__header {
     box-shadow: none;
-    background: inherit;
 
     ion-toolbar {
+      --background: inherit;
       --border-width: 0 !important;
       --min-height: 60px;
       padding: 10px 16px;
@@ -111,7 +111,6 @@
 
   &__list {
     padding: 0;
-    background: transparent;
   }
 
   &__empty-state {
