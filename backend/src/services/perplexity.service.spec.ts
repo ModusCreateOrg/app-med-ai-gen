@@ -1,7 +1,7 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { ConfigService } from '@nestjs/config';
 import axios from 'axios';
-import { PerplexityService, PerplexityMessage, PerplexityResponse } from './perplexity.service';
+import { PerplexityService, PerplexityMessage } from './perplexity.service';
 import { AwsSecretsService } from './aws-secrets.service';
 import { describe, it, expect, beforeEach, vi, beforeAll, afterAll } from 'vitest';
 
