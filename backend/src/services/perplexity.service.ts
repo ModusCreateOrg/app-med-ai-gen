@@ -267,8 +267,6 @@ export class PerplexityService {
       `2. Interpretations of abnormal values\n` +
       `3. Medical conclusions and recommendations\n` +
       `4. Lab value categorizations\n\n` +
-      `CRITICAL INSTRUCTION: Do NOT modify {metadata}.\n\n` +
-      `CRITICAL INSTRUCTION: Do NOT modify {medicalComments}.\n\n` +
       `Analysis JSON:\n${labValuesJson}\n\n` +
       `Original Text:\n${originalText}\n\n` +
       `Return ONLY corrected JSON with identical structure. No preamble, explanation, or text before/after JSON.`;
