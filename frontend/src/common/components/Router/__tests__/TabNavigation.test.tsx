@@ -1,8 +1,45 @@
 import { describe, expect, it, vi, beforeAll, afterAll } from 'vitest';
 import { render as defaultRender, screen } from '@testing-library/react';
 import TabNavigation from '../TabNavigation';
-import WithMinimalProviders from 'test/wrappers/WithMinimalProviders';
 import '@testing-library/jest-dom';
+
+// Create a mock i18n instance - MOVED UP before any uses
+const mockI18n = {
+  t: (key: string, options?: Record<string, unknown>) => options?.defaultValue || key,
+  language: 'en',
+  languages: ['en'],
+  use: () => mockI18n, // Return itself for chaining
+  init: () => mockI18n, // Return itself for chaining
+  changeLanguage: vi.fn(),
+  exists: vi.fn(() => true),
+  addResourceBundle: vi.fn(),
+};
+
+// Mock i18next
+vi.mock('i18next', () => ({
+  default: mockI18n,
+}));
+
+// Mock i18next-browser-languagedetector
+vi.mock('i18next-browser-languagedetector', () => ({
+  default: function () {
+    return {};
+  },
+}));
+
+// Mock react-i18next
+vi.mock('react-i18next', () => ({
+  useTranslation: () => ({
+    t: (key: string, options?: Record<string, unknown>) => options?.defaultValue || key,
+  }),
+  initReactI18next: {},
+  I18nextProvider: ({ children }: { children: React.ReactNode }) => <>{children}</>,
+}));
+
+// Mock common/utils/i18n
+vi.mock('common/utils/i18n', () => ({
+  default: mockI18n,
+}));
 
 // Mock the window object for Ionic
 beforeAll(() => {
@@ -97,6 +134,11 @@ vi.mock('@ionic/react', async () => {
       }
       return tabButton;
     },
+    IonText: ({ children, className }: { children: React.ReactNode; className?: string }) => (
+      <div data-testid="mock-ion-text" className={className}>
+        {children}
+      </div>
+    ),
   };
 });
 
@@ -137,36 +179,71 @@ vi.mock('pages/Upload/UploadPage', () => ({
   default: () => <div data-testid="mock-upload-page">Upload Page</div>,
 }));
 
+vi.mock('pages/Reports/ReportsListPage', () => ({
+  default: () => <div data-testid="mock-reports-list-page">Reports List Page</div>,
+}));
+
+vi.mock('pages/Reports/ReportDetailPage', () => ({
+  default: () => <div data-testid="mock-report-detail-page">Report Detail Page</div>,
+}));
+
+vi.mock('pages/Processing/ProcessingPage', () => ({
+  default: () => <div data-testid="mock-processing-page">Processing Page</div>,
+}));
+
 // Mock the AppMenu component
 vi.mock('../../Menu/AppMenu', () => ({
   default: () => <div data-testid="mock-app-menu">App Menu</div>,
 }));
 
-// Mock the Icon component
-vi.mock('../../Icon/Icon', () => ({
+// Mock the SvgIcon component
+vi.mock('../../Icon/SvgIcon', () => ({
   default: ({
-    icon,
-    iconStyle,
+    src,
+    alt,
+    active,
     className,
-    size,
-    fixedWidth,
+    width,
+    height,
+    testid = 'svg-icon',
   }: {
-    icon: string;
-    iconStyle?: string;
+    src: string;
+    alt?: string;
+    active?: boolean;
     className?: string;
-    size?: string;
-    fixedWidth?: boolean;
+    width?: number | string;
+    height?: number | string;
+    testid?: string;
   }) => (
     <div
-      data-testid={`mock-icon-${icon}`}
-      data-icon-style={iconStyle}
+      data-testid={testid}
+      data-src={src}
+      data-alt={alt}
+      data-active={active ? 'true' : 'false'}
       className={className}
-      data-size={size}
-      data-fixed-width={fixedWidth ? 'true' : 'false'}
+      data-width={width}
+      data-height={height}
     >
-      {icon}
+      <img data-testid={`${testid}-img`} src={src} alt={alt} />
     </div>
   ),
+}));
+
+// Mock the SVG icons
+vi.mock('assets/icons/home.svg', () => ({
+  default: 'mocked-home-icon.svg'
+}));
+vi.mock('assets/icons/reports.svg', () => ({
+  default: 'mocked-reports-icon.svg'
+}));
+vi.mock('assets/icons/upload.svg', () => ({
+  default: 'mocked-upload-icon.svg'
+}));
+vi.mock('assets/icons/chat.svg', () => ({
+  default: 'mocked-chat-icon.svg'
+}));
+vi.mock('assets/icons/profile.svg', () => ({
+  default: 'mocked-profile-icon.svg'
 }));
 
 // Mock the UploadModal component
@@ -178,7 +255,7 @@ vi.mock('../../Upload/UploadModal', () => ({
   }: {
     isOpen: boolean;
     onClose: () => void;
-    _onUploadComplete?: (report: Record<string, unknown>) => void;
+    _onUploadComplete?: () => void;
   }) =>
     isOpen ? (
       <div data-testid="mock-upload-modal">
@@ -209,8 +286,14 @@ vi.mock('react-router-dom', async () => {
     useHistory: () => ({
       push: vi.fn(),
     }),
+    useLocation: () => ({
+      pathname: '/tabs/home',
+    }),
   };
 });
+
+// Import the WithMinimalProviders wrapper - THIS NEEDS TO COME AFTER ALL THE MOCKS
+import WithMinimalProviders from 'test/wrappers/WithMinimalProviders';
 
 // Use a custom render that uses our minimal providers
 const render = (ui: React.ReactElement) => {
@@ -233,12 +316,31 @@ describe('TabNavigation', () => {
     render(<TabNavigation />);
 
     // ASSERT
-    // Check if all tab icons are rendered
-    expect(screen.getByTestId('mock-icon-home')).toBeInTheDocument();
-    expect(screen.getByTestId('mock-icon-fileLines')).toBeInTheDocument();
-    expect(screen.getByTestId('mock-icon-arrowUpFromBracket')).toBeInTheDocument();
-    expect(screen.getByTestId('mock-icon-comment')).toBeInTheDocument();
-    expect(screen.getByTestId('mock-icon-userCircle')).toBeInTheDocument();
+    // Check if all SvgIcon components are rendered
+    const homeTab = screen.getByTestId('mock-ion-tab-button-home');
+    const svgIconInHomeTab = homeTab.querySelector('[data-testid="svg-icon"]');
+    expect(svgIconInHomeTab).toBeInTheDocument();
+    expect(svgIconInHomeTab).toHaveAttribute('data-src', 'mocked-home-icon.svg');
+
+    const reportsTab = screen.getByTestId('mock-ion-tab-button-reports');
+    const svgIconInReportsTab = reportsTab.querySelector('[data-testid="svg-icon"]');
+    expect(svgIconInReportsTab).toBeInTheDocument();
+    expect(svgIconInReportsTab).toHaveAttribute('data-src', 'mocked-reports-icon.svg');
+
+    const uploadTab = screen.getByTestId('mock-ion-tab-button-upload');
+    const svgIconInUploadTab = uploadTab.querySelector('[data-testid="svg-icon"]');
+    expect(svgIconInUploadTab).toBeInTheDocument();
+    expect(svgIconInUploadTab).toHaveAttribute('data-src', 'mocked-upload-icon.svg');
+
+    const chatTab = screen.getByTestId('mock-ion-tab-button-chat');
+    const svgIconInChatTab = chatTab.querySelector('[data-testid="svg-icon"]');
+    expect(svgIconInChatTab).toBeInTheDocument();
+    expect(svgIconInChatTab).toHaveAttribute('data-src', 'mocked-chat-icon.svg');
+
+    const accountTab = screen.getByTestId('mock-ion-tab-button-account');
+    const svgIconInAccountTab = accountTab.querySelector('[data-testid="svg-icon"]');
+    expect(svgIconInAccountTab).toBeInTheDocument();
+    expect(svgIconInAccountTab).toHaveAttribute('data-src', 'mocked-profile-icon.svg');
   });
 
   it('should have correct href attributes on tab buttons', () => {
@@ -252,7 +354,7 @@ describe('TabNavigation', () => {
       '/tabs/home',
     );
 
-    // Check for analytics tab button
+    // Check for reports tab button
     expect(screen.getByTestId('mock-ion-tab-button-reports')).toHaveAttribute(
       'data-href',
       '/tabs/reports',
@@ -283,7 +385,7 @@ describe('TabNavigation', () => {
     // Check for home tab button
     expect(screen.getByTestId('mock-ion-tab-button-home')).toHaveAttribute('data-tab', 'home');
 
-    // Check for analytics tab button
+    // Check for reports tab button
     expect(screen.getByTestId('mock-ion-tab-button-reports')).toHaveAttribute(
       'data-tab',
       'reports',
@@ -302,29 +404,19 @@ describe('TabNavigation', () => {
     );
   });
 
-  it('should have correct icon styles', () => {
+  it('should have active state based on current location', () => {
     // ARRANGE
     render(<TabNavigation />);
 
     // ASSERT
-    // Home icon should not have a style (using default solid)
-    const homeIcon = screen.getByTestId('mock-icon-home');
-    expect(homeIcon).not.toHaveAttribute('data-icon-style');
+    // Home icon should be active since we mocked location.pathname to be '/tabs/home'
+    const homeTab = screen.getByTestId('mock-ion-tab-button-home');
+    const svgIconInHomeTab = homeTab.querySelector('[data-testid="svg-icon"]');
+    expect(svgIconInHomeTab).toHaveAttribute('data-active', 'true');
 
-    // FileLines icon should have regular style
-    const fileLinesIcon = screen.getByTestId('mock-icon-fileLines');
-    expect(fileLinesIcon).toHaveAttribute('data-icon-style', 'regular');
-
-    // Upload icon should not have a style (using default solid)
-    const uploadIcon = screen.getByTestId('mock-icon-arrowUpFromBracket');
-    expect(uploadIcon).not.toHaveAttribute('data-icon-style');
-
-    // Comment icon should have regular style
-    const commentIcon = screen.getByTestId('mock-icon-comment');
-    expect(commentIcon).toHaveAttribute('data-icon-style', 'regular');
-
-    // User icon should not have a style (using default solid)
-    const userIcon = screen.getByTestId('mock-icon-userCircle');
-    expect(userIcon).not.toHaveAttribute('data-icon-style');
+    // Other tabs should not be active
+    const reportsTab = screen.getByTestId('mock-ion-tab-button-reports');
+    const svgIconInReportsTab = reportsTab.querySelector('[data-testid="svg-icon"]');
+    expect(svgIconInReportsTab).toHaveAttribute('data-active', 'false');
   });
 });

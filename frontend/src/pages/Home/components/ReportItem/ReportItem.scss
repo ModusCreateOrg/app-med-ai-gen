@@ -46,31 +46,23 @@
   }
 
   &__bookmark {
-    padding: 8px;
+    width: 34px;
+    height: 34px;
     display: flex;
     align-items: center;
     justify-content: center;
-    align-self: center;
-    margin-right: 6px;
 
     &-icon {
-      font-size: 11px;
-      color: #aaa;
+      width: 15px;
       transition: all 0.2s ease;
-      width: 34px;
-      height: 34px;
       display: flex;
       align-items: center;
       justify-content: center;
-      background-color: white;
       border-radius: 50%;
-      padding: 11px;
-      box-sizing: content-box;
-      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+      padding: 11px 7px;
 
       &--active {
         color: white;
-        /*background-color: #4355b9;*/
         background-color: #4765ff;
         box-shadow: none;
       }

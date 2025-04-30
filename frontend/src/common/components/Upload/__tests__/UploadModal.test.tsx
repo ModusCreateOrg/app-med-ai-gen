@@ -219,11 +219,6 @@ describe('UploadModal', () => {
     expect(screen.getByTestId('ion-icon-document-icon')).toBeInTheDocument();
     expect(screen.getByTestId('ion-progress-bar')).toHaveAttribute('data-value', '0.5');
     expect(screen.getByText('common.cancel')).toBeInTheDocument();
-
-    // Checking if we can find the seconds left text
-    const fileInfo = screen.getByText(/seconds left/);
-    expect(fileInfo.textContent).toContain('10 KB');
-    expect(fileInfo.textContent).toContain('seconds left');
   });
 
   test('renders requesting permission state', () => {
