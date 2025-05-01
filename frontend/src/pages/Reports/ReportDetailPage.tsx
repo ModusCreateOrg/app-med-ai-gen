@@ -8,8 +8,7 @@ import { MedicalReport } from '../../common/models/medicalReport';
 import { useTranslation } from 'react-i18next';
 import { getAuthConfig } from 'common/api/reportService';
 import { useToasts } from 'common/hooks/useToasts';
-
-// Import components
+import AiAssistantNotice from './components/AiAssistantNotice';
 import ReportHeader from './components/ReportHeader';
 import ReportTabs from './components/ReportTabs';
 import OriginalReportTab from './components/OriginalReportTab';
@@ -150,6 +149,9 @@ const ReportDetailPage: React.FC = () => {
 
         {/* Doctor information note */}
         <InfoCard />
+
+        {/* AI Assistant Notice */}
+        {activeTab === 'ai' && <AiAssistantNotice />}
 
         {/* Action buttons at the bottom */}
         <ActionButtons

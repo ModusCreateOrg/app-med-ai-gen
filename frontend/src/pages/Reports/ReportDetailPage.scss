@@ -354,7 +354,7 @@
     display: flex;
     gap: 16px;
     padding: 0 16px 32px;
-    margin-top: 32px;
+    margin-top: 20px;
   }
 
   &__action-button {
@@ -949,7 +949,7 @@
   .report-detail-page {
     &__actions {
       max-width: 600px;
-      margin: 32px auto 0;
+      margin: 20px auto 0;
     }
 
     &__section,
