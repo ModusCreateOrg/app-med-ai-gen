@@ -128,7 +128,6 @@
     padding: 14px 16px;
     margin: 0 16px 16px;
     align-items: flex-start;
-    background-color: rgba(201, 58, 84, 0.08);
     gap: 12px;
   }
 
@@ -162,6 +161,8 @@
     padding: 16px;
     cursor: pointer;
     background-color: rgba(235, 238, 248, 0.5);
+    margin-left: -15px;
+    margin-bottom: 14px;
   }
 
   &__section-icon {
@@ -250,16 +251,14 @@
     display: flex;
     flex-wrap: wrap;
     align-items: center;
-    padding: 16px;
-    background-color: #fff;
+    padding: 16px 16px 16px 24px; // Increased left padding from 16px to 24px
+    background-color: #fff; // Keep default background white
 
     &--high {
-      background-color: rgba(201, 58, 84, 0.08);
       border-bottom: 1px solid rgba(201, 58, 84, 0.15);
     }
 
     &--low {
-      background-color: rgba(250, 173, 113, 0.08);
       border-bottom: 1px solid rgba(250, 173, 113, 0.15);
     }
   }
@@ -303,7 +302,12 @@
   &__item-details {
     color: #444;
     padding: 16px;
-    background-color: rgba(248, 249, 251, 0.6);
+    background-color: rgba(248, 249, 251, 0.6); // Default background
+
+    &.details--high, // Target details when high
+    &.details--low { // Target details when low
+      background-color: transparent; // Remove specific background for flagged item details
+    }
   }
 
   &__item-section {
@@ -747,6 +751,139 @@
   }
 }
 
+// Modify styles for both flagged and normal values sections
+.flagged-values-section,
+.normal-values-section {
+  background-color: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+  
+  .report-detail-page__section-header {
+    background-color: transparent !important;
+    padding: 2px 16px !important;
+    border-radius: 0 !important;
+
+    .report-detail-page__section-title {
+      font-size: 13px !important;
+      line-height: 1.1 !important;
+    }
+  }
+
+  .flagged-values-content,
+  .normal-values-content {
+    padding: 0;
+    background-color: transparent;
+  }
+}
+
+// Updated lab value item styles with smaller text and reduced height
+.lab-value-item {
+  border-radius: 16px;
+  margin-bottom: 14px; // Slightly reduced from 16px
+  overflow: hidden;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.05);
+  border: 1px solid #ebeef8;
+
+  &__header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background-color: #fefefe;
+    padding: 8px 16px 8px 28px; // Shrink header vertical padding to 2px for even smaller heading height
+  }
+
+  &--low &__header {
+    background-color: #feF8f2;  // Light orange for "Low" background
+  }
+
+  &--high &__header {
+    background-color: #fef2f2; // Light red for "High" background
+  }
+
+  &__name {
+    font-weight: 500;
+    font-size: 13px; // Further reduce font size for heading
+    letter-spacing: 0.26px;
+    line-height: 16px; // Reduce line-height for compactness
+    color: #313e4c;
+    flex: 1;
+  }
+
+  &__status-value {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  &__status {
+    font-size: 11px; // Reduced from 12px for smaller badge
+    padding: 2px 7px; // Reduced from 3px 10px for smaller badge
+    border-radius: 12px;
+    font-weight: 600;
+    text-transform: capitalize;
+    
+    &.report-detail-page__item-level--high {
+      background-color: #c93a54;
+      color: white;
+    }
+
+    &.report-detail-page__item-level--low {
+      background-color: #f5b77b;
+      color: white;
+    }
+  }
+
+  &__value {
+    font-weight: 600;
+    font-size: 15px; // Reduced from 16px
+    white-space: nowrap;
+    color: #313e4c;
+  }
+
+  &__details {
+    padding: 14px 16px 14px 28px; // Reduced from 16px to 14px vertical padding
+  }
+
+  &__section {
+    margin-bottom: 16px; // Reduced from 20px
+
+    &:last-child {
+      margin-bottom: 0;
+    }
+
+    h4 {
+      font-size: 14px; // Reduced from 15px
+      color: #313e4c;
+      margin: 0 0 6px 0; // Reduced from 8px
+      font-weight: 600;
+    }
+
+    p {
+      margin: 0;
+      font-size: 13px; // Reduced from 14px
+      line-height: 1.4; // Reduced from 1.5
+      color: #5c6d80;
+    }
+  }
+
+  &__list {
+    margin: 0;
+    padding-left: 20px;
+    font-size: 13px; // Reduced from 14px
+    line-height: 1.4; // Reduced from 1.5
+    color: #5c6d80;
+
+    li {
+      margin-bottom: 8px; // Reduced from 10px
+      padding-left: 4px;
+
+      &:last-child {
+        margin-bottom: 0;
+      }
+    }
+  }
+}
+
 // Media Queries for responsiveness
 @media (min-width: 768px) {
   .report-detail-page {
@@ -777,6 +914,13 @@
     }
 
     .low-confidence-notice {
+      max-width: 600px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+
+    .flagged-values-section,
+    .lab-value-item {
       max-width: 600px;
       margin-left: auto;
       margin-right: auto;

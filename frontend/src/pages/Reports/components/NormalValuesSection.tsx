@@ -20,7 +20,7 @@ const NormalValuesSection: React.FC<NormalValuesSectionProps> = ({
   const { t } = useTranslation();
 
   return (
-    <div className="report-detail-page__section">
+    <div className="report-detail-page__section normal-values-section">
       <div className="report-detail-page__section-header" onClick={onToggle}>
         <div
           className="report-detail-page__section-icon"
@@ -51,8 +51,11 @@ const NormalValuesSection: React.FC<NormalValuesSectionProps> = ({
       )}
 
       {isExpanded &&
-        normalValues.length > 0 &&
-        normalValues.map((item, index) => <LabValueItem key={index} item={item} />)}
+        normalValues.length > 0 && (
+          <div className="normal-values-content">
+            {normalValues.map((item, index) => <LabValueItem key={index} item={item} />)}
+          </div>
+        )}
     </div>
   );
 };
