@@ -1,13 +1,8 @@
 .report-detail-page {
   --padding-horizontal: 16px;
-  --page-background: radial-gradient(
-    circle,
-    rgb(250 250 255 / 83%) 0%,
-    rgb(249 252 255 / 100%) 100%
-  );
 
   ion-content {
-    --background: var(--page-background);
+    /* Removing custom background to use global background */
   }
 
   &__header {

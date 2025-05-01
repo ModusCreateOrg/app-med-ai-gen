@@ -59,13 +59,31 @@
 /* Global safe area padding for all pages */
 ion-content {
   --padding-top: var(--ion-safe-area-top, 1rem);
+  --background: transparent !important;
 }
 
 /* Background for the entire app */
 body,
 ion-app,
 ion-content {
-  background: url('../../assets/Reports_bg.png') no-repeat center center !important;
+  background: url('../assets/Reports_bg.png') no-repeat center center fixed !important;
+  background-size: cover !important;
+}
+
+/* Ensure background is applied to specific pages */
+.home-page,
+.report-detail-page,
+.reports-list-page {
+  background: transparent !important;
+}
+
+.report-detail-page ion-content {
+  --background: transparent !important;
+}
+
+/* Override any other page-specific backgrounds */
+ion-content::part(background) {
+  background: transparent !important;
 }
 
 /* Remove left padding from router outlet to avoid double padding */
