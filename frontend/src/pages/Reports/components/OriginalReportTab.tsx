@@ -29,17 +29,19 @@ const OriginalReportTab: React.FC<OriginalReportTabProps> = ({ reportData }) => 
       {/* Test results table */}
       <div className="report-detail-page__results-table">
         <div className="report-detail-page__results-header">
-          <div className="report-detail-page__results-cell report-detail-page__results-cell--test">
-            Test
-          </div>
-          <div className="report-detail-page__results-cell" style={{ width: '24px' }}>
-            {/* Status column */}
-          </div>
-          <div className="report-detail-page__results-cell report-detail-page__results-cell--value">
-            Results
-          </div>
-          <div className="report-detail-page__results-cell report-detail-page__results-cell--ref">
-            Ref.
+          <div className="report-detail-page__results-header-row">
+            <div className="report-detail-page__results-cell-header report-detail-page__results-cell-header--test">
+              Test
+            </div>
+            <div className="report-detail-page__results-cell" style={{ width: '24px' }}>
+              {/* Status column */}
+            </div>
+            <div className="report-detail-page__results-cell-header report-detail-page__results-cell-header--value">
+              Results
+            </div>
+            <div className="report-detail-page__results-cell-header report-detail-page__results-cell-header--ref">
+              Ref.
+            </div>
           </div>
         </div>
         {reportData.labValues.map((labValue, index) => (

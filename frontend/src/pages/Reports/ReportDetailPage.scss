@@ -489,16 +489,21 @@
   }
 
   &__results-header {
+    background: #fff;
+  }
+
+  &__results-header-row {
     display: flex;
     background: #f2f4f7;
-    color: #838b94;
+    color: #5c6d80;
     font-weight: 600;
-    padding: 0 14px;
-    min-width: 0;
+    padding: 5px;
+    width: 90%;
     border-bottom: 1.5px solid #e9eef6;
-    min-height: 48px;
-    height: 48px;
     align-items: center;
+    margin-top: 15px;
+    margin-right: auto;
+    margin-left: auto;
   }
 
   &__results-row {
@@ -533,11 +538,23 @@
     line-height: 1.2;
   }
 
+  &__results-cell-header {
+    display: flex;
+    align-items: center;
+    font-size: 14px;
+    font-weight: 400;
+    padding: 0;
+    background: none;
+    min-width: 0;
+    white-space: nowrap;
+    max-width: 100%;
+    line-height: 1.2;
+  }
+
   &__results-cell--test {
     flex: 2;
-    font-weight: 500;
-    color: #313e4c;
-    max-width: 140px;
+    font-size: 12px;
+    min-width: 160px;
     overflow-wrap: break-word;
     white-space: normal; // Allow text to wrap
     word-break: break-word; // Ensure long words break
@@ -545,21 +562,46 @@
 
   &__results-cell--value {
     flex: 1.3;
+    font-size: 12px;
     justify-content: flex-end;
-    font-weight: 700;
-    color: #313e4c;
+    font-weight: 500;
     white-space: normal; // Allow text to wrap
     word-break: break-word; // Ensure long words break
     overflow-wrap: break-word;
   }
 
   &__results-cell--ref {
+    color: #5c6d80;
+    flex: 1;
+    justify-content: flex-end;
+    font-size: 12px;
+    min-width: 80px;
+    white-space: normal; // Allow text to wrap
+    word-break: break-word; // Ensure long words break
+    overflow-wrap: break-word;
+  }
+
+  &__results-cell-header--test {
+    flex: 2;
+    min-width: 160px;
+    overflow-wrap: break-word;
+    white-space: normal; // Allow text to wrap
+    word-break: break-word; // Ensure long words break
+  }
+
+  &__results-cell-header--value {
+    flex: 1.3;
+    justify-content: flex-end;
+    white-space: normal; // Allow text to wrap
+    word-break: break-word; // Ensure long words break
+    overflow-wrap: break-word;
+  }
+
+  &__results-cell-header--ref {
     flex: 1;
     justify-content: flex-end;
     font-size: 13px;
-    color: #a0aec0;
-    font-weight: 400;
-    max-width: 60px;
+    min-width: 80px;
     white-space: normal; // Allow text to wrap
     word-break: break-word; // Ensure long words break
     overflow-wrap: break-word;
@@ -574,9 +616,9 @@
   }
 
   &__results-value {
-    font-weight: 700;
+    font-weight: 600;
     color: #313e4c;
-    font-size: 14px;
+    font-size: 13px;
     text-overflow: ellipsis;
     white-space: nowrap;
     max-width: 100px;
