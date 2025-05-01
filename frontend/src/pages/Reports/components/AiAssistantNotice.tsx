@@ -19,16 +19,13 @@ const AiAssistantNotice: React.FC = () => {
         <IonText color="dark" className="clarification-text">
           Still need further clarifications?
         </IonText>
-        
-        <div 
-          className="assistant-link"
-          onClick={handleOpenAIAssistant}
-        >
+
+        <div className="assistant-link" onClick={handleOpenAIAssistant}>
           Ask our AI Assistant &gt;
         </div>
       </div>
 
-      <AIAssistantModal 
+      <AIAssistantModal
         isOpen={isAIAssistantOpen}
         setIsOpen={setIsAIAssistantOpen}
         testid="report-ai-assistant-modal"

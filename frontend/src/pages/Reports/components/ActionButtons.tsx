@@ -9,11 +9,7 @@ interface ActionButtonsProps {
   reportId?: string;
 }
 
-const ActionButtons: React.FC<ActionButtonsProps> = ({
-  onDiscard,
-  onNewUpload,
-  reportTitle,
-}) => {
+const ActionButtons: React.FC<ActionButtonsProps> = ({ onDiscard, onNewUpload, reportTitle }) => {
   const { t } = useTranslation();
   const [showConfirmDiscard, setShowConfirmDiscard] = useState(false);
   const [showConfirmNewUpload, setShowConfirmNewUpload] = useState(false);

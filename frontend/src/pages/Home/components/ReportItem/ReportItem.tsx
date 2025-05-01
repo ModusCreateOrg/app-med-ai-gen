@@ -85,10 +85,10 @@ const ReportItem: React.FC<ReportItemProps> = ({
     <div className="report-item" onClick={onClick}>
       {getCategoryIcon()}
       {status === 'UNREAD' && (
-          <div className="report-item__status-bullet">
-            <figure className="circle"></figure>
-          </div>
-        )}
+        <div className="report-item__status-bullet">
+          <figure className="circle"></figure>
+        </div>
+      )}
       <div className="report-item__content">
         <div className="report-item__category-label">
           {t(getCategoryTranslationKey(), { ns: 'report' })}

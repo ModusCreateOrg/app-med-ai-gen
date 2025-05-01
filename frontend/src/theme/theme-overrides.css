@@ -62,7 +62,9 @@ ion-content {
 }
 
 /* Background for the entire app */
-body, ion-app, ion-content {
+body,
+ion-app,
+ion-content {
   background: url('../../assets/Reports_bg.png') no-repeat center center !important;
 }
 

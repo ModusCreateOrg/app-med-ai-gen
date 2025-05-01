@@ -21,7 +21,7 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    background-color: #EBECFD;
+    background-color: #ebecfd;
     border-radius: 50%;
     width: 36px;
     height: 36px;
@@ -67,16 +67,16 @@
     margin-top: 4px;
 
     ion-segment {
-      --background: #EBEEF8;
+      --background: #ebeef8;
       border-radius: 9999px;
       overflow: hidden;
       padding: 4px;
 
       ion-segment-button {
-        --background: #EBEEF8;
-        --background-checked: #FFFFFF;
-        --color: #313E4C;
-        --color-checked: #313E4C;
+        --background: #ebeef8;
+        --background-checked: #ffffff;
+        --color: #313e4c;
+        --color-checked: #313e4c;
         --indicator-color: transparent;
         --border-radius: 9999px;
         --border-style: none;
@@ -164,4 +164,3 @@
     margin-right: 1rem;
   }
 }
-

@@ -43,7 +43,7 @@ const mockI18n = {
   options: {},
   isResourcesLoaded: true,
   dir: () => 'ltr',
-  getFixedT: () => ((key: string) => key),
+  getFixedT: () => (key: string) => key,
   format: vi.fn(),
   formatMessage: vi.fn(),
   hasLoadedNamespace: () => true,
