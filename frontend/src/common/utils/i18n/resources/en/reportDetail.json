@@ -67,7 +67,7 @@
     },
     "normal-values": {
       "title": "Normal values",
-      "empty": "No values available.",
+      "empty": "No values to display",
       "empty-description": "No normal values within the normal range were detected."
     },
     "conclusion": {

@@ -6,7 +6,7 @@
     border-radius: 32px;
     height: 100%;
     margin: 0;
-    padding: 24px;
+    padding: 20px;
     display: flex;
     flex-direction: column;
     position: relative;
@@ -24,6 +24,7 @@
     // Styles for the Avatar component
     .ls-avatar {
       --size: 60px !important;
+
       margin: 0;
 
       // This makes sure even round avatars are sized correctly
@@ -42,7 +43,7 @@
   &__subtitle {
     font-size: 20px;
     color: #9ba1ab;
-    margin: 0 0 5px 0;
+    margin: 0 0 5px;
     font-weight: 400;
   }
 
@@ -64,6 +65,7 @@
     width: 230px;
     height: 230px;
     animation: pulse 2s infinite ease-in-out;
+    margin: auto;
   }
 
   // Error component styling - final adjustments
@@ -86,24 +88,24 @@
   }
 
   &__error-header {
-    margin-bottom: 40px;
+    margin-bottom: 120px;
     text-align: left;
     align-self: flex-start;
     width: 100%;
   }
 
   &__error-oops {
-    font-size: 24px;
+    font-size: 18px;
     font-weight: 400;
     color: #8e8e93;
     margin: 0 0 4px;
   }
 
   &__error-title {
-    font-size: 34px;
-    font-weight: 700;
+    font-size: 26px;
+    font-weight: 600;
     margin: 0;
-    color: #1c1c1e;
+    color: #313e4c;
     line-height: 1.2;
   }
 
@@ -146,19 +148,20 @@
     flex-direction: row;
     gap: 12px;
     width: 100%;
-    padding: 0 8px; // Reduced side padding to make buttons wider
-    max-width: 450px; // Increased max-width from 400px
+    padding: 0 5px;
     margin-left: auto;
     margin-right: auto;
-    margin-bottom: 8px; // Further reduced from 20px to 8px
+    margin-bottom: 8px;
 
     ion-button {
       margin: 0;
-      height: 48px;
+      height: 54px;
+
       --border-radius: 8px;
       --border-width: 1px;
       --padding-top: 0;
       --padding-bottom: 0;
+
       font-size: 16px;
       font-weight: 600;
       text-transform: none;
@@ -171,10 +174,10 @@
     --color: #4361ee;
     --border-color: #4361ee;
     --background: transparent;
-    --background-hover: rgba(67, 97, 238, 0.1);
-    --background-activated: rgba(67, 97, 238, 0.2);
+    --background-hover: rgb(67 97 238 / 10%);
+    --background-activated: rgb(67 97 238 / 20%);
     --box-shadow: none;
-    --ripple-color: rgba(67, 97, 238, 0.1);
+    --ripple-color: rgb(67 97 238 / 10%);
   }
 
   &__upload-btn {
@@ -192,10 +195,12 @@
     transform: scale(0.95);
     opacity: 0.8;
   }
+
   50% {
     transform: scale(1);
     opacity: 1;
   }
+
   100% {
     transform: scale(0.95);
     opacity: 0.8;
