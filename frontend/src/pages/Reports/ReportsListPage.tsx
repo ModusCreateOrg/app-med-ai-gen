@@ -81,12 +81,12 @@ const ReportsListPage: React.FC = () => {
   // Filter and sort reports based on selected filter, categories, and sort direction
   const filteredReports = useMemo(() => {
     // First, filter the reports by bookmark status
-    let filtered = filter === 'all' ? reports : reports.filter(report => report.bookmarked);
+    let filtered = filter === 'all' ? reports : reports.filter((report) => report.bookmarked);
 
     // Then, filter by selected categories if any are selected
     if (selectedCategories.length > 0) {
-      filtered = filtered.filter(report =>
-        selectedCategories.includes(report.category.toLowerCase())
+      filtered = filtered.filter((report) =>
+        selectedCategories.includes(report.category.toLowerCase()),
       );
     }
 
@@ -165,7 +165,7 @@ const ReportsListPage: React.FC = () => {
   };
 
   const handleRemoveCategory = (categoryId: string) => {
-    setSelectedCategories(prev => prev.filter(id => id !== categoryId));
+    setSelectedCategories((prev) => prev.filter((id) => id !== categoryId));
   };
 
   const handleClearAllCategories = () => {
@@ -173,7 +173,7 @@ const ReportsListPage: React.FC = () => {
   };
 
   const getCategoryLabel = (categoryId: string): string => {
-    const category = categories.find(cat => cat.id === categoryId);
+    const category = categories.find((cat) => cat.id === categoryId);
     return category ? category.label : categoryId;
   };
 
@@ -182,7 +182,7 @@ const ReportsListPage: React.FC = () => {
 
     return (
       <div className="reports-list-page__category-tags">
-        {selectedCategories.map(categoryId => (
+        {selectedCategories.map((categoryId) => (
           <CategoryTag
             key={categoryId}
             label={getCategoryLabel(categoryId)}

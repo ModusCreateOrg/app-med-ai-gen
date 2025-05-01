@@ -60,7 +60,7 @@ const AiAnalysisTab: React.FC<AiAnalysisTabProps> = ({
         isExpanded={normalValuesExpanded}
         onToggle={toggleNormalValues}
       />
-      
+
       {/* AI Assistant Notice */}
       <AiAssistantNotice />
     </div>

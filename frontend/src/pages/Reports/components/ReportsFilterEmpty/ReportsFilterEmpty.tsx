@@ -28,9 +28,7 @@ const ReportsFilterEmpty: React.FC<ReportsFilterEmptyProps> = ({
         <IonIcon icon={searchOutline} className="reports-filter-empty__icon" />
       </div>
 
-      <h3 className="reports-filter-empty__title">
-        {t('list.noMatchesTitle', { ns: 'report' })}
-      </h3>
+      <h3 className="reports-filter-empty__title">{t('list.noMatchesTitle', { ns: 'report' })}</h3>
 
       <p className="reports-filter-empty__message">
         {t('list.noMatchesMessage', { ns: 'report' })}

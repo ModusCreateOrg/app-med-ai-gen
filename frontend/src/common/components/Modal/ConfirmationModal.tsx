@@ -30,10 +30,8 @@ const ConfirmationModal: React.FC<ConfirmationModalProps> = ({
   testid = 'confirmation-modal',
 }) => {
   // Replace placeholder with actual item name if provided
-  const formattedMessage = itemName 
-    ? message.replace('{itemName}', `"${itemName}"`)
-    : message;
-    
+  const formattedMessage = itemName ? message.replace('{itemName}', `"${itemName}"`) : message;
+
   return (
     <IonModal
       isOpen={isOpen}
@@ -43,11 +41,9 @@ const ConfirmationModal: React.FC<ConfirmationModalProps> = ({
     >
       <div className="confirmation-modal__container">
         <h2 className="confirmation-modal__title">{title}</h2>
-        
-        <p className="confirmation-modal__message">
-          {formattedMessage}
-        </p>
-        
+
+        <p className="confirmation-modal__message">{formattedMessage}</p>
+
         <div className="confirmation-modal__actions">
           <IonButton
             expand="block"
@@ -58,7 +54,7 @@ const ConfirmationModal: React.FC<ConfirmationModalProps> = ({
           >
             {cancelText}
           </IonButton>
-          
+
           <IonButton
             expand="block"
             fill="outline"

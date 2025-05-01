@@ -305,7 +305,8 @@
     background-color: rgba(248, 249, 251, 0.6); // Default background
 
     &.details--high, // Target details when high
-    &.details--low { // Target details when low
+    &.details--low {
+      // Target details when low
       background-color: transparent; // Remove specific background for flagged item details
     }
   }
@@ -757,7 +758,7 @@
   background-color: transparent !important;
   border: none !important;
   box-shadow: none !important;
-  
+
   .report-detail-page__section-header {
     background-color: transparent !important;
     padding: 2px 16px !important;
@@ -793,7 +794,7 @@
   }
 
   &--low &__header {
-    background-color: #feF8f2;  // Light orange for "Low" background
+    background-color: #fef8f2; // Light orange for "Low" background
   }
 
   &--high &__header {
@@ -821,7 +822,7 @@
     border-radius: 12px;
     font-weight: 600;
     text-transform: capitalize;
-    
+
     &.report-detail-page__item-level--high {
       background-color: #c93a54;
       color: white;

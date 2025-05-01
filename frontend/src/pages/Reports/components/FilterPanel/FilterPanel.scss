@@ -34,7 +34,7 @@
 
   &__category-button {
     background-color: white;
-    border: 1px solid #838B94;
+    border: 1px solid #838b94;
     border-radius: 8px;
     padding: 0.75rem 0.5rem;
     font-size: 14px;
@@ -51,9 +51,9 @@
 
     &--selected {
       font-weight: 600;
-      background-color: #313E4C;
+      background-color: #313e4c;
       color: white;
-      border-color: #313E4C;
+      border-color: #313e4c;
     }
   }
 
@@ -64,7 +64,7 @@
 
   &__apply-button {
     font-family: var(--font-family-base);
-    --background: #435FF0;
+    --background: #435ff0;
     --color: white;
     height: 48px;
     font-weight: 600;

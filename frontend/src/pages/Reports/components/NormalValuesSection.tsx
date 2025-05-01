@@ -50,12 +50,13 @@ const NormalValuesSection: React.FC<NormalValuesSectionProps> = ({
         </div>
       )}
 
-      {isExpanded &&
-        normalValues.length > 0 && (
-          <div className="normal-values-content">
-            {normalValues.map((item, index) => <LabValueItem key={index} item={item} />)}
-          </div>
-        )}
+      {isExpanded && normalValues.length > 0 && (
+        <div className="normal-values-content">
+          {normalValues.map((item, index) => (
+            <LabValueItem key={index} item={item} />
+          ))}
+        </div>
+      )}
     </div>
   );
 };
