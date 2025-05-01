@@ -68,11 +68,16 @@
           /* Add slight transition for hover effects */
           transition:
             transform 0.2s ease,
-            box-shadow 0.2s ease;
+            box-shadow 0.2s ease,
+            background-image 0.2s ease,
+            border 0.2s ease;
 
+          /* Active state styling to match the image */
           &:active {
             transform: translateX(-50%) scale(0.95);
+            background-image: linear-gradient(135deg, #3a52d0 0%, #4f47c7 50%, #7e44c2 100%);
             box-shadow: 0 0.25rem 0.5rem rgb(100 87 250 / 30%);
+            border: 2px solid white;
           }
 
           .ls-tab-navigation__bar-button-icon {
