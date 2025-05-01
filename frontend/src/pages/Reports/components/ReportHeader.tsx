@@ -22,6 +22,8 @@ const ReportHeader: React.FC<ReportHeaderProps> = ({ reportData, onClose }) => {
         </button>
       </div>
 
+      <hr style={{ backgroundColor: '#D7DBEC', height: '1px', width: '100%', marginTop: '25px' }} />
+
       {/* Category & Title */}
       <div className="report-detail-page__category-wrapper">
         <span className="report-detail-page__category">

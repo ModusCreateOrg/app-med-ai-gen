@@ -15,6 +15,7 @@ import OriginalReportTab from './components/OriginalReportTab';
 import InfoCard from './components/InfoCard';
 import ActionButtons from './components/ActionButtons';
 import AiAnalysisTab from './components/AiAnalysisTab';
+import UploadModal from 'common/components/Upload/UploadModal';
 
 const API_URL = import.meta.env.VITE_BASE_URL_API || '';
 
@@ -36,6 +37,12 @@ const ReportDetailPage: React.FC = () => {
   const history = useHistory();
   const { t } = useTranslation();
   const { createToast } = useToasts();
+  const [isUploadModalOpen, setIsUploadModalOpen] = useState(false);
+
+  const handleUploadComplete = () => {
+    setIsUploadModalOpen(false);
+    history.push('/tabs/home');
+  };
 
   // Fetch report data using react-query
   const { data, isLoading, error } = useQuery<MedicalReport>({
@@ -122,8 +129,7 @@ const ReportDetailPage: React.FC = () => {
       setIsProcessing(true);
       await axios.delete(`${API_URL}/api/reports/${reportId}`, await getAuthConfig());
       setIsProcessing(false);
-
-      history.push('/tabs/upload');
+      setIsUploadModalOpen(true);
     } catch (error) {
       setIsProcessing(false);
       console.error('Error deleting report before new upload:', error);
@@ -158,6 +164,12 @@ const ReportDetailPage: React.FC = () => {
           onDiscard={handleDiscard}
           onNewUpload={handleNewUpload}
           reportTitle={reportData.title}
+        />
+
+        <UploadModal
+          isOpen={isUploadModalOpen}
+          onClose={() => setIsUploadModalOpen(false)}
+          onUploadComplete={handleUploadComplete}
         />
       </IonContent>
     </IonPage>
