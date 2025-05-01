@@ -4,7 +4,6 @@ import EmergencyAlert from './EmergencyAlert';
 import FlaggedValuesSection from './FlaggedValuesSection';
 import NormalValuesSection from './NormalValuesSection';
 import LowConfidenceNotice from './LowConfidenceNotice';
-import AiAssistantNotice from './AiAssistantNotice';
 
 interface AiAnalysisTabProps {
   reportData: MedicalReport;
@@ -60,9 +59,6 @@ const AiAnalysisTab: React.FC<AiAnalysisTabProps> = ({
         isExpanded={normalValuesExpanded}
         onToggle={toggleNormalValues}
       />
-
-      {/* AI Assistant Notice */}
-      <AiAssistantNotice />
     </div>
   );
 };
