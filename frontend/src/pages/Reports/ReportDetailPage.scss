@@ -554,10 +554,11 @@
   &__results-cell--test {
     flex: 2;
     font-size: 12px;
-    min-width: 160px;
+    min-width: 40px;
     overflow-wrap: break-word;
     white-space: normal; // Allow text to wrap
     word-break: break-word; // Ensure long words break
+    line-height: 1.4em;
   }
 
   &__results-cell--value {
@@ -579,11 +580,14 @@
     white-space: normal; // Allow text to wrap
     word-break: break-word; // Ensure long words break
     overflow-wrap: break-word;
+    line-height: 1.4em;
+    margin-left: 6px;
+    margin-top: 4px;
+    margin-bottom: 4px;
   }
 
   &__results-cell-header--test {
     flex: 2;
-    min-width: 160px;
     overflow-wrap: break-word;
     white-space: normal; // Allow text to wrap
     word-break: break-word; // Ensure long words break
