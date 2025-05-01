@@ -127,16 +127,16 @@
   }
 
   &__error-subheading {
-    font-size: 22px;
+    font-size: 20px;
     font-weight: 600;
     color: #1c1c1e;
     margin: 0 0 16px;
   }
 
   &__error-message {
-    font-size: 17px;
-    line-height: 24px;
-    color: #8e8e93;
+    font-size: 15px;
+    line-height: 22px;
+    color: #505055; // Changed from #8e8e93 to a darker shade
     margin: 0 auto 40px;
     max-width: 290px;
   }
@@ -146,11 +146,11 @@
     flex-direction: row;
     gap: 12px;
     width: 100%;
-    padding: 0 16px;
-    max-width: 400px;
+    padding: 0 8px; // Reduced side padding to make buttons wider
+    max-width: 450px; // Increased max-width from 400px
     margin-left: auto;
     margin-right: auto;
-    margin-bottom: 32px;
+    margin-bottom: 8px; // Further reduced from 20px to 8px
 
     ion-button {
       margin: 0;

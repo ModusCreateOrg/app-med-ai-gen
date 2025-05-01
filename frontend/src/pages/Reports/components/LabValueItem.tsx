@@ -1,6 +1,7 @@
 import React from 'react';
 import { useTranslation } from 'react-i18next';
 import { LabValue } from '../../../common/models/medicalReport';
+import classNames from 'classnames';
 
 interface LabValueItemProps {
   item: LabValue;
@@ -71,39 +72,42 @@ const LabValueItem: React.FC<LabValueItemProps> = ({ item }) => {
   };
 
   const statusInfo = getStatusInfo();
+  const isFlagged = item.status !== 'normal';
+  const statusClass = item.status.toLowerCase(); // 'high' or 'low'
+
+  // Handle potential parenthesis in the name (e.g., "Low Hemoglobin (10.1 g/dL)")
+  const itemName = item.name;
 
   return (
-    <div className="report-detail-page__item">
-      <div
-        className={`report-detail-page__item-header ${
-          item.status !== 'normal'
-            ? `report-detail-page__item-header--${item.status.toLowerCase()}`
-            : ''
-        }`}
-      >
-        <div className="report-detail-page__item-name">{item.name}</div>
-        {item.status !== 'normal' && (
-          <div className={`report-detail-page__item-level ${statusInfo.className}`}>
-            {statusInfo.text}
+    <div
+      className={classNames('lab-value-item', { [`lab-value-item--${statusClass}`]: isFlagged })}
+    >
+      <div className="lab-value-item__header">
+        <div className="lab-value-item__name">{itemName}</div>
+        <div className="lab-value-item__status-value">
+          {item.status !== 'normal' && (
+            <div className={`lab-value-item__status ${statusInfo.className}`}>
+              {statusInfo.text}
+            </div>
+          )}
+          <div className="lab-value-item__value">
+            {item.value} {item.unit}
           </div>
-        )}
-        <div className="report-detail-page__item-value">
-          {item.value} {item.unit}
         </div>
       </div>
-      <div className="report-detail-page__item-details">
-        <div className="report-detail-page__item-section">
+      <div className="lab-value-item__details">
+        <div className="lab-value-item__section">
           <h4>
             {t('report.conclusion.title', { ns: 'reportDetail', defaultValue: 'Conclusion' })}:
           </h4>
           <p>{item.conclusion}</p>
         </div>
-        <div className="report-detail-page__item-section">
+        <div className="lab-value-item__section">
           <h4>
             {t('report.suggestions.title', { ns: 'reportDetail', defaultValue: 'Suggestions' })}:
           </h4>
           {suggestionItems.length > 0 ? (
-            <ul className="report-detail-page__item-list">
+            <ul className="lab-value-item__list">
               {suggestionItems.map((suggestion, index) => (
                 <li key={index}>{suggestion}</li>
               ))}

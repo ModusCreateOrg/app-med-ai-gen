@@ -26,6 +26,11 @@
     "cdk:destroy": "dotenv -- npx cdk destroy",
     "cdk:synth": "dotenv -- npx cdk synth"
   },
+  "lint-staged": {
+    "*.ts": [
+      "prettier --write"
+    ]
+  },
   "dependencies": {
     "@aws-sdk/client-bedrock": "^3.782.0",
     "@aws-sdk/client-bedrock-runtime": "^3.782.0",

@@ -19,7 +19,7 @@ const FlaggedValuesSection: React.FC<FlaggedValuesSectionProps> = ({
   const { t } = useTranslation();
 
   return (
-    <div className="report-detail-page__section">
+    <div className="report-detail-page__section flagged-values-section">
       <div className="report-detail-page__section-header" onClick={onToggle}>
         <div className="report-detail-page__section-icon">
           <img src={flaggedValuesIcon} alt="Flagged" />
@@ -32,7 +32,13 @@ const FlaggedValuesSection: React.FC<FlaggedValuesSectionProps> = ({
         </div>
       </div>
 
-      {isExpanded && flaggedValues.map((item, index) => <LabValueItem key={index} item={item} />)}
+      {isExpanded && (
+        <div className="flagged-values-content">
+          {flaggedValues.map((item, index) => (
+            <LabValueItem key={index} item={item} />
+          ))}
+        </div>
+      )}
     </div>
   );
 };

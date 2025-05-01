@@ -10,7 +10,7 @@
     padding-bottom: 0;
 
     &-button {
-      --color: #ABBCCD;
+      --color: #abbccd;
       --color-selected: #fd7bf4;
 
       /* Ensure consistent alignment across platforms */
@@ -21,7 +21,7 @@
       &-icon {
         margin: 0;
         font-size: 1.25rem;
-        color: #ABBCCD;
+        color: #abbccd;
       }
 
       &.tab-selected {
@@ -31,7 +31,8 @@
           /* Apply to SvgIcon component */
           &.ls-svg-icon img {
             /* Pink color #FD7BF4 using precise filter values */
-            filter: brightness(0) saturate(100%) invert(65%) sepia(82%) saturate(5793%) hue-rotate(292deg) brightness(99%) contrast(98%);
+            filter: brightness(0) saturate(100%) invert(65%) sepia(82%) saturate(5793%)
+              hue-rotate(292deg) brightness(99%) contrast(98%);
           }
         }
       }

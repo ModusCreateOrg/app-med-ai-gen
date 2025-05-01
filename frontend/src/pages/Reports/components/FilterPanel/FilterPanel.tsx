@@ -50,7 +50,9 @@ const FilterPanel: React.FC<FilterPanelProps> = ({
             <button
               key={category.id}
               className={`filter-panel__category-button ${
-                selectedCategories.includes(category.id) ? 'filter-panel__category-button--selected' : ''
+                selectedCategories.includes(category.id)
+                  ? 'filter-panel__category-button--selected'
+                  : ''
               }`}
               onClick={() => handleCategoryToggle(category.id)}
             >
@@ -61,11 +63,7 @@ const FilterPanel: React.FC<FilterPanelProps> = ({
       </div>
 
       <div className="filter-panel__actions">
-        <IonButton
-          expand="block"
-          onClick={handleApply}
-          className="filter-panel__apply-button"
-        >
+        <IonButton expand="block" onClick={handleApply} className="filter-panel__apply-button">
           {t('filter.apply', { ns: 'report' })}
         </IonButton>
       </div>

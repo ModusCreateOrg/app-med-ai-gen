@@ -190,7 +190,8 @@ const UploadModal = ({ isOpen, onClose, onUploadComplete }: UploadModalProps): J
             <div className="upload-modal__file-details">
               <div className="upload-modal__filename">{file.name}</div>
               <div className="upload-modal__file-info">
-                {formatFileSize(file.size)} • {Math.ceil((1 - progress) * 10)} {t('upload.secondsLeft', { ns: 'common' })}
+                {formatFileSize(file.size)} • {Math.ceil((1 - progress) * 10)}{' '}
+                {t('upload.secondsLeft', { ns: 'common' })}
               </div>
               {/* Progress bar */}
               <IonProgressBar value={progress} className="upload-modal__progress" />

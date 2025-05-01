@@ -26,6 +26,7 @@ const ReportHeader: React.FC<ReportHeaderProps> = ({ reportData, onClose }) => {
       <div className="report-detail-page__category-wrapper">
         <span className="report-detail-page__category">
           {reportData.category && t(`list.${reportData.category}Category`, { ns: 'reportDetail' })}
+          <h2 className="report-detail-page__subtitle">{reportData.title}</h2>
         </span>
         <button className="report-detail-page__bookmark-button">
           {reportData.bookmarked ? (
@@ -35,7 +36,6 @@ const ReportHeader: React.FC<ReportHeaderProps> = ({ reportData, onClose }) => {
           )}
         </button>
       </div>
-      <h2 className="report-detail-page__subtitle">{reportData.title}</h2>
     </div>
   );
 };

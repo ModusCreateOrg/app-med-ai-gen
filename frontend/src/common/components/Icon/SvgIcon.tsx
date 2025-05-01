@@ -73,11 +73,7 @@ const SvgIcon = ({
 
   return (
     <IonText
-      className={classNames(
-        'ls-svg-icon',
-        { 'ls-svg-icon--active': active },
-        className
-      )}
+      className={classNames('ls-svg-icon', { 'ls-svg-icon--active': active }, className)}
       data-testid={testid}
       {...props}
     >

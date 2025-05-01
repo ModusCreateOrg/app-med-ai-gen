@@ -231,19 +231,19 @@ vi.mock('../../Icon/SvgIcon', () => ({
 
 // Mock the SVG icons
 vi.mock('assets/icons/home.svg', () => ({
-  default: 'mocked-home-icon.svg'
+  default: 'mocked-home-icon.svg',
 }));
 vi.mock('assets/icons/reports.svg', () => ({
-  default: 'mocked-reports-icon.svg'
+  default: 'mocked-reports-icon.svg',
 }));
 vi.mock('assets/icons/upload.svg', () => ({
-  default: 'mocked-upload-icon.svg'
+  default: 'mocked-upload-icon.svg',
 }));
 vi.mock('assets/icons/chat.svg', () => ({
-  default: 'mocked-chat-icon.svg'
+  default: 'mocked-chat-icon.svg',
 }));
 vi.mock('assets/icons/profile.svg', () => ({
-  default: 'mocked-profile-icon.svg'
+  default: 'mocked-profile-icon.svg',
 }));
 
 // Mock the UploadModal component
