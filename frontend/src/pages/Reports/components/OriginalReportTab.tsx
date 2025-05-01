@@ -32,6 +32,9 @@ const OriginalReportTab: React.FC<OriginalReportTabProps> = ({ reportData }) => 
           <div className="report-detail-page__results-cell report-detail-page__results-cell--test">
             Test
           </div>
+          <div className="report-detail-page__results-cell" style={{ width: '24px' }}>
+            {/* Status column */}
+          </div>
           <div className="report-detail-page__results-cell report-detail-page__results-cell--value">
             Results
           </div>
@@ -39,27 +42,33 @@ const OriginalReportTab: React.FC<OriginalReportTabProps> = ({ reportData }) => 
             Ref.
           </div>
         </div>
-
-        {/* Test Results Rows */}
         {reportData.labValues.map((labValue, index) => (
           <div key={index} className="report-detail-page__results-row">
             <div className="report-detail-page__results-cell report-detail-page__results-cell--test">
-              <p>{labValue.name}</p>
+              {labValue.name}
             </div>
-            <div className="report-detail-page__results-cell report-detail-page__results-cell--value">
+            <div
+              className="report-detail-page__results-cell"
+              style={{ width: '24px', textAlign: 'center' }}
+            >
               {labValue.status !== 'normal' && (
                 <img
                   src={labValue.status === 'low' ? orangeAlertIcon : redAlertIcon}
-                  style={{ display: 'block', marginRight: '1rem' }}
+                  alt={labValue.status === 'low' ? 'Low result alert' : 'High result alert'}
+                  className="report-detail-page__results-alert-icon"
+                  aria-label={labValue.status === 'low' ? 'Low result alert' : 'High result alert'}
+                  role="img"
+                  style={{ verticalAlign: 'middle' }}
                 />
               )}
-
-              <p>
+            </div>
+            <div className="report-detail-page__results-cell report-detail-page__results-cell--value">
+              <span className="report-detail-page__results-value">
                 {labValue.value} {labValue.unit}
-              </p>
+              </span>
             </div>
             <div className="report-detail-page__results-cell report-detail-page__results-cell--ref">
-              <p>{labValue.normalRange}</p>
+              {labValue.normalRange}
             </div>
           </div>
         ))}
