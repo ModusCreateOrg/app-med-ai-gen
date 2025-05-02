@@ -5,7 +5,7 @@ import './SignInPage.scss';
 import { PropsWithTestId } from 'common/components/types';
 import ProgressProvider from 'common/providers/ProgressProvider';
 import SignInForm from './components/SignInForm';
-import logo from 'assets/logo_ls.png';
+import logo from '../../../assets/logo_ls.png';
 
 /**
  * Properties for the `SignInPage` component.
@@ -23,10 +23,14 @@ const SignInPage = ({ testid = 'page-signin' }: SignInPageProps): JSX.Element =>
   return (
     <IonPage className="ls-signin-page" data-testid={testid}>
       <ProgressProvider>
-        <IonContent fullscreen className="ion-padding">
+        <IonContent fullscreen className="ion-no-padding">
           <div className="ls-signin-page__background">
             <div className="ls-signin-page__logo-container">
-              <IonImg src={logo} alt="Logo" className="ls-signin-page__logo" />
+              <IonImg
+                src={logo}
+                alt={t('signin.logo-alt', { ns: 'common' })}
+                className="ls-signin-page__logo"
+              />
               <span className="ls-signin-page__logo-text">{t('app.name', { ns: 'common' })}</span>
             </div>
 
