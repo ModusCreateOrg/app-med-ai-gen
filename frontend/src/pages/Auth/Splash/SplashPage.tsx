@@ -1,11 +1,10 @@
-import { IonContent, IonImg, IonPage } from '@ionic/react';
+import { IonContent, IonPage } from '@ionic/react';
 import { useEffect } from 'react';
 import { useIonRouter } from '@ionic/react';
 import { useTranslation } from 'react-i18next';
 
 import './SplashPage.scss';
 import splashBg from '../../../../src/assets/Splash.png';
-import logo from '../../../assets/logo_ls.png';
 import { PropsWithTestId } from 'common/components/types';
 
 /**
@@ -42,14 +41,7 @@ const SplashPage = ({ testid = 'page-splash' }: SplashPageProps): JSX.Element =>
             alt={t('splash.background-alt', { ns: 'common' })}
             className="ls-splash-page__background"
           />
-          <div className="ls-splash-page__logo-container">
-            <IonImg
-              src={logo}
-              alt={t('splash.logo-alt', { ns: 'common' })}
-              className="ls-splash-page__logo"
-            />
-            <span className="ls-splash-page__app-name">{t('app.name', { ns: 'common' })}</span>
-          </div>
+          <div className="ls-splash-page__logo-container"></div>
         </div>
       </IonContent>
     </IonPage>
