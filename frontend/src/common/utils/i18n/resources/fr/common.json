@@ -23,7 +23,9 @@
     "menu": "Menu",
     "signout": "Déconnecter",
     "users": "Utilisateurs",
-    "chat": "Assistant IA"
+    "chat": "Assistant IA",
+    "reports": "Rapports",
+    "upload": "Télécharger"
   },
   "reports": {
     "uploadDate": "Date de téléchargement"

@@ -47,7 +47,7 @@ const TabNavigation = (): JSX.Element => {
   const [isUploadModalOpen, setIsUploadModalOpen] = useState(false);
   const history = useHistory();
   const location = useLocation();
-  const { t } = useTranslation();
+  const { t } = useTranslation(['common']);
 
   // Check if the current path starts with the tab path
   const isTabActive = (tabPath: string) => {
@@ -120,7 +120,7 @@ const TabNavigation = (): JSX.Element => {
               className="ls-tab-navigation__bar-button-icon"
               src={homeIcon}
               active={isTabActive('/tabs/home')}
-              alt={t('navigation.home', { ns: 'common', defaultValue: 'Home' })}
+              alt={t('navigation.home')}
               width={24}
               height={24}
             />
@@ -134,7 +134,7 @@ const TabNavigation = (): JSX.Element => {
               className="ls-tab-navigation__bar-button-icon"
               src={reportsIcon}
               active={isTabActive('/tabs/reports')}
-              alt={t('navigation.reports', { ns: 'common', defaultValue: 'Reports' })}
+              alt={t('navigation.reports')}
               width={24}
               height={24}
             />
@@ -148,7 +148,7 @@ const TabNavigation = (): JSX.Element => {
               <SvgIcon
                 className="ls-tab-navigation__bar-button-icon"
                 src={uploadIcon}
-                alt={t('navigation.upload', { ns: 'common', defaultValue: 'Upload' })}
+                alt={t('navigation.upload')}
                 width={24}
                 height={24}
               />
@@ -159,7 +159,7 @@ const TabNavigation = (): JSX.Element => {
               className="ls-tab-navigation__bar-button-icon"
               src={chatIcon}
               active={isTabActive('/tabs/chat')}
-              alt={t('navigation.chat', { ns: 'common', defaultValue: 'Chat' })}
+              alt={t('navigation.chat')}
               width={24}
               height={24}
             />
@@ -173,7 +173,7 @@ const TabNavigation = (): JSX.Element => {
               className="ls-tab-navigation__bar-button-icon"
               src={profileIcon}
               active={isTabActive('/tabs/account')}
-              alt={t('navigation.account', { ns: 'common', defaultValue: 'Account' })}
+              alt={t('navigation.account')}
               width={24}
               height={24}
             />

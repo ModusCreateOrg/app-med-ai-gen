@@ -8,12 +8,13 @@ import {
 import { MedicalReport } from '../models/medicalReport';
 import { QueryKey } from 'common/utils/constants';
 
+export const LATEST_REPORTS_LIMIT = 3;
 /**
  * Hook to fetch the latest reports.
  * @param limit - Maximum number of reports to fetch
  * @returns Query result with the latest reports
  */
-export const useGetLatestReports = (limit = 3) => {
+export const useGetLatestReports = (limit = LATEST_REPORTS_LIMIT) => {
   return useQuery({
     queryKey: [QueryKey.LatestReports, limit],
     queryFn: () => fetchLatestReports(limit),
@@ -53,12 +54,15 @@ export const useMarkReportAsRead = () => {
       });
 
       // Update the latest reports cache
-      queryClient.setQueryData<MedicalReport[]>([QueryKey.LatestReports], (oldReports) => {
-        if (!oldReports) return undefined;
-        return oldReports.map((report) =>
-          report.id === updatedReport.id ? updatedReport : report,
-        );
-      });
+      queryClient.setQueryData<MedicalReport[]>(
+        [QueryKey.LatestReports, LATEST_REPORTS_LIMIT],
+        (oldReports) => {
+          if (!oldReports) return undefined;
+          return oldReports.map((report) =>
+            report.id === updatedReport.id ? updatedReport : report,
+          );
+        },
+      );
     },
   });
 };
@@ -83,12 +87,15 @@ export const useToggleReportBookmark = () => {
       });
 
       // Update the latest reports cache
-      queryClient.setQueryData<MedicalReport[]>([QueryKey.LatestReports], (oldReports) => {
-        if (!oldReports) return undefined;
-        return oldReports.map((report) =>
-          report.id === updatedReport.id ? updatedReport : report,
-        );
-      });
+      queryClient.setQueryData<MedicalReport[]>(
+        [QueryKey.LatestReports, LATEST_REPORTS_LIMIT],
+        (oldReports) => {
+          if (!oldReports) return undefined;
+          return oldReports.map((report) =>
+            report.id === updatedReport.id ? updatedReport : report,
+          );
+        },
+      );
 
       // Update the bookmark status in the report detail page
       queryClient.setQueryData<MedicalReport | undefined>(

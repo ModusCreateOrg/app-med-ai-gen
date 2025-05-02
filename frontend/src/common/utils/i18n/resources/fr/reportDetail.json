@@ -27,6 +27,14 @@
       "discard": "Annuler",
       "new-upload": "Nouveau téléchargement"
     },
+    "discard": {
+      "title": "Supprimer le rapport?",
+      "message": "{itemName} sera supprimé et ne sera pas enregistré dans votre archive de rapports. Êtes-vous sûr?"
+    },
+    "new-upload": {
+      "title": "Télécharger un nouveau rapport?",
+      "message": "Vous avez choisi de télécharger un nouveau rapport. Cela remplacera votre rapport actuel. Voulez-vous toujours continuer?"
+    },
     "tabs": {
       "ai-insights": "Analyses IA",
       "original-report": "Rapport original"
