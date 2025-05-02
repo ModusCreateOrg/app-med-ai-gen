@@ -1,7 +1,9 @@
 import { IonButton } from '@ionic/react';
-import { useHistory } from 'react-router-dom';
 import '../ProcessingPage.scss';
 import warning from '../../../assets/icons/warning.svg';
+import UploadModal from 'common/components/Upload/UploadModal';
+import { useState } from 'react';
+import { useHistory } from 'react-router';
 
 interface ProcessingErrorProps {
   errorMessage: string;
@@ -19,6 +21,12 @@ const ProcessingError: React.FC<ProcessingErrorProps> = ({
   onRetry,
 }) => {
   const history = useHistory();
+  const [isUploadModalOpen, setIsUploadModalOpen] = useState(false);
+
+  const handleUploadComplete = () => {
+    setIsUploadModalOpen(false);
+    history.push('/tabs/home');
+  };
 
   return (
     <div className="processing-page__error-container">
@@ -54,10 +62,16 @@ const ProcessingError: React.FC<ProcessingErrorProps> = ({
           expand="block"
           shape="round"
           color="primary"
-          onClick={() => history.push('/tabs/upload')}
+          onClick={() => setIsUploadModalOpen(true)}
         >
           New Upload
         </IonButton>
+
+        <UploadModal
+          isOpen={isUploadModalOpen}
+          onClose={handleUploadComplete}
+          onUploadComplete={handleUploadComplete}
+        />
       </div>
     </div>
   );

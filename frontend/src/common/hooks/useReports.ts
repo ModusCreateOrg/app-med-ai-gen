@@ -92,12 +92,8 @@ export const useToggleReportBookmark = () => {
 
       // Update the bookmark status in the report detail page
       queryClient.setQueryData<MedicalReport | undefined>(
-        [QueryKey.ReportDetail, reportId],
-        (oldReport) => {
-          if (!oldReport) return undefined;
-          if (oldReport.id !== updatedReport.id) return oldReport;
-          return { ...oldReport, bookmarked: updatedReport.bookmarked };
-        },
+        [QueryKey.ReportDetail, updatedReport.id],
+        (report) => (report?.id === updatedReport.id ? updatedReport : report),
       );
     },
   });
