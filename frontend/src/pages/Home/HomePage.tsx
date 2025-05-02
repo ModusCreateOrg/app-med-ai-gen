@@ -12,11 +12,12 @@ import {
 import { useTranslation } from 'react-i18next';
 import { useHistory } from 'react-router-dom';
 import { useState } from 'react';
-import { useGetLatestReports, useMarkReportAsRead } from 'common/hooks/useReports';
+import {
+  useGetLatestReports,
+  useMarkReportAsRead,
+  useToggleReportBookmark,
+} from 'common/hooks/useReports';
 import { useCurrentUser } from 'common/hooks/useAuth';
-import { toggleReportBookmark } from 'common/api/reportService';
-import { useQueryClient } from '@tanstack/react-query';
-import { MedicalReport } from 'common/models/medicalReport';
 import Avatar from 'common/components/Icon/Avatar';
 import ReportItem from './components/ReportItem/ReportItem';
 import NoReportsMessage from './components/NoReportsMessage/NoReportsMessage';
@@ -30,7 +31,7 @@ import './HomePage.scss';
 const HomePage: React.FC = () => {
   const { t } = useTranslation('home');
   const history = useHistory();
-  const queryClient = useQueryClient();
+  const toggleBookmark = useToggleReportBookmark();
   const { data: reports, isLoading, isError } = useGetLatestReports(3);
   const { mutate: markAsRead } = useMarkReportAsRead();
   const currentUser = useCurrentUser();
@@ -45,31 +46,6 @@ const HomePage: React.FC = () => {
 
     // Navigate to the report detail page
     history.push(`/tabs/reports/${reportId}`);
-  };
-
-  const handleToggleBookmark = async (reportId: string, isCurrentlyBookmarked: boolean) => {
-    try {
-      // Toggle the bookmark status
-      const updatedReport = await toggleReportBookmark(reportId, !isCurrentlyBookmarked);
-
-      // Update the reports in the cache
-      queryClient.setQueryData<MedicalReport[]>(['reports'], (oldReports) => {
-        if (!oldReports) return [];
-        return oldReports.map((report) =>
-          report.id === updatedReport.id ? updatedReport : report,
-        );
-      });
-
-      // Update the latest reports cache with the correct query key including the limit
-      queryClient.setQueryData<MedicalReport[]>(['latestReports', 3], (oldReports) => {
-        if (!oldReports) return [];
-        return oldReports.map((report) =>
-          report.id === updatedReport.id ? updatedReport : report,
-        );
-      });
-    } catch (error) {
-      console.error('Failed to toggle bookmark:', error);
-    }
   };
 
   const handleUpload = () => {
@@ -121,7 +97,7 @@ const HomePage: React.FC = () => {
         key={report.id}
         report={report}
         onClick={() => handleReportClick(report.id)}
-        onToggleBookmark={() => handleToggleBookmark(report.id, report.bookmarked)}
+        onToggleBookmark={() => toggleBookmark(report.id, report.bookmarked)}
         showBookmarkButton={true}
       />
     ));
