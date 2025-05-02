@@ -16,6 +16,7 @@ import InfoCard from './components/InfoCard';
 import ActionButtons from './components/ActionButtons';
 import AiAnalysisTab from './components/AiAnalysisTab';
 import UploadModal from 'common/components/Upload/UploadModal';
+import { QueryKey } from 'common/utils/constants';
 
 const API_URL = import.meta.env.VITE_BASE_URL_API || '';
 
@@ -46,7 +47,7 @@ const ReportDetailPage: React.FC = () => {
 
   // Fetch report data using react-query
   const { data, isLoading, error } = useQuery<MedicalReport>({
-    queryKey: ['report', reportId],
+    queryKey: [QueryKey.ReportDetail, reportId],
     queryFn: () => fetchReportById(reportId!),
     enabled: !!reportId,
   });

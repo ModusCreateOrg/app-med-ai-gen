@@ -2,7 +2,7 @@ import { Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import axios from 'axios';
 import { AwsSecretsService } from './aws-secrets.service';
-import { LabValue } from 'src/document-processor/services/aws-bedrock.service';
+import { LabValue } from '../document-processor/services/aws-bedrock.service';
 
 export interface PerplexityMessage {
   role: 'system' | 'user' | 'assistant';

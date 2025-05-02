@@ -31,6 +31,7 @@ import CategoryTag from './components/CategoryTag/CategoryTag';
 import ReportsFilterEmpty from './components/ReportsFilterEmpty/ReportsFilterEmpty';
 
 import './ReportsListPage.scss';
+import { QueryKey } from 'common/utils/constants';
 
 type FilterOption = 'all' | 'bookmarked';
 type SortDirection = 'desc' | 'asc';
@@ -65,7 +66,7 @@ const ReportsListPage: React.FC = () => {
     isError,
     refetch,
   } = useQuery({
-    queryKey: ['reports'],
+    queryKey: [QueryKey.Reports],
     queryFn: fetchAllReports,
     refetchOnMount: true,
   });
