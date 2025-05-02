@@ -118,6 +118,8 @@ const ProcessingPage: React.FC = () => {
         history.push(`/tabs/reports/${reportId}`);
       }
 
+      clearStatusCheckInterval();
+
       // Start checking the status every 2 seconds
       statusCheckIntervalRef.current = window.setInterval(checkReportStatus, 2000);
     } catch (error) {
