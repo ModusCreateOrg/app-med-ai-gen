@@ -2,6 +2,13 @@
   "app": {
     "name": "MEDReport AI"
   },
+  "splash": {
+    "background-alt": "Application background",
+    "logo-alt": "MEDReport AI logo"
+  },
+  "signin": {
+    "logo-alt": "MEDReport AI logo"
+  },
   "confirm-prompt": "Are you sure?",
   "created": "created",
   "deleted": "deleted",
