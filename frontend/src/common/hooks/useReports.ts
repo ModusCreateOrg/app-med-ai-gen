@@ -70,25 +70,36 @@ export const useMarkReportAsRead = () => {
 export const useToggleReportBookmark = () => {
   const queryClient = useQueryClient();
 
-  return useMutation({
-    mutationFn: (params: { reportId: string; isBookmarked: boolean }) =>
-      toggleReportBookmark(params.reportId, params.isBookmarked),
-    onSuccess: (updatedReport: MedicalReport) => {
-      // Update the reports cache
-      queryClient.setQueryData<MedicalReport[]>([QueryKey.Reports], (oldReports) => {
-        if (!oldReports) return undefined;
-        return oldReports.map((report) =>
-          report.id === updatedReport.id ? updatedReport : report,
-        );
-      });
+  return async (reportId: string, isBookmarked: boolean) => {
+    return useMutation({
+      mutationFn: () => toggleReportBookmark(reportId, isBookmarked),
+      onSuccess: (updatedReport: MedicalReport) => {
+        // Update the reports cache
+        queryClient.setQueryData<MedicalReport[]>([QueryKey.Reports], (oldReports) => {
+          if (!oldReports) return undefined;
+          return oldReports.map((report) =>
+            report.id === updatedReport.id ? updatedReport : report,
+          );
+        });
 
-      // Update the latest reports cache
-      queryClient.setQueryData<MedicalReport[]>([QueryKey.LatestReports], (oldReports) => {
-        if (!oldReports) return undefined;
-        return oldReports.map((report) =>
-          report.id === updatedReport.id ? updatedReport : report,
+        // Update the latest reports cache
+        queryClient.setQueryData<MedicalReport[]>([QueryKey.LatestReports], (oldReports) => {
+          if (!oldReports) return undefined;
+          return oldReports.map((report) =>
+            report.id === updatedReport.id ? updatedReport : report,
+          );
+        });
+
+        // Update the bookmark status in the report detail page
+        queryClient.setQueryData<MedicalReport | undefined>(
+          [QueryKey.ReportDetail, reportId],
+          (oldReport) => {
+            if (!oldReport) return undefined;
+            if (oldReport.id !== updatedReport.id) return oldReport;
+            return { ...oldReport, bookmarked: updatedReport.bookmarked };
+          },
         );
-      });
-    },
-  });
+      },
+    });
+  };
 };
