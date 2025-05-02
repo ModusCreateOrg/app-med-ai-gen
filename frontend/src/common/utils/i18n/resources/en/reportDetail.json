@@ -85,6 +85,14 @@
       "discard": "Discard",
       "new-upload": "New Upload"
     },
+    "discard": {
+      "title": "Discard report?",
+      "message": "{itemName} will be discarded and not be saved to your reports archive. Are you sure?"
+    },
+    "new-upload": {
+      "title": "Upload new report?",
+      "message": "You've chosen to upload a new report. This will replace your current one. Do you still want to proceed?"
+    },
     "tabs": {
       "ai-insights": "AI Insights",
       "original-report": "Original Report"

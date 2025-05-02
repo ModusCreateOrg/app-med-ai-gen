@@ -33,7 +33,9 @@
     "menu": "Menu",
     "signout": "Sign Out",
     "users": "Users",
-    "chat": "AI Assistant"
+    "chat": "AI Assistant",
+    "reports": "Reports",
+    "upload": "Upload"
   },
   "reports": {
     "uploadDate": "Upload Date"
@@ -91,5 +93,8 @@
     "upload": {
       "title": "Upload Report"
     }
+  },
+  "actions": {
+    "bookmark": "Bookmark"
   }
 }

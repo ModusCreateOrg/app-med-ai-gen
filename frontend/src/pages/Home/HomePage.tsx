@@ -98,7 +98,7 @@ const HomePage: React.FC = () => {
         report={report}
         onClick={() => handleReportClick(report.id)}
         onToggleBookmark={() =>
-          toggleBookmark.mutate({ reportId: report.id, isBookmarked: report.bookmarked })
+          toggleBookmark.mutate({ reportId: report.id, isBookmarked: !report.bookmarked })
         }
         showBookmarkButton={true}
       />

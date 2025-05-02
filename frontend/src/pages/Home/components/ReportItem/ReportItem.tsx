@@ -26,7 +26,7 @@ const ReportItem: React.FC<ReportItemProps> = ({
   onToggleBookmark,
   showBookmarkButton = false,
 }) => {
-  const { t } = useTranslation(['common', 'report']);
+  const { t } = useTranslation(['common']);
   const { title, category, createdAt, status, bookmarked } = report;
 
   // Treat category as string
