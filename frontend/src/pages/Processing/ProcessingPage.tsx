@@ -8,6 +8,8 @@ import './ProcessingPage.scss';
 import { getAuthConfig } from 'common/api/reportService';
 import ProcessingError from './components/ProcessingError';
 import ProcessingAnimation from './components/ProcessingAnimation';
+import { QueryKey } from 'common/utils/constants';
+import { useQueryClient } from '@tanstack/react-query';
 
 const API_URL = import.meta.env.VITE_BASE_URL_API || '';
 
@@ -20,6 +22,7 @@ const ProcessingPage: React.FC = () => {
   const firstName = currentUser?.name?.split(' ')[0];
   const axios = useAxios();
   const history = useHistory();
+  const queryClient = useQueryClient();
 
   // States to track processing
   const [isProcessing, setIsProcessing] = useState(true);
@@ -69,6 +72,9 @@ const ProcessingPage: React.FC = () => {
         clearStatusCheckInterval();
 
         console.log('Processing complete');
+
+        queryClient.invalidateQueries({ queryKey: [QueryKey.Reports] });
+        queryClient.invalidateQueries({ queryKey: [QueryKey.LatestReports] });
 
         history.push(`/tabs/reports/${reportId}`);
       } else if (data.status === 'failed') {

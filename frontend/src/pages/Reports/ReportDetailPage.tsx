@@ -2,7 +2,7 @@ import { IonPage, IonContent } from '@ionic/react';
 import { useState } from 'react';
 import { useHistory, useParams } from 'react-router-dom';
 import './ReportDetailPage.scss';
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import axios from 'axios';
 import { MedicalReport } from '../../common/models/medicalReport';
 import { useTranslation } from 'react-i18next';
@@ -16,6 +16,7 @@ import InfoCard from './components/InfoCard';
 import ActionButtons from './components/ActionButtons';
 import AiAnalysisTab from './components/AiAnalysisTab';
 import UploadModal from 'common/components/Upload/UploadModal';
+import { QueryKey } from 'common/utils/constants';
 
 const API_URL = import.meta.env.VITE_BASE_URL_API || '';
 
@@ -38,6 +39,7 @@ const ReportDetailPage: React.FC = () => {
   const { t } = useTranslation();
   const { createToast } = useToasts();
   const [isUploadModalOpen, setIsUploadModalOpen] = useState(false);
+  const queryClient = useQueryClient();
 
   const handleUploadComplete = () => {
     setIsUploadModalOpen(false);
@@ -46,7 +48,7 @@ const ReportDetailPage: React.FC = () => {
 
   // Fetch report data using react-query
   const { data, isLoading, error } = useQuery<MedicalReport>({
-    queryKey: ['report', reportId],
+    queryKey: [QueryKey.ReportDetail, reportId],
     queryFn: () => fetchReportById(reportId!),
     enabled: !!reportId,
   });
@@ -107,6 +109,10 @@ const ReportDetailPage: React.FC = () => {
         duration: 2000,
       });
 
+      queryClient.invalidateQueries({ queryKey: [QueryKey.Reports] });
+      queryClient.invalidateQueries({ queryKey: [QueryKey.LatestReports] });
+      queryClient.invalidateQueries({ queryKey: [QueryKey.ReportDetail, reportId] });
+
       // Navigate back
       history.push('/tabs/home');
     } catch (error) {
@@ -129,6 +135,11 @@ const ReportDetailPage: React.FC = () => {
       setIsProcessing(true);
       await axios.delete(`${API_URL}/api/reports/${reportId}`, await getAuthConfig());
       setIsProcessing(false);
+
+      queryClient.invalidateQueries({ queryKey: [QueryKey.Reports] });
+      queryClient.invalidateQueries({ queryKey: [QueryKey.LatestReports] });
+      queryClient.invalidateQueries({ queryKey: [QueryKey.ReportDetail, reportId] });
+
       setIsUploadModalOpen(true);
     } catch (error) {
       setIsProcessing(false);
@@ -168,7 +179,7 @@ const ReportDetailPage: React.FC = () => {
 
         <UploadModal
           isOpen={isUploadModalOpen}
-          onClose={() => setIsUploadModalOpen(false)}
+          onClose={handleUploadComplete}
           onUploadComplete={handleUploadComplete}
         />
       </IonContent>

@@ -15,13 +15,12 @@ import {
 } from '@ionic/react';
 import { useTranslation } from 'react-i18next';
 import { useHistory, useLocation } from 'react-router-dom';
-import { useQuery, useQueryClient } from '@tanstack/react-query';
-import { fetchAllReports, toggleReportBookmark } from 'common/api/reportService';
-import { useMarkReportAsRead } from 'common/hooks/useReports';
+import { useQuery } from '@tanstack/react-query';
+import { fetchAllReports } from 'common/api/reportService';
+import { useMarkReportAsRead, useToggleReportBookmark } from 'common/hooks/useReports';
 import ReportItem from 'pages/Home/components/ReportItem/ReportItem';
 import NoReportsMessage from 'pages/Home/components/NoReportsMessage/NoReportsMessage';
 import { useState, useMemo, useEffect, useRef } from 'react';
-import { MedicalReport } from 'common/models/medicalReport';
 import sortSvg from 'assets/icons/sort.svg';
 import filterOutlineIcon from 'assets/icons/filter-outline.svg';
 import reportsIcon from 'assets/icons/reports.svg';
@@ -31,6 +30,7 @@ import CategoryTag from './components/CategoryTag/CategoryTag';
 import ReportsFilterEmpty from './components/ReportsFilterEmpty/ReportsFilterEmpty';
 
 import './ReportsListPage.scss';
+import { QueryKey } from 'common/utils/constants';
 
 type FilterOption = 'all' | 'bookmarked';
 type SortDirection = 'desc' | 'asc';
@@ -42,7 +42,7 @@ const ReportsListPage: React.FC = () => {
   const { t } = useTranslation(['report', 'common']);
   const history = useHistory();
   const location = useLocation();
-  const queryClient = useQueryClient();
+  const toggleBookmark = useToggleReportBookmark();
   const [filter, setFilter] = useState<FilterOption>('all');
   const [sortDirection, setSortDirection] = useState<SortDirection>('desc'); // Default sort by newest first
   const [showToast, setShowToast] = useState(false);
@@ -65,7 +65,7 @@ const ReportsListPage: React.FC = () => {
     isError,
     refetch,
   } = useQuery({
-    queryKey: ['reports'],
+    queryKey: [QueryKey.Reports],
     queryFn: fetchAllReports,
     refetchOnMount: true,
   });
@@ -120,23 +120,6 @@ const ReportsListPage: React.FC = () => {
 
     // Navigate to the report detail page
     history.push(`/tabs/reports/${reportId}`);
-  };
-
-  const handleToggleBookmark = async (reportId: string, isCurrentlyBookmarked: boolean) => {
-    try {
-      // Toggle the bookmark status
-      const updatedReport = await toggleReportBookmark(reportId, !isCurrentlyBookmarked);
-
-      // Update the reports in the cache
-      queryClient.setQueryData<MedicalReport[]>(['reports'], (oldReports) => {
-        if (!oldReports) return [];
-        return oldReports.map((report) =>
-          report.id === updatedReport.id ? updatedReport : report,
-        );
-      });
-    } catch (error) {
-      console.error('Failed to toggle bookmark:', error);
-    }
   };
 
   const handleUpload = () => {
@@ -243,7 +226,9 @@ const ReportsListPage: React.FC = () => {
         key={report.id}
         report={report}
         onClick={() => handleReportClick(report.id)}
-        onToggleBookmark={() => handleToggleBookmark(report.id, report.bookmarked)}
+        onToggleBookmark={() =>
+          toggleBookmark.mutate({ reportId: report.id, isBookmarked: report.bookmarked })
+        }
         showBookmarkButton
       />
     ));

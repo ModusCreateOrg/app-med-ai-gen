@@ -1,10 +1,12 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { fetchAllReports, fetchLatestReports, markReportAsRead } from '../api/reportService';
+import {
+  fetchAllReports,
+  fetchLatestReports,
+  markReportAsRead,
+  toggleReportBookmark,
+} from '../api/reportService';
 import { MedicalReport } from '../models/medicalReport';
-
-// Query keys
-const REPORTS_KEY = 'reports';
-const LATEST_REPORTS_KEY = 'latestReports';
+import { QueryKey } from 'common/utils/constants';
 
 /**
  * Hook to fetch the latest reports.
@@ -13,7 +15,7 @@ const LATEST_REPORTS_KEY = 'latestReports';
  */
 export const useGetLatestReports = (limit = 3) => {
   return useQuery({
-    queryKey: [LATEST_REPORTS_KEY, limit],
+    queryKey: [QueryKey.LatestReports, limit],
     queryFn: () => fetchLatestReports(limit),
     refetchOnMount: true,
     refetchOnWindowFocus: true,
@@ -27,7 +29,7 @@ export const useGetLatestReports = (limit = 3) => {
  */
 export const useGetAllReports = () => {
   return useQuery({
-    queryKey: [REPORTS_KEY],
+    queryKey: [QueryKey.Reports],
     queryFn: fetchAllReports,
   });
 };
@@ -43,7 +45,7 @@ export const useMarkReportAsRead = () => {
     mutationFn: (reportId: string) => markReportAsRead(reportId),
     onSuccess: (updatedReport: MedicalReport) => {
       // Update the reports cache
-      queryClient.setQueryData<MedicalReport[]>([REPORTS_KEY], (oldReports) => {
+      queryClient.setQueryData<MedicalReport[]>([QueryKey.Reports], (oldReports) => {
         if (!oldReports) return undefined;
         return oldReports.map((report) =>
           report.id === updatedReport.id ? updatedReport : report,
@@ -51,12 +53,52 @@ export const useMarkReportAsRead = () => {
       });
 
       // Update the latest reports cache
-      queryClient.setQueryData<MedicalReport[]>([LATEST_REPORTS_KEY], (oldReports) => {
+      queryClient.setQueryData<MedicalReport[]>([QueryKey.LatestReports], (oldReports) => {
         if (!oldReports) return undefined;
         return oldReports.map((report) =>
           report.id === updatedReport.id ? updatedReport : report,
         );
       });
+    },
+  });
+};
+
+/**
+ * Hook to toggle the bookmark status of a report.
+ * @returns Mutation result for toggling the bookmark status
+ */
+export const useToggleReportBookmark = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: ({ reportId, isBookmarked }: { reportId: string; isBookmarked: boolean }) =>
+      toggleReportBookmark(reportId, isBookmarked),
+    onSuccess: (updatedReport: MedicalReport) => {
+      // Update the reports cache
+      queryClient.setQueryData<MedicalReport[]>([QueryKey.Reports], (oldReports) => {
+        if (!oldReports) return undefined;
+        return oldReports.map((report) =>
+          report.id === updatedReport.id ? updatedReport : report,
+        );
+      });
+
+      // Update the latest reports cache
+      queryClient.setQueryData<MedicalReport[]>([QueryKey.LatestReports], (oldReports) => {
+        if (!oldReports) return undefined;
+        return oldReports.map((report) =>
+          report.id === updatedReport.id ? updatedReport : report,
+        );
+      });
+
+      // Update the bookmark status in the report detail page
+      queryClient.setQueryData<MedicalReport | undefined>(
+        [QueryKey.ReportDetail, reportId],
+        (oldReport) => {
+          if (!oldReport) return undefined;
+          if (oldReport.id !== updatedReport.id) return oldReport;
+          return { ...oldReport, bookmarked: updatedReport.bookmarked };
+        },
+      );
     },
   });
 };

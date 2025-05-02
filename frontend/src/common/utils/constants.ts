@@ -9,6 +9,10 @@ export enum QueryKey {
   UserProfile = 'UserProfile',
   Users = 'Users',
   UserTokens = 'UserTokens',
+  Chat = 'Chat',
+  Reports = 'Reports',
+  LatestReports = 'LatestReports',
+  ReportDetail = 'ReportDetail',
 }
 
 /**
