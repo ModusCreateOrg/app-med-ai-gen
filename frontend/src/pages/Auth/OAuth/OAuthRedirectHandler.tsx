@@ -8,7 +8,7 @@ import LoaderSpinner from 'common/components/Loader/LoaderSpinner';
 import ErrorCard from 'common/components/Card/ErrorCard';
 import { mapCognitoUserToAppUser } from 'common/utils/user-mapper';
 import { getAuthErrorMessage } from 'common/utils/auth-errors';
-import CognitoAuthService from 'common/services/auth/cognito-auth-service';
+import { DirectCognitoAuthService } from 'common/services/auth/direct-cognito-auth-service';
 
 /**
  * Properties for the `OAuthRedirectHandler` component.
@@ -32,11 +32,11 @@ const OAuthRedirectHandler = ({
     const processOAuthRedirect = async () => {
       try {
         // Get the current session after OAuth
-        const session = await CognitoAuthService.getCurrentSession();
+        const session = await DirectCognitoAuthService.getCurrentSession();
 
         if (session && session.tokens) {
           // Get the user data
-          const currentUser = await CognitoAuthService.getCurrentUser();
+          const currentUser = await DirectCognitoAuthService.getCurrentUser();
 
           if (currentUser) {
             // Map to our user model

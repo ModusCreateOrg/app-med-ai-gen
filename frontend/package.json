@@ -39,10 +39,8 @@
     ]
   },
   "dependencies": {
-    "@aws-amplify/auth": "^6.12.4",
-    "@aws-amplify/core": "^6.11.4",
-    "@aws-amplify/ui-react": "^6.11.1",
     "@aws-sdk/client-bedrock-runtime": "^3.799.0",
+    "@aws-sdk/client-cognito-identity-provider": "^3.799.0",
     "@aws-sdk/client-s3": "^3.802.0",
     "@aws-sdk/s3-request-presigner": "^3.802.0",
     "@capacitor/android": "^7.2.0",

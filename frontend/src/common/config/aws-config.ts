@@ -41,38 +41,3 @@ export const COGNITO_CONFIG = {
   // Social providers
   SOCIAL_PROVIDERS: ['Google', 'SignInWithApple'],
 };
-
-/**
- * Get redirect URLs for OAuth
- */
-const redirectUrls = {
-  signIn: [APP_CONFIG.hostedRedirectSignIn],
-  signOut: [APP_CONFIG.hostedRedirectSignOut],
-};
-
-/**
- * Amplify Configuration object for initializing Amplify (V6 format)
- */
-export const amplifyConfig = {
-  Auth: {
-    Cognito: {
-      userPoolId: COGNITO_CONFIG.USER_POOL_ID,
-      userPoolClientId: COGNITO_CONFIG.USER_POOL_WEB_CLIENT_ID,
-      identityPoolId: COGNITO_CONFIG.IDENTITY_POOL_ID,
-      loginWith: {
-        email: true,
-        phone: false,
-        username: false,
-        oauth: {
-          domain: COGNITO_CONFIG.OAUTH_DOMAIN,
-          scopes: COGNITO_CONFIG.OAUTH_SCOPES,
-          redirectSignIn: redirectUrls.signIn,
-          redirectSignOut: redirectUrls.signOut,
-          responseType: 'code' as const,
-        },
-      },
-    },
-  },
-  // Configure only the region you need to use
-  region: REGION,
-};

@@ -1,5 +1,5 @@
 import { BedrockRuntimeClient, InvokeModelCommand } from '@aws-sdk/client-bedrock-runtime';
-import { fetchAuthSession } from '@aws-amplify/auth';
+import { DirectCognitoAuthService } from '../auth/direct-cognito-auth-service';
 import { REGION } from '../../config/aws-config';
 import i18n from '../../utils/i18n';
 
@@ -91,7 +91,7 @@ class BedrockService {
 
   private async initializeClient() {
     try {
-      const { credentials } = await fetchAuthSession();
+      const { credentials } = await DirectCognitoAuthService.fetchAuthSession();
 
       // Check if credentials exist and have the necessary properties
       if (!credentials) {

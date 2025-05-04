@@ -1,20 +1,5 @@
 import { vi } from 'vitest';
 
-// Mock AWS Amplify and Bedrock
-vi.mock('@aws-amplify/auth', () => ({
-  fetchAuthSession: vi.fn().mockImplementation(() => ({
-    credentials: {
-      accessKeyId: 'test-access-key',
-      secretAccessKey: 'test-secret-key',
-      sessionToken: 'test-session-token',
-      expiration: new Date(Date.now() + 3600 * 1000),
-    },
-  })),
-  Amplify: {
-    configure: vi.fn(),
-  },
-}));
-
 // Mock AWS SDK Bedrock client
 vi.mock('@aws-sdk/client-bedrock-runtime', () => {
   return {

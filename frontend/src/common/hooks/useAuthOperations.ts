@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { AuthError } from 'common/models/auth';
 import { CognitoUser } from 'common/models/user';
-import CognitoAuthService from 'common/services/auth/cognito-auth-service';
+import { DirectCognitoAuthService } from 'common/services/auth/direct-cognito-auth-service';
 import { formatAuthError } from 'common/utils/auth-errors';
 import { mapCognitoUserToAppUser } from 'common/utils/user-mapper';
 
@@ -36,7 +36,7 @@ export const useAuthOperations = () => {
     clearError();
 
     try {
-      await CognitoAuthService.signIn(email, password);
+      await DirectCognitoAuthService.signIn(email, password);
       // Convert the result to the structure expected by mapCognitoUserToAppUser
       const userData = {
         username: email,
@@ -57,10 +57,10 @@ export const useAuthOperations = () => {
 
         try {
           // Try to get the current user
-          const currentUser = await CognitoAuthService.getCurrentUser();
+          const currentUser = await DirectCognitoAuthService.getCurrentUser();
           if (currentUser) {
             // Get tokens to extract user info
-            const tokens = await CognitoAuthService.getUserTokens();
+            const tokens = DirectCognitoAuthService.getTokens();
             if (tokens?.id_token) {
               // We'll let the AuthProvider handle setting the user from the token
               console.log('Retrieved tokens for already signed in user');
@@ -98,7 +98,7 @@ export const useAuthOperations = () => {
     clearError();
 
     try {
-      await CognitoAuthService.signUp(email, password, { firstName, lastName });
+      await DirectCognitoAuthService.signUp(email, password, { firstName, lastName });
       // Don't set the user yet - confirmation is required first
     } catch (err) {
       setError(formatAuthError(err));
@@ -118,7 +118,7 @@ export const useAuthOperations = () => {
     clearError();
 
     try {
-      await CognitoAuthService.confirmSignUp(email, code);
+      await DirectCognitoAuthService.confirmSignUp(email, code);
       // User confirmed, but not yet signed in
     } catch (err) {
       setError(formatAuthError(err));
@@ -137,7 +137,7 @@ export const useAuthOperations = () => {
     clearError();
 
     try {
-      await CognitoAuthService.resendConfirmationCode(email);
+      await DirectCognitoAuthService.resendConfirmationCode(email);
       // Success - code resent to user's email
     } catch (err) {
       setError(formatAuthError(err));
@@ -155,7 +155,7 @@ export const useAuthOperations = () => {
     clearError();
 
     try {
-      await CognitoAuthService.signOut();
+      await DirectCognitoAuthService.signOut();
       setUser(undefined);
     } catch (err) {
       setError(formatAuthError(err));
@@ -173,7 +173,7 @@ export const useAuthOperations = () => {
     clearError();
 
     try {
-      await CognitoAuthService.federatedSignIn('Google');
+      await DirectCognitoAuthService.federatedSignIn('Google');
       // Note: This doesn't complete the sign-in flow.
       // The user will be redirected to Google and then back to your app
       // Your app needs to handle the redirect URI
@@ -193,7 +193,7 @@ export const useAuthOperations = () => {
     clearError();
 
     try {
-      await CognitoAuthService.federatedSignIn('SignInWithApple');
+      await DirectCognitoAuthService.federatedSignIn('SignInWithApple');
       // Note: This doesn't complete the sign-in flow.
       // The user will be redirected to Apple and then back to your app
       // Your app needs to handle the redirect URI
@@ -214,7 +214,7 @@ export const useAuthOperations = () => {
     clearError();
 
     try {
-      await CognitoAuthService.forgotPassword(email);
+      await DirectCognitoAuthService.forgotPassword(email);
       // Success - code sent to user's email
     } catch (err) {
       setError(formatAuthError(err));
@@ -239,7 +239,7 @@ export const useAuthOperations = () => {
     clearError();
 
     try {
-      await CognitoAuthService.confirmResetPassword(email, code, newPassword);
+      await DirectCognitoAuthService.confirmResetPassword(email, code, newPassword);
       // Success - password reset complete
     } catch (err) {
       setError(formatAuthError(err));
