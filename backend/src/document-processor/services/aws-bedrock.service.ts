@@ -75,6 +75,7 @@ For lab values:
 - Provide brief "conclusion" about what the value means for health
 - Add brief "suggestions" based on the value
 - If you use standard ranges because the document lacks them, clearly mark this in your response
+- "normalRange" should be a string with the range (e.g., "4.5-5.5") as concise as possible without explanations
 
 CRITICAL FORMATTING RULES:
 - Begin immediately with { and end with }
