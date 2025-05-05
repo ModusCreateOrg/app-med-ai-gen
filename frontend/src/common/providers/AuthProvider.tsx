@@ -126,7 +126,7 @@ const AuthProvider = ({ children }: PropsWithChildren): JSX.Element => {
             const userData = {
               username: currentUser.username || '',
               attributes: {
-                email: currentUser.signInDetails?.loginId || '',
+                email: currentUser.attributes.email || '',
                 given_name: currentUser.username?.split('@')[0] || '',
                 family_name: '',
               },

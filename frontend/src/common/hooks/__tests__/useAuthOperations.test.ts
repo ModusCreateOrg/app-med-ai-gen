@@ -6,6 +6,11 @@ import * as AuthErrorUtils from 'common/utils/auth-errors';
 import { AuthError, UserTokens } from 'common/models/auth';
 import { CognitoUser } from 'common/models/user';
 import * as UserMapper from 'common/utils/user-mapper';
+import {
+  ConfirmSignUpCommandOutput,
+  ResendConfirmationCodeCommandOutput,
+  SignUpCommandOutput,
+} from '@aws-sdk/client-cognito-identity-provider';
 
 // Mock the DirectCognitoAuthService
 vi.mock('common/services/auth/direct-cognito-auth-service', () => ({
@@ -110,12 +115,11 @@ describe('useAuthOperations', () => {
 
   describe('signUp', () => {
     it('should call DirectCognitoAuthService.signUp with correct parameters', async () => {
-      const mockSignUpResult = {
-        username: 'test@example.com',
-        userConfirmed: false,
-        isSignUpComplete: false,
-        nextStep: { signUpStep: 'CONFIRM_SIGN_UP' },
-      } as unknown;
+      const mockSignUpResult: SignUpCommandOutput = {
+        UserConfirmed: false,
+        UserSub: 'test-sub',
+        $metadata: {},
+      };
 
       vi.mocked(DirectCognitoAuthService.signUp).mockResolvedValueOnce(mockSignUpResult);
 
@@ -174,10 +178,9 @@ describe('useAuthOperations', () => {
 
   describe('confirmSignUp', () => {
     it('should call DirectCognitoAuthService.confirmSignUp with correct parameters', async () => {
-      const mockConfirmResult = {
-        isSignUpComplete: true,
-        nextStep: { signUpStep: 'DONE' },
-      } as unknown;
+      const mockConfirmResult: ConfirmSignUpCommandOutput = {
+        $metadata: {},
+      };
 
       vi.mocked(DirectCognitoAuthService.confirmSignUp).mockResolvedValueOnce(mockConfirmResult);
 
@@ -198,11 +201,14 @@ describe('useAuthOperations', () => {
 
   describe('resendConfirmationCode', () => {
     it('should call DirectCognitoAuthService.resendConfirmationCode with correct email', async () => {
-      const mockResult = {
-        deliveryMedium: 'EMAIL',
-        destination: 'test@example.com',
-        attributeName: 'email',
-      } as unknown;
+      const mockResult: ResendConfirmationCodeCommandOutput = {
+        CodeDeliveryDetails: {
+          AttributeName: 'email',
+          DeliveryMedium: 'EMAIL',
+          Destination: 'test@example.com',
+        },
+        $metadata: {},
+      };
 
       vi.mocked(DirectCognitoAuthService.resendConfirmationCode).mockResolvedValueOnce(mockResult);
 
@@ -231,7 +237,16 @@ describe('useAuthOperations', () => {
       const mockUser = { id: 'mock-id', username: 'test@example.com', email: 'test@example.com' };
 
       // First, we need to set up the user by simulating a successful sign-in
-      vi.mocked(DirectCognitoAuthService.signIn).mockResolvedValueOnce({});
+      const mockTokens: UserTokens = {
+        access_token: 'token',
+        id_token: 'id-token',
+        refresh_token: 'refresh-token',
+        token_type: 'bearer',
+        expires_in: 3600,
+        expires_at: new Date().toISOString(),
+      };
+
+      vi.mocked(DirectCognitoAuthService.signIn).mockResolvedValueOnce(mockTokens);
       vi.mocked(UserMapper.mapCognitoUserToAppUser).mockReturnValueOnce(mockUser as CognitoUser);
 
       await act(async () => {
