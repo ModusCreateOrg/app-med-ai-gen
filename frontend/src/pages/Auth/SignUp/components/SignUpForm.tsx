@@ -13,7 +13,7 @@ import classNames from 'classnames';
 import { Form, Formik, useFormikContext } from 'formik';
 import { object, string, ref } from 'yup';
 import { useTranslation } from 'react-i18next';
-import { checkmarkCircle, closeCircle } from 'ionicons/icons';
+import { checkmarkCircle, ellipseOutline } from 'ionicons/icons';
 
 import './SignUpForm.scss';
 import { BaseComponentProps } from 'common/components/types';
@@ -21,7 +21,6 @@ import { AuthError } from 'common/models/auth';
 import { useSignUp } from 'common/hooks/useAuth';
 import { useProgress } from 'common/hooks/useProgress';
 import Input from 'common/components/Input/Input';
-import HeaderRow from 'common/components/Text/HeaderRow';
 import { formatAuthError } from 'common/utils/auth-errors';
 import AuthErrorDisplay from 'common/components/Auth/AuthErrorDisplay';
 import AuthLoadingIndicator from 'common/components/Auth/AuthLoadingIndicator';
@@ -63,7 +62,7 @@ const PasswordGuidelines = () => {
         }`}
       >
         <IonIcon
-          icon={isValid ? checkmarkCircle : closeCircle}
+          icon={isValid ? checkmarkCircle : ellipseOutline}
           className="ls-signup-form__password-guidelines-item-icon"
         />
         <span>{text}</span>
@@ -74,9 +73,9 @@ const PasswordGuidelines = () => {
   return (
     <div className="ls-signup-form__password-guidelines">
       {renderGuideline(hasMinLength, t('validation.min-length', { length: 8, ns: 'auth' }))}
+      {renderGuideline(hasSpecialChar, t('validation.special-char', { ns: 'auth' }))}
       {renderGuideline(hasUppercase, t('validation.uppercase', { ns: 'auth' }))}
       {renderGuideline(hasNumber, t('validation.number', { ns: 'auth' }))}
-      {renderGuideline(hasSpecialChar, t('validation.special-char', { ns: 'auth' }))}
     </div>
   );
 };
@@ -173,12 +172,8 @@ const SignUpForm = ({ className, testid = 'form-signup' }: SignUpFormProps): JSX
         }}
         validationSchema={validationSchema}
       >
-        {({ dirty, isSubmitting }) => (
+        {({ dirty, isSubmitting, isValid }) => (
           <Form data-testid={`${testid}-form`}>
-            <HeaderRow border>
-              <div>{t('signup', { ns: 'auth' })}</div>
-            </HeaderRow>
-
             <div className="ls-signup-form__content">
               <h2 className="ls-signup-form__title">{t('signup', { ns: 'auth' })}</h2>
               <p className="ls-signup-form__subtitle">
@@ -253,7 +248,7 @@ const SignUpForm = ({ className, testid = 'form-signup' }: SignUpFormProps): JSX
                 color="primary"
                 className="ls-signup-form__button"
                 expand="block"
-                disabled={isSubmitting || !dirty || isSignUpLoading || isLoading}
+                disabled={isSubmitting || !isValid || !dirty || isSignUpLoading || isLoading}
                 data-testid={`${testid}-button-submit`}
               >
                 {t('signup.button', { ns: 'auth' })}
