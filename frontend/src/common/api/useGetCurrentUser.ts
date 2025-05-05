@@ -28,7 +28,7 @@ export const useGetCurrentUser = () => {
         username: cognitoUser.username || '',
         attributes: {
           // Extract whatever attributes are available from the user object
-          email: cognitoUser.signInDetails?.loginId || '',
+          email: cognitoUser.attributes.email || '',
         },
       };
 

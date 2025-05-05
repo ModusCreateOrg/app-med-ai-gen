@@ -36,6 +36,14 @@ export type User = {
 };
 
 /**
+ * Login details from Cognito
+ */
+export type SignInDetails = {
+  loginId?: string;
+  // Add any other properties that might be needed
+};
+
+/**
  * Cognito User type aligned with AWS Cognito attributes
  */
 export type CognitoUser = {
@@ -63,4 +71,6 @@ export type CognitoUser = {
   createdAt?: string;
   // Updated date
   updatedAt?: string;
+  // Sign-in details (optional)
+  signInDetails?: SignInDetails;
 };
