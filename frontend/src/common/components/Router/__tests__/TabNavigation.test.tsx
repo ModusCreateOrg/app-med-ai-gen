@@ -3,22 +3,38 @@ import { render as defaultRender, screen } from '@testing-library/react';
 import TabNavigation from '../TabNavigation';
 import '@testing-library/jest-dom';
 
-// Create a mock i18n instance - MOVED UP before any uses
-const mockI18n = {
-  t: (key: string, options?: Record<string, unknown>) => options?.defaultValue || key,
-  language: 'en',
-  languages: ['en'],
-  use: () => mockI18n, // Return itself for chaining
-  init: () => mockI18n, // Return itself for chaining
-  changeLanguage: vi.fn(),
-  exists: vi.fn(() => true),
-  addResourceBundle: vi.fn(),
-};
+// vi.mock calls must come before any variable they reference
+// All mocks are hoisted to the top, so we need to define them before they're used
 
 // Mock i18next
-vi.mock('i18next', () => ({
-  default: mockI18n,
-}));
+vi.mock('i18next', () => {
+  return {
+    default: {
+      t: (key: string, options?: Record<string, unknown>) => options?.defaultValue || key,
+      language: 'en',
+      languages: ['en'],
+      use: () => ({
+        t: (key: string, options?: Record<string, unknown>) => options?.defaultValue || key,
+        language: 'en',
+        languages: ['en'],
+        changeLanguage: vi.fn(),
+        exists: vi.fn(() => true),
+        addResourceBundle: vi.fn(),
+      }),
+      init: () => ({
+        t: (key: string, options?: Record<string, unknown>) => options?.defaultValue || key,
+        language: 'en',
+        languages: ['en'],
+        changeLanguage: vi.fn(),
+        exists: vi.fn(() => true),
+        addResourceBundle: vi.fn(),
+      }),
+      changeLanguage: vi.fn(),
+      exists: vi.fn(() => true),
+      addResourceBundle: vi.fn(),
+    },
+  };
+});
 
 // Mock i18next-browser-languagedetector
 vi.mock('i18next-browser-languagedetector', () => ({
@@ -36,9 +52,18 @@ vi.mock('react-i18next', () => ({
   I18nextProvider: ({ children }: { children: React.ReactNode }) => <>{children}</>,
 }));
 
-// Mock common/utils/i18n
+// Mock common/utils/i18n using factory function that doesn't depend on mockI18n
 vi.mock('common/utils/i18n', () => ({
-  default: mockI18n,
+  default: {
+    t: (key: string, options?: Record<string, unknown>) => options?.defaultValue || key,
+    language: 'en',
+    languages: ['en'],
+    use: vi.fn().mockReturnThis(),
+    init: vi.fn().mockReturnThis(),
+    changeLanguage: vi.fn(),
+    exists: vi.fn(() => true),
+    addResourceBundle: vi.fn(),
+  },
 }));
 
 // Mock the window object for Ionic

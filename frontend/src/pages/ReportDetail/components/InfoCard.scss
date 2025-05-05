@@ -27,7 +27,7 @@
 }
 
 // Media Queries for larger screens
-@media (min-width: 768px) {
+@media (width >= 768px) {
   .info-card {
     max-width: 600px;
     margin-left: auto;

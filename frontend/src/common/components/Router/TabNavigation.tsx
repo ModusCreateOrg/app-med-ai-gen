@@ -18,7 +18,7 @@ import DiagnosticsPage from 'pages/Account/components/Diagnostics/DiagnosticsPag
 import ChatPage from 'pages/Chat/ChatPage';
 import UploadPage from 'pages/Upload/UploadPage';
 import ReportsListPage from 'pages/Reports/ReportsListPage';
-import ReportDetailPage from 'pages/Reports/ReportDetailPage';
+import ReportDetailPage from 'pages/ReportDetail/ReportDetailPage';
 import ProcessingPage from 'pages/Processing/ProcessingPage';
 
 // Import SVG icons
