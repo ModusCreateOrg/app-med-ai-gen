@@ -287,13 +287,28 @@ export class DirectCognitoAuthService {
       return null;
     }
 
+    // Try to extract expiration time from the ID token
+    let expiresIn = 0;
+    let expiresAt = '';
+    try {
+      const payload = JSON.parse(atob(idToken.split('.')[1]));
+      if (payload.exp) {
+        // exp is in seconds since epoch
+        const expirationTime = payload.exp * 1000; // Convert to milliseconds
+        expiresIn = Math.max(0, Math.floor((expirationTime - Date.now()) / 1000));
+        expiresAt = new Date(expirationTime).toISOString();
+      }
+    } catch (error) {
+      console.warn('Error parsing ID token expiration:', error);
+    }
+
     return {
       id_token: idToken,
       access_token: accessToken,
       refresh_token: refreshToken || '',
       token_type: 'bearer',
-      expires_in: 0, // We don't store this in localStorage
-      expires_at: '', // We don't store this in localStorage
+      expires_in: expiresIn,
+      expires_at: expiresAt,
     };
   }
 
@@ -419,27 +434,40 @@ export class DirectCognitoAuthService {
   }
 
   /**
-   * Refreshes the token using the refresh token if available
+   * Check if tokens need refresh
    * @param tokens Current tokens
-   * @returns Updated tokens if refresh succeeded, original tokens otherwise
+   * @returns Boolean indicating if refresh is needed
    */
-  private static async refreshTokensIfNeeded(tokens: UserTokens): Promise<UserTokens> {
-    // Check if token is about to expire (within 5 minutes)
-    const needsRefresh = tokens.expires_at
-      ? new Date(tokens.expires_at).getTime() - Date.now() < 5 * 60 * 1000
-      : false;
-
-    // If token doesn't need refresh or we don't have a refresh token, return original tokens
-    if (!needsRefresh || !tokens.refresh_token) {
-      return tokens;
+  private static isTokenRefreshNeeded(tokens: UserTokens): boolean {
+    // If we don't have a refresh token, we can't refresh
+    if (!tokens.refresh_token) {
+      return false;
     }
 
+    // Check if token is expired or about to expire (within 10 minutes)
+    const expTime = tokens.expires_at ? new Date(tokens.expires_at).getTime() : 0;
+    const isExpired = expTime > 0 && expTime <= Date.now();
+    const isExpiringSoon = expTime > 0 && expTime - Date.now() < 10 * 60 * 1000;
+
+    return isExpired || isExpiringSoon;
+  }
+
+  /**
+   * Perform the token refresh API call
+   * @param refreshToken The refresh token to use
+   * @returns The new tokens or null if refresh failed
+   */
+  private static async performTokenRefresh(refreshToken: string): Promise<{
+    IdToken: string;
+    AccessToken: string;
+    ExpiresIn: number;
+  } | null> {
     try {
       const refreshParams = {
         AuthFlow: 'REFRESH_TOKEN_AUTH' as AuthFlowType,
         ClientId: this.clientId,
         AuthParameters: {
-          REFRESH_TOKEN: tokens.refresh_token,
+          REFRESH_TOKEN: refreshToken,
         },
       };
 
@@ -447,31 +475,91 @@ export class DirectCognitoAuthService {
       const refreshResponse = await this.client.send(refreshCommand);
 
       if (!refreshResponse.AuthenticationResult) {
-        return tokens; // No auth result, return original tokens
+        console.warn('Token refresh did not return authentication result');
+        return null;
       }
 
       const { IdToken, AccessToken, ExpiresIn } = refreshResponse.AuthenticationResult;
 
       if (!IdToken || !AccessToken) {
-        return tokens; // Missing tokens, return original tokens
+        console.warn('Token refresh missing ID or Access token');
+        return null;
       }
 
-      // Update tokens in local storage
-      localStorage.setItem('cognito_id_token', IdToken);
-      localStorage.setItem('cognito_access_token', AccessToken);
-
-      // Return updated tokens
       return {
-        ...tokens,
-        id_token: IdToken,
-        access_token: AccessToken,
-        expires_in: ExpiresIn || 3600,
-        expires_at: new Date(Date.now() + (ExpiresIn || 3600) * 1000).toISOString(),
+        IdToken,
+        AccessToken,
+        ExpiresIn: ExpiresIn || 3600,
       };
     } catch (error) {
-      console.warn('Token refresh failed, proceeding with existing token:', error);
-      return tokens; // Return original tokens on error
+      console.warn('Token refresh failed:', error);
+
+      // Check for invalid refresh token
+      if (
+        error instanceof Error &&
+        (error.name === 'NotAuthorizedException' || error.message.includes('Invalid refresh token'))
+      ) {
+        console.warn('Clearing invalid refresh token');
+        localStorage.removeItem('cognito_refresh_token');
+      }
+
+      return null;
     }
+  }
+
+  /**
+   * Update local tokens with refreshed values
+   * @param tokens Original tokens
+   * @param newTokens New token values
+   * @returns Updated UserTokens object
+   */
+  private static updateTokensWithRefreshed(
+    tokens: UserTokens,
+    newTokens: { IdToken: string; AccessToken: string; ExpiresIn: number },
+  ): UserTokens {
+    const { IdToken, AccessToken, ExpiresIn } = newTokens;
+
+    // Calculate new expiration time
+    const expiresAt = new Date(Date.now() + ExpiresIn * 1000).toISOString();
+    console.log('Tokens refreshed successfully, new expiration:', expiresAt);
+
+    // Update tokens in local storage
+    localStorage.setItem('cognito_id_token', IdToken);
+    localStorage.setItem('cognito_access_token', AccessToken);
+
+    // Return updated tokens
+    return {
+      ...tokens,
+      id_token: IdToken,
+      access_token: AccessToken,
+      expires_in: ExpiresIn,
+      expires_at: expiresAt,
+    };
+  }
+
+  /**
+   * Refreshes the token using the refresh token if available
+   * @param tokens Current tokens
+   * @returns Updated tokens if refresh succeeded, original tokens otherwise
+   */
+  private static async refreshTokensIfNeeded(tokens: UserTokens): Promise<UserTokens> {
+    // Check if token needs refresh
+    if (!this.isTokenRefreshNeeded(tokens)) {
+      return tokens;
+    }
+
+    console.log('Refreshing tokens - current token expires at:', tokens.expires_at);
+
+    // Perform token refresh
+    const refreshedTokens = await this.performTokenRefresh(tokens.refresh_token);
+
+    // If refresh failed, return original tokens
+    if (!refreshedTokens) {
+      return tokens;
+    }
+
+    // Update and return the refreshed tokens
+    return this.updateTokensWithRefreshed(tokens, refreshedTokens);
   }
 
   /**
@@ -553,18 +641,73 @@ export class DirectCognitoAuthService {
         throw new Error('No active session found');
       }
 
-      // Refresh tokens if needed
+      // Check for expired token
+      if (tokens.expires_at) {
+        const expTime = new Date(tokens.expires_at).getTime();
+        if (expTime <= Date.now()) {
+          console.warn('Token is expired, attempting to refresh');
+        }
+      }
+
+      // Always try to refresh tokens
       const refreshedTokens = await this.refreshTokensIfNeeded(tokens);
 
-      // Get identity ID
-      const identityId = await this.getIdentityId(refreshedTokens);
+      try {
+        // Get identity ID
+        const identityId = await this.getIdentityId(refreshedTokens);
 
-      // Get AWS credentials
-      const credentials = await this.getAWSCredentials(identityId, refreshedTokens.id_token);
+        // Get AWS credentials
+        const credentials = await this.getAWSCredentials(identityId, refreshedTokens.id_token);
 
-      return { credentials };
+        return { credentials };
+      } catch (credentialError) {
+        console.error('Error getting credentials:', credentialError);
+
+        // If we get authentication errors, force token refresh one more time
+        if (
+          credentialError instanceof Error &&
+          (credentialError.name === 'NotAuthorizedException' ||
+            credentialError.message.includes('Invalid login token') ||
+            credentialError.message.includes('Token expired'))
+        ) {
+          console.warn('Auth error detected, forcing token refresh');
+
+          // Force a refresh by simulating an expired token
+          const forcedRefreshTokens = {
+            ...refreshedTokens,
+            expires_at: new Date(Date.now() - 1000).toISOString(),
+          };
+
+          // Try one more refresh
+          const finalTokens = await this.refreshTokensIfNeeded(forcedRefreshTokens);
+
+          // Try again with refreshed tokens
+          const identityId = await this.getIdentityId(finalTokens);
+          const credentials = await this.getAWSCredentials(identityId, finalTokens.id_token);
+
+          return { credentials };
+        }
+
+        // Re-throw other errors
+        throw credentialError;
+      }
     } catch (error) {
       console.error('Error fetching auth session:', error);
+
+      // If we still have auth errors after all attempts, try to sign the user out
+      // to force a fresh login on next attempt
+      if (
+        error instanceof Error &&
+        (error.name === 'NotAuthorizedException' ||
+          error.message.includes('Invalid login token') ||
+          error.message.includes('Token expired'))
+      ) {
+        console.warn('Authentication failed completely, clearing local session');
+        localStorage.removeItem('cognito_id_token');
+        localStorage.removeItem('cognito_access_token');
+        localStorage.removeItem('cognito_refresh_token');
+      }
+
       throw new Error(
         'Failed to get authentication session: ' +
           (error instanceof Error ? error.message : String(error)),
