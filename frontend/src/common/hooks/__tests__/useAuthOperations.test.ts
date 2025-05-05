@@ -1,21 +1,15 @@
 import { renderHook, act } from '@testing-library/react';
 import { vi, describe, it, expect, beforeEach } from 'vitest';
 import { useAuthOperations } from '../useAuthOperations';
-import CognitoAuthService from 'common/services/auth/cognito-auth-service';
+import { DirectCognitoAuthService } from 'common/services/auth/direct-cognito-auth-service';
 import * as AuthErrorUtils from 'common/utils/auth-errors';
-import {
-  SignInOutput,
-  SignUpOutput,
-  ConfirmSignUpOutput,
-  ResendSignUpCodeOutput,
-} from '@aws-amplify/auth';
-import { AuthError } from 'common/models/auth';
+import { AuthError, UserTokens } from 'common/models/auth';
 import { CognitoUser } from 'common/models/user';
 import * as UserMapper from 'common/utils/user-mapper';
 
-// Mock the CognitoAuthService
-vi.mock('common/services/auth/cognito-auth-service', () => ({
-  default: {
+// Mock the DirectCognitoAuthService
+vi.mock('common/services/auth/direct-cognito-auth-service', () => ({
+  DirectCognitoAuthService: {
     signIn: vi.fn(),
     signUp: vi.fn(),
     confirmSignUp: vi.fn(),
@@ -24,6 +18,9 @@ vi.mock('common/services/auth/cognito-auth-service', () => ({
     getCurrentUser: vi.fn(),
     forgotPassword: vi.fn(),
     confirmResetPassword: vi.fn(),
+    getCurrentSession: vi.fn(),
+    getUserTokens: vi.fn(),
+    federatedSignIn: vi.fn(),
   },
 }));
 
@@ -51,14 +48,14 @@ describe('useAuthOperations', () => {
   });
 
   describe('signIn', () => {
-    it('should call CognitoAuthService.signIn with correct parameters', async () => {
+    it('should call DirectCognitoAuthService.signIn with correct parameters', async () => {
       const mockSignInResult = {
         username: 'test@example.com',
         isSignedIn: true,
         nextStep: { signInStep: 'DONE' },
-      } as unknown as SignInOutput;
+      } as unknown as UserTokens;
 
-      vi.mocked(CognitoAuthService.signIn).mockResolvedValueOnce(mockSignInResult);
+      vi.mocked(DirectCognitoAuthService.signIn).mockResolvedValueOnce(mockSignInResult);
 
       // Mock user mapper to return a user object
       const mockUser = { id: 'mock-id', username: 'test@example.com', email: 'test@example.com' };
@@ -70,7 +67,10 @@ describe('useAuthOperations', () => {
         await result.current.signIn('test@example.com', 'password123');
       });
 
-      expect(CognitoAuthService.signIn).toHaveBeenCalledWith('test@example.com', 'password123');
+      expect(DirectCognitoAuthService.signIn).toHaveBeenCalledWith(
+        'test@example.com',
+        'password123',
+      );
       expect(result.current.isLoading).toBe(false);
       expect(result.current.error).toBeUndefined();
 
@@ -81,7 +81,7 @@ describe('useAuthOperations', () => {
 
     it('should handle signIn errors', async () => {
       const error = new Error('Invalid credentials');
-      vi.mocked(CognitoAuthService.signIn).mockRejectedValueOnce(error);
+      vi.mocked(DirectCognitoAuthService.signIn).mockRejectedValueOnce(error);
 
       // Mock the formatAuthError function to return a proper AuthError
       const mockError = { code: 'MockError', message: 'Invalid credentials', name: 'MockError' };
@@ -97,7 +97,10 @@ describe('useAuthOperations', () => {
         }
       });
 
-      expect(CognitoAuthService.signIn).toHaveBeenCalledWith('test@example.com', 'password123');
+      expect(DirectCognitoAuthService.signIn).toHaveBeenCalledWith(
+        'test@example.com',
+        'password123',
+      );
       expect(result.current.isLoading).toBe(false);
       expect(result.current.error).toBeDefined();
       expect(result.current.error).toEqual(mockError);
@@ -106,15 +109,15 @@ describe('useAuthOperations', () => {
   });
 
   describe('signUp', () => {
-    it('should call CognitoAuthService.signUp with correct parameters', async () => {
+    it('should call DirectCognitoAuthService.signUp with correct parameters', async () => {
       const mockSignUpResult = {
         username: 'test@example.com',
         userConfirmed: false,
         isSignUpComplete: false,
         nextStep: { signUpStep: 'CONFIRM_SIGN_UP' },
-      } as unknown as SignUpOutput;
+      } as unknown;
 
-      vi.mocked(CognitoAuthService.signUp).mockResolvedValueOnce(mockSignUpResult);
+      vi.mocked(DirectCognitoAuthService.signUp).mockResolvedValueOnce(mockSignUpResult);
 
       const { result } = renderHook(() => useAuthOperations());
 
@@ -122,10 +125,14 @@ describe('useAuthOperations', () => {
         await result.current.signUp('test@example.com', 'password123', 'John', 'Doe');
       });
 
-      expect(CognitoAuthService.signUp).toHaveBeenCalledWith('test@example.com', 'password123', {
-        firstName: 'John',
-        lastName: 'Doe',
-      });
+      expect(DirectCognitoAuthService.signUp).toHaveBeenCalledWith(
+        'test@example.com',
+        'password123',
+        {
+          firstName: 'John',
+          lastName: 'Doe',
+        },
+      );
       expect(result.current.isLoading).toBe(false);
       expect(result.current.error).toBeUndefined();
       // User should not be set after sign up, as confirmation is required
@@ -134,7 +141,7 @@ describe('useAuthOperations', () => {
 
     it('should handle signUp errors', async () => {
       const error = new Error('User already exists');
-      vi.mocked(CognitoAuthService.signUp).mockRejectedValueOnce(error);
+      vi.mocked(DirectCognitoAuthService.signUp).mockRejectedValueOnce(error);
 
       // Mock the formatAuthError function to return a proper AuthError
       const mockError = { code: 'MockError', message: 'User already exists', name: 'MockError' };
@@ -150,10 +157,14 @@ describe('useAuthOperations', () => {
         }
       });
 
-      expect(CognitoAuthService.signUp).toHaveBeenCalledWith('test@example.com', 'password123', {
-        firstName: 'John',
-        lastName: 'Doe',
-      });
+      expect(DirectCognitoAuthService.signUp).toHaveBeenCalledWith(
+        'test@example.com',
+        'password123',
+        {
+          firstName: 'John',
+          lastName: 'Doe',
+        },
+      );
       expect(result.current.isLoading).toBe(false);
       expect(result.current.error).toBeDefined();
       expect(result.current.error).toEqual(mockError);
@@ -162,13 +173,13 @@ describe('useAuthOperations', () => {
   });
 
   describe('confirmSignUp', () => {
-    it('should call CognitoAuthService.confirmSignUp with correct parameters', async () => {
+    it('should call DirectCognitoAuthService.confirmSignUp with correct parameters', async () => {
       const mockConfirmResult = {
         isSignUpComplete: true,
         nextStep: { signUpStep: 'DONE' },
-      } as unknown as ConfirmSignUpOutput;
+      } as unknown;
 
-      vi.mocked(CognitoAuthService.confirmSignUp).mockResolvedValueOnce(mockConfirmResult);
+      vi.mocked(DirectCognitoAuthService.confirmSignUp).mockResolvedValueOnce(mockConfirmResult);
 
       const { result } = renderHook(() => useAuthOperations());
 
@@ -176,21 +187,24 @@ describe('useAuthOperations', () => {
         await result.current.confirmSignUp('test@example.com', '123456');
       });
 
-      expect(CognitoAuthService.confirmSignUp).toHaveBeenCalledWith('test@example.com', '123456');
+      expect(DirectCognitoAuthService.confirmSignUp).toHaveBeenCalledWith(
+        'test@example.com',
+        '123456',
+      );
       expect(result.current.isLoading).toBe(false);
       expect(result.current.error).toBeUndefined();
     });
   });
 
   describe('resendConfirmationCode', () => {
-    it('should call CognitoAuthService.resendConfirmationCode with correct email', async () => {
+    it('should call DirectCognitoAuthService.resendConfirmationCode with correct email', async () => {
       const mockResult = {
         deliveryMedium: 'EMAIL',
         destination: 'test@example.com',
         attributeName: 'email',
-      } as unknown as ResendSignUpCodeOutput;
+      } as unknown;
 
-      vi.mocked(CognitoAuthService.resendConfirmationCode).mockResolvedValueOnce(mockResult);
+      vi.mocked(DirectCognitoAuthService.resendConfirmationCode).mockResolvedValueOnce(mockResult);
 
       const { result } = renderHook(() => useAuthOperations());
 
@@ -198,15 +212,17 @@ describe('useAuthOperations', () => {
         await result.current.resendConfirmationCode('test@example.com');
       });
 
-      expect(CognitoAuthService.resendConfirmationCode).toHaveBeenCalledWith('test@example.com');
+      expect(DirectCognitoAuthService.resendConfirmationCode).toHaveBeenCalledWith(
+        'test@example.com',
+      );
       expect(result.current.isLoading).toBe(false);
       expect(result.current.error).toBeUndefined();
     });
   });
 
   describe('signOut', () => {
-    it('should call CognitoAuthService.signOut and clear user', async () => {
-      vi.mocked(CognitoAuthService.signOut).mockResolvedValueOnce(undefined);
+    it('should call DirectCognitoAuthService.signOut and clear user', async () => {
+      vi.mocked(DirectCognitoAuthService.signOut).mockResolvedValueOnce(undefined);
 
       // Set up a hook with a user
       const { result } = renderHook(() => useAuthOperations());
@@ -215,7 +231,7 @@ describe('useAuthOperations', () => {
       const mockUser = { id: 'mock-id', username: 'test@example.com', email: 'test@example.com' };
 
       // First, we need to set up the user by simulating a successful sign-in
-      vi.mocked(CognitoAuthService.signIn).mockResolvedValueOnce({} as SignInOutput);
+      vi.mocked(DirectCognitoAuthService.signIn).mockResolvedValueOnce({});
       vi.mocked(UserMapper.mapCognitoUserToAppUser).mockReturnValueOnce(mockUser as CognitoUser);
 
       await act(async () => {
@@ -230,7 +246,7 @@ describe('useAuthOperations', () => {
         await result.current.signOut();
       });
 
-      expect(CognitoAuthService.signOut).toHaveBeenCalled();
+      expect(DirectCognitoAuthService.signOut).toHaveBeenCalled();
       expect(result.current.isLoading).toBe(false);
       expect(result.current.error).toBeUndefined();
       expect(result.current.user).toBeUndefined();
@@ -249,7 +265,7 @@ describe('useAuthOperations', () => {
         name: 'TestError',
       } as AuthError;
 
-      vi.mocked(CognitoAuthService.signIn).mockRejectedValueOnce(error);
+      vi.mocked(DirectCognitoAuthService.signIn).mockRejectedValueOnce(error);
       vi.mocked(AuthErrorUtils.formatAuthError).mockReturnValueOnce(mockError);
 
       await act(async () => {
@@ -274,20 +290,20 @@ describe('useAuthOperations', () => {
   });
 
   describe('forgotPassword', () => {
-    it('should call CognitoAuthService.forgotPassword with correct parameters', async () => {
+    it('should call DirectCognitoAuthService.forgotPassword with correct parameters', async () => {
       const { result } = renderHook(() => useAuthOperations());
 
       await act(async () => {
         await result.current.forgotPassword('test@example.com');
       });
 
-      expect(CognitoAuthService.forgotPassword).toHaveBeenCalledWith('test@example.com');
+      expect(DirectCognitoAuthService.forgotPassword).toHaveBeenCalledWith('test@example.com');
       expect(result.current.isLoading).toBe(false);
     });
 
     it('should handle forgotPassword errors', async () => {
       const error = new Error('Invalid email');
-      vi.mocked(CognitoAuthService.forgotPassword).mockRejectedValueOnce(error);
+      vi.mocked(DirectCognitoAuthService.forgotPassword).mockRejectedValueOnce(error);
 
       const mockError = { code: 'MockError', message: 'Invalid email', name: 'MockError' };
       vi.mocked(AuthErrorUtils.formatAuthError).mockReturnValueOnce(mockError as AuthError);
@@ -302,7 +318,7 @@ describe('useAuthOperations', () => {
         }
       });
 
-      expect(CognitoAuthService.forgotPassword).toHaveBeenCalledWith('test@example.com');
+      expect(DirectCognitoAuthService.forgotPassword).toHaveBeenCalledWith('test@example.com');
       expect(result.current.isLoading).toBe(false);
       expect(result.current.error).toBeDefined();
       expect(result.current.error).toEqual(mockError);
@@ -311,14 +327,14 @@ describe('useAuthOperations', () => {
   });
 
   describe('confirmResetPassword', () => {
-    it('should call CognitoAuthService.confirmResetPassword with correct parameters', async () => {
+    it('should call DirectCognitoAuthService.confirmResetPassword with correct parameters', async () => {
       const { result } = renderHook(() => useAuthOperations());
 
       await act(async () => {
         await result.current.confirmResetPassword('test@example.com', '123456', 'newPassword123');
       });
 
-      expect(CognitoAuthService.confirmResetPassword).toHaveBeenCalledWith(
+      expect(DirectCognitoAuthService.confirmResetPassword).toHaveBeenCalledWith(
         'test@example.com',
         '123456',
         'newPassword123',
@@ -328,7 +344,7 @@ describe('useAuthOperations', () => {
 
     it('should handle confirmResetPassword errors', async () => {
       const error = new Error('Invalid verification code');
-      vi.mocked(CognitoAuthService.confirmResetPassword).mockRejectedValueOnce(error);
+      vi.mocked(DirectCognitoAuthService.confirmResetPassword).mockRejectedValueOnce(error);
 
       const mockError = {
         code: 'MockError',
@@ -347,7 +363,7 @@ describe('useAuthOperations', () => {
         }
       });
 
-      expect(CognitoAuthService.confirmResetPassword).toHaveBeenCalledWith(
+      expect(DirectCognitoAuthService.confirmResetPassword).toHaveBeenCalledWith(
         'test@example.com',
         '123456',
         'newPassword123',

@@ -2,7 +2,7 @@ import { useQuery } from '@tanstack/react-query';
 
 import { CognitoUser } from 'common/models/user';
 import { QueryKey } from 'common/utils/constants';
-import CognitoAuthService from 'common/services/auth/cognito-auth-service';
+import { DirectCognitoAuthService } from 'common/services/auth/direct-cognito-auth-service';
 import { mapCognitoUserToAppUser } from 'common/utils/user-mapper';
 
 /**
@@ -17,7 +17,7 @@ export const useGetCurrentUser = () => {
   const getCurentUser = async (): Promise<CognitoUser> => {
     try {
       // Get current user from Cognito
-      const cognitoUser = await CognitoAuthService.getCurrentUser();
+      const cognitoUser = await DirectCognitoAuthService.getCurrentUser();
 
       if (!cognitoUser) {
         throw new Error('User not found');

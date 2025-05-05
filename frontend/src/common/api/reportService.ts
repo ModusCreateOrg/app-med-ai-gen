@@ -1,6 +1,7 @@
 import axios, { AxiosProgressEvent } from 'axios';
 import { MedicalReport } from '../models/medicalReport';
-import { fetchAuthSession } from '@aws-amplify/auth';
+import { DirectCognitoAuthService } from '../services/auth/direct-cognito-auth-service';
+
 // Get the API URL from environment variables
 const API_URL = import.meta.env.VITE_BASE_URL_API || '';
 
@@ -21,8 +22,10 @@ export const getAuthConfig = async (
   signal?: AbortSignal;
   onUploadProgress?: (progressEvent: AxiosProgressEvent) => void;
 }> => {
-  const session = await fetchAuthSession();
-  const idToken = session.tokens?.idToken?.toString() || '';
+  // Get tokens from DirectCognitoAuthService
+  const tokens = DirectCognitoAuthService.getTokens();
+  const idToken = tokens?.id_token || '';
+
   return {
     headers: {
       Accept: 'application/json',

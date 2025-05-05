@@ -22,17 +22,6 @@ vi.mock('axios', () => ({
   },
 }));
 
-// Mock auth
-vi.mock('@aws-amplify/auth', () => ({
-  fetchAuthSession: vi.fn().mockResolvedValue({
-    tokens: {
-      idToken: {
-        toString: () => 'mock-id-token',
-      },
-    },
-  }),
-}));
-
 // Mock dynamic imports to handle the service functions
 vi.mock('../reportService', async (importOriginal) => {
   const actual = (await importOriginal()) as typeof ReportServiceModule;

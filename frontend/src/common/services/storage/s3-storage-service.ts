@@ -10,7 +10,7 @@ import {
 } from '@aws-sdk/client-s3';
 import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
 import { v4 as uuidv4 } from 'uuid';
-import { fetchAuthSession } from '@aws-amplify/auth';
+import { DirectCognitoAuthService } from '../auth/direct-cognito-auth-service';
 import { S3_CONFIG } from '../../config/aws-config';
 
 /**
@@ -59,7 +59,7 @@ export class S3StorageService {
    * @returns Promise with credentials
    */
   private async getCredentials() {
-    const session = await fetchAuthSession();
+    const session = await DirectCognitoAuthService.fetchAuthSession();
     if (!session.credentials) {
       throw new Error('No credentials available');
     }

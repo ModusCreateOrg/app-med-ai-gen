@@ -2,7 +2,7 @@ import { useQuery } from '@tanstack/react-query';
 
 import { UserTokens } from 'common/models/auth';
 import { QueryKey } from 'common/utils/constants';
-import CognitoAuthService from 'common/services/auth/cognito-auth-service';
+import { DirectCognitoAuthService } from 'common/services/auth/direct-cognito-auth-service';
 
 /**
  * An API hook which fetches tokens from AWS Cognito.
@@ -11,8 +11,8 @@ import CognitoAuthService from 'common/services/auth/cognito-auth-service';
 export const useGetUserTokens = () => {
   const getUserTokens = async (): Promise<UserTokens> => {
     try {
-      // Get tokens from Cognito
-      const tokens = await CognitoAuthService.getUserTokens();
+      // Get tokens directly from DirectCognitoAuthService
+      const tokens = DirectCognitoAuthService.getTokens();
 
       if (!tokens) {
         throw new Error('Tokens not found.');

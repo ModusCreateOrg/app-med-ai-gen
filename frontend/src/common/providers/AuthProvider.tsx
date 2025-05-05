@@ -7,7 +7,7 @@ import LoaderSpinner from 'common/components/Loader/LoaderSpinner';
 import { AuthContext, AuthContextValue } from './AuthContext';
 import { useAuthOperations } from 'common/hooks/useAuthOperations';
 import { AuthState } from 'common/models/auth';
-import CognitoAuthService from 'common/services/auth/cognito-auth-service';
+import { DirectCognitoAuthService } from 'common/services/auth/direct-cognito-auth-service';
 import { mapCognitoUserToAppUser } from 'common/utils/user-mapper';
 
 /**
@@ -93,14 +93,14 @@ const AuthProvider = ({ children }: PropsWithChildren): JSX.Element => {
     const checkAuthState = async () => {
       try {
         // Try to get the current user from Cognito
-        const currentUser = await CognitoAuthService.getCurrentUser();
+        const currentUser = await DirectCognitoAuthService.getCurrentUser();
 
         if (currentUser) {
           // If we have a user, update the auth state
           setAuthState(AuthState.SIGNED_IN);
 
           // Get tokens to extract user info
-          const tokens = await CognitoAuthService.getUserTokens();
+          const tokens = DirectCognitoAuthService.getTokens();
           if (tokens?.id_token) {
             const userInfo = extractUserInfoFromToken(tokens.id_token);
 
