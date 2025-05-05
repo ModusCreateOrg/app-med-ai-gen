@@ -1,6 +1,6 @@
 import React from 'react';
 import { format } from 'date-fns';
-import Icon from '../../../common/components/Icon/Icon';
+import fileLinesIcon from '../../../assets/icons/file-lines.svg';
 import { MedicalReport } from '../../../common/models/medicalReport';
 import orangeAlertIcon from '../../../assets/icons/orange-alert.svg';
 import redAlertIcon from '../../../assets/icons/red-alert.svg';
@@ -89,7 +89,7 @@ const OriginalReportTab: React.FC<OriginalReportTabProps> = ({ reportData }) => 
         <h4 className="report-detail-page__uploaded-file-title">Uploaded file</h4>
         <div className="report-detail-page__file-container">
           <div className="report-detail-page__file-icon">
-            <Icon icon="filePdf" />
+            <img src={fileLinesIcon} alt="File icon" />
           </div>
           <div className="report-detail-page__file-details">
             <div className="report-detail-page__file-name">{filename}</div>
