@@ -1,9 +1,0 @@
-node_modules/
-cdk.out/
-coverage/
-config/
-.vscode/
-.gitignore
-.prettierrc
-.prettierignore
-.eslintignore
