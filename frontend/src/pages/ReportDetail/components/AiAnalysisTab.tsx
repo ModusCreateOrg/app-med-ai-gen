@@ -27,9 +27,7 @@ const AiAnalysisTab: React.FC<AiAnalysisTabProps> = ({
   const flaggedValues: LabValue[] = reportData.labValues.filter(
     (value) => value.status !== 'normal',
   );
-  const normalValues: LabValue[] = reportData.labValues.filter(
-    (value) => value.status === 'normal',
-  );
+  const normalValues: LabValue[] = [];
 
   // Format confidence score for display
   const confidenceScore = reportData.confidence;
