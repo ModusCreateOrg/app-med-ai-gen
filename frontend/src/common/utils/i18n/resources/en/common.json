@@ -53,6 +53,7 @@
     "uploadSuccessful": "Upload Successful",
     "fileReadyForProcessing": "Your file is ready for processing",
     "uploadFailed": "Upload Failed",
+    "secondsLeft": "seconds left",
     "error": {
       "noFile": "No file selected",
       "permissionDenied": "Permission denied",
