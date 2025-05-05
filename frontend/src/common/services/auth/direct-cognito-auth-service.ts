@@ -16,7 +16,12 @@ import {
   ConfirmSignUpCommandOutput,
   ResendConfirmationCodeCommandOutput,
 } from '@aws-sdk/client-cognito-identity-provider';
-import { COGNITO_CONFIG } from '../../config/aws-config';
+import {
+  CognitoIdentityClient,
+  GetIdCommand,
+  GetCredentialsForIdentityCommand,
+} from '@aws-sdk/client-cognito-identity';
+import { COGNITO_CONFIG, REGION } from '../../config/aws-config';
 import { UserTokens } from '../../models/auth';
 import { CognitoUser } from '../../models/user';
 
@@ -42,6 +47,7 @@ interface CognitoSession {
  */
 export class DirectCognitoAuthService {
   private static client = new CognitoIdentityProviderClient({ region: 'us-east-1' });
+  private static identityClient = new CognitoIdentityClient({ region: REGION });
   private static clientId = COGNITO_CONFIG.USER_POOL_WEB_CLIENT_ID;
   private static userPoolId = COGNITO_CONFIG.USER_POOL_ID;
 
@@ -413,35 +419,156 @@ export class DirectCognitoAuthService {
   }
 
   /**
-   * Fetches the current authentication session, similar to Amplify's fetchAuthSession
+   * Refreshes the token using the refresh token if available
+   * @param tokens Current tokens
+   * @returns Updated tokens if refresh succeeded, original tokens otherwise
+   */
+  private static async refreshTokensIfNeeded(tokens: UserTokens): Promise<UserTokens> {
+    // Check if token is about to expire (within 5 minutes)
+    const needsRefresh = tokens.expires_at
+      ? new Date(tokens.expires_at).getTime() - Date.now() < 5 * 60 * 1000
+      : false;
+
+    // If token doesn't need refresh or we don't have a refresh token, return original tokens
+    if (!needsRefresh || !tokens.refresh_token) {
+      return tokens;
+    }
+
+    try {
+      const refreshParams = {
+        AuthFlow: 'REFRESH_TOKEN_AUTH' as AuthFlowType,
+        ClientId: this.clientId,
+        AuthParameters: {
+          REFRESH_TOKEN: tokens.refresh_token,
+        },
+      };
+
+      const refreshCommand = new InitiateAuthCommand(refreshParams);
+      const refreshResponse = await this.client.send(refreshCommand);
+
+      if (!refreshResponse.AuthenticationResult) {
+        return tokens; // No auth result, return original tokens
+      }
+
+      const { IdToken, AccessToken, ExpiresIn } = refreshResponse.AuthenticationResult;
+
+      if (!IdToken || !AccessToken) {
+        return tokens; // Missing tokens, return original tokens
+      }
+
+      // Update tokens in local storage
+      localStorage.setItem('cognito_id_token', IdToken);
+      localStorage.setItem('cognito_access_token', AccessToken);
+
+      // Return updated tokens
+      return {
+        ...tokens,
+        id_token: IdToken,
+        access_token: AccessToken,
+        expires_in: ExpiresIn || 3600,
+        expires_at: new Date(Date.now() + (ExpiresIn || 3600) * 1000).toISOString(),
+      };
+    } catch (error) {
+      console.warn('Token refresh failed, proceeding with existing token:', error);
+      return tokens; // Return original tokens on error
+    }
+  }
+
+  /**
+   * Get Cognito Identity ID
+   * @param tokens User tokens
+   * @returns The Identity ID
+   */
+  private static async getIdentityId(tokens: UserTokens): Promise<string> {
+    const identityPoolId = COGNITO_CONFIG.IDENTITY_POOL_ID;
+
+    if (!identityPoolId) {
+      throw new Error('Identity Pool ID is not configured');
+    }
+
+    const getIdParams = {
+      IdentityPoolId: identityPoolId,
+      Logins: {
+        [`cognito-idp.${REGION}.amazonaws.com/${this.userPoolId}`]: tokens.id_token,
+      },
+    };
+
+    const getIdCommand = new GetIdCommand(getIdParams);
+    const identityResponse = await this.identityClient.send(getIdCommand);
+
+    if (!identityResponse.IdentityId) {
+      throw new Error('Failed to obtain identity ID');
+    }
+
+    return identityResponse.IdentityId;
+  }
+
+  /**
+   * Get AWS credentials using Identity ID
+   * @param identityId The Identity ID
+   * @param idToken The ID token
+   * @returns AWS credentials
+   */
+  private static async getAWSCredentials(
+    identityId: string,
+    idToken: string,
+  ): Promise<AWSCredentials> {
+    const credentialsParams = {
+      IdentityId: identityId,
+      Logins: {
+        [`cognito-idp.${REGION}.amazonaws.com/${this.userPoolId}`]: idToken,
+      },
+    };
+
+    const credentialsCommand = new GetCredentialsForIdentityCommand(credentialsParams);
+    const credentialsResponse = await this.identityClient.send(credentialsCommand);
+
+    if (!credentialsResponse.Credentials) {
+      throw new Error('Failed to obtain AWS credentials');
+    }
+
+    const { AccessKeyId, SecretKey, SessionToken, Expiration } = credentialsResponse.Credentials;
+
+    if (!AccessKeyId || !SecretKey || !SessionToken || !Expiration) {
+      throw new Error('Incomplete AWS credentials received');
+    }
+
+    return {
+      accessKeyId: AccessKeyId,
+      secretAccessKey: SecretKey,
+      sessionToken: SessionToken,
+      expiration: Expiration,
+    };
+  }
+
+  /**
+   * Fetches the current authentication session, including AWS credentials
    * @returns Promise with session information including credentials
    */
   static async fetchAuthSession(): Promise<{ credentials: AWSCredentials }> {
     try {
+      // Get the current tokens
       const tokens = this.getTokens();
-      if (!tokens || !tokens.access_token) {
+      if (!tokens || !tokens.id_token) {
         throw new Error('No active session found');
       }
 
-      // In a full implementation, you would exchange these tokens for AWS credentials
-      // using Cognito Identity Pool. For now, we'll return a simplified structure.
+      // Refresh tokens if needed
+      const refreshedTokens = await this.refreshTokensIfNeeded(tokens);
 
-      // Calculate an expiration time based on the token
-      const expiresAt = tokens.expires_at
-        ? new Date(tokens.expires_at)
-        : new Date(Date.now() + 3600 * 1000);
+      // Get identity ID
+      const identityId = await this.getIdentityId(refreshedTokens);
 
-      return {
-        credentials: {
-          accessKeyId: process.env.AWS_ACCESS_KEY_ID || 'DEMO_ACCESS_KEY_ID',
-          secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY || 'DEMO_SECRET_ACCESS_KEY',
-          sessionToken: tokens.id_token,
-          expiration: expiresAt,
-        },
-      };
+      // Get AWS credentials
+      const credentials = await this.getAWSCredentials(identityId, refreshedTokens.id_token);
+
+      return { credentials };
     } catch (error) {
       console.error('Error fetching auth session:', error);
-      throw error;
+      throw new Error(
+        'Failed to get authentication session: ' +
+          (error instanceof Error ? error.message : String(error)),
+      );
     }
   }
 
