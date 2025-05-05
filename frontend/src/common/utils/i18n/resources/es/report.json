@@ -54,7 +54,8 @@
     "clearFilters": "Eliminar Filtros",
     "changeFilters": "Cambiar Filtros",
     "sortButton": "Ordenar informes",
-    "filterButton": "Filtrar informes"
+    "filterButton": "Filtrar informes",
+    "icon": "Icono de informe"
   },
   "filter": {
     "title": "Filtrar",

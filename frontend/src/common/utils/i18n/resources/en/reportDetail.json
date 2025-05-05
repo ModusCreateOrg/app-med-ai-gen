@@ -96,7 +96,9 @@
     "tabs": {
       "ai-insights": "AI Insights",
       "original-report": "Original Report"
-    }
+    },
+    "low": "Low",
+    "high": "High"
   },
   "reports": {
     "missingReferenceRanges": "Reference ranges were not available on this report. The analysis may be limited without this information. Please consult with your healthcare provider for a complete interpretation."

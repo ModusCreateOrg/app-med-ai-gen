@@ -30,6 +30,8 @@
     "tabs": {
       "ai-insights": "Información de IA",
       "original-report": "Informe original"
-    }
+    },
+    "low": "Bajo",
+    "high": "Alto"
   }
 }

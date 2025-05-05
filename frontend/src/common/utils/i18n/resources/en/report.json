@@ -54,7 +54,8 @@
     "clearFilters": "Clear Filters",
     "changeFilters": "Change Filters",
     "sortButton": "Sort reports",
-    "filterButton": "Filter reports"
+    "filterButton": "Filter reports",
+    "icon": "Report icon"
   },
   "filter": {
     "title": "Filter",

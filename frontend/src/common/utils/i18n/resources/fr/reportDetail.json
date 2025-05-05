@@ -38,6 +38,8 @@
     "tabs": {
       "ai-insights": "Analyses IA",
       "original-report": "Rapport original"
-    }
+    },
+    "low": "Bas",
+    "high": "Élevé"
   }
 }
