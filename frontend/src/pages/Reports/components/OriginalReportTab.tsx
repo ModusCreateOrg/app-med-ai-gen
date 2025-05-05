@@ -89,7 +89,7 @@ const OriginalReportTab: React.FC<OriginalReportTabProps> = ({ reportData }) => 
         <h4 className="report-detail-page__uploaded-file-title">Uploaded file</h4>
         <div className="report-detail-page__file-container">
           <div className="report-detail-page__file-icon">
-            <img src={fileLinesIcon} />
+            <img src={fileLinesIcon} alt="File icon" />
           </div>
           <div className="report-detail-page__file-details">
             <div className="report-detail-page__file-name">{filename}</div>
