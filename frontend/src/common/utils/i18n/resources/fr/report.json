@@ -54,7 +54,8 @@
     "clearFilters": "Effacer les Filtres",
     "changeFilters": "Modifier les Filtres",
     "sortButton": "Trier les rapports",
-    "filterButton": "Filtrer les rapports"
+    "filterButton": "Filtrer les rapports",
+    "icon": "Icône de rapport"
   },
   "filter": {
     "title": "Filtrer",
