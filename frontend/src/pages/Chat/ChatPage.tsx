@@ -2,6 +2,8 @@ import { IonContent, IonHeader, IonPage, IonTitle, IonToolbar } from '@ionic/rea
 import { useTranslation } from 'react-i18next';
 import { useState, useEffect, useRef } from 'react';
 import { useLocation } from 'react-router-dom';
+import { useHistory } from 'react-router';
+import closeIcon from 'assets/icons/close.svg';
 import ChatContainer from '../../common/components/Chat/ChatContainer';
 import ChatInput from '../../common/components/Chat/ChatInput';
 import { chatService } from '../../common/services/ChatService';
@@ -19,9 +21,15 @@ const ChatPage = (): JSX.Element => {
   const [messages, setMessages] = useState<ChatMessageData[]>([]);
   const location = useLocation();
   const prevPathRef = useRef(location.pathname);
+  const history = useHistory();
 
   const resetChatState = () => {
     setMessages([]);
+  };
+
+  // Handle close button
+  const handleClose = () => {
+    history.push('/tabs/home');
   };
 
   // Handle initial setup and cleanup
@@ -92,6 +100,14 @@ const ChatPage = (): JSX.Element => {
               <span>{t('pages.chat.title', 'AI Assistant')}</span>
             </div>
           </IonTitle>
+          <div slot="end">
+            <button
+              onClick={handleClose}
+              style={{ backgroundColor: 'transparent', marginRight: '2em' }}
+            >
+              <img src={closeIcon} alt="Close" />
+            </button>
+          </div>
         </IonToolbar>
       </IonHeader>
       <IonContent className="chat-page-content">
