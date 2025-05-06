@@ -13,7 +13,7 @@ import classNames from 'classnames';
 import { Form, Formik, useFormikContext } from 'formik';
 import { object, string, ref } from 'yup';
 import { useTranslation } from 'react-i18next';
-import { checkmarkCircle, closeCircle } from 'ionicons/icons';
+import { checkmarkCircle, ellipseOutline } from 'ionicons/icons';
 
 import './SignUpForm.scss';
 import { BaseComponentProps } from 'common/components/types';
@@ -21,7 +21,6 @@ import { AuthError } from 'common/models/auth';
 import { useSignUp } from 'common/hooks/useAuth';
 import { useProgress } from 'common/hooks/useProgress';
 import Input from 'common/components/Input/Input';
-import HeaderRow from 'common/components/Text/HeaderRow';
 import { formatAuthError } from 'common/utils/auth-errors';
 import AuthErrorDisplay from 'common/components/Auth/AuthErrorDisplay';
 import AuthLoadingIndicator from 'common/components/Auth/AuthLoadingIndicator';
@@ -63,7 +62,7 @@ const PasswordGuidelines = () => {
         }`}
       >
         <IonIcon
-          icon={isValid ? checkmarkCircle : closeCircle}
+          icon={isValid ? checkmarkCircle : ellipseOutline}
           className="ls-signup-form__password-guidelines-item-icon"
         />
         <span>{text}</span>
@@ -73,13 +72,10 @@ const PasswordGuidelines = () => {
 
   return (
     <div className="ls-signup-form__password-guidelines">
-      <div className="ls-signup-form__password-guidelines-header">
-        {t('password-requirements', { ns: 'auth' })}
-      </div>
       {renderGuideline(hasMinLength, t('validation.min-length', { length: 8, ns: 'auth' }))}
+      {renderGuideline(hasSpecialChar, t('validation.special-char', { ns: 'auth' }))}
       {renderGuideline(hasUppercase, t('validation.uppercase', { ns: 'auth' }))}
       {renderGuideline(hasNumber, t('validation.number', { ns: 'auth' }))}
-      {renderGuideline(hasSpecialChar, t('validation.special-char', { ns: 'auth' }))}
     </div>
   );
 };
@@ -176,91 +172,97 @@ const SignUpForm = ({ className, testid = 'form-signup' }: SignUpFormProps): JSX
         }}
         validationSchema={validationSchema}
       >
-        {({ dirty, isSubmitting }) => (
+        {({ dirty, isSubmitting, isValid }) => (
           <Form data-testid={`${testid}-form`}>
-            <HeaderRow border>
-              <div>{t('signup', { ns: 'auth' })}</div>
-            </HeaderRow>
+            <div className="ls-signup-form__content">
+              <h2 className="ls-signup-form__title">{t('signup', { ns: 'auth' })}</h2>
+              <p className="ls-signup-form__subtitle">
+                {t('please-fill-details', {
+                  ns: 'auth',
+                  defaultValue: 'Please fill in your personal details',
+                })}
+              </p>
 
-            <Input
-              name="email"
-              label={t('label.email', { ns: 'auth' })}
-              labelPlacement="stacked"
-              maxlength={50}
-              autocomplete="email"
-              className="ls-signup-form__input"
-              ref={focusInput}
-              data-testid={`${testid}-field-email`}
-              type="email"
-            />
+              <Input
+                name="firstName"
+                label={t('label.first-name', { ns: 'auth' })}
+                labelPlacement="stacked"
+                maxlength={50}
+                autocomplete="given-name"
+                className="ls-signup-form__input"
+                data-testid={`${testid}-field-first-name`}
+              />
 
-            <Input
-              name="firstName"
-              label={t('label.first-name', { ns: 'auth' })}
-              labelPlacement="stacked"
-              maxlength={50}
-              autocomplete="given-name"
-              className="ls-signup-form__input"
-              data-testid={`${testid}-field-first-name`}
-            />
+              <Input
+                name="lastName"
+                label={t('label.last-name', { ns: 'auth' })}
+                labelPlacement="stacked"
+                maxlength={50}
+                autocomplete="family-name"
+                className="ls-signup-form__input"
+                data-testid={`${testid}-field-last-name`}
+              />
 
-            <Input
-              name="lastName"
-              label={t('label.last-name', { ns: 'auth' })}
-              labelPlacement="stacked"
-              maxlength={50}
-              autocomplete="family-name"
-              className="ls-signup-form__input"
-              data-testid={`${testid}-field-last-name`}
-            />
+              <Input
+                name="email"
+                label={t('label.email', { ns: 'auth' })}
+                labelPlacement="stacked"
+                maxlength={50}
+                autocomplete="email"
+                className="ls-signup-form__input"
+                ref={focusInput}
+                data-testid={`${testid}-field-email`}
+                type="email"
+              />
 
-            <Input
-              type="password"
-              name="password"
-              label={t('label.password', { ns: 'auth' })}
-              labelPlacement="stacked"
-              maxlength={30}
-              autocomplete="new-password"
-              className="ls-signup-form__input"
-              data-testid={`${testid}-field-password`}
-            >
-              <IonInputPasswordToggle slot="end"></IonInputPasswordToggle>
-            </Input>
+              <Input
+                type="password"
+                name="password"
+                label={t('label.password', { ns: 'auth' })}
+                labelPlacement="stacked"
+                maxlength={30}
+                autocomplete="new-password"
+                className="ls-signup-form__input"
+                data-testid={`${testid}-field-password`}
+              >
+                <IonInputPasswordToggle slot="end"></IonInputPasswordToggle>
+              </Input>
 
-            <PasswordGuidelines />
+              <Input
+                type="password"
+                name="confirmPassword"
+                label={t('label.confirm-password', { ns: 'auth' })}
+                labelPlacement="stacked"
+                maxlength={30}
+                autocomplete="new-password"
+                className="ls-signup-form__input"
+                data-testid={`${testid}-field-confirm-password`}
+              >
+                <IonInputPasswordToggle slot="end"></IonInputPasswordToggle>
+              </Input>
 
-            <Input
-              type="password"
-              name="confirmPassword"
-              label={t('label.confirm-password', { ns: 'auth' })}
-              labelPlacement="stacked"
-              maxlength={30}
-              autocomplete="new-password"
-              className="ls-signup-form__input"
-              data-testid={`${testid}-field-confirm-password`}
-            >
-              <IonInputPasswordToggle slot="end"></IonInputPasswordToggle>
-            </Input>
+              <PasswordGuidelines />
 
-            <IonButton
-              type="submit"
-              color="primary"
-              className="ls-signup-form__button"
-              expand="block"
-              disabled={isSubmitting || !dirty || isSignUpLoading || isLoading}
-              data-testid={`${testid}-button-submit`}
-            >
-              {t('signup', { ns: 'auth' })}
-            </IonButton>
+              <IonButton
+                type="submit"
+                color="primary"
+                className="ls-signup-form__button"
+                expand="block"
+                disabled={isSubmitting || !isValid || !dirty || isSignUpLoading || isLoading}
+                data-testid={`${testid}-button-submit`}
+              >
+                {t('signup.button', { ns: 'auth' })}
+              </IonButton>
 
-            <IonRow className="ion-text-center ion-padding-top">
-              <IonCol>
-                <IonText color="medium">
-                  {t('already-have-account', { ns: 'auth' })}{' '}
-                  <a href="/auth/signin">{t('signin', { ns: 'auth' })}</a>
-                </IonText>
-              </IonCol>
-            </IonRow>
+              <IonRow className="ion-text-center ion-padding-top">
+                <IonCol>
+                  <IonText color="medium">
+                    {t('already-have-account', { ns: 'auth' })}{' '}
+                    <a href="/auth/signin">{t('signin', { ns: 'auth' })}</a>
+                  </IonText>
+                </IonCol>
+              </IonRow>
+            </div>
           </Form>
         )}
       </Formik>

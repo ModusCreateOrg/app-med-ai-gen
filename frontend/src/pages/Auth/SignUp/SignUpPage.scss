@@ -1,13 +1,38 @@
 .ls-signup-page {
-  .ls-signup-page__container {
-    max-width: 32rem;
-    height: 100%;
-    display: flex;
-    flex-direction: column;
-    padding-top: 1rem;
+  &__content {
+    --padding-start: 0;
+    --padding-end: 0;
+    --padding-top: 0;
+    --padding-bottom: 0;
   }
 
-  .ls-signup-page__form {
+  &__background {
+    position: absolute;
+    top: 0;
+    left: 0;
     width: 100%;
+    height: 100%;
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    z-index: -1;
+  }
+
+  &__container {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    min-height: 100%;
+    padding: 1rem;
+  }
+
+  &__form {
+    width: 100%;
+    max-width: 400px;
+    border-radius: 16px;
+    background-color: white;
+    box-shadow: 0 4px 12px rgb(0 0 0 / 10%);
+    overflow: hidden;
   }
 }
