@@ -13,7 +13,7 @@ import classNames from 'classnames';
 import { Form, Formik, useFormikContext } from 'formik';
 import { object, string, ref } from 'yup';
 import { useTranslation } from 'react-i18next';
-import { checkmarkCircle, ellipseOutline } from 'ionicons/icons';
+import { checkmarkCircle, checkmarkCircleOutline } from 'ionicons/icons';
 
 import './SignUpForm.scss';
 import { BaseComponentProps } from 'common/components/types';
@@ -62,7 +62,7 @@ const PasswordGuidelines = () => {
         }`}
       >
         <IonIcon
-          icon={isValid ? checkmarkCircle : ellipseOutline}
+          icon={isValid ? checkmarkCircle : checkmarkCircleOutline}
           className="ls-signup-form__password-guidelines-item-icon"
         />
         <span>{text}</span>
