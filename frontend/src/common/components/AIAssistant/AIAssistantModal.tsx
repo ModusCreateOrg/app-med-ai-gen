@@ -90,42 +90,44 @@ const AIAssistantModal: React.FC<AIAssistantModalProps> = ({
       data-testid={testid}
       aria-labelledby="ai-assistant-title"
     >
-      <IonHeader className="ai-assistant-header">
-        <IonToolbar className="ai-assistant-toolbar">
-          <div className="ai-assistant-title-container">
-            <img src={aiIcon} alt="AI Assistant Icon" className="ai-assistant-title-icon" />
-            <span className="ai-assistant-title-text">AI Assistant</span>
-          </div>
-          <IonButtons slot="end">
-            <IonButton
-              onClick={handleExpand}
-              aria-label={isExpanded ? 'Collapse chat' : 'Expand chat'}
-              data-testid={`${testid}-expand-button`}
-            >
-              <IonIcon icon={isExpanded ? contractOutline : expandOutline} aria-hidden="true" />
-            </IonButton>
-            <IonButton
-              onClick={handleClose}
-              aria-label="Close AI Assistant"
-              data-testid={`${testid}-close-button`}
-            >
-              <IonIcon icon={closeOutline} aria-hidden="true" />
-            </IonButton>
-          </IonButtons>
-        </IonToolbar>
-      </IonHeader>
+      <div className="ai-assistant-modal-body">
+        <IonHeader className="ai-assistant-header">
+          <IonToolbar className="ai-assistant-toolbar">
+            <div className="ai-assistant-title-container">
+              <img src={aiIcon} alt="AI Assistant Icon" className="ai-assistant-title-icon" />
+              <span className="ai-assistant-title-text">AI Assistant</span>
+            </div>
+            <IonButtons slot="end">
+              <IonButton
+                onClick={handleExpand}
+                aria-label={isExpanded ? 'Collapse chat' : 'Expand chat'}
+                data-testid={`${testid}-expand-button`}
+              >
+                <IonIcon icon={isExpanded ? contractOutline : expandOutline} aria-hidden="true" />
+              </IonButton>
+              <IonButton
+                onClick={handleClose}
+                aria-label="Close AI Assistant"
+                data-testid={`${testid}-close-button`}
+              >
+                <IonIcon icon={closeOutline} aria-hidden="true" />
+              </IonButton>
+            </IonButtons>
+          </IonToolbar>
+        </IonHeader>
 
-      <IonContent className="ai-assistant-content">
-        <ChatContainer
-          messages={messages}
-          robotIcon={faRobot}
-          testid={`${testid}-chat-container`}
-        />
-      </IonContent>
+        <IonContent className="ai-assistant-content">
+          <ChatContainer
+            messages={messages}
+            robotIcon={faRobot}
+            testid={`${testid}-chat-container`}
+          />
+        </IonContent>
 
-      <IonFooter className="ai-assistant-footer">
-        <ChatInput onSendMessage={handleSendMessage} testid={`${testid}-input`} />
-      </IonFooter>
+        <IonFooter className="ai-assistant-footer">
+          <ChatInput onSendMessage={handleSendMessage} testid={`${testid}-input`} />
+        </IonFooter>
+      </div>
     </IonModal>
   );
 };

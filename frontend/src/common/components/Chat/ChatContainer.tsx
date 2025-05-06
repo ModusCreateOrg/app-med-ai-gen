@@ -1,5 +1,4 @@
 import React, { useEffect, useRef } from 'react';
-import { useTranslation } from 'react-i18next';
 import { IconDefinition } from '@fortawesome/fontawesome-svg-core';
 import ChatMessage, { ChatMessageData } from './ChatMessage';
 import './ChatContainer.scss';
@@ -23,7 +22,6 @@ const ChatContainer: React.FC<ChatContainerProps> = ({
   testid = 'chat-container',
   className = '',
 }) => {
-  const { t } = useTranslation();
   const chatContainerRef = useRef<HTMLDivElement>(null);
 
   // Auto-scroll to bottom when new messages arrive
@@ -41,11 +39,7 @@ const ChatContainer: React.FC<ChatContainerProps> = ({
       aria-label="Chat messages"
       data-testid={testid}
     >
-      {messages.length === 0 ? (
-        <div className="chat-empty-state" data-testid={`${testid}-empty`}>
-          <p>{t('aiAssistant.emptyState', 'How can I help you today?')}</p>
-        </div>
-      ) : (
+      {messages.length > 0 &&
         messages.map((message) => (
           <ChatMessage
             key={message.id}
@@ -54,8 +48,7 @@ const ChatContainer: React.FC<ChatContainerProps> = ({
             robotIcon={robotIcon}
             testid={`${testid}-message`}
           />
-        ))
-      )}
+        ))}
     </div>
   );
 };
