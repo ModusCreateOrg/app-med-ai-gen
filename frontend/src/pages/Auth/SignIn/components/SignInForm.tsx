@@ -148,54 +148,58 @@ const SignInForm = ({ className, testid = 'form-signin' }: SignInFormProps): JSX
       >
         {({ dirty, isSubmitting }) => (
           <Form data-testid={`${testid}-form`}>
-            <div className="ls-signin-form__field">
-              <label className="ls-signin-form__label">{t('label.email', { ns: 'auth' })}</label>
-              <Input
-                name="email"
-                maxlength={50}
-                autocomplete="email"
-                className="ls-signin-form__input"
-                ref={focusInput}
-                data-testid={`${testid}-field-email`}
-                type="email"
-                placeholder=""
-              />
-            </div>
-
-            <div className="ls-signin-form__field">
-              <label className="ls-signin-form__label">{t('label.password', { ns: 'auth' })}</label>
-              <Input
-                type="password"
-                name="password"
-                maxlength={30}
-                autocomplete="current-password"
-                className="ls-signin-form__input"
-                data-testid={`${testid}-field-password`}
-                placeholder=""
-              >
-                <IonInputPasswordToggle slot="end" />
-              </Input>
-            </div>
-
-            <div className="ls-signin-form__remember-forgot">
-              <div className="ls-signin-form__remember">
-                <CheckboxInput
-                  name="rememberMe"
-                  className="ls-signin-form__input-checkbox"
-                  testid={`${testid}-field-rememberme`}
-                  labelPlacement="end"
-                >
-                  {t('label.remember-me', { ns: 'auth' })}
-                </CheckboxInput>
+            <div className="ls-signin-form__fields">
+              <div className="ls-signin-form__field">
+                <label className="ls-signin-form__label">{t('label.email', { ns: 'auth' })}</label>
+                <Input
+                  name="email"
+                  maxlength={50}
+                  autocomplete="email"
+                  className="ls-signin-form__input"
+                  ref={focusInput}
+                  data-testid={`${testid}-field-email`}
+                  type="email"
+                  placeholder=""
+                />
               </div>
 
-              <a
-                href="/auth/forgot-password"
-                className="ls-signin-form__forgot-link"
-                data-testid={`${testid}-link-forgot-password`}
-              >
-                {t('forgot-password', { ns: 'auth' })}
-              </a>
+              <div className="ls-signin-form__field">
+                <label className="ls-signin-form__label">
+                  {t('label.password', { ns: 'auth' })}
+                </label>
+                <Input
+                  type="password"
+                  name="password"
+                  maxlength={30}
+                  autocomplete="current-password"
+                  className="ls-signin-form__input"
+                  data-testid={`${testid}-field-password`}
+                  placeholder=""
+                >
+                  <IonInputPasswordToggle slot="end" />
+                </Input>
+              </div>
+
+              <div className="ls-signin-form__remember-forgot">
+                <div className="ls-signin-form__remember">
+                  <CheckboxInput
+                    name="rememberMe"
+                    className="ls-signin-form__input-checkbox"
+                    testid={`${testid}-field-rememberme`}
+                    labelPlacement="end"
+                  >
+                    {t('label.remember-me', { ns: 'auth' })}
+                  </CheckboxInput>
+                </div>
+
+                <a
+                  href="/auth/forgot-password"
+                  className="ls-signin-form__forgot-link"
+                  data-testid={`${testid}-link-forgot-password`}
+                >
+                  {t('forgot-password', { ns: 'auth' })}
+                </a>
+              </div>
             </div>
 
             <IonButton

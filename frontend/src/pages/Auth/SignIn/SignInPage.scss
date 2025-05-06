@@ -25,41 +25,43 @@
   }
 
   &__logo {
-    width: 3.5rem;
+    width: 2.25rem;
     height: auto;
     margin-right: 0.75rem;
   }
 
   &__logo-text {
     color: white;
-    font-size: 1.75rem;
+    font-size: 1.25rem;
     font-weight: 600;
   }
 
   &__card {
-    width: 100%;
     max-width: 30rem;
     background-color: white;
     border-radius: 1.5rem;
     padding: 2.5rem 2rem;
     box-shadow: 0 0.5rem 1.5rem rgb(0 0 0 / 15%);
     z-index: 1;
+    position: absolute;
+    inset: 130px 20px 20px;
   }
 
   &__header {
     margin-bottom: 2.5rem;
 
     h1 {
-      font-size: 2rem;
-      font-weight: 600;
+      font-size: 1.5rem;
+      font-weight: 800;
       color: #333;
       margin-bottom: 0.5rem;
       margin-top: 0;
     }
 
     p {
-      font-size: 1.125rem;
-      color: #666;
+      font-family: Merriweather, serif;
+      font-size: 0.9rem;
+      color: #5c6d80;
       margin: 0;
     }
   }

@@ -1,11 +1,15 @@
 .ls-signin-form {
+  &__fields {
+    min-height: 400px;
+  }
+
   &__field {
     margin-bottom: 1.5rem;
   }
 
   &__label {
     display: block;
-    font-size: 1rem;
+    font-size: 0.8rem;
     color: #333;
     margin-bottom: 0.5rem;
     font-weight: 500;
@@ -15,11 +19,13 @@
     width: 100%;
     border: 1px solid #ccc;
     border-radius: 0.75rem;
+
     --padding-start: 1rem;
     --padding-end: 1rem;
     --padding-top: 0.875rem;
     --padding-bottom: 0.875rem;
     --highlight-color: var(--ion-color-primary);
+
     margin-bottom: 0;
     font-size: 1rem;
     height: 3.25rem;
@@ -77,13 +83,17 @@
 
   &__button {
     margin-bottom: 2rem;
+
     --border-radius: 0.75rem;
     --padding-top: 1rem;
     --padding-bottom: 1rem;
+
     font-weight: 500;
+
     --background: #4261eb;
     --background-activated: #3a56d4;
     --background-hover: #3a56d4;
+
     font-size: 1rem;
     height: 3.25rem;
   }
