@@ -1,0 +1,13 @@
+{
+  "logo-alt": "MEDReport AI Logo",
+  "app": {
+    "name": "MEDReport AI"
+  },
+  "confirm": "Confirm",
+  "cancel": "Cancel",
+  "loading": "Loading...",
+  "error": "Error",
+  "success": "Success",
+  "back": "Back",
+  "next": "Next"
+}

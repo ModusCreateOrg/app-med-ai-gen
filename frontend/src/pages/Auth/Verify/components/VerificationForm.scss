@@ -1,34 +1,53 @@
 .ls-verification-form {
-  padding: 1rem;
+  width: 100%;
 
-  .ls-verification-form__message {
-    margin: 1rem 0;
-    display: flex;
-    flex-direction: column;
-    gap: 0.5rem;
+  .ls-verification-form__title {
+    font-size: 2rem;
+    font-weight: 600;
+    color: #333;
+    margin-bottom: 1.25rem;
+    margin-top: 0;
+    text-align: center;
   }
 
-  .ls-verification-form__email {
-    display: block;
-    margin-top: 0.5rem;
+  .ls-verification-form__message {
+    margin: 1rem 0 1.5rem;
+    text-align: center;
+    color: #666;
+    font-size: 1rem;
+    line-height: 1.5;
   }
 
   .ls-verification-form__input {
-    margin-bottom: 1rem;
+    margin-bottom: 1.5rem;
   }
 
   .ls-verification-form__button {
     margin-top: 1rem;
+    margin-bottom: 0.75rem;
+    height: 3rem;
+    font-weight: 500;
+
+    --border-radius: 0.75rem;
   }
 
-  .ls-verification-form__resend {
+  .ls-verification-form__resend-button {
+    margin-bottom: 1.5rem;
+    height: 3rem;
+    font-weight: 500;
+
+    --border-radius: 0.75rem;
+  }
+
+  .ls-verification-form__back-link {
     display: flex;
     justify-content: center;
     margin-top: 1rem;
+    font-size: 0.9rem;
   }
 
   .ls-verification-form__success {
-    background-color: rgba(45, 211, 111, 0.1);
+    background-color: rgb(45 211 111 / 10%);
     border-radius: 8px;
     padding: 12px;
     margin-bottom: 1rem;
