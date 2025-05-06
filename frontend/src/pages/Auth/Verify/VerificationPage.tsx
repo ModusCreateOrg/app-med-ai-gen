@@ -1,13 +1,12 @@
-import { IonContent, IonPage } from '@ionic/react';
+import { IonContent, IonPage, IonImg } from '@ionic/react';
 import { useTranslation } from 'react-i18next';
 import { useEffect, useState } from 'react';
 
 import './VerificationPage.scss';
 import { PropsWithTestId } from 'common/components/types';
 import ProgressProvider from 'common/providers/ProgressProvider';
-import Header from 'common/components/Header/Header';
 import VerificationForm from './components/VerificationForm';
-import Container from 'common/components/Content/Container';
+import logo from '../../../assets/logo_ls.png';
 
 /**
  * Properties for the `VerificationPage` component.
@@ -34,12 +33,23 @@ const VerificationPage = ({ testid = 'page-verification' }: VerificationPageProp
   return (
     <IonPage className="ls-verification-page" data-testid={testid}>
       <ProgressProvider>
-        <Header title={t('email-verification.title', { ns: 'auth' })} />
+        <IonContent fullscreen className="ion-no-padding">
+          <div className="ls-verification-page__background">
+            <div className="ls-verification-page__logo-container">
+              <IonImg
+                src={logo}
+                alt={t('verification.logo-alt', { ns: 'common' })}
+                className="ls-verification-page__logo"
+              />
+              <span className="ls-verification-page__logo-text">
+                {t('app.name', { ns: 'common' })}
+              </span>
+            </div>
 
-        <IonContent fullscreen className="ion-padding">
-          <Container className="ls-verification-page__container" fixed>
-            <VerificationForm className="ls-verification-page__form" email={email} />
-          </Container>
+            <div className="ls-verification-page__card">
+              <VerificationForm className="ls-verification-page__form" email={email} />
+            </div>
+          </div>
         </IonContent>
       </ProgressProvider>
     </IonPage>

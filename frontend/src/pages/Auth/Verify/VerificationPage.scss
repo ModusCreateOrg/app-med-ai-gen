@@ -1,13 +1,53 @@
 .ls-verification-page {
-  .ls-verification-page__container {
-    max-width: 32rem;
+  --ion-background-color: transparent;
+
+  &__background {
+    width: 100%;
     height: 100%;
     display: flex;
     flex-direction: column;
-    justify-content: center;
+    align-items: center;
+    justify-content: flex-start;
+    padding: 2rem 1.5rem;
+    background-color: #1c1e2e;
+    background-image: url('../../../assets/Splash.png');
+    background-size: cover;
+    background-position: center;
+    position: relative;
   }
 
-  .ls-verification-page__form {
+  &__logo-container {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 2.5rem;
+    margin-top: 2rem;
+  }
+
+  &__logo {
+    width: 3.5rem;
+    height: auto;
+    margin-right: 0.75rem;
+  }
+
+  &__logo-text {
+    color: white;
+    font-size: 1.75rem;
+    font-weight: 600;
+  }
+
+  &__card {
     width: 100%;
+    max-width: 30rem;
+    background-color: white;
+    border-radius: 1.5rem;
+    padding: 2.5rem 2rem;
+    box-shadow: 0 0.5rem 1.5rem rgb(0 0 0 / 15%);
+    z-index: 1;
+  }
+
+  &__form {
+    width: 100%;
+    margin: 0;
   }
 }

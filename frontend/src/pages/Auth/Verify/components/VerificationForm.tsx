@@ -11,7 +11,6 @@ import { AuthError } from 'common/models/auth';
 import { useAuth } from 'common/hooks/useAuth';
 import { useProgress } from 'common/hooks/useProgress';
 import Input from 'common/components/Input/Input';
-import HeaderRow from 'common/components/Text/HeaderRow';
 import { formatAuthError } from 'common/utils/auth-errors';
 import AuthErrorDisplay from 'common/components/Auth/AuthErrorDisplay';
 import AuthLoadingIndicator from 'common/components/Auth/AuthLoadingIndicator';
@@ -152,17 +151,14 @@ const VerificationForm = ({
       >
         {({ dirty, isSubmitting }) => (
           <Form data-testid={`${testid}-form`}>
-            <HeaderRow border>
-              <div>{t('email-verification.title', { ns: 'auth' })}</div>
-            </HeaderRow>
+            <h1 className="ls-verification-form__title">
+              {t('confirm-account.title', { ns: 'auth' })}
+            </h1>
 
             <div className="ls-verification-form__message">
-              <IonText>{t('email-verification.message', { ns: 'auth' })}</IonText>
-              {email && (
-                <IonText className="ls-verification-form__email">
-                  <strong>{email}</strong>
-                </IonText>
-              )}
+              <IonText>
+                {t('confirm-account.message', { ns: 'auth' })} {email && <strong>{email}</strong>}
+              </IonText>
             </div>
 
             <Input
@@ -184,18 +180,29 @@ const VerificationForm = ({
               disabled={isSubmitting || !dirty || isLoading}
               data-testid={`${testid}-button-submit`}
             >
-              {t('confirm', { ns: 'auth' })}
+              {t('confirm-account.submit', { ns: 'auth' })}
             </IonButton>
 
-            <div className="ls-verification-form__resend">
+            <IonButton
+              fill="outline"
+              color="medium"
+              className="ls-verification-form__resend-button"
+              expand="block"
+              onClick={handleResendCode}
+              disabled={isSubmitting || isLoading}
+              data-testid={`${testid}-button-resend`}
+            >
+              {t('resend-code', { ns: 'auth' })}
+            </IonButton>
+
+            <div className="ls-verification-form__back-link">
               <IonButton
                 fill="clear"
                 color="medium"
-                onClick={handleResendCode}
-                disabled={isSubmitting || isLoading}
-                data-testid={`${testid}-button-resend`}
+                routerLink="/auth/signin"
+                data-testid={`${testid}-button-back`}
               >
-                {t('resend-code', { ns: 'auth' })}
+                ← {t('back-to-login', { ns: 'auth' })}
               </IonButton>
             </div>
           </Form>
