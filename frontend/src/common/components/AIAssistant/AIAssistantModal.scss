@@ -3,6 +3,10 @@
   border-radius: 1rem;
   width: 100%;
   height: 100%;
+  display: flex;
+  flex-direction: column;
+  margin-top: 0;
+  padding-top: 0;
 }
 
 .ai-assistant-modal {
@@ -22,7 +26,7 @@
     --max-height: 85vh;
 
     &::part(content) {
-      margin: 2rem 1rem 5rem;
+      margin: 0 1rem 5rem;
     }
   }
 
@@ -32,13 +36,47 @@
     display: flex;
     flex-direction: column;
     transition: margin 0.3s ease-out;
+    padding: 0;
   }
 
   .ai-assistant-header {
+    position: sticky;
+    top: 0;
+    z-index: 10;
+    width: 100%;
+    background-color: var(--ion-background-color);
+    padding-top: 0; /* Remove any default padding */
+    margin-top: 0; /* Remove any default margin */
+
     ion-toolbar {
       --padding-top: 0.5rem;
       --padding-bottom: 0.5rem;
     }
+  }
+
+  /* Fix for Android status bar space */
+  &.md {
+    .ai-assistant-header {
+      padding-top: 0;
+    }
+
+    ion-header {
+      margin-top: 0 !important;
+    }
+
+    &::part(content) {
+      margin-top: 0;
+    }
+
+    .ai-assistant-modal-body {
+      margin-top: 0;
+      padding-top: 0;
+    }
+  }
+
+  /* iOS specific adjustments if needed */
+  &.ios .ai-assistant-header {
+    padding-top: 0;
   }
 
   .ai-assistant-toolbar {
@@ -72,17 +110,28 @@
     --padding: 0;
 
     flex: 1;
-    overflow: scroll;
-    height: 80%;
+    overflow-y: auto;
+    height: 70%;
   }
 
   .ai-assistant-footer {
-    background: transparent;
-    position: relative;
+    position: sticky;
+    bottom: 0;
+    width: 100%;
+    z-index: 10;
+    background-color: var(--ion-background-color);
     display: flex;
     justify-content: center;
     align-items: center;
     padding: 0.5rem 0;
+  }
+
+  .ai-assistant-modal-body {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    margin-top: 0;
+    padding-top: 0;
   }
 }
 
@@ -106,5 +155,6 @@ ion-modal.ai-assistant-modal {
 
   &::part(content) {
     transition: transform 0.3s cubic-bezier(0.36, 0.66, 0.04, 1);
+    padding-top: 0;
   }
 }
