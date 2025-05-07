@@ -3,6 +3,8 @@
   border-radius: 1rem;
   width: 100%;
   height: 100%;
+  display: flex;
+  flex-direction: column;
 }
 
 .ai-assistant-modal {
@@ -35,6 +37,12 @@
   }
 
   .ai-assistant-header {
+    position: sticky;
+    top: 0;
+    z-index: 10;
+    width: 100%;
+    background-color: var(--ion-background-color);
+
     ion-toolbar {
       --padding-top: 0.5rem;
       --padding-bottom: 0.5rem;
