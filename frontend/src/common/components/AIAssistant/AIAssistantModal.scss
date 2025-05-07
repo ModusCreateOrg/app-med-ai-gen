@@ -42,11 +42,23 @@
     z-index: 10;
     width: 100%;
     background-color: var(--ion-background-color);
+    padding-top: 0; /* Remove any default padding */
+    margin-top: 0; /* Remove any default margin */
 
     ion-toolbar {
       --padding-top: 0.5rem;
       --padding-bottom: 0.5rem;
     }
+  }
+
+  /* Fix for Android status bar space */
+  &.md .ai-assistant-header {
+    padding-top: 0;
+  }
+
+  /* iOS specific adjustments if needed */
+  &.ios .ai-assistant-header {
+    padding-top: 0;
   }
 
   .ai-assistant-toolbar {
