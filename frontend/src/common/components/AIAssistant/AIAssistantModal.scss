@@ -72,17 +72,26 @@
     --padding: 0;
 
     flex: 1;
-    overflow: scroll;
-    height: 80%;
+    overflow-y: auto;
+    height: 70%;
   }
 
   .ai-assistant-footer {
-    background: transparent;
-    position: relative;
+    position: sticky;
+    bottom: 0;
+    width: 100%;
+    z-index: 10;
+    background-color: var(--ion-background-color);
     display: flex;
     justify-content: center;
     align-items: center;
     padding: 0.5rem 0;
+  }
+
+  .ai-assistant-modal-body {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
   }
 }
 
