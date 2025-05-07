@@ -5,6 +5,8 @@
   height: 100%;
   display: flex;
   flex-direction: column;
+  margin-top: 0;
+  padding-top: 0;
 }
 
 .ai-assistant-modal {
@@ -24,7 +26,7 @@
     --max-height: 85vh;
 
     &::part(content) {
-      margin: 2rem 1rem 5rem;
+      margin: 0 1rem 5rem;
     }
   }
 
@@ -34,6 +36,7 @@
     display: flex;
     flex-direction: column;
     transition: margin 0.3s ease-out;
+    padding: 0;
   }
 
   .ai-assistant-header {
@@ -127,6 +130,8 @@
     display: flex;
     flex-direction: column;
     height: 100%;
+    margin-top: 0;
+    padding-top: 0;
   }
 }
 
@@ -150,5 +155,6 @@ ion-modal.ai-assistant-modal {
 
   &::part(content) {
     transition: transform 0.3s cubic-bezier(0.36, 0.66, 0.04, 1);
+    padding-top: 0;
   }
 }
