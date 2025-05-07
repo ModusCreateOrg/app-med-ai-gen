@@ -52,8 +52,23 @@
   }
 
   /* Fix for Android status bar space */
-  &.md .ai-assistant-header {
-    padding-top: 0;
+  &.md {
+    .ai-assistant-header {
+      padding-top: 0;
+    }
+
+    ion-header {
+      margin-top: 0 !important;
+    }
+
+    &::part(content) {
+      margin-top: 0;
+    }
+
+    .ai-assistant-modal-body {
+      margin-top: 0;
+      padding-top: 0;
+    }
   }
 
   /* iOS specific adjustments if needed */
