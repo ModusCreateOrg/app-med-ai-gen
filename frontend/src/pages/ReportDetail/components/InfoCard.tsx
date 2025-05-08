@@ -1,8 +1,8 @@
-import React from 'react';
+import { FC } from 'react';
 import './InfoCard.scss';
 import bulbIcon from '../../../assets/icons/bulb.svg';
 
-const InfoCard: React.FC = () => {
+const InfoCard: FC = () => {
   return (
     <div className="info-card">
       <div className="info-card__icon">

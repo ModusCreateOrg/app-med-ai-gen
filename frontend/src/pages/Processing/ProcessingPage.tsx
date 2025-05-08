@@ -73,10 +73,12 @@ const ProcessingPage: React.FC = () => {
 
         console.log('Processing complete');
 
-        queryClient.invalidateQueries({ queryKey: [QueryKey.Reports] });
-        queryClient.invalidateQueries({ queryKey: [QueryKey.LatestReports] });
+        await queryClient.invalidateQueries({ queryKey: [QueryKey.Reports] });
+        await queryClient.invalidateQueries({ queryKey: [QueryKey.LatestReports] });
 
-        history.push(`/tabs/reports/${reportId}`);
+        history.push(`/tabs/reports/${reportId}`, {
+          from: location.pathname,
+        });
       } else if (data.status === 'failed') {
         if (data.isMedicalReport === false) {
           setIsProcessing(false);

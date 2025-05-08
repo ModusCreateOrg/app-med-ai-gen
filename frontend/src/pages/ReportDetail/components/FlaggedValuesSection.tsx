@@ -1,4 +1,4 @@
-import React from 'react';
+import { FC } from 'react';
 import { useTranslation } from 'react-i18next';
 import Icon from '../../../common/components/Icon/Icon';
 import { LabValue } from '../../../common/models/medicalReport';
@@ -11,7 +11,7 @@ interface FlaggedValuesSectionProps {
   onToggle: () => void;
 }
 
-const FlaggedValuesSection: React.FC<FlaggedValuesSectionProps> = ({
+const FlaggedValuesSection: FC<FlaggedValuesSectionProps> = ({
   flaggedValues,
   isExpanded,
   onToggle,

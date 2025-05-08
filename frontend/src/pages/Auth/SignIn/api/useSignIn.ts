@@ -60,9 +60,9 @@ export const useSignIn = () => {
 
   return useMutation({
     mutationFn: signIn,
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: [QueryKey.UserTokens] });
-      queryClient.invalidateQueries({ queryKey: [QueryKey.Users, 'current'] });
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({ queryKey: [QueryKey.UserTokens] });
+      await queryClient.invalidateQueries({ queryKey: [QueryKey.Users, 'current'] });
     },
   });
 };

@@ -1,11 +1,11 @@
-import React from 'react';
+import { FC } from 'react';
 import { useTranslation } from 'react-i18next';
 import info from '../../../assets/icons/info.svg';
 
 /**
  * Component to display a notice when the confidence level is low
  */
-const LowConfidenceNotice: React.FC = () => {
+const LowConfidenceNotice: FC = () => {
   const { t } = useTranslation();
 
   return (

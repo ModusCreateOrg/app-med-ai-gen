@@ -1,4 +1,4 @@
-import React from 'react';
+import { FC, useState } from 'react';
 import { MedicalReport, LabValue } from '../../../common/models/medicalReport';
 import EmergencyAlert from './EmergencyAlert';
 import FlaggedValuesSection from './FlaggedValuesSection';
@@ -10,13 +10,10 @@ interface AiAnalysisTabProps {
   isEmergencyAlertVisible?: boolean;
 }
 
-const AiAnalysisTab: React.FC<AiAnalysisTabProps> = ({
-  reportData,
-  isEmergencyAlertVisible = true,
-}) => {
+const AiAnalysisTab: FC<AiAnalysisTabProps> = ({ reportData, isEmergencyAlertVisible = true }) => {
   // State to track expanded sections
-  const [flaggedValuesExpanded, setFlaggedValuesExpanded] = React.useState(true);
-  const [normalValuesExpanded, setNormalValuesExpanded] = React.useState(true);
+  const [flaggedValuesExpanded, setFlaggedValuesExpanded] = useState(true);
+  const [normalValuesExpanded, setNormalValuesExpanded] = useState(true);
 
   // Toggle expanded state of sections
   const toggleFlaggedValues = () => setFlaggedValuesExpanded(!flaggedValuesExpanded);

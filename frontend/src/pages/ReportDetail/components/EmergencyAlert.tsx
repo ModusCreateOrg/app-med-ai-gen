@@ -1,8 +1,8 @@
-import React from 'react';
+import { FC } from 'react';
 import { useTranslation } from 'react-i18next';
 import redAlertIcon from 'assets/icons/red-alert.svg';
 
-const EmergencyAlert: React.FC = () => {
+const EmergencyAlert: FC = () => {
   const { t } = useTranslation();
 
   return (
