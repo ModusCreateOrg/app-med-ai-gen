@@ -21,8 +21,8 @@ export function useChat(sessionId?: string) {
   // Mutation for creating a new session
   const createSession = useMutation({
     mutationFn: () => bedrockService.createChatSession(),
-    onSuccess: (newSessionId) => {
-      queryClient.invalidateQueries({ queryKey: [QueryKey.Chat, 'sessions'] });
+    onSuccess: async (newSessionId) => {
+      await queryClient.invalidateQueries({ queryKey: [QueryKey.Chat, 'sessions'] });
       return newSessionId;
     },
   });
@@ -33,9 +33,9 @@ export function useChat(sessionId?: string) {
       if (!sessionId) throw new Error('No active session');
       return bedrockService.sendMessage(sessionId, message);
     },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: [QueryKey.Chat, sessionId] });
-      queryClient.invalidateQueries({ queryKey: [QueryKey.Chat, 'sessions'] });
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({ queryKey: [QueryKey.Chat, sessionId] });
+      await queryClient.invalidateQueries({ queryKey: [QueryKey.Chat, 'sessions'] });
     },
   });
 

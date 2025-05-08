@@ -109,9 +109,9 @@ const ReportDetailPage: React.FC = () => {
         duration: 2000,
       });
 
-      queryClient.invalidateQueries({ queryKey: [QueryKey.Reports] });
-      queryClient.invalidateQueries({ queryKey: [QueryKey.LatestReports] });
-      queryClient.invalidateQueries({ queryKey: [QueryKey.ReportDetail, reportId] });
+      await queryClient.invalidateQueries({ queryKey: [QueryKey.Reports] });
+      await queryClient.invalidateQueries({ queryKey: [QueryKey.LatestReports] });
+      await queryClient.invalidateQueries({ queryKey: [QueryKey.ReportDetail, reportId] });
 
       // Navigate back
       history.push('/tabs/home');
@@ -136,9 +136,9 @@ const ReportDetailPage: React.FC = () => {
       await axios.delete(`${API_URL}/api/reports/${reportId}`, await getAuthConfig());
       setIsProcessing(false);
 
-      queryClient.invalidateQueries({ queryKey: [QueryKey.Reports] });
-      queryClient.invalidateQueries({ queryKey: [QueryKey.LatestReports] });
-      queryClient.invalidateQueries({ queryKey: [QueryKey.ReportDetail, reportId] });
+      await queryClient.invalidateQueries({ queryKey: [QueryKey.Reports] });
+      await queryClient.invalidateQueries({ queryKey: [QueryKey.LatestReports] });
+      await queryClient.invalidateQueries({ queryKey: [QueryKey.ReportDetail, reportId] });
 
       setIsUploadModalOpen(true);
     } catch (error) {
