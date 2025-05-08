@@ -1,4 +1,4 @@
-import React from 'react';
+import { FC } from 'react';
 import { useTranslation } from 'react-i18next';
 import { LabValue } from '../../../common/models/medicalReport';
 import classNames from 'classnames';
@@ -7,7 +7,7 @@ interface LabValueItemProps {
   item: LabValue;
 }
 
-const LabValueItem: React.FC<LabValueItemProps> = ({ item }) => {
+const LabValueItem: FC<LabValueItemProps> = ({ item }) => {
   const { t } = useTranslation();
 
   // Parse suggestions into bullet points more intelligently

@@ -1,4 +1,4 @@
-import React from 'react';
+import { FC } from 'react';
 import aiInsightIcon from '../../../assets/icons/ai-insight.svg';
 
 interface ReportTabsProps {
@@ -6,7 +6,7 @@ interface ReportTabsProps {
   onTabChange: (tab: 'ai' | 'original') => void;
 }
 
-const ReportTabs: React.FC<ReportTabsProps> = ({ activeTab, onTabChange }) => {
+const ReportTabs: FC<ReportTabsProps> = ({ activeTab, onTabChange }) => {
   return (
     <div className="report-detail-page__tabs">
       <div

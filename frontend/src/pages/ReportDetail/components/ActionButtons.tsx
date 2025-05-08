@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { FC, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import ConfirmationModal from '../../../common/components/Modal/ConfirmationModal';
 
@@ -6,10 +6,9 @@ interface ActionButtonsProps {
   onDiscard: (setIsProcessing: (isProcessing: boolean) => void) => Promise<void>;
   onNewUpload: (setIsProcessing: (isProcessing: boolean) => void) => Promise<void>;
   reportTitle?: string;
-  reportId?: string;
 }
 
-const ActionButtons: React.FC<ActionButtonsProps> = ({ onDiscard, onNewUpload, reportTitle }) => {
+const ActionButtons: FC<ActionButtonsProps> = ({ onDiscard, onNewUpload, reportTitle }) => {
   const { t } = useTranslation(['reportDetail', 'common']);
   const [showConfirmDiscard, setShowConfirmDiscard] = useState(false);
   const [showConfirmNewUpload, setShowConfirmNewUpload] = useState(false);

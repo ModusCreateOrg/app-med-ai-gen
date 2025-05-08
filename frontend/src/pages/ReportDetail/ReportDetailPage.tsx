@@ -1,5 +1,5 @@
 import { IonPage, IonContent } from '@ionic/react';
-import { useState } from 'react';
+import { FC, useState } from 'react';
 import { useHistory, useParams } from 'react-router-dom';
 import './ReportDetailPage.scss';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
@@ -33,7 +33,7 @@ const fetchReportById = async (id: string): Promise<MedicalReport> => {
  * Page component for displaying detailed medical report analysis.
  * This shows AI insights and original report data with flagged values.
  */
-const ReportDetailPage: React.FC = () => {
+const ReportDetailPage: FC = () => {
   const { reportId } = useParams<{ reportId: string }>();
   const history = useHistory();
   const { t } = useTranslation();
@@ -86,11 +86,6 @@ const ReportDetailPage: React.FC = () => {
   // Handle tab selection
   const handleTabChange = (tab: 'ai' | 'original') => {
     setActiveTab(tab);
-  };
-
-  // Handle close button
-  const handleClose = () => {
-    history.push('/tabs/home');
   };
 
   // Handle action buttons
@@ -151,7 +146,7 @@ const ReportDetailPage: React.FC = () => {
     <IonPage className="report-detail-page">
       <IonContent fullscreen>
         {/* Header component */}
-        <ReportHeader reportData={reportData} onClose={handleClose} />
+        <ReportHeader reportData={reportData} />
 
         {/* Tab selector for AI Insights vs Original Report */}
         <ReportTabs activeTab={activeTab} onTabChange={handleTabChange} />

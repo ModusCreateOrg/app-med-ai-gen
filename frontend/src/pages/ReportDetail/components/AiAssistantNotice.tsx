@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { FC, useState } from 'react';
 import { IonText } from '@ionic/react';
 import AIAssistantModal from '../../../common/components/AIAssistant/AIAssistantModal';
 import './AiAssistantNotice.scss';
@@ -6,7 +6,7 @@ import './AiAssistantNotice.scss';
 /**
  * Component to display an AI Assistant notice with a link to open the AI Chat modal.
  */
-const AiAssistantNotice: React.FC = () => {
+const AiAssistantNotice: FC = () => {
   const [isAIAssistantOpen, setIsAIAssistantOpen] = useState(false);
 
   const handleOpenAIAssistant = () => {

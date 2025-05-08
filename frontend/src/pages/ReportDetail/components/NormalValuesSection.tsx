@@ -1,4 +1,4 @@
-import React from 'react';
+import { FC } from 'react';
 import { useTranslation } from 'react-i18next';
 import Icon from '../../../common/components/Icon/Icon';
 import { LabValue } from '../../../common/models/medicalReport';
@@ -12,7 +12,7 @@ interface NormalValuesSectionProps {
   onToggle: () => void;
 }
 
-const NormalValuesSection: React.FC<NormalValuesSectionProps> = ({
+const NormalValuesSection: FC<NormalValuesSectionProps> = ({
   normalValues,
   isExpanded,
   onToggle,

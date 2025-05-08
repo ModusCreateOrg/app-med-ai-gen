@@ -25,6 +25,19 @@
     color: #313e4c;
   }
 
+  &__back-button {
+    border: none;
+    background: transparent;
+    color: #435ff0;
+    font-size: 24px;
+    padding: 0;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    margin-right: 0.9em;
+    margin-bottom: 1em;
+  }
+
   &__close-button {
     border: none;
     background: transparent;

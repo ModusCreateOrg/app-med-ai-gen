@@ -1,4 +1,4 @@
-import React from 'react';
+import { FC } from 'react';
 import { format } from 'date-fns';
 import fileLinesIcon from '../../../assets/icons/file-lines.svg';
 import { MedicalReport } from '../../../common/models/medicalReport';
@@ -9,7 +9,7 @@ interface OriginalReportTabProps {
   reportData: MedicalReport;
 }
 
-const OriginalReportTab: React.FC<OriginalReportTabProps> = ({ reportData }) => {
+const OriginalReportTab: FC<OriginalReportTabProps> = ({ reportData }) => {
   // Function to format file size in KB or MB
   const formatFileSize = (bytes: number): string => {
     if (bytes < 1024) return bytes + ' B';
