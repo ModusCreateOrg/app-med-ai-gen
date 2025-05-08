@@ -1,15 +1,26 @@
 import { FC, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import ConfirmationModal from '../../../common/components/Modal/ConfirmationModal';
+import { useToasts } from 'common/hooks/useToasts';
+import { useQueryClient } from '@tanstack/react-query';
+import { useHistory } from 'react-router';
+import axios from 'axios';
+import { QueryKey } from 'common/utils/constants';
+import { getAuthConfig } from 'common/api/reportService';
+
+const API_URL = import.meta.env.VITE_BASE_URL_API || '';
 
 interface ActionButtonsProps {
-  onDiscard: (setIsProcessing: (isProcessing: boolean) => void) => Promise<void>;
-  onNewUpload: (setIsProcessing: (isProcessing: boolean) => void) => Promise<void>;
-  reportTitle?: string;
+  reportId: string;
+  reportTitle: string;
+  setIsUploadModalOpen: (isOpen: boolean) => void;
 }
 
-const ActionButtons: FC<ActionButtonsProps> = ({ onDiscard, onNewUpload, reportTitle }) => {
+const ActionButtons: FC<ActionButtonsProps> = ({ reportId, reportTitle, setIsUploadModalOpen }) => {
   const { t } = useTranslation(['reportDetail', 'common']);
+  const { createToast } = useToasts();
+  const history = useHistory();
+  const queryClient = useQueryClient();
   const [showConfirmDiscard, setShowConfirmDiscard] = useState(false);
   const [showConfirmNewUpload, setShowConfirmNewUpload] = useState(false);
   const [isProcessing, setIsProcessing] = useState(false);
@@ -21,7 +32,7 @@ const ActionButtons: FC<ActionButtonsProps> = ({ onDiscard, onNewUpload, reportT
   const handleConfirmDiscard = async () => {
     setShowConfirmDiscard(false);
 
-    await onDiscard(setIsProcessing);
+    await handleDiscard();
   };
 
   const handleCancelDiscard = () => {
@@ -35,11 +46,65 @@ const ActionButtons: FC<ActionButtonsProps> = ({ onDiscard, onNewUpload, reportT
   const handleConfirmNewUpload = async () => {
     setShowConfirmNewUpload(false);
 
-    await onNewUpload(setIsProcessing);
+    await handleNewUpload();
   };
 
   const handleCancelNewUpload = () => {
     setShowConfirmNewUpload(false);
+  };
+
+  // Handle action buttons
+  const handleDiscard = async () => {
+    try {
+      setIsProcessing(true);
+      await axios.delete(`${API_URL}/api/reports/${reportId}`, await getAuthConfig());
+      setIsProcessing(false);
+
+      // Show toast notification
+      createToast({
+        message: t('report.discard.success', {
+          ns: 'reportDetail',
+          defaultValue: 'Report deleted successfully',
+        }),
+        duration: 2000,
+      });
+
+      await queryClient.invalidateQueries({ queryKey: [QueryKey.Reports] });
+      await queryClient.invalidateQueries({ queryKey: [QueryKey.LatestReports] });
+      await queryClient.invalidateQueries({ queryKey: [QueryKey.ReportDetail, reportId] });
+
+      // Navigate back
+      history.push('/tabs/home');
+    } catch (error) {
+      setIsProcessing(false);
+
+      console.error('Error discarding report:', error);
+      createToast({
+        message: t('report.discard.error', {
+          ns: 'reportDetail',
+          defaultValue: 'Failed to delete report',
+        }),
+        duration: 2000,
+        color: 'danger',
+      });
+    }
+  };
+
+  const handleNewUpload = async () => {
+    try {
+      setIsProcessing(true);
+      await axios.delete(`${API_URL}/api/reports/${reportId}`, await getAuthConfig());
+      setIsProcessing(false);
+
+      await queryClient.invalidateQueries({ queryKey: [QueryKey.Reports] });
+      await queryClient.invalidateQueries({ queryKey: [QueryKey.LatestReports] });
+      await queryClient.invalidateQueries({ queryKey: [QueryKey.ReportDetail, reportId] });
+
+      setIsUploadModalOpen(true);
+    } catch (error) {
+      setIsProcessing(false);
+      console.error('Error deleting report before new upload:', error);
+    }
   };
 
   return (
